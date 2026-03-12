@@ -1,0 +1,20 @@
+.bgAI {
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.345), rgba(0, 0, 0, 0.729)), url('/home/blogs/ai.jpg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+.bgDS {
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.345), rgba(0, 0, 0, 0.729)), url('/home/blogs/ds.jpg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+.bgML {
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.345), rgba(0, 0, 0, 0.729)), url('/home/blogs/ml.jpg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}

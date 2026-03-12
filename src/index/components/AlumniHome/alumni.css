@@ -1,0 +1,41 @@
+.left-scroll {
+  display: flex;
+  gap: 1rem;
+  flex-shrink: 0;
+  height: auto;
+  align-items: center;
+  animation: slide-left 25s linear infinite;
+  white-space: nowrap;
+}
+
+.right-scroll {
+  display: flex;
+  gap: 1rem;
+  flex-shrink: 0;
+  height: auto;
+  align-items: center;
+  animation: slide-right 25s linear infinite;
+  white-space: nowrap;
+}
+
+@keyframes slide-left {
+  from {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
+  }
+  to {
+    -webkit-transform: translateX(-100%);
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes slide-right {
+  from {
+    -webkit-transform: translateX(-100%);
+    transform: translateX(-100%);
+  }
+  to {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
+  }
+}
