@@ -701,13 +701,15 @@ const FaqSection = ({ id, course }: Props) => {
         />
         <div
           className={`absolute ${
-            isMobile ? "top-[58%]" : "top-[38%]"
-          } left-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-20`}
+            isMobile ? "top-[39%]" : "top-[38%]"
+          } left-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-20 ${
+            isMobile ? "max-w-[85%]" : ""
+          }`}
         >
           <div
             className={`text-transparent bg-gradient-to-b from-[#ff0000] to-[#1f1e1f] bg-clip-text ${
               isMobile
-                ? "text-base md:text-lg"
+                ? "text-lg sm:text-lg whitespace-nowrap overflow-hidden text-ellipsis"
                 : "text-lg md:text-2xl lg:text-2xl uppercase whitespace-nowrap"
             } font-bold tracking-wide drop-shadow-sm`}
             style={{ fontFamily: "Noto Serif Ethiopic Condensed, serif" }}
