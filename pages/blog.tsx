@@ -3,7 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { IndexController } from '@/src/index/controller/IndexController';
 import { withNavbarSSR } from '@/utils/withNavbarSSR';
 import { Badge } from '@/components/ui/badge';
@@ -60,8 +60,14 @@ export default function BlogsPage({
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredPosts, setFilteredPosts] = useState(posts);
 
+  // Update filtered posts when posts prop changes
+  useEffect(() => {
+    setFilteredPosts(posts);
+    setSearchQuery('');
+  }, [posts, currentPage]);
+
   const handlePageChange = (page: number) => {
-    router.push(`/blog?page=${page}`, undefined, { shallow: false });
+    window.location.href = `/blog?page=${page}`;
   };
 
   const handleSearch = (query: string) => {
