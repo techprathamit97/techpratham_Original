@@ -2,8 +2,45 @@ import React from 'react';
 import Head from 'next/head';
 import IndexView from '@/src/index/views/IndexView';
 import { IndexController } from '@/src/index/controller/IndexController';
-import type { NextPage } from 'next';
+import type { NextPage, GetServerSideProps } from 'next';
 import Script from 'next/script';
+import { getNavbarData, NavbarData } from '@/utils/navbarData';
+import LeadForm from '@/components/common/LeadForm/LeadForm';
+
+interface Course {
+  _id?: string;
+  id?: string;
+  title: string;
+  image: string;
+  alt?: string;
+  category: string;
+  link: string;
+  shortDesc?: string;
+  level?: string;
+  rating?: number;
+  duration?: string;
+  description?: string;
+  trending?: boolean;
+}
+
+interface CourseCategory {
+  name: string;
+  courses: Course[];
+}
+
+interface EventItem {
+  _id: string;
+  type: "video" | "placement" | "hiring";
+  videoUrl?: string;
+  image?: string;
+}
+
+interface IndexPageProps {
+  trendingCourses: Course[];
+  groupedCourses: CourseCategory[];
+  events: EventItem[];
+  navbarData: NavbarData;
+}
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -87,24 +124,26 @@ const jsonLd = {
   ]
 }
 
-const IndexPage: NextPage = () => {
+const IndexPage: NextPage<IndexPageProps> = ({ trendingCourses, groupedCourses, events, navbarData }) => {
+  const [showLeadForm, setShowLeadForm] = React.useState(false);
+
+  React.useEffect(() => {
+    // Show popup after 10 seconds for all users
+    const timer = setTimeout(() => {
+      setShowLeadForm(true);
+    }, 10000); // 10 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div>
-      <Script id="gtm-script" strategy="beforeInteractive">
-        {`
-                    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-                    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-                    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-                    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-                    })(window,document,'script','dataLayer','GTM-KXS7C3FM');
-                `}
-      </Script>
       <Script
         id="home-schema"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <IndexController>
+      <IndexController navbarData={navbarData}>
         <Head>
           <link rel="canonical" href="https://www.techpratham.com/" />
           <link rel="icon" href="/favicon.ico" type="image/ico" sizes="70x70" />
@@ -134,10 +173,65 @@ const IndexPage: NextPage = () => {
           />
         </Head>
 
-        <IndexView />
+        <IndexView 
+          initialTrendingCourses={trendingCourses}
+          initialGroupedCourses={groupedCourses}
+          initialEvents={events}
+        />
+
+        {showLeadForm && (
+          <LeadForm 
+            course={{ title: '' }}
+            onClose={() => setShowLeadForm(false)}
+            onSuccess={() => setShowLeadForm(false)}
+          />
+        )}
       </IndexController>
     </div>
   );
+};
+
+// Server-side data fetching - runs on every request
+export const getServerSideProps: GetServerSideProps<IndexPageProps> = async (context) => {
+  try {
+    // Use absolute URL for server-side fetch
+    const protocol = context.req.headers.host?.includes('localhost') ? 'http' : 'https';
+    const baseUrl = `${protocol}://${context.req.headers.host}`;
+    
+    // Fetch all data in parallel for better performance
+    const [trendingRes, groupedRes, eventsRes, navbarData] = await Promise.all([
+      fetch(`${baseUrl}/api/get-course/trending`),
+      fetch(`${baseUrl}/api/course/fetch-grouped`),
+      fetch(`${baseUrl}/api/event`),
+      getNavbarData()
+    ]);
+    
+    // Parse responses
+    const trendingCourses: Course[] = trendingRes.ok ? await trendingRes.json() : [];
+    const groupedCourses: CourseCategory[] = groupedRes.ok ? await groupedRes.json() : [];
+    const events: EventItem[] = eventsRes.ok ? await eventsRes.json() : [];
+    
+    return {
+      props: {
+        trendingCourses,
+        groupedCourses,
+        events,
+        navbarData,
+      },
+    };
+  } catch (error) {
+    console.error('Error fetching homepage data:', error);
+    // Return empty arrays on error so page still renders
+    const navbarData = await getNavbarData();
+    return {
+      props: {
+        trendingCourses: [],
+        groupedCourses: [],
+        events: [],
+        navbarData,
+      },
+    };
+  }
 };
 
 export default IndexPage;

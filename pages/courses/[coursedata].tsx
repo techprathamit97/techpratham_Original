@@ -6,6 +6,7 @@ import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 
 import Navbar from '@/src/common/Navbar/Navbar';
 import Footer from '@/src/common/Footer/Footer';
+import { getNavbarData, NavbarData } from '@/utils/navbarData';
 import EmployeeLifecycle from '@/src/courses/common/EmployeeLifecycle';
 import ClientHome from '@/src/index/components/ClientHome/ClientHome';
 import HeaderSection from '@/src/courses/common/HeaderSection/HeaderSection';
@@ -29,6 +30,8 @@ import JobRole from '@/src/courses/common/JobRole/JobRole'
 import SpecialityHome from '@/src/index/components/SpecialityHome/SpecialityHome'
 import ContactCourses from '@/src/courses/common/ContactCourses/ContactCourses'
 import VideoSetion from '@/src/courses/common/VideoSetion/VideoSetion'
+import PlacementHome from '@/src/index/components/PlacementHome/PlacementHome';
+import NewsHighlights from '@/src/index/components/News/News';
 // ----------------------------
 // Types
 // ----------------------------
@@ -76,9 +79,9 @@ interface Course {
 }
 
 interface CourseDataPageProps {
-  
   course: Course | null;
   error: string | null;
+  navbarData: NavbarData;
 }
 
 
@@ -86,30 +89,38 @@ export const getServerSideProps: GetServerSideProps<CourseDataPageProps> = async
   const { coursedata } = context.query;
 
   if (!coursedata || typeof coursedata !== 'string') {
-    return { props: { course: null, error: 'Invalid course link' } };
+    const navbarData = await getNavbarData();
+    return { props: { course: null, error: 'Invalid course link', navbarData } };
   }
 
   try {
-    const apiUrl = `https://www.techpratham.com/api/course/link?link=${encodeURIComponent(coursedata)}`;
-    const response = await fetch(apiUrl);
+    // Use dynamic URL based on request
+    const protocol = context.req.headers.host?.includes('localhost') ? 'http' : 'https';
+    const baseUrl = `${protocol}://${context.req.headers.host}`;
+    const apiUrl = `${baseUrl}/api/course/link?link=${encodeURIComponent(coursedata)}`;
+    
+    // Fetch course data and navbar data in parallel
+    const [response, navbarData] = await Promise.all([
+      fetch(apiUrl),
+      getNavbarData()
+    ]);
 
     if (!response.ok) {
       const error = response.status === 404 ? 'Course not found' : 'Failed to fetch course data';
-      return { props: { course: null, error } };
+      return { props: { course: null, error, navbarData } };
     }
 
     const courseData: Course = await response.json();
-    return { props: { course: courseData, error: null } };
+    return { props: { course: courseData, error: null, navbarData } };
 
   } catch (err) {
     console.error('Error fetching course data in SSR:', err);
-    return { props: { course: null, error: 'Failed to fetch course data' } };
+    const navbarData = await getNavbarData();
+    return { props: { course: null, error: 'Failed to fetch course data', navbarData } };
   }
 };
 
-// ----------------------------
-// Helpers
-// ----------------------------
+
 
 // Basic HTML stripper (keeps simple & safe). Server-safe (no DOM).
 function stripHtml(html?: string): string {
@@ -313,7 +324,7 @@ const getDynamicSchema = (course: Course) => {
 // ----------------------------
 // Page component
 // ----------------------------
-const CourseDataPage: React.FC<CourseDataPageProps> = ({ course, error }) => {
+const CourseDataPage: React.FC<CourseDataPageProps> = ({ course, error, navbarData }) => {
   const router = useRouter();
   const [showLeadForm, setShowLeadForm] = useState<boolean>(false);
 
@@ -323,7 +334,7 @@ const CourseDataPage: React.FC<CourseDataPageProps> = ({ course, error }) => {
         <Head>
           <title>Course Not Found | TechPratham</title>
         </Head>
-        <Navbar />
+        <Navbar navbarData={navbarData} />
         <div className="w-full h-screen flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-red-600 mb-4">
@@ -428,7 +439,7 @@ const cleanDescription = stripHtml(course.shortDesc || course.description || '')
   }
 
   // Combine schemas into array to inject (remove undefined with compact)
-  const jsonLdArray = compact([dynamicSchema, breadcrumb, faqSchema]);
+const jsonLdArray = compact([dynamicSchema, breadcrumb, faqSchema]);
 const safeCourse = {
   ...course,
   category: course.category || 'default-category',
@@ -459,7 +470,7 @@ const safeCourse = {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdArray).replace(/</g, '\\u003c') }}
       />
 
-      <Navbar />
+      <Navbar navbarData={navbarData} />
 
       <div className="w-full h-auto flex flex-col items-center justify-center">
         <ReachForm />
@@ -473,21 +484,26 @@ const safeCourse = {
         )}
         <HeaderSection course={course} />
         <EmployeeLifecycle/>
+        
         <ClientHome/>
         <IntroSection id="about" course={course} />
-        <PlanSection  />
+        
+        <PlanSection id="training-plan" />
         <CurriculumSection id="course-curriculum" course={safeCourse} />
         <VideoSetion/>
         <TrainingBatches id="new-batch" course={course} />
-        <WhoShouldTakeWorkday course={course}/>
+        <WhoShouldTakeWorkday course={course} />
         <JobRole course={course} />
         <ProjectSection id="projects" course={course} />
         {/* <CertificateSection id="certificate" course={course} /> */}
         <SpecialityHome/>
         <NewComponent id="testimonials" />
+       
+        <PlacementHome id="placement"/>
         <TrainingComparison />
         <FaqSection id="faq" course={course} />
         {/* <OtherCourse course={course} /> */}
+         <NewsHighlights/>
       </div>
 <ContactCourses/>
       <Footer />
@@ -950,3 +966,266 @@ export default CourseDataPage;
 // };
 
 // export default CourseDataPage;
+
+// import React, { useEffect, useState } from 'react';
+// import Head from 'next/head';
+// import { useRouter } from 'next/router';
+// import { GetServerSideProps, GetServerSidePropsContext } from 'next';
+
+// import Navbar from '@/src/common/Navbar/Navbar';
+// import Footer from '@/src/common/Footer/Footer';
+// import EmployeeLifecycle from '@/src/courses/common/EmployeeLifecycle';
+// import ClientHome from '@/src/index/components/ClientHome/ClientHome';
+// import HeaderSection from '@/src/courses/common/HeaderSection/HeaderSection';
+// import IntroSection from '@/src/courses/common/IntroSection/IntroSection';
+// import PlanSection from '@/src/courses/common/PlanSection/PlanSection';
+// import CurriculumSection from '@/src/courses/common/CurriculumSection/CurriculumSection';
+// import TrainingBatches from '@/src/courses/common/TrainingBatches/TrainingBatches';
+// import FaqSection from '@/src/courses/common/FaqSection/FaqSection';
+// import TestimonialSection from '@/src/courses/common/TestimonialSection/TestimonialSection';
+// import CourseCertification from '@/src/courses/common/CourseCertification/CourseCertification';
+// import ProjectSection from '@/src/courses/common/ProjectSection/ProjectSection';
+// import CertificateSection from '@/src/courses/common/CertificateSection/CertificateSection';
+// import OtherCourse from '@/src/courses/common/OtherCourse/OtherCourse';
+// import ReachForm from '@/components/common/ReachForm/ReachForm';
+// import ToolTip from '@/components/common/ToolTip/ToolTip';
+// import LeadForm from '@/components/common/LeadForm/LeadForm';
+// import NewComponent from '@/src/index/components/NewComponent/NewComponent'
+// import WhoShouldTakeWorkday from '@/src/courses/common/WhoShouldTakeWorkday/WhoShouldTakeWorkday'
+// import TrainingComparison from '@/src/courses/common/TrainingComparison/TrainingComparison'
+// import JobRole from '@/src/courses/common/JobRole/JobRole'
+// import SpecialityHome from '@/src/index/components/SpecialityHome/SpecialityHome'
+// import ContactCourses from '@/src/courses/common/ContactCourses/ContactCourses'
+// import VideoSetion from '@/src/courses/common/VideoSetion/VideoSetion'
+// import PlacementHome from '@/src/index/components/PlacementHome/PlacementHome';
+// import NewsHighlights from '@/src/index/components/News/News';
+
+// // ----------------------------
+// // Types
+// // ----------------------------
+// interface Curriculum { que: string; ans: string; topics: string[]; }
+// interface FAQ { que: string; ans: string; }
+// interface Metadata { title?: string; description?: string; keywords?: string[]; }
+
+// interface Course {
+//   _id: string;
+//   link: string;
+//   title: string;
+//   shortDesc: string;
+//   description: string;
+//   rating?: string;
+//   duration?: string;
+//   ratingCount?: number;
+//   level?: string;
+//   category?: string;
+//   videoLink?: string; // This holds the embed URL or iframe string
+//   curriculum_data?: Curriculum[];
+//   faqs_data?: FAQ[];
+//   metadata?: Metadata;
+//   image_url: string;
+//   price?: number | string;
+//   priceCurrency?: string;
+// }
+
+// interface CourseDataPageProps {
+//   course: Course | null;
+//   error: string | null;
+// }
+
+// // ----------------------------
+// // SSR
+// // ----------------------------
+// export const getServerSideProps: GetServerSideProps<CourseDataPageProps> = async (context: GetServerSidePropsContext) => {
+//   const { coursedata } = context.query;
+//   if (!coursedata || typeof coursedata !== 'string') return { props: { course: null, error: 'Invalid link' } };
+//   try {
+//     const protocol = context.req.headers.host?.includes('localhost') ? 'http' : 'https';
+//     const apiUrl = `${protocol}://${context.req.headers.host}/api/course/link?link=${encodeURIComponent(coursedata)}`;
+//     const response = await fetch(apiUrl);
+//     if (!response.ok) return { props: { course: null, error: 'Course not found' } };
+//     const courseData: Course = await response.json();
+//     return { props: { course: courseData, error: null } };
+//   } catch (err) {
+//     return { props: { course: null, error: 'Failed to fetch data' } };
+//   }
+// };
+
+// // ----------------------------
+// // Helpers
+// // ----------------------------
+// function stripHtml(html?: string): string {
+//   if (!html) return '';
+//   return html.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<\/?[^>]+(>|$)/g, ' ').replace(/\s+/g, ' ').trim();
+// }
+
+// function parseDurationToISO(duration?: string): string {
+//   if (!duration) return "PT40H"; 
+//   const s = duration.toLowerCase();
+//   const match = s.match(/([\d,.]+)\s*(h|hr|hour)/);
+//   if (match) {
+//     const num = parseFloat(match[1]);
+//     return `PT${Math.floor(num)}H`;
+//   }
+//   return "PT40H";
+// }
+
+// function compact(obj: any): any {
+//   if (Array.isArray(obj)) return obj.map(compact).filter(Boolean);
+//   if (obj && typeof obj === 'object') {
+//     const out: any = {};
+//     Object.entries(obj).forEach(([k, v]) => {
+//       const c = compact(v);
+//       if (c !== undefined) out[k] = c;
+//     });
+//     return Object.keys(out).length ? out : undefined;
+//   }
+//   return obj !== undefined ? obj : undefined;
+// }
+
+// // ----------------------------
+// // Schema Logic
+// // ----------------------------
+// const getVideoSchema = (course: Course) => {
+//   if (!course.videoLink) return null;
+//   // Regex to catch ID from embed URL: ej9Fb-2DQ1c
+//   const urlRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/|youtube-nocookie\.com\/embed\/)([a-zA-Z0-9_-]{11})/g;
+//   const matches = [...course.videoLink.matchAll(urlRegex)];
+//   if (matches.length === 0) return null;
+
+//   return matches.map((match, index) => {
+//     const videoId = match[1];
+//     return {
+//       "@context": "https://schema.org",
+//       "@type": "VideoObject",
+//       "name": `${stripHtml(course.title)} - Module ${index + 1} Preview`,
+//       "description": stripHtml(course.shortDesc || course.description).substring(0, 160),
+//       "thumbnailUrl": [`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`, `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`],
+//       "uploadDate": "2026-01-01T08:00:00+05:30",
+//       "embedUrl": `https://www.youtube.com/embed/${videoId}`,
+//       "publisher": { "@type": "Organization", "name": "TechPratham", "logo": { "@type": "ImageObject", "url": "https://www.techpratham.com/logo.png" } }
+//     };
+//   });
+// };
+
+// const getDynamicSchema = (course: Course) => {
+//   const titleText = stripHtml(course.title || '');
+//   const workloadIso = parseDurationToISO(course.duration);
+//   const baseSchema: any = {
+//     "@context": "https://schema.org",
+//     "@type": "Course",
+//     name: titleText,
+//     description: stripHtml(course.shortDesc || course.description),
+//     url: `https://www.techpratham.com/courses/${course.link}`,
+//     provider: { "@type": "Organization", name: "TechPratham", sameAs: "https://www.techpratham.com" },
+//     image: course.image_url ? { "@type": "ImageObject", url: course.image_url } : undefined
+//   };
+
+//   if (course.rating) {
+//     baseSchema.aggregateRating = { "@type": "AggregateRating", ratingValue: Number(course.rating), bestRating: 5, ratingCount: "4890" };
+//   }
+
+//   const instances = [{ "@type": "CourseInstance", name: `${titleText} - Online`, courseMode: "Online", courseWorkload: workloadIso }];
+  
+//   if (course.link?.toLowerCase().includes('hyderabad')) {
+//     instances.push({
+//       "@type": "CourseInstance", name: `${titleText} - Hyderabad`, courseMode: "OnSite", courseWorkload: workloadIso,
+//       location: { "@type": "Place", name: "Tech Pratham Hyderabad", address: { "@type": "PostalAddress", streetAddress: "LVS Arcade, Madhapur", addressLocality: "Hyderabad", addressRegion: "Telangana", postalCode: "500081", addressCountry: "IN" } }
+//     } as any);
+//   } else if (course.link?.toLowerCase().includes('noida')) {
+//     instances.push({
+//       "@type": "CourseInstance", name: `${titleText} - Noida`, courseMode: "OnSite", courseWorkload: workloadIso,
+//       location: { "@type": "Place", name: "Tech Pratham Noida", address: { "@type": "PostalAddress", streetAddress: "C-2, Sector-1", addressLocality: "Noida", addressRegion: "Uttar Pradesh", postalCode: "201301", addressCountry: "IN" } }
+//     } as any);
+//   }
+
+//   baseSchema.hasCourseInstance = instances;
+
+//   if (course.price) {
+//     const priceVal = typeof course.price === 'string' ? course.price.replace(/[^\d.]/g, '') : course.price;
+//     baseSchema.hasCourseInstance = baseSchema.hasCourseInstance.map((inst: any) => ({
+//       ...inst,
+//       offers: { "@type": "Offer", price: priceVal, priceCurrency: course.priceCurrency || 'INR', availability: "https://schema.org/InStock", url: baseSchema.url }
+//     }));
+//   }
+//   return compact(baseSchema);
+// };
+
+// // ----------------------------
+// // Component
+// // ----------------------------
+// const CourseDataPage: React.FC<CourseDataPageProps> = ({ course, error }) => {
+//   const router = useRouter();
+//   const [showLeadForm, setShowLeadForm] = useState(false);
+
+//   useEffect(() => {
+//     if (course) {
+//       const timer = setTimeout(() => setShowLeadForm(true), 2000);
+//       return () => clearTimeout(timer);
+//     }
+//   }, [course]);
+
+//   if (error || !course) return <div className="text-center p-20">Course Not Found</div>;
+
+//   const titleText = stripHtml(course.title);
+//   const canonicalUrl = `https://www.techpratham.com/courses/${course.link}`;
+//   const videoSchemas = getVideoSchema(course);
+
+//   const jsonLdArray = compact([
+//     getDynamicSchema(course),
+//     {
+//       "@context": "https://schema.org",
+//       "@type": "BreadcrumbList",
+//       "itemListElement": [
+//         { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.techpratham.com" },
+//         { "@type": "ListItem", "position": 2, "name": "Courses", "item": "https://www.techpratham.com/courses" },
+//         { "@type": "ListItem", "position": 3, "name": titleText, "item": canonicalUrl }
+//       ]
+//     },
+//     (course.faqs_data && course.faqs_data.length > 0) ? {
+//       "@context": "https://schema.org",
+//       "@type": "FAQPage",
+//       "mainEntity": course.faqs_data.map(f => ({ "@type": "Question", "name": stripHtml(f.que), "acceptedAnswer": { "@type": "Answer", "text": stripHtml(f.ans) } }))
+//     } : null,
+//     ...(Array.isArray(videoSchemas) ? videoSchemas : [])
+//   ]);
+
+//   return (
+//     <React.Fragment>
+//       <Head>
+//         <title>{course.metadata?.title || `${titleText} | TechPratham`}</title>
+//         <meta name="description" content={course.metadata?.description || stripHtml(course.shortDesc)} />
+//         <link rel="canonical" href={canonicalUrl} />
+//       </Head>
+
+//       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdArray).replace(/</g, '\\u003c') }} />
+
+//       <Navbar />
+//       <div className="w-full flex flex-col items-center">
+//         <ReachForm />
+//         <ToolTip />
+//         {showLeadForm && <LeadForm course={course} onClose={() => setShowLeadForm(false)} onSuccess={() => setShowLeadForm(false)} />}
+//         <HeaderSection course={course} />
+//         <EmployeeLifecycle />
+//         <ClientHome />
+//         <IntroSection id="about" course={course} />
+//         <PlanSection />
+//         <CurriculumSection id="course-curriculum" course={{...course, category: course.category || 'IT'}} />
+//         <VideoSetion />
+//         <TrainingBatches id="new-batch" course={course} />
+//         <WhoShouldTakeWorkday course={course} />
+//         <JobRole course={course} />
+//         <ProjectSection id="projects" course={course} />
+//         <SpecialityHome />
+//         <NewComponent id="testimonials" />
+//         <NewsHighlights />
+//         <PlacementHome />
+//         <TrainingComparison />
+//         <FaqSection id="faq" course={course} />
+//       </div>
+//       <ContactCourses />
+//       <Footer />
+//     </React.Fragment>
+//   );
+// };
+
+// export default CourseDataPage; 

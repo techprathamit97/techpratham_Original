@@ -9,6 +9,13 @@ export async function GET(request: NextRequest) {
         // Get email from query parameters
         const { searchParams } = new URL(request.url);
         const email = searchParams.get('email');
+        const all = searchParams.get('all'); // New parameter for admin to get all enrollments
+
+        // If admin requests all enrollments
+        if (all === 'true') {
+            const allEnrollments = await Enrolled.find({}).sort({ createdAt: -1 });
+            return NextResponse.json(allEnrollments, { status: 200 });
+        }
 
         if (!email) {
             return NextResponse.json({ message: 'Email parameter is required' }, { status: 400 });

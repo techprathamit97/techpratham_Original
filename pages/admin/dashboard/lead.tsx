@@ -10,6 +10,7 @@ import SignOut from "@/src/account/common/SignOut";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Button } from "@/components/ui/button";
+import PhoneDisplay from "@/components/common/PhoneDisplay";
 
 interface Lead {
   _id: string;
@@ -280,7 +281,7 @@ export default function LeadsAdmin() {
                       <tr key={lead._id} className="border-t border-gray-700 align-top">
                         <td className="p-3">{lead.fullName || "-"}</td>
                         <td className="p-3">{lead.email || "-"}</td>
-                        <td className="p-3">{lead.phone || "-"}</td>
+                        <td className="p-3"><PhoneDisplay phone={lead.phone} /></td>
                         <td className="p-3">{lead.course ? lead.course.replace(/<[^>]*>/g, "") : "-"}</td>
                         <td className="p-3 max-w-xs">{renderMessage(lead)}</td>
                         <td className="p-3">{lead.formType || "-"}</td>

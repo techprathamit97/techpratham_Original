@@ -6,6 +6,7 @@ import { X } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import PhoneInput from '../PhoneInput/PhoneInput';
 
 interface LeadFormProps {
     course: {
@@ -19,7 +20,9 @@ function stripHtml(html: string = "") {
     return html.replace(/<[^>]*>?/gm, "");
 }
 const LeadForm: React.FC<LeadFormProps> = ({ course, onClose, onSuccess }) => {
-    const { register, handleSubmit, reset } = useForm({
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [isPhoneValid, setIsPhoneValid] = useState(false);
+    const { register, handleSubmit, reset, setValue } = useForm({
         defaultValues: {
             fullName: '',
             phone: '',
@@ -33,8 +36,14 @@ const LeadForm: React.FC<LeadFormProps> = ({ course, onClose, onSuccess }) => {
     const [submitSuccess, setSubmitSuccess] = useState(false);
 
     const onSubmit = async (data: any) => {
+        // Prevent submission if phone is invalid
+        if (!isPhoneValid) {
+            return;
+        }
+
         try {
             setSubmitting(true);
+
             const response = await fetch('/api/leads', {
                 method: 'POST',
                 headers: {
@@ -42,6 +51,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ course, onClose, onSuccess }) => {
                 },
                 body: JSON.stringify({
                     ...data,
+                    phone: phoneNumber, // Use the formatted phone number from PhoneInput
                     formType: "course-callback",
                 }),
             });
@@ -49,6 +59,9 @@ const LeadForm: React.FC<LeadFormProps> = ({ course, onClose, onSuccess }) => {
                 setSubmitSuccess(true);
                 console.log(data);
                 reset();
+                setPhoneNumber('');
+                setIsPhoneValid(false);
+                
                 if (typeof window !== "undefined") {
                     (window as any).dataLayer = (window as any).dataLayer || [];
                     (window as any).dataLayer.push({
@@ -95,7 +108,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ course, onClose, onSuccess }) => {
                             <X className='w-6 h-6' />
                         </button>
                     </div>
-                    <form className='w-full flex flex-col gap-4 rounded-lg mb-3 bg-white h-full' onSubmit={handleSubmit(onSubmit)}>
+                    <form className='w-full flex flex-col gap-4 rounded-lg mb-3 bg-white h-full lead-form' onSubmit={handleSubmit(onSubmit)}>
                         <Input
                             {...register('fullName')}
                             type='text'
@@ -105,14 +118,18 @@ const LeadForm: React.FC<LeadFormProps> = ({ course, onClose, onSuccess }) => {
                             placeholder='Full Name*'
                             required
                         />
-                        <Input
-                            {...register('phone')}
-                            type='text'
-                            id='phone'
-                            name='phone'
-                            className='w-full p-2 indent-2 outline-none'
-                            placeholder='Phone Number*'
+
+                        {/* Phone Number with custom PhoneInput */}
+                        <PhoneInput
+                            value={phoneNumber}
+                            onChange={(phone) => {
+                                setPhoneNumber(phone);
+                                setValue('phone', phone);
+                            }}
+                            onValidationChange={setIsPhoneValid}
+                            placeholder="Phone Number*"
                             required
+                            size="md"
                         />
                         <Input
                             {...register('email')}
@@ -128,10 +145,9 @@ const LeadForm: React.FC<LeadFormProps> = ({ course, onClose, onSuccess }) => {
                             type='text'
                             id='course'
                             name='course'
-                            className='w-full p-2 indent-2 outline-none bg-gray-50'
+                            className='w-full p-2 indent-2 outline-none'
                             placeholder='Course You Are Looking For*'
-                            value={stripHtml(course?.title || "")}
-                            readOnly
+                            defaultValue={stripHtml(course?.title || "")}
                             required
                         />
                        
@@ -159,7 +175,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ course, onClose, onSuccess }) => {
                             type='submit'
                             variant={'manual'}
                             className='h-10 text-base flex items-center justify-center'
-                            disabled={submitting}
+                            disabled={submitting || !isPhoneValid}
                         >
                             {submitting ? 'Submitting...' : 'Continue'}
                         </Button>

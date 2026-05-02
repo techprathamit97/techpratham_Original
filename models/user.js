@@ -16,6 +16,12 @@ const userSchema = new mongoose.Schema(
       enrolled: [{ type: String, default: [] }],
       completed: [{ type: String, default: [] }],
     },
+    isPlaceholder: { type: Boolean, default: false }, // For users created automatically for invoices
+    emailVerified: { type: Boolean, default: false }, // Email verification status
+    emailVerificationToken: { type: String }, // Token for email verification
+    emailVerificationExpiry: { type: Date }, // Expiry for verification token
+    resetPasswordToken: { type: String }, // Token for password reset
+    resetPasswordExpiry: { type: Date }, // Expiry for reset token
   },
   {
     timestamps: true,

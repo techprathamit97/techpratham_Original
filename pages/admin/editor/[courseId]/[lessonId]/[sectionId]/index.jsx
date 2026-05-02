@@ -70,8 +70,11 @@ export default function EditorPage() {
           if (res.ok) {
             setData(newData);
             
-            // ⭐ CACHE BUSTING: Force refetch on display page
+            // ⭐ FIX: Improved cache busting strategy
             if (typeof window !== 'undefined') {
+              // Set timestamp for cache bypass
+              localStorage.setItem('lms-last-update', Date.now().toString());
+              
               // Send message to other tabs to refresh
               localStorage.setItem('lms-content-updated', JSON.stringify({
                 courseId,
@@ -84,6 +87,13 @@ export default function EditorPage() {
               setTimeout(() => {
                 localStorage.removeItem('lms-content-updated');
               }, 1000);
+              
+              // ⭐ FIX: Don't auto-open, just show success message with link
+              const displayUrl = sectionId 
+                ? `/e-book/${courseId}/${lessonId}/${sectionId}?t=${Date.now()}`
+                : `/e-book/${courseId}/${lessonId}?t=${Date.now()}`;
+              
+              console.log('Content saved! View at:', displayUrl);
             }
             
             alert("Saved successfully to MongoDB");

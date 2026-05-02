@@ -88,9 +88,15 @@ export async function GET(req: Request) {
 
       const content = result[0] || { courseId, sidebar: [] };
 
+      // ⭐ FIX: Add cache busting for development
+      const hasTimestamp = req.url.includes('t=');
+      const cacheControl = hasTimestamp 
+        ? "no-cache, no-store, must-revalidate"
+        : "public, s-maxage=60, stale-while-revalidate=120";
+
       return NextResponse.json(content, {
         headers: {
-          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120"
+          "Cache-Control": cacheControl
         }
       });
     }
@@ -135,7 +141,9 @@ export async function POST(req: Request) {
       lessonId,
       sectionId,
       subSectionId,
-      puckData
+      puckData,
+      mainCoursePuckData, // ⭐ FIX: Special field for main course page puckData
+      structureOnly // ⭐ NEW: Flag for structure-only updates
     } = body;
 
     if (!courseId) {
@@ -144,101 +152,191 @@ export async function POST(req: Request) {
 
     let content = await LmsContent.findOne({ courseId });
 
-    /* ---------- FULL COURSE SAVE ---------- */
-    if (sidebar) {
+    /* ---------- MAIN COURSE PAGE SAVE ---------- */
+    if (mainCoursePuckData) {
+      console.log(`[Content API] Main course page save for courseId: ${courseId}`);
+      
+      if (!content) {
+        content = new LmsContent({ courseId, sidebar: [] });
+      }
+
+      // ⭐ FIX: Only update main course puckData, don't touch sidebar
+      content.puckData = mainCoursePuckData;
+      content.markModified("puckData");
+      await content.save();
+
+      return NextResponse.json({ success: true });
+    }
+
+    /* ---------- STRUCTURE-ONLY SAVE ---------- */
+    if (structureOnly && sidebar) {
+      console.log(`[Content API] Structure-only save for courseId: ${courseId} - preserving all puckData`);
+      console.log(`[Content API] Received ${sidebar.length} lessons in payload`);
+      
+      let content = await LmsContent.findOne({ courseId });
+      
       if (!content) {
         content = new LmsContent({ courseId });
       }
 
-      content.title = title;
+      console.log(`[Content API] Current DB has ${content.sidebar?.length || 0} lessons`);
+
+      // ⭐ FIX: Process items in payload order to maintain user's intended order
       const updatedSidebar: any[] = [];
+      const existingLessonsMap = new Map();
+      
+      // Build a map of existing lessons by ID and slug for quick lookup
+      for (const existingLesson of content.sidebar || []) {
+        if (existingLesson.id) {
+          existingLessonsMap.set(existingLesson.id, existingLesson);
+        }
+        existingLessonsMap.set(existingLesson.slug, existingLesson);
+      }
 
+      // Process lessons in payload order
       for (const lessonInput of sidebar) {
-        const oldLessonSlug = lessonInput.oldSlug || lessonInput.slug;
-        let lesson = content.sidebar.find(
-          (l: any) => l.slug === oldLessonSlug
-        );
+        // Try to find existing lesson by ID first, then by slug
+        const existingLesson = existingLessonsMap.get(lessonInput.id) || existingLessonsMap.get(lessonInput.slug);
 
-        if (!lesson) {
-          lesson = {
-            title: lessonInput.title,
-            slug: lessonInput.slug,
-            sections: [],
-            puckData: { root: {}, content: [] } // ✅ Initialize puckData
-          };
-        } else {
+        if (existingLesson) {
+          // Update existing lesson
+          console.log(`[Content API] Updating existing lesson: ${lessonInput.slug} (ID: ${lessonInput.id})`);
+          let lesson = existingLesson;
+          lesson.id = lessonInput.id || lesson.id;
           lesson.title = lessonInput.title;
           lesson.slug = lessonInput.slug;
-          // ✅ Preserve existing puckData if not provided
-          if (!lesson.puckData) {
-            lesson.puckData = { root: {}, content: [] };
-          }
-        }
 
-        const updatedSections: any[] = [];
-
-        for (const sectionInput of lessonInput.sections || []) {
-          const oldSectionSlug = sectionInput.oldSlug || sectionInput.slug;
-          let section = (lesson.sections || []).find(
-            (s: any) => s.slug === oldSectionSlug
-          );
-
-          if (!section) {
-            section = {
-              type: sectionInput.type || "content",
-              title: sectionInput.title,
-              slug: sectionInput.slug,
-              subSections: [],
-              puckData: { root: {}, content: [] } // ✅ Initialize puckData
-            };
-          } else {
-            section.type = sectionInput.type || section.type || "content";
-            section.title = sectionInput.title;
-            section.slug = sectionInput.slug;
-            // ✅ Preserve existing puckData
-            if (!section.puckData) {
-              section.puckData = { root: {}, content: [] };
+          // Build map of existing sections
+          const existingSectionsMap = new Map();
+          for (const existingSection of lesson.sections || []) {
+            if (existingSection.id) {
+              existingSectionsMap.set(existingSection.id, existingSection);
             }
+            existingSectionsMap.set(existingSection.slug, existingSection);
           }
 
-          const updatedSubSections: any[] = [];
+          // Process sections in payload order
+          const updatedSections: any[] = [];
+          for (const sectionInput of lessonInput.sections || []) {
+            const existingSection = existingSectionsMap.get(sectionInput.id) || existingSectionsMap.get(sectionInput.slug);
 
-          for (const subInput of sectionInput.subSections || []) {
-            const oldSubSlug = subInput.oldSlug || subInput.slug;
-            let sub = (section.subSections || []).find(
-              (ss: any) => ss.slug === oldSubSlug
-            );
+            if (existingSection) {
+              // Update existing section
+              console.log(`[Content API] Updating existing section: ${sectionInput.slug} (ID: ${sectionInput.id})`);
+              let section = existingSection;
+              section.id = sectionInput.id || section.id;
+              section.type = sectionInput.type || section.type || "content";
+              section.title = sectionInput.title;
+              section.slug = sectionInput.slug;
 
-            if (!sub) {
-              sub = {
-                type: subInput.type || "content",
-                title: subInput.title,
-                slug: subInput.slug,
-                puckData: { root: {}, content: [] } // ✅ Initialize puckData
-              };
-            } else {
-              sub.type = subInput.type || sub.type || "content";
-              sub.title = subInput.title;
-              sub.slug = subInput.slug;
-              // ✅ Preserve existing puckData
-              if (!sub.puckData) {
-                sub.puckData = { root: {}, content: [] };
+              // Build map of existing subsections
+              const existingSubSectionsMap = new Map();
+              for (const existingSub of section.subSections || []) {
+                if (existingSub.id) {
+                  existingSubSectionsMap.set(existingSub.id, existingSub);
+                }
+                existingSubSectionsMap.set(existingSub.slug, existingSub);
               }
-            }
 
-            updatedSubSections.push(sub);
+              // Process subsections in payload order
+              const updatedSubSections: any[] = [];
+              for (const subInput of sectionInput.subSections || []) {
+                const existingSub = existingSubSectionsMap.get(subInput.id) || existingSubSectionsMap.get(subInput.slug);
+
+                if (existingSub) {
+                  // Update existing subsection
+                  console.log(`[Content API] Updating existing subsection: ${subInput.slug} (ID: ${subInput.id})`);
+                  let sub = existingSub;
+                  sub.id = subInput.id || sub.id;
+                  sub.type = subInput.type || sub.type || "content";
+                  sub.title = subInput.title;
+                  sub.slug = subInput.slug;
+                  updatedSubSections.push(sub);
+                } else {
+                  // Create new subsection
+                  console.log(`[Content API] Creating new subsection: ${subInput.slug} (ID: ${subInput.id})`);
+                  const sub = {
+                    id: subInput.id,
+                    type: subInput.type || "content",
+                    title: subInput.title,
+                    slug: subInput.slug,
+                    puckData: { root: {}, content: [] }
+                  };
+                  updatedSubSections.push(sub);
+                }
+              }
+
+              section.subSections = updatedSubSections;
+              updatedSections.push(section);
+            } else {
+              // Create new section
+              console.log(`[Content API] Creating new section: ${sectionInput.slug} (ID: ${sectionInput.id})`);
+              const section = {
+                id: sectionInput.id,
+                type: sectionInput.type || "content",
+                title: sectionInput.title,
+                slug: sectionInput.slug,
+                subSections: (sectionInput.subSections || []).map((ss: any) => ({
+                  id: ss.id,
+                  type: ss.type || "content",
+                  title: ss.title,
+                  slug: ss.slug,
+                  puckData: { root: {}, content: [] }
+                })),
+                puckData: { root: {}, content: [] }
+              };
+              updatedSections.push(section);
+            }
           }
 
-          section.subSections = updatedSubSections;
-          updatedSections.push(section);
+          lesson.sections = updatedSections;
+          updatedSidebar.push(lesson);
+        } else {
+          // Create new lesson
+          console.log(`[Content API] Creating new lesson: ${lessonInput.slug} (ID: ${lessonInput.id})`);
+          const lesson = {
+            id: lessonInput.id,
+            title: lessonInput.title,
+            slug: lessonInput.slug,
+            sections: (lessonInput.sections || []).map((s: any) => ({
+              id: s.id,
+              type: s.type || "content",
+              title: s.title,
+              slug: s.slug,
+              subSections: (s.subSections || []).map((ss: any) => ({
+                id: ss.id,
+                type: ss.type || "content",
+                title: ss.title,
+                slug: ss.slug,
+                puckData: { root: {}, content: [] }
+              })),
+              puckData: { root: {}, content: [] }
+            })),
+            puckData: { root: {}, content: [] }
+          };
+          updatedSidebar.push(lesson);
         }
-
-        lesson.sections = updatedSections;
-        updatedSidebar.push(lesson);
       }
 
       content.sidebar = updatedSidebar;
       content.markModified("sidebar");
+      await content.save();
+
+      console.log(`[Content API] Structure-only save completed - all puckData preserved`);
+      return NextResponse.json({ success: true });
+    }
+
+    /* ---------- MAIN COURSE PAGE SAVE ---------- */
+    if (mainCoursePuckData) {
+      console.log(`[Content API] Main course page save for courseId: ${courseId}`);
+      
+      if (!content) {
+        content = new LmsContent({ courseId, sidebar: [] });
+      }
+
+      // ⭐ FIX: Only update main course puckData, don't touch sidebar
+      content.puckData = mainCoursePuckData;
+      content.markModified("puckData");
       await content.save();
 
       return NextResponse.json({ success: true });

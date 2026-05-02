@@ -33,9 +33,13 @@ export async function saveLead(data: any) {
     message: data.message,
 
     formType: data.formType,
+    status: data.status || 'unreached',
     ipAddress: data.ipAddress,
 
-    metadata: data.metadata || {},
+    metadata: {
+      ...data.metadata,
+      country: data.country, // Store country in metadata
+    },
   });
 }
 

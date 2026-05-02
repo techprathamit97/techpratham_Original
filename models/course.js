@@ -12,6 +12,11 @@ const faqSchema = new mongoose.Schema({
   ans: { type: String, required: true },
 });
 
+const seoFaqSchema = new mongoose.Schema({
+  que: { type: String, required: true },
+  ans: { type: String, required: true },
+});
+
 const projectSchema = new mongoose.Schema({
   company: { type: String, required: true },
   logo: { type: String, required: false },
@@ -47,6 +52,11 @@ const courseSchema = new mongoose.Schema(
     image: { type: String, required: true },
     alt: { type: String },
     description: { type: String, required: true },
+    certificateName: { type: String, required: false }, // Dynamic certificate name
+    whoShouldTakeTitle: { type: String, required: false }, // Custom title for Who Should Take section
+    jobRoleTitle: { type: String, required: false }, // Custom title for Job Role section
+    curriculumTitle: { type: String, required: false }, // Custom title for Curriculum section
+    projectTitle: { type: String, required: false }, // Custom title for Project section
     rating: { type: String, required: true },
     duration: { type: String, required: true },
     // 💡 Change: Add index to 'level' (used in filtering/sorting)
@@ -55,6 +65,8 @@ const courseSchema = new mongoose.Schema(
     category: { type: String, required: true, index: true }, 
     // 💡 Change: Add index to 'trending' (used for filtering/sorting)
     trending: { type: Boolean, default: false, index: true },
+    // 💡 Priority field for ordering courses (higher number = higher priority)
+    priority: { type: Number, default: 0, index: true },
     placement_report: { type: String, required: true },
     // placement_report: { type: String, required: true },
     curriculum: { type: String, required: true },
@@ -64,6 +76,7 @@ const courseSchema = new mongoose.Schema(
     skills_data: [String],
     assesment_link: { type: String, required: true },
     faqs_data: [faqSchema],
+    seo_faqs_data: [seoFaqSchema], // SEO FAQs for the new section
     project_data: [projectSchema],
     interview_questions_data: [interviewQuestionSchema],
     job_role: [jobRoleSchema],

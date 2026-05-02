@@ -25,8 +25,9 @@ export async function GET() {
     try {
         await connectMongo();
 
-        // ✅ SORT BY POSITION ASCENDING
-        const categoryItem = await Category.find().sort({ position: 1 });
+        // ✅ SORT BY PRIORITY FIRST, THEN POSITION
+        const categoryItem = await Category.find()
+          .sort({ priority: -1, position: 1 }); // Priority descending, then position ascending
 
         return NextResponse.json(categoryItem, { status: 200 });
 

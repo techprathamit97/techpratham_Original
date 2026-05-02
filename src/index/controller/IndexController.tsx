@@ -3,9 +3,18 @@ import Footer from '@/src/common/Footer/Footer';
 import Navbar from '@/src/common/Navbar/Navbar';
 import ScrollButtons from '@/src/common/ScrollButtons/ScrollButtons';
 import CookieBanner from '../../../src/common/CookieConsent/CookieBanner';
-const IndexController = (props?: any) => {
+import { NavbarData } from '@/utils/navbarData';
+
+interface IndexControllerProps {
+  children?: React.ReactNode;
+  navbarData?: NavbarData;
+  [key: string]: any;
+}
+
+const IndexController: React.FC<IndexControllerProps> = (props) => {
     const {
         children,
+        navbarData,
         ...rest
     } = props;
 
@@ -26,7 +35,7 @@ const IndexController = (props?: any) => {
 
     return (
         <div>
-            <Navbar />
+            <Navbar navbarData={navbarData} />
             <CookieBanner/>
             <ScrollButtons />
             {childrenWithProps}

@@ -1,0 +1,16 @@
+/* CountryCodeSelect component styles */
+.countrySelect {
+  /* Add any specific styles for country select if needed */
+}
+
+/* Ensure flag images display properly */
+.countrySelect img {
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+/* Fallback for emoji flags */
+.countrySelect .flag-emoji {
+  font-size: 16px;
+  /* line-height: 1; */
+}

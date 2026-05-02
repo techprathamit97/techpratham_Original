@@ -87,14 +87,116 @@ export async function GET() {
   try {
     const leads = await getAllLeads();
 
-    return NextResponse.json({
-      status: "ok",
-      data: leads,
-    });
+    // Return leads directly as array for frontend compatibility
+    return NextResponse.json(leads);
   } catch (error) {
     console.error("Error fetching leads:", error);
     return NextResponse.json(
       { status: "error", message: "Failed to fetch leads" },
+      { status: 500 }
+    );
+  }
+}
+
+/* -------------------- PUT: UPDATE LEAD -------------------- */
+
+export async function PUT(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const leadId = searchParams.get('id');
+
+    if (!leadId) {
+      return NextResponse.json(
+        { status: "error", message: "Lead ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const body = await request.json();
+
+    // Import Lead model and update
+    const { Lead } = await import("@/models/Lead");
+    const { connectMongo } = await import("@/utils/mongodb");
+    await connectMongo();
+    
+    // Build update object with only provided fields
+    const updateData: any = {};
+    if (body.fullName !== undefined) updateData.fullName = body.fullName;
+    if (body.email !== undefined) updateData.email = body.email;
+    if (body.phone !== undefined) updateData.phone = body.phone;
+    if (body.course !== undefined) updateData.course = body.course;
+    if (body.message !== undefined) updateData.message = body.message;
+    if (body.formType !== undefined) updateData.formType = body.formType;
+    if (body.status !== undefined) updateData.status = body.status;
+    if (body.ipAddress !== undefined) updateData.ipAddress = body.ipAddress;
+    if (body.metadata !== undefined) updateData.metadata = body.metadata;
+
+    console.log('Updating lead:', leadId, 'with data:', updateData);
+    
+    const updatedLead = await Lead.findByIdAndUpdate(
+      leadId,
+      updateData,
+      { new: true }
+    );
+
+    if (!updatedLead) {
+      return NextResponse.json(
+        { status: "error", message: "Lead not found" },
+        { status: 404 }
+      );
+    }
+
+    console.log('Lead updated successfully:', updatedLead);
+
+    return NextResponse.json({ 
+      status: "ok", 
+      data: updatedLead 
+    });
+  } catch (error) {
+    console.error("Lead update error:", error);
+    return NextResponse.json(
+      { status: "error", message: "Failed to update lead" },
+      { status: 500 }
+    );
+  }
+}
+
+/* -------------------- DELETE: DELETE LEAD -------------------- */
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const leadId = searchParams.get('id');
+
+    if (!leadId) {
+      return NextResponse.json(
+        { status: "error", message: "Lead ID is required" },
+        { status: 400 }
+      );
+    }
+
+    // Import Lead model and delete
+    const { Lead } = await import("@/models/Lead");
+    const { connectMongo } = await import("@/utils/mongodb");
+    await connectMongo();
+    
+    const deletedLead = await Lead.findByIdAndDelete(leadId);
+
+    if (!deletedLead) {
+      return NextResponse.json(
+        { status: "error", message: "Lead not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ 
+      status: "ok", 
+      message: "Lead deleted successfully" 
+    });
+  } catch (error) {
+    console.error("Lead deletion error:", error);
+    return NextResponse.json(
+      { status: "error", message: "Failed to delete lead" },
       { status: 500 }
     );
   }

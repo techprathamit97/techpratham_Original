@@ -41,6 +41,11 @@ const images = [
   "/achiv/29.webp",
   "/achiv/30.webp",
   "/achiv/31.webp",
+  "/achiv/32.webp",
+  "/achiv/33.webp",
+  "/achiv/34.webp",
+  "/achiv/35.webp",
+  "/achiv/36.webp",
   
 ];
 
@@ -50,11 +55,18 @@ export default function ThreeDCarousel() {
   
   return (
     <div
-      className="w-full flex justify-center py-2"
+      className="w-full flex flex-col items-center py-2"
       // ✅ Hover events on wrapper, NOT on Swiper
       onMouseEnter={() => swiperRef.current?.autoplay?.stop()}
       onMouseLeave={() => swiperRef.current?.autoplay?.start()}
     >
+       <div className="text-center flex flex-col items-center w-full">
+          <h2 className="text-xl md:text-[25px] my-2 text-white font-semibold">
+            Our Learner Voice
+          </h2>
+
+        
+        </div>
         
       <Swiper
         onSwiper={(swiper) => (swiperRef.current = swiper)}
@@ -87,6 +99,7 @@ export default function ThreeDCarousel() {
                 src={img}
                 alt="carousel"
                 fill
+                loading="lazy"
                 className="object-cover"
               />
             </div>

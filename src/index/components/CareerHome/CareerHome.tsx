@@ -22,6 +22,7 @@ const CareerHome = () => {
     '/home/career/otabu.png',
     '/home/career/iaf.png',
     '/home/career/rapl.png',
+    
   ].map((src, i) => (
     <Image
       key={i}

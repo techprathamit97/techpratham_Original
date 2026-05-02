@@ -7,7 +7,6 @@ import UserLoader from '@/src/account/common/UserLoader';
 import UserTopBar from '@/src/account/common/UserTopBar';
 import UserSidebar from '@/src/account/common/UserSidebar';
 import Head from 'next/head';
-
 const UserAccount = () => {
     const { data: session, status: sessionStatus } = useSession();
     const { loading, authenticated, userData, activeUserTab, setActiveUserTab } = useContext(UserContext);

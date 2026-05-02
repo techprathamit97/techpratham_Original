@@ -10,10 +10,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
+import { FaGoogle } from 'react-icons/fa';
 import Link from 'next/link';
 import Head from 'next/head';
 import Loader from '@/components/common/Loader/Loader';
 import Session from '@/components/common/Session/Session';
+import PhoneInput from '@/components/common/PhoneInput/PhoneInput';
 
 interface RegisterFormData {
     name: string
@@ -31,6 +33,8 @@ const Register = () => {
 
     const [showPass, setShowPass] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [isPhoneValid, setIsPhoneValid] = useState(false);
 
     const [isChecked, setIsChecked] = useState(false);
 
@@ -51,13 +55,18 @@ const Register = () => {
     const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<RegisterFormData>({});
 
     const onSubmit: SubmitHandler<RegisterFormData> = async (data) => {
+        // Prevent submission if phone is invalid
+        if (!isPhoneValid) {
+            return;
+        }
+
         try {
             setLoading(true);
 
             const userData = {
                 name: data.name,
                 email: data.email,
-                phone: data.phone,
+                phone: phoneNumber,
                 password: data.password,
                 role: {
                     type: 'user',
@@ -137,13 +146,13 @@ const Register = () => {
                 <meta name="twitter:image" content="/logo/og-techpratham.png" />
             </Head>
 
-            <div className="w-full fixed md:h-screen h-auto flex flex-col items-center justify-start md:overflow-hidden overflow-auto">
+            <div className="w-full min-h-screen flex flex-col items-center justify-start overflow-auto">
 
                 {loading && <Loader />}
 
                 {sessionStatus !== "authenticated" ? (
-                    <div className="w-full flex-1 min-h-0 bg-white md:px-8 px-0 md:py-8 py-0">
-                        <div className='bg-[#EDEBE9] w-full h-full flex flex-col items-center justify-center md:rounded-2xl rounded-none px-8 py-8 overflow-hidden'>
+                    <div className="w-full flex-1 bg-white md:px-8 px-0 md:py-8 py-0">
+                        <div className='bg-[#EDEBE9] w-full min-h-screen flex flex-col items-center justify-center md:rounded-2xl rounded-none px-8 py-8 overflow-auto'>
                             <div className="w-full flex flex-col row-start-2 items-center justify-center">
 
                                 <form action='/' onSubmit={handleSubmit(onSubmit)} className='flex flex-col items-start lg:w-10/12 w-full h-auto'>
@@ -216,20 +225,17 @@ const Register = () => {
                                                         Phone Number
                                                         <span className='text-red-500'> *</span>
                                                     </Label>
-                                                    <Input
-                                                        type="tel"
-                                                        id="phone"
-                                                        {...register("phone", {
-                                                            required: "Phone number is required",
-                                                            pattern: {
-                                                                value: /^[0-9]{10}$/,
-                                                                message: "Phone number must be 10 digits"
-                                                            }
-                                                        })}
-                                                        placeholder='Enter Your Phone Number'
-                                                        className='w-full min-h-11 h-full indent-1 bg-white'
+                                                    <PhoneInput
+                                                        value={phoneNumber}
+                                                        onChange={(phone) => {
+                                                            setPhoneNumber(phone);
+                                                            setValue('phone', phone);
+                                                        }}
+                                                        onValidationChange={setIsPhoneValid}
+                                                        placeholder="Enter Your Phone Number"
+                                                        required
+                                                        size="md"
                                                     />
-                                                    {errors.phone && <span className="text-sm text-red-500 mt-1">{errors.phone.message}</span>}
                                                 </div>
 
                                                 {/* Password Field */}
@@ -295,9 +301,24 @@ const Register = () => {
                                                     type='submit' 
                                                     variant='default' 
                                                     className='w-full min-h-11 mt-2' 
-                                                    disabled={!isChecked || loading}
+                                                    disabled={!isChecked || loading || !isPhoneValid}
                                                 >
                                                     {loading ? 'Creating Account...' : 'Register'}
+                                                </Button>
+
+                                                <div className="relative flex items-center gap-2 my-4">
+                                                    <hr className="flex-1 border-gray-400" />
+                                                    <span className="text-sm text-gray-600">or</span>
+                                                    <hr className="flex-1 border-gray-400" />
+                                                </div>
+
+                                                <Button
+                                                    type="button"
+                                                    onClick={() => signIn("google")}
+                                                    className="w-full min-h-11 flex items-center justify-center gap-2 bg-white text-black border border-gray-300 hover:bg-gray-100"
+                                                >
+                                                    <FaGoogle className="text-red-500" />
+                                                    Sign up with Google
                                                 </Button>
 
                                                 <div className='w-full text-center mt-4 flex items-center justify-center'>

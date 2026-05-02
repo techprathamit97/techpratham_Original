@@ -1,24 +1,7 @@
-// import { NextResponse } from 'next/server';
-// import { connectMongo } from '@/utils/mongodb';
-// import course from '@/models/course';
-
-// export async function GET() {
-//     try {
-//         await connectMongo();
-//         const courseItem = await course.find();
-
-//         return NextResponse.json(courseItem, { status: 200 });
-//     } catch (error: any) {
-//         console.error('Server Error:', error.message);
-//         return NextResponse.json({ message: error.message }, { status: 500 });
-//     }
-// }
-
-// pages/api/course/fetch (or app/api/course/fetch/route.ts)
-
 import { NextRequest, NextResponse } from "next/server";
 import { connectMongo } from "@/utils/mongodb";
 import course from "@/models/course";
+import { categoryPrice } from "@/components/assets/categoryPrice";
 
 export async function GET(request: NextRequest) {
   try {
@@ -38,20 +21,48 @@ export async function GET(request: NextRequest) {
       level: 1,
       rating: 1,
       duration: 1,
+      priority: 1, // Include priority field
     };
 
     let query: any = {};
 
     if (category) {
       query.category = {
-        $regex: `^${category}$`,
+        $regex: `^${category}`,
         $options: "i",
       };
     }
 
     const courseItem = await course.find(query, projection).lean();
 
-    return NextResponse.json(courseItem, { status: 200 });
+    // Sort courses by priority (handle null/undefined priority values)
+    // LOWER priority numbers appear FIRST (1, 2, 3, 4, 5, etc.)
+    const sortedCourses = courseItem.sort((a, b) => {
+      const priorityA = a.priority || 999; // Default high number for courses without priority
+      const priorityB = b.priority || 999;
+      
+      // Sort by priority ASCENDING (lower numbers first: 1, 2, 3, 4, 5...)
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB; // Lower priority number appears first
+      }
+      
+      // If priorities are equal, sort by creation date (newer first)
+      return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+    });
+
+    // Add price to each course based on category
+    const coursesWithPrice = sortedCourses.map(courseItem => {
+      const priceData = categoryPrice.find(p => 
+        p.Category.toLowerCase() === courseItem.category.toLowerCase()
+      );
+      
+      return {
+        ...courseItem,
+        price: priceData?.price || 40000 // Default price if category not found
+      };
+    });
+
+    return NextResponse.json(coursesWithPrice, { status: 200 });
   } catch (error: any) {
     console.error("Server Error:", error.message);
     return NextResponse.json({ message: error.message }, { status: 500 });

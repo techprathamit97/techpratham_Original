@@ -193,27 +193,27 @@ export default function TrainingComparison() {
   ];
 
   return (
-    <section className="py-3 bg-white">
-      <div className="max-w-6xl mx-auto px-2">
+    <section className="hidden md:block">
+      <div className="border-2 m-2 p-2">
         {/* Heading */}
-        <div className="text-center mb-5 flex flex-col items-center">
-  <h2 className="text-3xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#CD4647] to-[#7F3B40]">
-    What Makes TechPratham Training Different?
-  </h2>
+        <div className="text-center py-3 flex flex-col items-center">
+          <h2 className="text-3xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#CD4647] to-[#7F3B40]">
+            What Makes TechPratham Training Different?
+          </h2>
 
-  <svg
-    className="mt-2"
-    width="300"
-    height="6"
-    viewBox="0 0 340 6"
-    preserveAspectRatio="none"
-  >
-    <path
-      d="M0 3 Q170 0 340 3 Q170 6 0 3 Z"
-      fill="#CD4647"
-    />
-  </svg>
-</div>
+          <svg
+            className="mt-2"
+            width="300"
+            height="6"
+            viewBox="0 0 340 6"
+            preserveAspectRatio="none"
+          >
+            <path
+              d="M0 3 Q170 0 340 3 Q170 6 0 3 Z"
+              fill="#CD4647"
+            />
+          </svg>
+        </div>
 
 
         {/* Desktop Table */}
@@ -263,9 +263,8 @@ export default function TrainingComparison() {
           {rows.map((row, i) => (
             <div
               key={i}
-              className={`rounded-xl border overflow-hidden ${
-                i % 2 === 0 ? "bg-gray-50" : "bg-white"
-              }`}
+              className={`rounded-xl border overflow-hidden ${i % 2 === 0 ? "bg-gray-50" : "bg-white"
+                }`}
             >
               <div className="px-4 py-3 font-medium text-gray-800 bg-gray-100">
                 {row.feature}

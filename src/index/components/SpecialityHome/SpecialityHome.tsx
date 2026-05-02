@@ -373,13 +373,14 @@ const ChevronStep: React.FC<{ step: Step }> = ({ step }) => {
   const CLIP_PATH_STYLE_COMPLEX = "polygon(0% 0%, 100% 22%, 100% 78%, 0% 100%)";
 
   return (
-    <div className="relative w-[80%] md:w-[200px] h-[390px] ml-2 ">
+    <div className="relative w-[80%] md:w-[200px] h-[390px] ml-2">
       <div 
-        className={`absolute inset-0 border-2 ${step.baseColor} bg-gradient-to-b ${step.gradient} transition-transform duration-500 ease-out hover:scale-105 hover:-translate-y-3`}
+        className={`absolute inset-0 border-2 ${step.baseColor} bg-gradient-to-b ${step.gradient} transition-all duration-500 ease-out hover:scale-105 hover:-translate-y-3 shadow-2xl hover:shadow-3xl`}
         style={{
           clipPath: CLIP_PATH_STYLE_COMPLEX,
           overflow: "visible", 
-          filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.7))",
+          filter: "drop-shadow(0 25px 50px rgba(0,0,0,0.8)) drop-shadow(0 10px 20px rgba(0,0,0,0.5))",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 10px 20px -5px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
         }}
       >
         <div className="absolute inset-0 flex flex-col items-center justify-center pl-3 pr-2 text-center gap-3">
@@ -430,7 +431,7 @@ const StaticChevronSteps = () => {
   // --- DESKTOP VIEW ---
   const DesktopView = (
     <div 
-      className="hidden sm:flex items-center max-w-6xl justify-center p-8 overflow-x-auto"
+      className="hidden sm:flex items-center justify-center w-full max-w-6xl mx-auto p-8"
       style={{ perspective: "1200px" }}
     >
       {stepData.map((step) => (
@@ -455,8 +456,10 @@ const StaticChevronSteps = () => {
 
   return (
     <>
+    <div className='w-full flex justify-center'>
+    <div className='w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
     <div className="pt-5 text-center flex flex-col items-center">
-  <h1 className="hidden md:block text-4xl  font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#CD4647] to-[#7F3B40] text-center drop-shadow-md">
+  <h1 className="hidden md:block text-4xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#CD4647] to-[#7F3B40] text-center drop-shadow-md">
     Placement Process
   </h1>
 
@@ -474,9 +477,10 @@ const StaticChevronSteps = () => {
   </svg>
 </div>
 
-
       {DesktopView}
       {MobileView}
+      </div>
+      </div>
     </>
   );
 };

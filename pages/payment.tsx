@@ -1,13 +1,19 @@
 import React from 'react';
 import Head from 'next/head';
 
-import type { NextPage } from 'next';
+import type { NextPage, GetServerSideProps } from 'next';
 import { IndexController } from '@/src/index/controller/IndexController';
+import { NavbarData } from '@/utils/navbarData';
+import { withNavbarSSR } from '@/utils/withNavbarSSR';
 import PaymentView from '@/src/payment/views/PaymentView';
 
-const PaymentPage: NextPage = (props) => (
+interface PaymentPageProps {
+    navbarData: NavbarData;
+}
+
+const PaymentPage: NextPage<PaymentPageProps> = ({ navbarData }) => (
   <div>
-    <IndexController {...props}>
+    <IndexController navbarData={navbarData}>
       <Head>
         <link rel="icon" href="/favicon.ico" type="image/ico" sizes="70x70" />
         <title>Payment | TechPratham - Tech Insights & Career Tips</title>
@@ -30,5 +36,7 @@ const PaymentPage: NextPage = (props) => (
     </IndexController>
   </div>
 );
+
+export const getServerSideProps: GetServerSideProps<PaymentPageProps> = withNavbarSSR();
 
 export default PaymentPage;

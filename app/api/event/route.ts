@@ -3,19 +3,28 @@ import { connectMongo } from "@/utils/mongodb";
 import Event from "@/models/event";
 
 export async function GET() {
-  await connectMongo();
+  try {
+    await connectMongo();
 
-  const events = await Event.find()
-    .select("type videoUrl image order createdAt")
-    .sort({ order: 1, createdAt: -1 })
-    .lean();
+    const events = await Event.find()
+      .select("type videoUrl image order createdAt updatedAt")
+      .sort({ order: 1, createdAt: -1 })
+      .lean();
 
-  return NextResponse.json(events, {
-    headers: {
-      "Cache-Control":
-        "public, s-maxage=300, stale-while-revalidate=600",
-    },
-  });
+    return NextResponse.json(events, {
+      headers: {
+        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        "CDN-Cache-Control": "public, s-maxage=60",
+        "Vercel-CDN-Cache-Control": "public, s-maxage=60",
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch events' },
+      { status: 500 }
+    );
+  }
 }
 
 

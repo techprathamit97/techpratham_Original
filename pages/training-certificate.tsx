@@ -1,13 +1,19 @@
 import React from 'react';
 import Head from 'next/head';
 
-import type { NextPage } from 'next';
+import type { NextPage, GetServerSideProps } from 'next';
 import CertificateView from '@/src/certificate/views/CertificateView';
 import { IndexController } from '@/src/index/controller/IndexController';
+import { NavbarData } from '@/utils/navbarData';
+import { withNavbarSSR } from '@/utils/withNavbarSSR';
 
-const CertificatePage: NextPage = (props) => (
+interface CertificatePageProps {
+    navbarData: NavbarData;
+}
+
+const CertificatePage: NextPage<CertificatePageProps> = ({ navbarData }) => (
     <div>
-        <IndexController {...props}>
+        <IndexController navbarData={navbarData}>
             <Head>
                 <link rel="icon" href="/favicon.ico" type="image/ico" sizes="70x70" />
                 <title>Training Certificate | TechPratham - India's Leading IT Training Institute</title>
@@ -30,5 +36,7 @@ const CertificatePage: NextPage = (props) => (
         </IndexController>
     </div>
 );
+
+export const getServerSideProps: GetServerSideProps<CertificatePageProps> = withNavbarSSR();
 
 export default CertificatePage;

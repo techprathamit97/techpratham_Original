@@ -23,7 +23,25 @@ export const puckConfig = {
  components: {
  NextPrevNavigation: {
   label: "Next / Previous Navigation",
-  render: NextPrevNavigation,
+  render: (props) => {
+    return (
+      <NextPrevNavigation
+        prevLabel={props.prevLabel}
+        prevLink={props.prevLink}
+        prevBg={props.prevBg}
+        prevColor={props.prevColor}
+        nextLabel={props.nextLabel}
+        nextLink={props.nextLink}
+        nextBg={props.nextBg}
+        nextColor={props.nextColor}
+        padding={props.padding}
+        borderRadius={props.borderRadius}
+        fontSize={props.fontSize}
+        align={props.align}
+        stackMobile={props.stackMobile === "true"}
+      />
+    );
+  },
   fields: {
     prevLabel: { type: "text", label: "Previous Label" },
     prevLink: { type: "text", label: "Previous Link URL" },
@@ -65,7 +83,7 @@ export const puckConfig = {
 
   RichText: {
   label: "Text (Bold & Link)",
-  render: RichText,
+  render: (props) => <RichText {...props} />,
   fields: {
     content: {
       type: "textarea",
@@ -158,7 +176,7 @@ export const puckConfig = {
 
 CustomList: {
   label: "List",
-  render: CustomList,
+  render: (props) => <CustomList {...props} />,
   fields: {
     items: {
       type: "textarea",
@@ -263,7 +281,7 @@ CustomList: {
 
 IconTextSection: {
   label: "Icon + Text",
-  render: IconTextSection,
+  render: (props) => <IconTextSection {...props} />,
   fields: {
     iconUrl: {
       type: "custom",
@@ -365,7 +383,7 @@ IconTextSection: {
 
 Container: {
   label: "Container",
-  render: Container,
+  render: (props) => <Container {...props} />,
   fields: {
     sectionPadding: {
       type: "text",
@@ -562,7 +580,7 @@ col3BorderColor: {
 
 
   ImageSection: {
-  render: ImageSection,
+  render: (props) => <ImageSection {...props} />,
   fields: {
    imageUrl: {
   type: "custom",
@@ -578,6 +596,25 @@ col3BorderColor: {
             const file = e.target.files?.[0];
             if (!file) return;
 
+            // Delete old image from AWS before uploading new one
+            if (value) {
+              try {
+                const oldFileKey = value.split(".com/")[1];
+                if (oldFileKey) {
+                  await fetch("/api/upload-image", {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ fileKey: oldFileKey }),
+                  });
+                  console.log("Old image deleted from AWS");
+                }
+              } catch (err) {
+                console.warn("Failed to delete old image:", err);
+                // Continue with upload even if delete fails
+              }
+            }
+
+            // Upload new image
             const formData = new FormData();
             formData.append("file", file);
 
@@ -600,9 +637,7 @@ col3BorderColor: {
             onClick={async () => {
               if (!confirm("Are you sure you want to delete this image?")) return;
 
-              // 1. Extract the file key from the URL
-              // If URL is: https://...amazonaws.com/puck/123-image.jpg
-              // split(".com/")[1] gives: puck/123-image.jpg
+              // Extract the file key from the URL
               const fileKey = value.split(".com/")[1];
 
               try {
@@ -614,13 +649,14 @@ col3BorderColor: {
 
                 if (res.ok) {
                   onChange(""); // Clear the image from Puck state
-                  alert("Image deleted successfully");
+                  alert("Image deleted successfully from AWS");
                 } else {
                   const errorData = await res.json();
                   alert(`Delete failed: ${errorData.error}`);
                 }
               } catch (err) {
                 console.error("Delete request failed", err);
+                alert("Failed to delete image");
               }
             }}
             style={{
@@ -641,6 +677,11 @@ col3BorderColor: {
     );
   }
 },
+
+    altText: {
+      type: "text",
+      label: "Alt Text (SEO Important)"
+    },
 
     width: {
       type: "text",
@@ -688,7 +729,7 @@ col3BorderColor: {
 },
 
 DraggableTable: {
-  render: DraggableTable,
+  render: (props) => <DraggableTable {...props} />,
   fields: {
     rows: {
       type: "number",
@@ -757,7 +798,7 @@ DraggableTable: {
 },
 
   TableWithHeader: {
-  render: TableWithHeader,
+  render: (props) => <TableWithHeader {...props} />,
   fields: {
     rows: {
       type: "number",
@@ -798,7 +839,7 @@ DraggableTable: {
 },
 
   HeroSectionEditor: {
-  render: HeroSectionEditor,
+  render: (props) => <HeroSectionEditor {...props} />,
 
   defaultProps: {
     backgroundImage: "",
@@ -859,7 +900,7 @@ DraggableTable: {
 
 CustomText: {
   label: "Custom Text",
-  render: CustomText,
+  render: (props) => <CustomText {...props} />,
   fields: {
     content: {
       type: "textarea",
@@ -1010,7 +1051,7 @@ CustomText: {
 //  this is video section 
   VideoSection: {
       label: "YouTube Video",
-      render: VideoSection,
+      render: (props) => <VideoSection {...props} />,
       fields: {
         videoUrl: {
           type: "text",
@@ -1076,7 +1117,7 @@ CustomText: {
 
     ButtonSection: {
   label: "Button",
-  render: ButtonSection,
+  render: (props) => <ButtonSection {...props} />,
   fields: {
     label: {
       type: "text",
@@ -1151,7 +1192,7 @@ CustomText: {
 
     // 2. OTHER COMPONENTS
     HeroSection: {
-      render: HeroSection,
+      render: (props) => <HeroSection {...props} />,
       fields: {
         tag: { type: "text" },
         title: { type: "text" },
@@ -1162,7 +1203,7 @@ CustomText: {
     },
 
     GatewaySection: {
-      render: GatewaySection,
+      render: (props) => <GatewaySection {...props} />,
       fields: {
         heading: { type: "text" },
         highlight: { type: "text" },
@@ -1173,7 +1214,7 @@ CustomText: {
 
     BorderLine: {
   label: "Border Line",
-  render: BorderLine,
+  render: (props) => <BorderLine {...props} />,
   fields: {
     orientation: {
       type: "select",
@@ -1231,7 +1272,7 @@ CustomText: {
 
 
     WhyStandApart: {
-      render: WhyStandApart,
+      render: (props) => <WhyStandApart {...props} />,
       fields: {
         title: { type: "text" },
         card1Title: { type: "text" },
@@ -1252,7 +1293,7 @@ CustomText: {
 
 
     Syllabus: {
-      render: Syllabus,
+      render: (props) => <Syllabus {...props} />,
       fields: {
         topics: {
           type: "array",

@@ -1,14 +1,20 @@
 import React from 'react';
 import Head from 'next/head';
 
-import type { NextPage } from 'next';
+import type { NextPage, GetServerSideProps } from 'next';
 import { IndexController } from '@/src/index/controller/IndexController';
+import { NavbarData } from '@/utils/navbarData';
+import { withNavbarSSR } from '@/utils/withNavbarSSR';
 
 import AboutView from '@/src/about/views/AboutView';
 
-const AboutPage: NextPage = (props) => (
+interface AboutPageProps {
+    navbarData: NavbarData;
+}
+
+const AboutPage: NextPage<AboutPageProps> = ({ navbarData }) => (
     <div>
-        <IndexController {...props}>
+        <IndexController navbarData={navbarData}>
             <Head>
                 <link rel="icon" href="/favicon.ico" type="image/ico" sizes="70x70" />
                 <title>About Us | TechPratham - India's Leading IT Training Institute</title>
@@ -31,5 +37,7 @@ const AboutPage: NextPage = (props) => (
         </IndexController>
     </div>
 );
+
+export const getServerSideProps: GetServerSideProps<AboutPageProps> = withNavbarSSR();
 
 export default AboutPage;

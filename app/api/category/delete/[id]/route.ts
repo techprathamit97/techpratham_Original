@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectMongo } from '@/utils/mongodb';
 import { Category } from '@/models/category';
+import { clearNavbarCache } from '@/utils/navbarData';
 
 export async function DELETE(
     request: NextRequest,
@@ -16,6 +17,9 @@ export async function DELETE(
         if (!deletedCategory) {
             return NextResponse.json({ message: 'Category not found' }, { status: 404 });
         }
+
+        // Clear navbar cache since category has been deleted
+        clearNavbarCache();
 
         return NextResponse.json({ message: 'Category deleted successfully' }, { status: 200 });
 

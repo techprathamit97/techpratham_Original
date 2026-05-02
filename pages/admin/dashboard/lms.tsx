@@ -241,7 +241,7 @@ const LmsDashboard = () => {
 
                       <div className="flex flex-col gap-3 mt-auto">
                         <div className="flex gap-2">
-                          <Link href={`/contents/${course.link}`} target="_blank" className="flex-1">
+                          <Link href={`/e-book/${course.link}`} target="_blank" className="flex-1">
                             <Button variant="manual" className="w-full font-bold">
                               Explore Course
                             </Button>

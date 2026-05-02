@@ -6,8 +6,15 @@ import Navbar from '@/src/common/Navbar/Navbar';
 import Footer from '@/src/common/Footer/Footer';
 import ContentFaqs from '@/src/faqs/components/ContentFaqs/ContentFaqs';
 import Head from 'next/head';
+import type { NextPage, GetServerSideProps } from 'next';
+import { NavbarData } from '@/utils/navbarData';
+import { withNavbarSSR } from '@/utils/withNavbarSSR';
 
-const faqs = () => {
+interface FaqsProps {
+    navbarData: NavbarData;
+}
+
+const faqs: NextPage<FaqsProps> = ({ navbarData }) => {
     return (
         <React.Fragment>
             <Head>
@@ -28,7 +35,7 @@ const faqs = () => {
                 <meta name="twitter:image" content="/navbar/techpratham.svg" />
             </Head>
 
-            <Navbar />
+            <Navbar navbarData={navbarData} />
 
             <div className='w-full h-auto flex flex-col items-center justify-center'>
 
@@ -47,4 +54,7 @@ const faqs = () => {
     )
 }
 
-export default faqs
+export default faqs;
+
+// Add navbar SSR
+export const getServerSideProps = withNavbarSSR();

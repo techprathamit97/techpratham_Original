@@ -2,6 +2,7 @@
 
 export default function ImageSection({
   imageUrl = "",
+  altText = "",
   width = "100%",
   height = "100%",
   objectFit = "cover",
@@ -25,7 +26,7 @@ export default function ImageSection({
       {imageUrl && (
         <img
           src={imageUrl}
-          alt=""
+          alt={altText || ""}
           style={{
             display: "block",
             width: "100%",

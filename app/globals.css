@@ -41,6 +41,36 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slideDown {
+    animation: slideDown 0.3s ease-out;
+  }
+
+  
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
 }
 
 @layer base {
@@ -274,4 +304,120 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+.react-tel-input .flag.dk { background-image: url('https://flagcdn.com/w20/dk.png') !important; }
+.react-tel-input .flag.fi { background-image: url('https://flagcdn.com/w20/fi.png') !important; }
+.react-tel-input .flag.ch { background-image: url('https://flagcdn.com/w20/ch.png') !important; }
+.react-tel-input .flag.at { background-image: url('https://flagcdn.com/w20/at.png') !important; }
+.react-tel-input .flag.be { background-image: url('https://flagcdn.com/w20/be.png') !important; }
+.react-tel-input .flag.pl { background-image: url('https://flagcdn.com/w20/pl.png') !important; }
+.react-tel-input .flag.cz { background-image: url('https://flagcdn.com/w20/cz.png') !important; }
+.react-tel-input .flag.hu { background-image: url('https://flagcdn.com/w20/hu.png') !important; }
+.react-tel-input .flag.gr { background-image: url('https://flagcdn.com/w20/gr.png') !important; }
+.react-tel-input .flag.pt { background-image: url('https://flagcdn.com/w20/pt.png') !important; }
+.react-tel-input .flag.ie { background-image: url('https://flagcdn.com/w20/ie.png') !important; }
+.react-tel-input .flag.nz { background-image: url('https://flagcdn.com/w20/nz.png') !important; }
+.react-tel-input .flag.za { background-image: url('https://flagcdn.com/w20/za.png') !important; }
+.react-tel-input .flag.sg { background-image: url('https://flagcdn.com/w20/sg.png') !important; }
+.react-tel-input .flag.my { background-image: url('https://flagcdn.com/w20/my.png') !important; }
+.react-tel-input .flag.th { background-image: url('https://flagcdn.com/w20/th.png') !important; }
+.react-tel-input .flag.ph { background-image: url('https://flagcdn.com/w20/ph.png') !important; }
+.react-tel-input .flag.id { background-image: url('https://flagcdn.com/w20/id.png') !important; }
+.react-tel-input .flag.vn { background-image: url('https://flagcdn.com/w20/vn.png') !important; }
+.react-tel-input .flag.kr { background-image: url('https://flagcdn.com/w20/kr.png') !important; }
+.react-tel-input .flag.ae { background-image: url('https://flagcdn.com/w20/ae.png') !important; }
+.react-tel-input .flag.sa { background-image: url('https://flagcdn.com/w20/sa.png') !important; }
+.react-tel-input .flag.eg { background-image: url('https://flagcdn.com/w20/eg.png') !important; }
+.react-tel-input .flag.il { background-image: url('https://flagcdn.com/w20/il.png') !important; }
+.react-tel-input .flag.tr { background-image: url('https://flagcdn.com/w20/tr.png') !important; }
+.react-tel-input .flag.pk { background-image: url('https://flagcdn.com/w20/pk.png') !important; }
+.react-tel-input .flag.bd { background-image: url('https://flagcdn.com/w20/bd.png') !important; }
+.react-tel-input .flag.lk { background-image: url('https://flagcdn.com/w20/lk.png') !important; }
+.react-tel-input .flag.np { background-image: url('https://flagcdn.com/w20/np.png') !important; }
+.react-tel-input .flag.mm { background-image: url('https://flagcdn.com/w20/mm.png') !important; }
+.react-tel-input .flag.kh { background-image: url('https://flagcdn.com/w20/kh.png') !important; }
+.react-tel-input .flag.la { background-image: url('https://flagcdn.com/w20/la.png') !important; }
+.react-tel-input .flag.bt { background-image: url('https://flagcdn.com/w20/bt.png') !important; }
+.react-tel-input .flag.mv { background-image: url('https://flagcdn.com/w20/mv.png') !important; }
+
+/* Search input styling */
+.react-tel-input .search-box {
+  padding: 8px 12px !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  font-size: 14px !important;
+}
+
+.react-tel-input .search {
+  border: 1px solid #d1d5db !important;
+  border-radius: 4px !important;
+  padding: 4px 8px !important;
+  width: 100% !important;
+}
+
+/* Small form adjustments (for ReachForm) */
+.reach-form .react-tel-input .form-control {
+  height: 32px !important;
+  font-size: 12px !important;
+}
+
+.reach-form .react-tel-input .flag-dropdown {
+  height: 32px !important;
+}
+
+.reach-form .react-tel-input .selected-flag {
+  padding: 0 6px !important;
+}
+
+/* Large form adjustments (for LeadForm) */
+.lead-form .react-tel-input .form-control {
+  height: 40px !important;
+  font-size: 16px !important;
+}
+
+/* Phone display component styles */
+.phone-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.phone-display-preview {
+  padding: 4px 8px;
+  background-color: rgba(39, 39, 42, 0.5);
+  border-radius: 4px;
+  border: 1px solid rgba(113, 113, 122, 0.3);
+}
+
+/* Country code select dropdown fixes */
+[data-radix-popper-content-wrapper] {
+  z-index: 99999 !important;
+}
+
+/* Ensure dropdown content is always visible */
+.country-dropdown-content {
+  z-index: 99999 !important;
+  position: fixed !important;
+}
+
+/* Radix Select Portal content */
+[data-radix-select-content] {
+  z-index: 99999 !important;
+}
+
+/* Override any z-index conflicts */
+.reach-form [data-radix-select-content],
+.lead-form [data-radix-select-content] {
+  z-index: 99999 !important;
+}
+
+/* Ensure forms don't clip the dropdown */
+.reach-form,
+.lead-form {
+  overflow: visible !important;
+}
+
+/* Ensure parent containers don't clip */
+.reach-form .w-full,
+.lead-form .w-full {
+  overflow: visible !important;
 }

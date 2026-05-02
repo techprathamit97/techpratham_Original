@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import course from '@/models/course';
 import { connectMongo } from '@/utils/mongodb';
+import { clearNavbarCache } from '@/utils/navbarData';
 
 export async function DELETE(request: NextRequest) {
     try {
@@ -19,6 +20,9 @@ export async function DELETE(request: NextRequest) {
         if (!deletedCourse) {
             return NextResponse.json({ message: 'Course not found' }, { status: 404 });
         }
+
+        // Clear navbar cache since course has been deleted
+        clearNavbarCache();
 
         return NextResponse.json({
             message: 'Course deleted successfully',

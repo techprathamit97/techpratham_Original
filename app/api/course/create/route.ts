@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import course from '@/models/course';
 import { connectMongo } from '@/utils/mongodb';
+import { clearNavbarCache } from '@/utils/navbarData';
 
 export async function POST(request: NextRequest) {
     try {
@@ -12,6 +13,8 @@ export async function POST(request: NextRequest) {
             ? await course.insertMany(body)
             : await course.create(body);
 
+        // Clear navbar cache since courses have been modified
+        clearNavbarCache();
             
         return NextResponse.json(courseItems, { status: 201 });
     } catch (error: any) {

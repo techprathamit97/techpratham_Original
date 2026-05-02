@@ -59,7 +59,7 @@ const HeaderAbout = () => {
 
 
                 <div className="md:col-span-2 p-2 col-span-1 leading-relaxed space-y-4">
-                    <h1 className="text-2xl md:text-3xl font-bold gap-1 mb-4"
+                    <h1 className="text-2xl text-white md:text-3xl font-bold gap-1 mb-4"
                         // Apply slide-up animation to heading
                         style={{
                             opacity: 0,

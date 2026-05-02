@@ -16,7 +16,7 @@ export async function connectMongo() {
       dbName: "database",
     });
     isConnected = true;
-    console.log(`✅ MongoDB connected to ${db.connection.host}`);
+    console.log(`✅ MongoDB connected to ${db.connection.host} - Database: database`);
   } catch (error) {
     console.error("❌ MongoDB connection error:", error);
     throw new Error("Error connecting to MongoDB");

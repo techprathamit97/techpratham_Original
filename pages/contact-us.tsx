@@ -1,13 +1,19 @@
 import React from 'react';
 import Head from 'next/head';
 
-import type { NextPage } from 'next';
+import type { NextPage, GetServerSideProps } from 'next';
 import ContactViewNew from '@/src/contact/views/ContactViewNew';
 import { IndexController } from '@/src/index/controller/IndexController';
+import { NavbarData } from '@/utils/navbarData';
+import { withNavbarSSR } from '@/utils/withNavbarSSR';
 
-const ContactPage: NextPage = (props) => (
+interface ContactPageProps {
+    navbarData: NavbarData;
+}
+
+const ContactPage: NextPage<ContactPageProps> = ({ navbarData }) => (
     <div>
-        <IndexController {...props}>
+        <IndexController navbarData={navbarData}>
             <Head>
                 <link rel="icon" href="/favicon.ico" type="image/ico" sizes="70x70" />
                 <title>Contact Us | TechPratham - Get in Touch for IT Training Solutions</title>
@@ -30,5 +36,7 @@ const ContactPage: NextPage = (props) => (
         </IndexController>
     </div>
 );
+
+export const getServerSideProps: GetServerSideProps<ContactPageProps> = withNavbarSSR();
 
 export default ContactPage;

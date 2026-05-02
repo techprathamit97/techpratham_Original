@@ -1,13 +1,19 @@
 import React from 'react';
 import Head from 'next/head';
 
-import type { NextPage } from 'next';
+import type { NextPage, GetServerSideProps } from 'next';
 import AdmissionView from '@/src/admission/views/AdmissionView';
 import { IndexController } from '@/src/index/controller/IndexController';
+import { NavbarData } from '@/utils/navbarData';
+import { withNavbarSSR } from '@/utils/withNavbarSSR';
 
-const AdmissionPage: NextPage = (props) => (
+interface AdmissionPageProps {
+    navbarData: NavbarData;
+}
+
+const AdmissionPage: NextPage<AdmissionPageProps> = ({ navbarData }) => (
   <div>
-    <IndexController {...props}>
+    <IndexController navbarData={navbarData}>
       <Head>
         <link rel="icon" href="/favicon.ico" type="image/ico" sizes="70x70" />
         <title>Admission | TechPratham - Apply for IT Training Programs</title>
@@ -30,5 +36,7 @@ const AdmissionPage: NextPage = (props) => (
     </IndexController>
   </div>
 );
+
+export const getServerSideProps: GetServerSideProps<AdmissionPageProps> = withNavbarSSR();
 
 export default AdmissionPage;

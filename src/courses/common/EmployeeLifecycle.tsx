@@ -10,8 +10,8 @@ const EmployeeLifecycle: React.FC = () => {
     { label: "Course Curriculum", id: "course-curriculum" },
     { label: "New Batch", id: "new-batch" },
     { label: "Projects", id: "projects" },
-    { label: "Certificate", id: "certificate" },
-    { label: "Testimonials", id: "testimonials" },
+    { label: "Certificate", id: "faq" },
+    { label: "Testimonials", id: "placement" },
     { label: "FAQ", id: "faq" },
     { label: "Interview FAQ", id: "faq" },
   ];
@@ -28,12 +28,12 @@ const EmployeeLifecycle: React.FC = () => {
   };
 
   return (
-    <section className="relative z-10 w-full  mx-auto">
+    <section className="relative z-40 w-full  mx-auto">
       {/* Lifecycle */}
       <div className="relative z-10 w-full">
         <div className="overflow-x-auto no-scrollbar">
           <div className="w-full  relative">
-            <div className="flex w-full min-w-[1000px] md:h-16 h-8 drop-shadow-2xl">
+            <div className="flex w-full min-w-[1000px] md:h-10 h-8 drop-shadow-2xl">
               {sections.map((step, index) => (
                 <div
                   key={step.id}

@@ -39,7 +39,14 @@ export default function SubSectionEditor() {
           throw new Error("Failed to fetch content");
         }
         const data = await res.json();
-        setPuckData(data || { root: {}, content: [] });
+        
+        // ⭐ FIX: Handle case where subsection doesn't exist yet
+        if (data.error && data.error.includes("not found")) {
+          console.log("SubSection not found, initializing with empty data");
+          setPuckData({ root: {}, content: [] });
+        } else {
+          setPuckData(data || { root: {}, content: [] });
+        }
       } catch (error) {
         console.error("Error fetching content:", error);
         setPuckData({ root: {}, content: [] });

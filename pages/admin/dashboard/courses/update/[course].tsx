@@ -54,6 +54,11 @@ const faqSchema = z.object({
   ans: z.string().min(1, "Answer is required")
 });
 
+const seoFaqSchema = z.object({
+  que: z.string().min(1, "Question is required"),
+  ans: z.string().min(1, "Answer is required")
+});
+
 const projectSchema = z.object({
   company: z.string().min(1, "Company is required"),
   logo: z.string().optional(),
@@ -71,11 +76,17 @@ const courseSchema = z.object({
   image: z.string(),
   alt: z.string().optional(),
   description: z.string().min(1, "Description is required"),
+  certificateName: z.string().optional(), // Dynamic certificate name field
+  whoShouldTakeTitle: z.string().optional(), // Custom title for Who Should Take section
+  jobRoleTitle: z.string().optional(), // Custom title for Job Role section
+  curriculumTitle: z.string().optional(), // Custom title for Curriculum section
+  projectTitle: z.string().optional(), // Custom title for Project section
   rating: z.string().min(1, "Rating is required"),
   duration: z.string().min(1, "Duration is required"),
   level: z.enum(["Beginner", "Intermediate", "Advanced"], { required_error: "Level is required" }),
   category: z.string().min(1, "Category is required"),
   trending: z.boolean().optional(),
+  priority: z.number().min(0, "Priority must be 0 or higher").optional(), // Add priority field
   placement_report: z.string().min(1, "Placement report is required"),
   curriculum: z.string().min(1, "Curriculum is required"),
   interview: z.string().min(1, "Interview information is required"),
@@ -85,6 +96,7 @@ const courseSchema = z.object({
   curriculum_data: z.array(curriculumSchema).optional(),
   skills_data: z.array(z.string()).optional(),
   faqs_data: z.array(faqSchema).optional(),
+  seo_faqs_data: z.array(seoFaqSchema).optional(), // SEO FAQs
   interview_questions_data: z.array(interviewFaqSchema).optional(),
   job_role: z.array(jobRoleSchema).optional(),
   about_certificate_data: aboutCertificateSchema,
@@ -102,6 +114,7 @@ interface Course extends CourseFormData {
   id: string;
   _id: string;
   trending?: boolean;
+  priority?: number; // Add priority field
   metadata?: {
     title?: string;
     description?: string;
@@ -263,11 +276,17 @@ const UpdateCoursePage = () => {
       image: '',
       alt: '',
       description: '',
+      certificateName: '', // Dynamic certificate name field
+      whoShouldTakeTitle: '', // Custom title for Who Should Take section
+      jobRoleTitle: '', // Custom title for Job Role section
+      curriculumTitle: '', // Custom title for Curriculum section
+      projectTitle: '', // Custom title for Project section
       rating: '',
       duration: '',
       level: 'Beginner',
       category: '',
       trending: false,
+      priority: 0, // Add priority field with default value
       placement_report: '',
       curriculum: '',
       interview: '',
@@ -277,6 +296,7 @@ const UpdateCoursePage = () => {
       curriculum_data: [{ que: '', ans: '', topics: [] }],
       skills_data: [],
       faqs_data: [{ que: '', ans: '' }],
+      seo_faqs_data: [{ que: '', ans: '' }], // SEO FAQs default
       interview_questions_data: [{ que: "", ans: "" }],
       job_role: [{ role: '' }],
       about_certificate_data: {
@@ -338,11 +358,17 @@ const UpdateCoursePage = () => {
           image: courseData.image || '',
           alt: courseData.alt || '',
           description: courseData.description || '',
+          certificateName: courseData.certificateName || '', // Load certificate name
+          whoShouldTakeTitle: courseData.whoShouldTakeTitle || '', // Load Who Should Take title
+          jobRoleTitle: courseData.jobRoleTitle || '', // Load Job Role title
+          curriculumTitle: courseData.curriculumTitle || '', // Load Curriculum title
+          projectTitle: courseData.projectTitle || '', // Load Project title
           rating: courseData.rating || '',
           duration: courseData.duration || '',
           level: courseData.level as "Beginner" | "Intermediate" | "Advanced" || 'Beginner',
           category: courseData.category || '',
           trending: courseData.trending ?? false,
+          priority: courseData.priority || 0, // Add priority field
           placement_report: courseData.placement_report || '',
           curriculum: courseData.curriculum || '',
           interview: courseData.interview || '',
@@ -356,6 +382,9 @@ const UpdateCoursePage = () => {
           faqs_data: courseData.faqs_data && courseData.faqs_data.length > 0
             ? courseData.faqs_data
             : [{ que: '', ans: '' }],
+          seo_faqs_data: courseData.seo_faqs_data && courseData.seo_faqs_data.length > 0
+            ? courseData.seo_faqs_data
+            : [{ que: '', ans: '' }], // Load SEO FAQs
           interview_questions_data:
             courseData.interview_questions_data &&
               courseData.interview_questions_data.length > 0
@@ -568,6 +597,15 @@ const UpdateCoursePage = () => {
   } = useFieldArray({
     control: form.control,
     name: 'faqs_data'
+  });
+
+  const {
+    fields: seoFaqFields,
+    append: appendSeoFaq,
+    remove: removeSeoFaq
+  } = useFieldArray({
+    control: form.control,
+    name: 'seo_faqs_data'
   });
 
   const {
@@ -816,6 +854,23 @@ const UpdateCoursePage = () => {
                               </FormItem>
                             )}
                           />
+
+                          <FormField
+                            control={form.control}
+                            name="certificateName"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Certificate Name</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="e.g., Workday HCM Training" {...field} />
+                                </FormControl>
+                                <FormDescription>
+                                  Name to display on the certificate (optional)
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                         </div>
 
                         <div className='w-full grid grid-cols-1 md:grid-cols-2 gap-6'>
@@ -823,7 +878,7 @@ const UpdateCoursePage = () => {
                             <CardHeader>
                               <CardTitle>Course Settings</CardTitle>
                             </CardHeader>
-                            <CardContent className='w-full'>
+                            <CardContent className='w-full space-y-4'>
                               <FormField
                                 control={form.control}
                                 name="trending"
@@ -845,6 +900,30 @@ const UpdateCoursePage = () => {
                                         This course will be displayed in the trending section
                                       </FormDescription>
                                     </div>
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                control={form.control}
+                                name="priority"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Course Priority</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        placeholder="0"
+                                        {...field}
+                                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                                      />
+                                    </FormControl>
+                                    <FormDescription>
+                                      Lower numbers appear first (1=first, 2=second, 3=third, etc.). Leave 0 for default order.
+                                    </FormDescription>
+                                    <FormMessage />
                                   </FormItem>
                                 )}
                               />
@@ -1217,6 +1296,24 @@ const UpdateCoursePage = () => {
                         </Button>
                       </CardHeader>
                       <CardContent>
+                        {/* Curriculum Title Field */}
+                        <FormField
+                          control={form.control}
+                          name="curriculumTitle"
+                          render={({ field }) => (
+                            <FormItem className="mb-4">
+                              <FormLabel>Curriculum Section Title</FormLabel>
+                              <FormControl>
+                                <Input placeholder="e.g., Course Curriculum" {...field} />
+                              </FormControl>
+                              <FormDescription>
+                                Custom title for the "Curriculum" section (optional)
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
                         {curriculumFields.map((field, index) => (
                           <CurriculumTopicItem
                             key={field.id}
@@ -1380,7 +1477,24 @@ const UpdateCoursePage = () => {
                         </Button>
                       </CardHeader>
 
-                      <CardContent>
+                      <CardContent className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="jobRoleTitle"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Job Role Section Title</FormLabel>
+                              <FormControl>
+                                <Input placeholder="e.g., Career Opportunities" {...field} />
+                              </FormControl>
+                              <FormDescription>
+                                Custom title for the "Job Role" section (optional)
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
                         {jobRoleFields.map((field, index) => (
                           <div key={field.id} className="flex gap-2 mb-3">
                             <FormField
@@ -1408,6 +1522,69 @@ const UpdateCoursePage = () => {
                       </CardContent>
                     </Card>
 
+                    {/* SEO FAQs Section */}
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle>SEO FAQs</CardTitle>
+                        <Button
+                          type="button"
+                          onClick={() => appendSeoFaq({ que: '', ans: '' })}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add SEO FAQ
+                        </Button>
+                      </CardHeader>
+                      <CardContent>
+                        {seoFaqFields.map((field, index) => (
+                          <Card key={field.id} className="mb-4">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                              <CardTitle className="text-sm font-medium">SEO FAQ {index + 1}</CardTitle>
+                              {seoFaqFields.length > 1 && (
+                                <Button
+                                  type="button"
+                                  onClick={() => removeSeoFaq(index)}
+                                  variant="destructive"
+                                  size="sm"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </CardHeader>
+                            <CardContent>
+                              <FormField
+                                control={form.control}
+                                name={`seo_faqs_data.${index}.que`}
+                                render={({ field }) => (
+                                  <FormItem className="mb-4">
+                                    <FormLabel>Question</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="Enter SEO FAQ question" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                control={form.control}
+                                name={`seo_faqs_data.${index}.ans`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Answer</FormLabel>
+                                    <FormControl>
+                                      <QuillEditor field={field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </CardContent>
+                    </Card>
 
                     <Card>
                       <CardHeader>
@@ -1452,6 +1629,30 @@ const UpdateCoursePage = () => {
 
 
                     {/* Project Section */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Projects</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {/* Project Title Field */}
+                        <FormField
+                          control={form.control}
+                          name="projectTitle"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Project Section Title</FormLabel>
+                              <FormControl>
+                                <Input placeholder="e.g., Key Projects" {...field} />
+                              </FormControl>
+                              <FormDescription>
+                                Custom title for the "Project" section (optional)
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </CardContent>
+                    </Card>
 
                     <CardContent className="bg-white">
                       {projectFields.map((field, index) => (
@@ -1655,7 +1856,30 @@ const UpdateCoursePage = () => {
                       </Button>
                     </CardContent>
 
-
+                    {/* Who Should Take Section Title */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Who Should Take Section Title</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        <FormField
+                          control={form.control}
+                          name="whoShouldTakeTitle"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Who Should Take Section Title</FormLabel>
+                              <FormControl>
+                                <Input placeholder="e.g., Who Should Take This Course" {...field} />
+                              </FormControl>
+                              <FormDescription>
+                                Custom title for the "Who Should Take" section (optional)
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </CardContent>
+                    </Card>
 
                     {/* Submit Button */}
                     <Card>

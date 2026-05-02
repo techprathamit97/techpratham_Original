@@ -136,29 +136,60 @@ import NewsHighlights from '../components/News/News';
 
 
 interface Course {
-  id: string;
+  _id?: string;
+  id?: string;
   title: string;
   image: string;
+  alt?: string;
   category: string;
   link: string;
-  shortDesc: string;
-  level: string;
-  rating: number;
-  duration: string;
-  description: string;
+  shortDesc?: string;
+  level?: string;
+  rating?: number;
+  duration?: string;
+  description?: string;
+  trending?: boolean;
 }
 
-const IndexView: React.FC = () => {
+interface CourseCategory {
+  name: string;
+  courses: Course[];
+}
+
+interface EventItem {
+  _id: string;
+  type: "video" | "placement" | "hiring";
+  videoUrl?: string;
+  image?: string;
+}
+
+interface IndexViewProps {
+  initialTrendingCourses?: Course[];
+  initialGroupedCourses?: CourseCategory[];
+  initialEvents?: EventItem[];
+}
+
+const IndexView: React.FC<IndexViewProps> = ({ 
+  initialTrendingCourses = [],
+  initialGroupedCourses = [],
+  initialEvents = []
+}) => {
   const { setActiveTab } = useContext(UserContext);
 
   useEffect(() => {
     setActiveTab('home');
   }, [setActiveTab]);
 
-  const [course, setCourse] = useState<Course[]>([]);
+  const [course, setCourse] = useState<Course[]>(initialTrendingCourses);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  // Only fetch if no initial data provided (fallback for client-side navigation)
   useEffect(() => {
+    if (initialTrendingCourses.length > 0) {
+      // Already have server-side data, no need to fetch
+      return;
+    }
+
     const fetchCourseData = async (): Promise<void> => {
       setIsLoading(true);
       try {
@@ -177,7 +208,7 @@ const IndexView: React.FC = () => {
     };
 
     fetchCourseData();
-  }, []);
+  }, [initialTrendingCourses]);
 
   return (
     <div className='w-full h-auto flex flex-col items-center justify-center relative'>
@@ -191,9 +222,9 @@ const IndexView: React.FC = () => {
       <ClientHome />
 
       {/* <section id="courses"> */}
-  <CoursesHome />
+  <CoursesHome initialGroupedCourses={initialGroupedCourses} />
 {/* </section> */}
-      <NewComponent/>
+      <NewComponent initialEvents={initialEvents} />
 
       <CareerHome />
 

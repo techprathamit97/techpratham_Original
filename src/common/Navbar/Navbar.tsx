@@ -1,15 +1,27 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
-import { BackpackIcon, Cross2Icon, DashboardIcon, HamburgerMenuIcon } from '@radix-ui/react-icons';
+import { 
+  BackpackIcon, 
+  Cross2Icon, 
+  DashboardIcon, 
+  HamburgerMenuIcon, 
+  HomeIcon, 
+  PersonIcon, 
+  CardStackIcon, 
+  EnvelopeClosedIcon,
+  StarIcon,
+  FileTextIcon,
+  IdCardIcon,
+  MagnifyingGlassIcon
+} from '@radix-ui/react-icons';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search } from 'lucide-react';
 import { UserContext } from '@/context/userContext';
-import { toast } from 'sonner';
 import { signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
-import Logo from './logo'
+import { NavbarData, NavbarCategory } from '@/utils/navbarData';
 
 
 // Type definitions
@@ -35,22 +47,22 @@ interface UserContextType {
   loading: boolean;
 }
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  navbarData?: NavbarData;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
   const [isActive, setIsActive] = useState<boolean>(false);
   const [navOpen, setNavOpen] = useState<boolean>(false);
   const [searchActive, setSearchActive] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  // const [selectedCategoryIdx, setSelectedCategoryIdx] = useState<number>(0);
   const { authenticated, isAdmin, loading } = useContext(UserContext) as UserContextType;
-  const [categories, setCategories] = useState<{ name: string }[]>([]);
-  // const [selectedCategoryIdx, setSelectedCategoryIdx] = useState<number>(0);
-  // const [isLoading, setIsLoading] = useState(false);
+  
+  // Initialize with server-side data or empty arrays
+  const [categories] = useState<NavbarCategory[]>(navbarData?.categories || []);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [allCourses, setAllCourses] = useState<Course[]>([]);
-
-
-  const [course, setCourse] = useState<Course[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [allCourses] = useState<Course[]>(navbarData?.allCourses || []);
+  const [isLoading] = useState<boolean>(false);
   const pathname = usePathname();
   // const [hasFetched, setHasFetched] = useState<boolean>(false);
   // Refs for click outside detection
@@ -60,77 +72,63 @@ const Navbar: React.FC = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchContainerRef = useRef<HTMLFormElement>(null);
 
+  // Initialize selected category when categories are available
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await fetch("/api/category/fetch");
-        const data = await res.json();
-        setCategories(data);  // Assuming API returns array of { name: string }
-      } catch (err) {
-        console.error("Failed to fetch categories", err);
-      }
-    };
-    fetchCategories();
-  }, []);
-  const fetchCoursesByCategory = async (categoryName: string) => {
-    setIsLoading(true);
-    try {
-      const res = await fetch(
-        `/api/course/fetch?category=${encodeURIComponent(categoryName)}`
-      );
-
-      const data = await res.json();
-
-      // 🔥 Remove trending courses from course list
-      const filteredCourses = data.filter(
-        (c: Course) =>
-          c.category?.toLowerCase() !== "Trending Courses"
-      );
-
-      setCourse(filteredCourses);
-
-    } catch (err) {
-      console.error("Failed to fetch courses", err);
-      setCourse([]);
-    } finally {
-      setIsLoading(false);
+    if (categories.length > 0 && !selectedCategory) {
+      setSelectedCategory(categories[0].name);
     }
-  };
+  }, [categories, selectedCategory]);
+
+  // Fallback: fetch data client-side if not provided via props
+ 
+  // Get courses for the selected category from server-side data
+  const selectedCategoryCourses = React.useMemo(() => {
+    const category = categories.find(cat => cat.name === selectedCategory);
+    return category?.courses || [];
+  }, [categories, selectedCategory]);
 
 
-  const filteredCategories = React.useMemo(() => {
-    return categories.filter(
-      (cat) => cat.name !== "Trending Courses"
-    );
-  }, [categories]);
+  // Remove the filteredCategories memo since categories already come filtered from server
+  // const filteredCategories = React.useMemo(() => {
+  //   return categories.filter(
+  //     (cat) => cat.name !== "Trending Courses"
+  //   );
+  // }, [categories]);
 
 
-  useEffect(() => {
-    if (filteredCategories.length) {
-      const first = filteredCategories[0].name;
-      setSelectedCategory(first);
-      fetchCoursesByCategory(first);
-    }
-  }, [filteredCategories]);
+  // Remove the useEffect that fetches courses by category since we have server-side data
+  // useEffect(() => {
+  //   if (filteredCategories.length) {
+  //     const first = filteredCategories[0].name;
+  //     setSelectedCategory(first);
+  //     fetchCoursesByCategory(first);
+  //   }
+  // }, [filteredCategories]);
 
-  useEffect(() => {
-    const fetchAllCourses = async () => {
-      try {
-        const res = await fetch(`/api/course/fetch`);
+  // Remove the useEffect that fetches all courses since we have server-side data
+  // useEffect(() => {
+  //   // Only fetch all courses if not provided via props
+  //   if (navbarData?.allCourses && navbarData.allCourses.length > 0) {
+  //     return; // Use server-side data
+  //   }
 
-        if (!res.ok) throw new Error("Failed");
+  //   const fetchAllCourses = async () => {
+  //     try {
+  //       const res = await fetch(`/api/course/fetch`);
 
-        const data: Course[] = await res.json();
+  //       if (!res.ok) throw new Error("Failed");
 
-        setAllCourses(data);
+  //       const data: Course[] = await res.json();
 
-      } catch (err) {
-        console.error("Global course fetch failed", err);
-      }
-    };
+  //       setAllCourses(data);
 
-    fetchAllCourses();
-  }, []);
+  //     } catch (err) {
+  //       console.error("Global course fetch failed", err);
+  //     }
+  //   };
+
+  //   fetchAllCourses();
+  // }, [navbarData]);
 
 
   // useEffect(() => {
@@ -218,7 +216,7 @@ const Navbar: React.FC = () => {
 
   // Filter courses based on search query
   const filteredCourses = React.useMemo((): Course[] => {
-    if (!searchQuery.trim() || !course) return [];
+    if (!searchQuery.trim() || !allCourses) return [];
 
     const query = searchQuery.toLowerCase();
     return allCourses.filter(c =>
@@ -242,24 +240,22 @@ const Navbar: React.FC = () => {
     }));
   }, [filteredCourses]);
 
-  const coursesByCategory = React.useMemo(() => {
-    return filteredCategories.map((category) => ({
-      name: category.name,
-      courses:
-        selectedCategory === category.name
-          ? course
-          : [],
-    }));
-  }, [filteredCategories, course, selectedCategory]);
+  // Remove the old coursesByCategory memo since we're using selectedCategoryCourses
+  // const coursesByCategory = React.useMemo(() => {
+  //   return filteredCategories.map((category) => ({
+  //     name: category.name,
+  //     courses:
+  //       selectedCategory === category.name
+  //         ? course
+  //         : [],
+  //   }));
+  // }, [filteredCategories, course, selectedCategory]);
 
 
 
-  // const handleCategorySelect = (idx: number): void => {
-  //   setSelectedCategoryIdx(idx);
-  // };
+  // Simplified category selection - no need to fetch since we have all data
   const handleCategorySelect = (name: string) => {
     setSelectedCategory(name);
-    fetchCoursesByCategory(name);
   };
 
 
@@ -306,9 +302,9 @@ const Navbar: React.FC = () => {
     <div className={`${(isActive || searchActive) ? 'fixed top-0 left-0' : 'absolute'}  w-full bottom-0 flex flex-col items-center md:static sticky left-0 z-30 shadow-md justify-center`}>
 
       <div className='bg-gradient-to-tl from-[#C6151D] to-[#600A0E] text-white w-full h-auto flex items-center justify-center z-[50]'>
-        <div className='lg:w-5xl w-5xl lg:py-1 md:py-1 py-1 md:flex hidden flex-row gap-4 lg:justify-start justify-between items-center font-light'>
+        <div className='w-full lg:py-1 md:py-1 py-1 md:flex hidden flex-row gap-4 lg:justify-center justify-between items-center font-light'>
           <Link href={'/'} aria-label='Techpratham'>
-            <div className="relative w-36">
+            <div className="relative w-36 ">
               <Image
                 src={'/navbar/logotechnolyfirst2.svg'}
                 alt='Techpratham Logo'
@@ -324,7 +320,7 @@ const Navbar: React.FC = () => {
           </Link>
 
 
-          <div className='flex flex-row gap-3 items-center justify-center'>
+          <div className='flex flex-row gap-1 items-center justify-center'>
             <form onSubmit={handleSearchSubmit} className='flex flex-row lg:w-60 md:w-72' ref={searchContainerRef}>
               <Input
                 ref={searchInputRef}
@@ -344,14 +340,14 @@ const Navbar: React.FC = () => {
               </button>
             </form>
             <button
-
               ref={coursesButtonRef}
               onClick={handleCoursesToggle}
+              onMouseEnter={handleCoursesToggle}
               className="hidden sm:flex flex-row text-white gap-1 items-center justify-center cursor-pointer text-xs hover:opacity-80 transition-opacity"
               aria-label="Toggle courses menu"
             >
               <DashboardIcon className="w-4 h-4" />
-              <span>All Courses</span>
+              <span className='text-sm'>All Courses</span>
             </button>
             <button className='lg:hidden flex' onClick={handleNavToggle} aria-label='Toggle navigation menu'>
               <HamburgerMenuIcon className='w-5 h-5' />
@@ -359,10 +355,22 @@ const Navbar: React.FC = () => {
           </div>
 
 
-          <Link href="/" className={`cursor-pointer text-sm transition-colors ${pathname === '/' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>Home</Link>
-          <Link href="/about-us" className={`cursor-pointer text-sm transition-colors ${pathname === '/about-us' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>About Us</Link>
-          <Link href="/payment" className={`cursor-pointer text-sm transition-colors ${pathname === '/payment' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>Payment</Link>
-          <Link href="/contact-us" className={`cursor-pointer text-sm transition-colors ${pathname === '/contact-us' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>Contact Us</Link>
+          <Link href="/" className={`cursor-pointer text-sm transition-colors flex items-center gap-1 ${pathname === '/' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>
+            <HomeIcon className="w-4 h-4" />
+            <span>Home</span>
+          </Link>
+          <Link href="/about-us" className={`cursor-pointer text-sm transition-colors flex items-center gap-1 ${pathname === '/about-us' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>
+            <PersonIcon className="w-4 h-4" />
+            <span>About Us</span>
+          </Link>
+          <Link href="/payment" className={`cursor-pointer text-sm transition-colors flex items-center gap-1 ${pathname === '/payment' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>
+            <CardStackIcon className="w-4 h-4" />
+            <span>Payment</span>
+          </Link>
+          <Link href="/contact-us" className={`cursor-pointer text-sm transition-colors flex items-center gap-1 ${pathname === '/contact-us' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>
+            <EnvelopeClosedIcon className="w-4 h-4" />
+            <span>Contact Us</span>
+          </Link>
 
           <Link href='/corporate-training' className='lg:flex hidden flex-row gap-2 items-center text-sm justify-center cursor-pointer hover:opacity-80 transition-opacity'>
             <BackpackIcon className='w-4 h-4' />
@@ -390,7 +398,18 @@ const Navbar: React.FC = () => {
         <div className='w-11/12 md:hidden flex flex-col gap-1 items-center  justify-between sticky pb-3  '>
           <div className='w-full h-full flex flex-row items-center gap-4 justify-between '>
             <Link href={'/'} aria-label='Techpratham'>
-              <Image src={'/navbar/mlogo.svg'} alt='Techpratham Logo' width={100} height={50} className='w-40 h-auto' />
+              <div className="relative w-32">
+                <Image
+                  src={'/navbar/logotechnolyfirst2.svg'}
+                  alt='Techpratham Logo'
+                  width={128}
+                  height={48}
+                  className='w-full h-auto'
+                />
+                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[6px] text-white whitespace-nowrap">
+                  Technology First
+                </span>
+              </div>
             </Link>
             <form onSubmit={handleSearchSubmit} className='flex flex-row md:w-full w-22' ref={searchContainerRef}>
               <Input
@@ -422,23 +441,23 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-      <div className="w-full bg-yellow-600  h-auto py-2 lg:flex items-center justify-center  border-b border-b-gray-100 z-50">
-        <nav className="menu w-full md:pl-3  text-xs font-extrabold flex flex-row flex-wrap gap-2 items-center justify-start">
+      <div className="w-full bg-yellow-600  h-auto py-1 lg:flex items-center justify-center  border-b border-b-gray-100 z-50">
+        <nav className="menu w-full md:pl-3  text-xs  font-extrabold flex flex-row flex-wrap gap-2 items-center justify-start">
 
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col items-center  sm:flex-row gap-3">
 
             <Link
               href="/courses/servicenow-training-in-india"
-              className="cursor-pointer hidden sm:flex text-xs px-1  text-gray-900 font-extrabold hover:text-red-700 transition-colors"
+              className="cursor-pointer hidden sm:flex  bg-gradient-to-tl from-[#C6151D] to-[#600A0E] px-2 py-2 rounded-lg text-gray-300 font-extrabold "
             >
               ServiceNow Training
             </Link>
 
             <Link
-              href="/contents/workday-hcm"
-              className="cursor-pointer hidden sm:flex px-1  text-gray-900 text-xs font-extrabold hover:text-red-700 transition-colors"
+              href="/e-book/workday"
+              className="cursor-pointer text-gray-300 hidden sm:flex bg-gradient-to-tl from-[#C6151D] to-[#600A0E] px-2 py-2 rounded-lg   text-xs font-extrabold "
             >
-              Workday HCM Training
+              Workday e-Book
             </Link>
 
 
@@ -448,24 +467,23 @@ const Navbar: React.FC = () => {
           <div className="overflow-x-scroll flex-1 relative md:ml-4 no-scrollbar z-50">
             <div className="whitespace-nowrap animate-scroll flex flex-row gap-2">
               {[
-                { href: "/content/workday-hcm-training", text: "Organization in Workday" },
-                { href: "/content/staffing-models", text: "Staffing in Workday" },
-                { href: "/content/workday-hcm-training", text: "Job Profile in Workday" },
-                { href: "/content/workday-hcm-training", text: "Compensation in Workday" },
-                { href: "/content/workday-hcm-training", text: "Security in Workday" },
-                { href: "/content/workday-hcm-training", text: "Business Process in Workday" },
-                { href: "/content/workday-hcm-training", text: "Integration in Workday" },
-                { href: "/content/workday-hcm-training", text: "Reporting in Workday" },
+                { href: "/e-book/workday/Organizations-and-Organizations-Types", text: "Organization in Workday" },
+                { href: "/e-book/workday/Foundations-Of-Staffing-Model", text: "Staffing in Workday" },
+                { href: "/e-book/workday/Job-Profiles", text: "Job Profile in Workday" },
+                { href: "/e-book/workday/Core-Compensation", text: " Core Compensation in Workday" },
+                { href: "/e-book/workday/Security", text: "Security in Workday" },
+                { href: "/e-book/workday/Business-Processes", text: "Business Process in Workday" },  
+                { href: "/e-book/workday/Reporting", text: "Reporting in Workday" },
                 { href: "/content/workday-hcm-training", text: "Recruitment in Workday" },
-                { href: "/content/workday-hcm-training", text: "Talent Management" },
-                { href: "/content/workday-hcm-training", text: "Performance Management" },
+                { href: "/e-book/workday/workday-absence-management-time-off", text: "Absence management & Time Off in Workday" },
+                { href: "/e-book/workday/workday-talent-and-performance-management", text: "Performance Management in Workday" },
                 { href: "/content/workday-hcm-training", text: "Advanced Compensation" },
-                { href: "/content/workday-hcm-training", text: "Leave & Attendance" },
+                { href: "/e-book/workday/EIB", text: "EIB in Workday" },
               ].map((item, index) => (
                 <Link
                   key={index}
                   href={item.href}
-                  className="px-4 py-1 rounded-lg bg-gradient-to-tl from-[#C6151D] to-[#600A0E] text-white font-medium border border-gray-200
+                  className="px-2 py-1 border-2 border-red-800 rounded-lg text-black font-medium 
                        hover:bg-red-700 hover:text-white  transition-all duration-300 inline-block"
                 >
                   {item.text}
@@ -492,53 +510,62 @@ const Navbar: React.FC = () => {
           ${navOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}
         `}>
           <Link href='/' onClick={handleNavToggle} className="w-full">
-            <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105">
+            <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105 flex items-center gap-2">
+              <HomeIcon className="w-4 h-4" />
               Home
             </Button>
           </Link>
           <Link href='/courses' onClick={handleNavToggle} className="w-full">
-            <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105">
+            <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105 flex items-center gap-2">
+              <DashboardIcon className="w-4 h-4" />
               Courses
             </Button>
           </Link>
           <Link href='/about-us' onClick={handleNavToggle} className="w-full">
-            <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105">
+            <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105 flex items-center gap-2">
+              <PersonIcon className="w-4 h-4" />
               About Us
             </Button>
           </Link>
 
           <Link href='/training-certificate' onClick={handleNavToggle} className="w-full">
-            <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105">
+            <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105 flex items-center gap-2">
+              <IdCardIcon className="w-4 h-4" />
               Training Certificate
             </Button>
           </Link>
 
           <Link href='/job-openings' onClick={handleNavToggle} className="w-full">
-            <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105">
+            <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105 flex items-center gap-2">
+              <MagnifyingGlassIcon className="w-4 h-4" />
               Job Openings
             </Button>
           </Link>
 
           <Link href='/reviews' onClick={handleNavToggle} className="w-full">
-            <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105">
+            <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105 flex items-center gap-2">
+              <StarIcon className="w-4 h-4" />
               Reviews
             </Button>
           </Link>
 
           <Link href='/blog' onClick={handleNavToggle} className="w-full">
-            <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105">
+            <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105 flex items-center gap-2">
+              <FileTextIcon className="w-4 h-4" />
               Blogs
             </Button>
           </Link>
 
           <Link href='/payment' onClick={handleNavToggle} className="w-full">
-            <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105">
+            <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105 flex items-center gap-2">
+              <CardStackIcon className="w-4 h-4" />
               Payment
             </Button>
           </Link>
 
           <Link href='/contact-us' onClick={handleNavToggle} className="w-full">
-            <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105">
+            <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105 flex items-center gap-2">
+              <EnvelopeClosedIcon className="w-4 h-4" />
               Contact Us
             </Button>
           </Link>
@@ -595,9 +622,10 @@ const Navbar: React.FC = () => {
             {categories.length === 0 ? (
               <span>No categories available</span>
             ) : (
-              filteredCategories.map((category) => (
+              categories.map((category) => (
                 <button
                   key={category.name}
+                  data-testid="category-button"
                   className={`text-left bg-gray-50 px-3 py-1 rounded ${selectedCategory === category.name
                     ? "bg-red-700 text-white font-semibold"
                     : "hover:bg-gray-100 text-gray-700"
@@ -605,12 +633,15 @@ const Navbar: React.FC = () => {
                   onClick={() =>
                     handleCategorySelect(category.name)
                   }
+                  onMouseEnter={() =>
+                    handleCategorySelect(category.name)
+                  }
                 >
                   {category.name}
 
                   {selectedCategory === category.name && (
                     <span className="ml-2 text-xs opacity-75">
-                      ({course.length})
+                      ({selectedCategoryCourses.length})
                     </span>
                   )}
                 </button>
@@ -621,8 +652,8 @@ const Navbar: React.FC = () => {
           </div>
 
           <div className='col-span-1 md:col-span-2 p-4 flex flex-col bg-gray-100 rounded gap-2 border border-gray-200 max-h-80 overflow-y-auto'>
-            <div className='bg-gray-50  border-b border-gray-200'>
-              <h3 className='font-semibold text-lg text-gray-800'>
+            <div className='bg-[#B91C1C] rounded-lg text-center justify-center  border-b border-gray-200'>
+              <h3 className='font-semibold text-lg text-white p-1'>
                 {selectedCategory || 'All'} Courses
               </h3>
             </div>
@@ -632,18 +663,19 @@ const Navbar: React.FC = () => {
                 <div className='flex items-center justify-center h-32'>
                   <span className='text-gray-500'>Loading courses...</span>
                 </div>
-              ) : course.length === 0 ? (
+              ) : selectedCategoryCourses.length === 0 ? (
                 <div className='flex items-center justify-center h-32'>
                   <span className='text-gray-500'>
                     No courses available in this category
                   </span>
                 </div>
               ) : (
-                course.map((c) => (
+                selectedCategoryCourses.map((c: Course) => (
                   <Link
                     key={`${c.id}-${c.link}`}
                     href={`/courses/${c.link}`}
                     onClick={handleCourseClick}
+                    data-testid="course-item"
                     className='block p-2 bg-white rounded-lg border border-gray-200 hover:border-red-300 hover:shadow-sm transition-all duration-200 group'
                   >
                     <div className='flex flex-col gap-1'>

@@ -13,12 +13,14 @@ let lastFetchTime = 0;
 // Cache TTL → 60 seconds (adjustable)
 const CACHE_TTL = 60 * 1000;
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const bustCache = searchParams.get('bustCache');
     const now = Date.now();
 
-    // ✅ 1️⃣ Serve from cache if valid
-    if (cachedData && now - lastFetchTime < CACHE_TTL) {
+    // ✅ 1️⃣ Serve from cache if valid (unless cache busting is requested)
+    if (!bustCache && cachedData && now - lastFetchTime < CACHE_TTL) {
       return NextResponse.json(cachedData, {
         headers: {
           "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
@@ -26,21 +28,35 @@ export async function GET() {
       });
     }
 
-
     await connectMongo();
 
-    // ✅ 3️⃣ Fetch only required fields
+    // ✅ 3️⃣ Fetch only required fields including priority
     const courses = await Course.find(
       {},
-      "_id title image alt category link trending"
+      "_id title image alt category link trending priority"
     ).lean();
 
-    // ✅ 4️⃣ Separate trending & normal courses
-    const trendingCourses = courses.filter(course => course.trending === true);
+    // ✅ Sort courses by priority (handle null/undefined priority values)
+    // LOWER priority numbers appear FIRST (1, 2, 3, 4, 5, etc.)
+    const sortedCourses = courses.sort((a, b) => {
+      const priorityA = a.priority || 999; // Default high number for courses without priority
+      const priorityB = b.priority || 999;
+      
+      // Sort by priority ASCENDING (lower numbers first: 1, 2, 3, 4, 5...)
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB; // Lower priority number appears first
+      }
+      
+      // If priorities are equal, sort by creation date (newer first)
+      return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+    });
+
+    // ✅ 4️⃣ Separate trending & normal courses (both sorted by priority)
+    const trendingCourses = sortedCourses.filter(course => course.trending === true);
 
     const categoryMap: Record<string, any[]> = {};
 
-    for (const course of courses) {
+    for (const course of sortedCourses) {
       if (course.trending) continue;
 
       if (!categoryMap[course.category]) {
@@ -50,10 +66,10 @@ export async function GET() {
       categoryMap[course.category].push(course);
     }
 
-    // ✅ 5️⃣ Convert category map → array
+    // ✅ 5️⃣ Convert category map → array (courses already sorted by priority from query)
     const normalCategories = Object.keys(categoryMap).map(category => ({
       name: category,
-      courses: categoryMap[category],
+      courses: categoryMap[category], // Already sorted by priority from the main query
     }));
 
     // ✅ 6️⃣ Trending ALWAYS first

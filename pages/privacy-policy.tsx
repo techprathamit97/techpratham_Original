@@ -1,11 +1,18 @@
 import React from 'react';
+import type { NextPage, GetServerSideProps } from 'next';
 import Navbar from '@/src/common/Navbar/Navbar';
 import Footer from '@/src/common/Footer/Footer';
+import { NavbarData } from '@/utils/navbarData';
+import { withNavbarSSR } from '@/utils/withNavbarSSR';
 
-const PrivacyPolicy = () => {
+interface PrivacyPolicyProps {
+    navbarData: NavbarData;
+}
+
+const PrivacyPolicy: NextPage<PrivacyPolicyProps> = ({ navbarData }) => {
     return (
         <React.Fragment>
-            <Navbar />
+            <Navbar navbarData={navbarData} />
             <div className='w-full h-auto flex flex-col items-center justify-center pt-36 pb-16'>
                 <div className='md:w-10/12 w-11/12 text-black'>
 
@@ -160,5 +167,7 @@ const PrivacyPolicy = () => {
         </React.Fragment>
     )
 }
+
+export const getServerSideProps: GetServerSideProps<PrivacyPolicyProps> = withNavbarSSR();
 
 export default PrivacyPolicy

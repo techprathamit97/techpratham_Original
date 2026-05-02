@@ -34,15 +34,14 @@ const WhoShouldTakeWorkday = ({ course }: any) => {
 
   return (
     <section className="w-full bg-white py-5">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="m-2 p-2 py-5 border-2">
         {/* Heading */}
         <div className="text-center mb-5">
          
 
          <div className="text-center mb-12">
         <h2 className="text-[#7f1d1d] md:text-3xl text-2xl font-bold">
-          Who Should Take{" "}
-            <span dangerouslySetInnerHTML={{ __html: course.title }} />
+          {course?.whoShouldTakeTitle || `Who Should Take ${course?.title || 'This Course'}`}
         </h2>
 
         <svg

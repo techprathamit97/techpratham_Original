@@ -19,9 +19,21 @@ export async function GET(request: Request) {
         const courseItems = await course
             .find({ category: category })
             .limit(3)
-            .sort({ createdAt: -1 });
+            .lean(); // Remove sort from here, we'll sort manually
 
-        if (courseItems.length === 0) {
+        // Sort by priority (lower numbers first: 1, 2, 3...)
+        const sortedCourses = courseItems.sort((a, b) => {
+          const priorityA = a.priority || 999;
+          const priorityB = b.priority || 999;
+          
+          if (priorityA !== priorityB) {
+            return priorityA - priorityB; // Lower priority number appears first
+          }
+          
+          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+        });
+
+        if (sortedCourses.length === 0) {
             return NextResponse.json(
                 { message: 'No courses found for this category' },
                 { status: 404 }
@@ -30,8 +42,8 @@ export async function GET(request: Request) {
 
         return NextResponse.json({
             category: category,
-            count: courseItems.length,
-            courses: courseItems
+            count: sortedCourses.length,
+            courses: sortedCourses
         }, { status: 200 });
 
     } catch (error: any) {
@@ -64,12 +76,24 @@ export async function POST(request: Request) {
         const courseItems = await course
             .find(query)
             .limit(3)
-            .sort({ createdAt: -1 });
+            .lean(); // Remove sort from here, we'll sort manually
+
+        // Sort by priority (lower numbers first: 1, 2, 3...)
+        const sortedCourses = courseItems.sort((a, b) => {
+          const priorityA = a.priority || 999;
+          const priorityB = b.priority || 999;
+          
+          if (priorityA !== priorityB) {
+            return priorityA - priorityB; // Lower priority number appears first
+          }
+          
+          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+        });
 
         return NextResponse.json({
             category: category,
-            count: courseItems.length,
-            courses: courseItems
+            count: sortedCourses.length,
+            courses: sortedCourses
         }, { status: 200 });
 
     } catch (error: any) {

@@ -1,11 +1,18 @@
 import Footer from '@/src/common/Footer/Footer';
 import Navbar from '@/src/common/Navbar/Navbar';
 import React from 'react';
+import type { NextPage, GetServerSideProps } from 'next';
+import { NavbarData } from '@/utils/navbarData';
+import { withNavbarSSR } from '@/utils/withNavbarSSR';
 
-const CancellationRefundPolicy = () => {
+interface CancellationRefundPolicyProps {
+    navbarData: NavbarData;
+}
+
+const CancellationRefundPolicy: NextPage<CancellationRefundPolicyProps> = ({ navbarData }) => {
     return (
         <React.Fragment>
-            <Navbar />
+            <Navbar navbarData={navbarData} />
             <div className='w-full h-auto flex flex-col items-center justify-center pt-36 pb-16'>
                 <div className='md:w-10/12 w-11/12 text-black'>
                     {/* Header */}
@@ -201,4 +208,7 @@ const CancellationRefundPolicy = () => {
     )
 }
 
-export default CancellationRefundPolicy
+export default CancellationRefundPolicy;
+
+// Add navbar SSR
+export const getServerSideProps = withNavbarSSR();

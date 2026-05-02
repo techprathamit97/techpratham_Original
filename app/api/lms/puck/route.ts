@@ -15,6 +15,8 @@ export async function GET(req: Request) {
     const sectionId = searchParams.get("sectionId");
     const subSectionId = searchParams.get("subSectionId");
 
+    console.log(`[Puck GET] Fetching: courseId=${courseId}, lessonId=${lessonId}, sectionId=${sectionId}, subSectionId=${subSectionId}`);
+
     if (!courseId || !lessonId) {
       return NextResponse.json({ error: "courseId and lessonId are required" }, { status: 400 });
     }
@@ -62,18 +64,62 @@ export async function GET(req: Request) {
       });
     }
 
+    console.log(`[Puck GET] MongoDB Pipeline:`, JSON.stringify(pipeline, null, 2));
+    
     const result = await LmsContent.aggregate(pipeline);
+    console.log(`[Puck GET] Aggregation result:`, JSON.stringify(result, null, 2));
 
-    const puckData = result[0]?.puckData || { root: {}, content: [] };
+    let puckData = result[0]?.puckData || { root: {}, content: [] };
+    
+    // ⭐ FIX: Add validation and fallback for puckData structure
+    if (!puckData || typeof puckData !== 'object') {
+      console.log(`[Puck GET] WARNING: Invalid puckData, using default:`, puckData);
+      puckData = { root: {}, content: [] };
+    } else {
+      // Ensure content is an array
+      if (!Array.isArray(puckData.content)) {
+        console.log(`[Puck GET] WARNING: content is not an array, converting:`, puckData.content);
+        puckData.content = [];
+      }
+      
+      // Ensure root exists
+      if (!puckData.root || typeof puckData.root !== 'object') {
+        console.log(`[Puck GET] WARNING: root is missing or invalid, setting default:`, puckData.root);
+        puckData.root = {};
+      }
+      
+      // Ensure zones exist if referenced in content
+      if (!puckData.zones) {
+        puckData.zones = {};
+      }
+    }
+    
+    console.log(`[Puck GET] Final puckData structure:`, {
+      hasContent: !!puckData.content,
+      contentLength: puckData.content?.length || 0,
+      hasZones: !!puckData.zones,
+      zonesKeys: puckData.zones ? Object.keys(puckData.zones) : [],
+      hasRoot: !!puckData.root
+    });
+
+    // ⭐ FIX: Smarter caching - shorter cache for recently updated content
+    const hasTimestamp = req.url.includes('t=');
+    const cacheControl = hasTimestamp 
+      ? "no-cache, no-store, must-revalidate" // Force fresh data when timestamp present
+      : "public, s-maxage=30, stale-while-revalidate=60";
 
     return NextResponse.json(puckData, {
       headers: {
-        "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60"
+        "Cache-Control": cacheControl
       }
     });
   } catch (error: any) {
     console.error("Puck API Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("Error stack:", error.stack);
+    return NextResponse.json({ 
+      error: error.message,
+      details: `Failed to fetch puck data for courseId=${req.url}`
+    }, { status: 500 });
   }
 }
 
@@ -135,53 +181,71 @@ export async function POST(req: Request) {
 
     if (result.modifiedCount === 0) {
       console.log(`[Puck POST] No modification, item might not exist. Falling back to creation.`);
-      // Item might not exist, need to create it
-      // Fall back to the old method only for creation
-      let content = await LmsContent.findOne({ courseId });
       
-      if (!content) {
-        return NextResponse.json({ error: "Course not found" }, { status: 404 });
-      }
-
-      let lesson = content.sidebar.find((l: any) => l.slug === lessonId);
-      if (!lesson) {
-        return NextResponse.json({ error: "Lesson not found" }, { status: 404 });
-      }
-
-      if (sectionId) {
-        let section = lesson.sections?.find((s: any) => s.slug === sectionId);
-        if (!section) {
-          return NextResponse.json({ error: "Section not found" }, { status: 404 });
-        }
-
-        if (subSectionId) {
-          let sub = section.subSections?.find((ss: any) => ss.slug === subSectionId);
-          if (!sub) {
-            // Create new subsection
-            sub = {
-              type: 'content',
-              title: subSectionId.replace(/-/g, ' '),
-              slug: subSectionId,
-              puckData
-            };
-            section.subSections = section.subSections || [];
-            section.subSections.push(sub);
-          } else {
-            sub.puckData = puckData;
+      // ⭐ FIX: Use atomic operations to avoid data loss during concurrent updates
+      if (subSectionId && sectionId) {
+        // Try to create the subsection if it doesn't exist
+        const createResult = await LmsContent.updateOne(
+          { 
+            courseId,
+            "sidebar.slug": lessonId,
+            "sidebar.sections.slug": sectionId
+          },
+          { 
+            $push: { 
+              "sidebar.$.sections.$[section].subSections": {
+                type: 'content',
+                title: subSectionId.replace(/-/g, ' '),
+                slug: subSectionId,
+                puckData
+              }
+            }
+          },
+          { 
+            arrayFilters: [{ "section.slug": sectionId }]
           }
-        } else {
-          section.puckData = puckData;
+        );
+        
+        if (createResult.modifiedCount === 0) {
+          return NextResponse.json({ error: "Failed to create subsection" }, { status: 404 });
+        }
+      } else if (sectionId) {
+        // Try to create the section if it doesn't exist  
+        const createResult = await LmsContent.updateOne(
+          { 
+            courseId,
+            "sidebar.slug": lessonId
+          },
+          { 
+            $push: { 
+              "sidebar.$.sections": {
+                type: 'content',
+                title: sectionId.replace(/-/g, ' '),
+                slug: sectionId,
+                puckData,
+                subSections: []
+              }
+            }
+          }
+        );
+        
+        if (createResult.modifiedCount === 0) {
+          return NextResponse.json({ error: "Failed to create section" }, { status: 404 });
         }
       } else {
-        lesson.puckData = puckData;
+        // Lesson should always exist, just update its puckData
+        return NextResponse.json({ error: "Lesson not found" }, { status: 404 });
       }
-
-      content.markModified('sidebar');
-      await content.save();
     }
 
     console.log(`[Puck POST] Total time: ${Date.now() - startTime}ms`);
-    return NextResponse.json({ success: true });
+    
+    // ⭐ FIX: Add success response with metadata for debugging
+    return NextResponse.json({ 
+      success: true, 
+      updated: result.modifiedCount > 0 ? 'existing' : 'created',
+      processingTime: Date.now() - startTime 
+    });
   } catch (error: any) {
     console.error("[Puck POST] Save Error:", error);
     console.log(`[Puck POST] Failed after: ${Date.now() - startTime}ms`);

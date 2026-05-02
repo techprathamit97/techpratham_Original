@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectMongo } from '@/utils/mongodb';
 import { Category } from '@/models/category';
+import { clearNavbarCache } from '@/utils/navbarData';
 
 export async function PUT(
     request: NextRequest,
@@ -27,6 +28,9 @@ export async function PUT(
         if (!updatedCategory) {
             return NextResponse.json({ message: 'Category not found' }, { status: 404 });
         }
+
+        // Clear navbar cache since category has been updated
+        clearNavbarCache();
 
         return NextResponse.json(updatedCategory, { status: 200 });
 

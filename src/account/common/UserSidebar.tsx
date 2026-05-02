@@ -13,9 +13,21 @@ const UserSidebar = () => {
         <div className={`fixed md:relative bg-[#1a1a1a] h-full min-w-72 max-w-80 flex flex-col items-center justify-start py-4 px-8 ${userSideBar ? 'left-0' : 'md:left-0 -left-76'} z-50`}>
 
             <div className='w-auto flex flex-row gap-4 items-center justify-start'>
-                <Link href='/' className='cursor-pointer'>
-                    <Image src='/navbar/techpratham.svg' alt='logo saa' width={200} height={80} className='md:w-40' />
-                </Link>
+                <Link href={'/'} aria-label='Techpratham'>
+            <div className="relative w-36 ">
+              <Image
+                src={'/navbar/logotechnolyfirst2.svg'}
+                alt='Techpratham Logo'
+                width={80}
+                height={30}
+                className='w-full h-auto'
+              />
+
+              <span className="absolute bottom-2 pl-1 left-1/2 -translate-x-1/2 text-[7px] text-white">
+                Technology First
+              </span>
+            </div>
+          </Link>
             </div>
 
             <div className='mt-12 flex flex-col w-full h-full items-start justify-between'>
@@ -45,6 +57,14 @@ const UserSidebar = () => {
                     <Link href='/user/dashboard/feedback' className={`text-[#606060] flex flex-row gap-3 items-center rounded-tr rounded-br justify-start text-lg py-1 px-3 cursor-pointer transition-all duration-200 ${activeUserTab === 'feedback' && 'bg-[#600A0E] hover:bg-[#C6151D] text-white border-l-2 border-l-[#c1c1c1]'}`}>
                         <EnvelopeClosedIcon className='w-6 h-auto' />
                         <span>Feedback</span>
+                    </Link>
+                  <Link href='/user/certificates' className={`text-[#606060] flex flex-row gap-3 items-center rounded-tr rounded-br justify-start text-lg py-1 px-3 cursor-pointer transition-all duration-200 ${activeUserTab === 'certificates' && 'bg-[#600A0E] hover:bg-[#C6151D] text-white border-l-2 border-l-[#c1c1c1]'}`}>
+                        <AvatarIcon className='w-6 h-auto' />
+                        <span>Certificates</span>
+                    </Link>
+                    <Link href='/quiz' className={`text-white bg-red-800 flex flex-row gap-3 items-center rounded-tr rounded-br justify-start text-lg py-1 px-3 cursor-pointer transition-all duration-200 ${activeUserTab === 'certificates' && 'bg-[#600A0E] hover:bg-[#C6151D] text-white border-l-2 border-l-[#c1c1c1]'}`}>
+                        <AvatarIcon className='w-6 h-auto' />
+                        <span>Quiz</span>
                     </Link>
                 </div>
             </div>

@@ -1,13 +1,19 @@
 import React from 'react';
 import Head from 'next/head';
 
-import type { NextPage } from 'next';
+import type { NextPage, GetServerSideProps } from 'next';
 import TrainingView from '@/src/training/views/TrainingView';
 import { IndexController } from '@/src/index/controller/IndexController';
+import { NavbarData } from '@/utils/navbarData';
+import { withNavbarSSR } from '@/utils/withNavbarSSR';
 
-const TrainingPage: NextPage = (props) => (
+interface TrainingPageProps {
+    navbarData: NavbarData;
+}
+
+const TrainingPage: NextPage<TrainingPageProps> = ({ navbarData }) => (
     <div>
-        <IndexController {...props}>
+        <IndexController navbarData={navbarData}>
             <Head>
                 <link rel="icon" href="/favicon.ico" type="image/ico" sizes="70x70" />
                 <title>Corporate Training | TechPratham - Upskill Your Team with Industry Experts</title>
@@ -30,5 +36,7 @@ const TrainingPage: NextPage = (props) => (
         </IndexController>
     </div>
 );
+
+export const getServerSideProps: GetServerSideProps<TrainingPageProps> = withNavbarSSR();
 
 export default TrainingPage;

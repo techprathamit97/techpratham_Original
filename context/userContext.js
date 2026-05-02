@@ -10,6 +10,7 @@ export const UserProvider = ({ children }) => {
   const [authenticated, setAuthenticated] = useState(false);
   const [activeTab, setActiveTab] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isAccountant, setIsAccountant] = useState(false);
   const [userData, setUserData] = useState({});
 
   // dashboard tabs
@@ -29,6 +30,7 @@ export const UserProvider = ({ children }) => {
       setLoading(false);
       setAuthenticated(false);
       setIsAdmin(false);
+      setIsAccountant(false);
       setUserData({});
       return;
     }
@@ -37,6 +39,16 @@ export const UserProvider = ({ children }) => {
     try {
       const res = await fetch(`/api/users/email?email=${user}`);
       if (!res.ok) {
+        // If user not found in DB but session exists
+        if (res.status === 404) {
+          console.error("User not found in database.");
+          setAuthenticated(false);
+          setIsAdmin(false);
+          setIsAccountant(false);
+          setUserData({});
+          setLoading(false);
+          return;
+        }
         throw new Error("Failed to fetch user details");
       }
 
@@ -45,10 +57,12 @@ export const UserProvider = ({ children }) => {
       setAuthenticated(true);
 
       setIsAdmin(fetchedUserData?.role?.type === "admin");
+      setIsAccountant(fetchedUserData?.role?.type === "accountant");
     } catch (error) {
       console.error("Error fetching user data:", error);
       setAuthenticated(false);
       setIsAdmin(false);
+      setIsAccountant(false);
       setUserData({});
     } finally {
       setLoading(false);
@@ -65,6 +79,10 @@ export const UserProvider = ({ children }) => {
 
   const checkAdminAccess = () => {
     return userData?.role?.type === "admin";
+  };
+
+  const checkAccountantAccess = () => {
+    return userData?.role?.type === "accountant" || userData?.role?.type === "admin";
   };
 
   const getUserRole = () => {
@@ -89,12 +107,16 @@ export const UserProvider = ({ children }) => {
         currentTab,
         setCurrentTab,
         isAdmin,
+        isAccountant,
         checkAdminAccess,
+        checkAccountantAccess,
         getUserRole,
         activeUserTab,
         setActiveUserTab,
         userSideBar,
         setUserSideBar,
+        adminSideBar,
+        setAdminSideBar,
       }}
     >
       {children}

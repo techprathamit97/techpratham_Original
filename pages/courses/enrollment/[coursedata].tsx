@@ -762,6 +762,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { UserContext } from "@/context/userContext";
+import type { NextPage, GetServerSideProps } from 'next';
+import { NavbarData } from '@/utils/navbarData';
+import { withNavbarSSR } from '@/utils/withNavbarSSR';
+import PhoneInput from "@/components/common/PhoneInput/PhoneInput";
 
 interface Course {
   title: string;
@@ -778,7 +782,11 @@ interface EnrollForm {
   phone: string;
 }
 
-const CourseEnrollPage = () => {
+interface CourseEnrollPageProps {
+  navbarData: NavbarData;
+}
+
+const CourseEnrollPage: NextPage<CourseEnrollPageProps> = ({ navbarData }) => {
   const router = useRouter();
   const { coursedata } = router.query;
   const { userData } = useContext(UserContext);
@@ -787,8 +795,10 @@ const CourseEnrollPage = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState(userData?.phone || "");
+  const [isPhoneValid, setIsPhoneValid] = useState(false);
 
-  const { register, handleSubmit, reset } = useForm<EnrollForm>({
+  const { register, handleSubmit, reset, setValue } = useForm<EnrollForm>({
     defaultValues: {
       name: userData?.name || "",
       email: userData?.email || "",
@@ -821,6 +831,11 @@ const CourseEnrollPage = () => {
 
   /* ---------------- SUBMIT LEAD ---------------- */
   const onSubmit = async (data: EnrollForm) => {
+    // Prevent submission if phone is invalid
+    if (!isPhoneValid) {
+      return;
+    }
+
     if (!course) return;
 
     setSubmitting(true);
@@ -832,7 +847,7 @@ const CourseEnrollPage = () => {
           formType: "course_enrollment",
           fullName: data.name,
           email: data.email,
-          phone: data.phone,
+          phone: phoneNumber,
           course: course.title,
           // message: course.shortDesc,
           courseLink: course.link,
@@ -847,6 +862,8 @@ const CourseEnrollPage = () => {
       }
 
       reset();
+      setPhoneNumber("");
+      setIsPhoneValid(false);
       setShowSuccess(true);
       if (typeof window !== "undefined") {
         (window as any).dataLayer = (window as any).dataLayer || [];
@@ -867,7 +884,7 @@ const CourseEnrollPage = () => {
   if (loading) {
     return (
       <>
-        <Navbar />
+        <Navbar navbarData={navbarData} />
         <div className="h-screen flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-red-700" />
         </div>
@@ -884,7 +901,7 @@ const CourseEnrollPage = () => {
         <title>Enroll | {course.title}</title>
       </Head>
 
-      <Navbar />
+      <Navbar navbarData={navbarData} />
 
       <div className="bg-gradient-to-tl from-[#C6151D] to-[#600A0E] py-16">
         <div className="w-11/12 md:w-10/12 mx-auto grid md:grid-cols-2 gap-10">
@@ -921,13 +938,23 @@ const CourseEnrollPage = () => {
 
                 <div>
                   <Label>Phone</Label>
-                  <Input {...register("phone")} required />
+                  <PhoneInput
+                    value={phoneNumber}
+                    onChange={(phone) => {
+                      setPhoneNumber(phone);
+                      setValue('phone', phone);
+                    }}
+                    onValidationChange={setIsPhoneValid}
+                    placeholder="Enter phone number"
+                    required
+                    size="md"
+                  />
                 </div>
 
                 <Button
                   type="submit"
                   className="w-full bg-red-700"
-                  disabled={submitting}
+                  disabled={submitting || !isPhoneValid}
                 >
                   {submitting ? "Submitting..." : "Enroll Now"}
                 </Button>
@@ -969,3 +996,6 @@ const CourseEnrollPage = () => {
 };
 
 export default CourseEnrollPage;
+
+// Add navbar SSR
+export const getServerSideProps = withNavbarSSR();

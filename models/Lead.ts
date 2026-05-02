@@ -13,6 +13,12 @@ const LeadSchema = new Schema(
       required: true, // reach-form, lead-form, certificate, etc
     },
 
+    status: {
+      type: String,
+      enum: ['reached', 'unreached'],
+      default: 'unreached'
+    },
+
     ipAddress: String,
 
     metadata: {

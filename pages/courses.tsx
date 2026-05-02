@@ -39,14 +39,13 @@
 
 
 
-'use client';
-
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Script from 'next/script';
-import type { NextPage } from 'next';
+import type { NextPage, GetServerSideProps } from 'next';
 import CoursesView from '@/src/courses/views/CoursesView';
 import { IndexController } from '@/src/index/controller/IndexController';
+import { getNavbarData, NavbarData } from '@/utils/navbarData';
 
 /* -------------------- Types -------------------- */
 
@@ -59,16 +58,26 @@ interface Course {
   ratingCount?: number;
 }
 
+interface CoursesPageProps {
+  initialCourses: Course[];
+  navbarData: NavbarData;
+}
+
 /* -------------------- Helpers -------------------- */
 /** Convert HTML (Quill) → plain text for JSON-LD */
 const stripHtml = (html = ''): string =>
   html.replace(/<[^>]*>?/gm, '').trim();
 
-const CoursesPage: NextPage = () => {
-  const [courses, setCourses] = useState<Course[]>([]);
+const CoursesPage: NextPage<CoursesPageProps> = ({ initialCourses, navbarData }) => {
+  const [courses, setCourses] = useState<Course[]>(initialCourses);
 
-  /* -------------------- Fetch courses (SEO only) -------------------- */
+  /* -------------------- Fetch courses (fallback for client-side navigation) -------------------- */
   useEffect(() => {
+    if (initialCourses.length > 0) {
+      // Already have server-side data
+      return;
+    }
+
     const fetchCourses = async () => {
       try {
         const res = await fetch('/api/get-course/pages?page=1');
@@ -80,11 +89,11 @@ const CoursesPage: NextPage = () => {
     };
 
     fetchCourses();
-  }, []);
+  }, [initialCourses]);
 
   return (
     <div>
-      <IndexController>
+      <IndexController navbarData={navbarData}>
         {/* -------------------- META TAGS -------------------- */}
         <Head>
           <link rel="icon" href="/favicon.ico" type="image/ico" sizes="70x70" />
@@ -164,7 +173,42 @@ const CoursesPage: NextPage = () => {
       </IndexController>
     </div>
   );
+};// Server-side data fetching - runs on every request
+export const getServerSideProps: GetServerSideProps<CoursesPageProps> = async (context) => {
+  try {
+    // Fetch courses on the server
+    // Use absolute URL for server-side fetch
+    const protocol = context.req.headers.host?.includes('localhost') ? 'http' : 'https';
+    const baseUrl = `${protocol}://${context.req.headers.host}`;
+    
+    const res = await fetch(`${baseUrl}/api/get-course/pages?page=1`);
+    
+    if (!res.ok) {
+      throw new Error('Failed to fetch courses');
+    }
+    
+    const courses: Course[] = await res.json();
+    
+    // Fetch navbar data
+    const navbarData = await getNavbarData();
+    
+    return {
+      props: {
+        initialCourses: courses || [],
+        navbarData,
+      },
+    };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    // Return empty data on error so page still renders
+    const navbarData = await getNavbarData();
+    return {
+      props: {
+        initialCourses: [],
+        navbarData,
+      },
+    };
+  }
 };
 
 export default CoursesPage;
-

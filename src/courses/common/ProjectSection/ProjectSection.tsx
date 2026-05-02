@@ -527,13 +527,13 @@ const gridCols =
     : "lg:grid-cols-4";
 
   return (
-    <section id={id} className="w-full bg-[#f7f7f7] py-7">
-      <div className="w-full px-4 mx-auto flex flex-col gap-8">
+    <section id={id} className="w-full bg-[#f7f7f7]">
+      <div className=" border-2 m-2 p-2">
 
         {/* ===== HEADING ===== */}
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 pb-5">
 
-          {/* LEFT HEADING */}
+          {/* LEFT HEADING - Static "Key Projects" */}
           <div className="flex flex-col md:items-start items-center">
             <h2 className="text-3xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#CD4647] to-[#7F3B40]">
               Key Projects
@@ -553,10 +553,10 @@ const gridCols =
             </svg>
           </div>
 
-          {/* RIGHT HEADING */}
+          {/* RIGHT HEADING - Dynamic projectTitle or course title */}
           <div className="flex flex-col items-center md:items-center">
             <h2 className="text-xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#CD4647] to-[#7F3B40] text-center">
-              {course?.title}
+              {course.projectTitle || course?.title}
             </h2>
 
             <svg

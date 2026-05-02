@@ -42,19 +42,51 @@ export const authOptions: NextAuthOptions = {
             clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? ""
         }),
     ],
+    pages: {
+        signIn: '/auth/login',
+    },
     callbacks: {
         async signIn({ user, account }) {
             if (account?.provider === "credentials") return true;
             if (account?.provider === "google") {
                 await connectMongo();
-                const existingUser = await User.findOne({ email: user.email });
-                if (!existingUser) {
-                    const newUser = new User({ email: user.email, fullName: user.name });
-                    await newUser.save();
+                try {
+                    const existingUser = await User.findOne({ email: user.email });
+                    if (!existingUser) {
+                        // Create new user with Google account
+                        const newUser = new User({
+                            name: user.name,
+                            email: user.email,
+                            phone: '', // Google doesn't provide phone
+                            password: '', // No password for OAuth users
+                            role: {
+                                type: 'user',
+                                position: '',
+                            },
+                            profile: user.image || "",
+                            courses: {
+                                enrolled: [],
+                                completed: []
+                            }
+                        });
+                        await newUser.save();
+                    }
+                    return true;
+                } catch (error) {
+                    console.error('Error creating Google user:', error);
+                    return false;
                 }
-                return true;
             }
             return false;
+        },
+        async redirect({ url, baseUrl }) {
+            // Handle redirect after successful login
+            // If url is a relative path, make it absolute
+            if (url.startsWith("/")) return `${baseUrl}${url}`;
+            // If url is on the same origin, allow it
+            else if (new URL(url).origin === baseUrl) return url;
+            // Otherwise redirect to base URL
+            return baseUrl;
         },
     },
 };

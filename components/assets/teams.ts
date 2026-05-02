@@ -27,7 +27,7 @@ export const teams = [
         ]
     },
     {
-        image: "/about/teams/amrit.jpg",
+        image: "/about/teams/amrit.webp",
         name: "Amrit Kumar",
         position: "Head of IT",
         link: "amrit-kumar",
@@ -36,7 +36,7 @@ export const teams = [
         ]
     },
     {
-        image: "/about/teams/durgesh.jpg",
+        image: "/about/teams/durgesh.webp",
         name: "Durgesh Lawaniya",
         position: "Head of CSR",
         
@@ -48,56 +48,63 @@ export const teams = [
        
     },
     {
-        image: "/about/teams/yuvraj.jpg",
-        name: "Yuvraj Gaur",
-        position: "Admin Manager",
-        
-    },
-    {
         image: "/about/teams/ayansh.webp",
         name: "Ayansh Maurya",
         position: "Software Developer",
         
-    },{
-        image: "/about/teams/Chandrama Vaishnaw Marketing team.webp",
+    },
+    {
+        image: "/about/teams/yuvraj.webp",
+        name: "Yuvraj Gaur",
+        position: "Admin Manager",
+        
+    },
+   {
+        image: "/about/teams/chndrama.webp",
         name: "Chandrama Vaishnaw",
         position: "Marketing Team",
         
     },
     {
-        image: "/about/teams/Mozammil Marketing team.webp",
+        image: "/about/teams/mozamir.webp",
         name: "Mozammil",
         position: "Marketing team",
        
     },
     {
-        image: "/about/teams/Abdur Razzak Marketing team.webp",
+        image: "/about/teams/abdul.webp",
         name: "Abdur Razzak",
         position: "Marketing team",
        
     },
     {
-        image: "/about/teams/Jawed Alam Consultant team.webp",
+        image: "/about/teams/javed.webp",
         name: "Jawed Alam",
         position: "IT Consultant",
        
     },
     {
-        image: "/about/teams/Dhruv Consultant team.webp",
+        image: "/about/teams/dhruv.webp",
         name: "Dhruv",
         position: "IT Consultant",
        
     },
     {
-        image: "/about/teams/Sunil Kumar Consultant team.webp",
-        name: "Sunil Kumar",
-        position: "IT Consultant",
+        image: "/about/teams/chhavi.webp",
+        name: "Chhavi Srivastava",
+        position: "Workday Consultant",
        
     },
-     {
+    {
         image: "/about/teams/shiva.webp",
         name: "Shiva Nayak Dheeravath",
         position: "IT Consultant",
+       
+    },
+    {
+        image: "/about/teams/manisha.webp",
+        name: "Manisha Chauhan",
+        position: "Senior HR Executive",
        
     }
 ];

@@ -11,6 +11,7 @@
 // }
 
 // export default PlacementHome
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -22,15 +23,18 @@ import {   FileText,  Users, BookOpen, MessageCircle } from 'lucide-react';
 // 1. CAROUSEL COMPONENT (Adapted from your provided code)
 // ====================================================================
 
-
+interface Props {
+  id?: string;
+//   course?: any;
+}
 
 // ====================================================================
 // 2. SIDE PANELS & LAYOUT WRAPPER (To replicate the full page image)
 // ====================================================================
 
 const LeftPanel = () => (
-    <div className="w-full max-w-sm space-y-3 px-3">
-        <h2 className="text-2xl font-bold text-white leading-tight">Our  Success Mantra</h2>
+    <div className="w-full max-w-sm space-y-3 px-2">
+        <h2 className="text-[25px] font-bold text-white leading-tight">Our  Success Mantra</h2>
         {/* <p className="text-xl text-gray-200 mb-6"> Process</p> */}
 
         {/* Profile Building */}
@@ -124,7 +128,7 @@ interface IconComponentProps {
 
     return (
         <div className="w-full max-w-sm p-3 space-y-6">
-            <h2 className="text-3xl font-bold text-white leading-tight">Beyond Courses:</h2>
+            <h2 className="text-[25px] font-bold text-white leading-tight">Beyond Courses:</h2>
             <p className="text-xl text-gray-200 mb-6">Additional Support We Provide</p>
             
             <div className="grid grid-cols-3 gap-4">
@@ -142,10 +146,11 @@ interface IconComponentProps {
 };
 
 
-export default function FullPageCarouselLayout() {
+export default function FullPageCarouselLayout({ id }: Props): JSX.Element {
+    // const IntroSection  {
     return (
         // Main container with background styles matching the image
-        <div 
+        <div id={id}
             className="relative md:max-h-[500px] w-full md:bg-cover  bg-contain bg-center overflow-hidden" 
             // Placeholder for the repeating logo background style
             style={{ 
@@ -157,13 +162,13 @@ export default function FullPageCarouselLayout() {
             <div className="absolute inset-0 z-0 bg-red-900/40"></div>
 {/* <div className="absolute inset-0 z-10 bg-black/70"></div> */}
 
-            <div className="relative z-10 flex flex-col items-center justify-start pt-5 min-h-screen">
+            <div className="relative z-10 border-2 p-1   m-2 flex flex-col items-center justify-start ">
                 
                 {/* Main Content Area (Left Panel | Carousel | Right Panel) */}
-                <div className="flex flex-col lg:flex-row items-center lg:items-stretch justify-center w-full max-w-6xl mx-auto pt-5">
+                <div className="flex flex-col  lg:flex-row items-center lg:items-stretch justify-center w-full mx-auto">
                     
                     {/* Left Panel */}
-                    <div className="w-full lg:w-1/4 order-1 lg:order-1">
+                    <div className="w-full lg:w-1/4 order-1 lg:order-1 pt-3">
                         <LeftPanel />
                     </div>
 

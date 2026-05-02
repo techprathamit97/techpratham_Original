@@ -20,9 +20,6 @@ const FooterSm = () => {
               <FaLinkedin className='w-6 h-6' />
             </div>
             <div className='w-10 h-10 rounded-full bg-gradient-to-r from-[#CD4647] to-[#7F3B40] flex items-center justify-center'>
-              <FaYoutube className='w-6 h-6' />
-            </div>
-            <div className='w-10 h-10 rounded-full bg-gradient-to-r from-[#CD4647] to-[#7F3B40] flex items-center justify-center'>
               <FaInstagram className='w-6 h-6' />
             </div>
             <div className='w-10 h-10 rounded-full bg-gradient-to-r from-[#CD4647] to-[#7F3B40] flex items-center justify-center'>

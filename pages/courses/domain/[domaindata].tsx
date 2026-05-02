@@ -3,12 +3,14 @@ import ToolTip from '@/components/common/ToolTip/ToolTip';
 import { Button } from '@/components/ui/button';
 import Footer from '@/src/common/Footer/Footer';
 import Navbar from '@/src/common/Navbar/Navbar';
+import { getNavbarData, NavbarData } from '@/utils/navbarData';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { GetServerSideProps } from 'next';
 
 interface Curriculum {
     que: string;
@@ -49,11 +51,17 @@ interface Course {
     metadata?: Metadata;
 }
 
-const DomainDataPage: React.FC = () => {
+interface DomainDataPageProps {
+    initialCourses: Course[];
+    domainSlug: string;
+    navbarData: NavbarData;
+}
+
+const DomainDataPage: React.FC<DomainDataPageProps> = ({ initialCourses, domainSlug, navbarData }) => {
     const router = useRouter();
     const { domaindata } = router.query;
 
-    const [courseData, setCourseData] = useState<Course[]>([]);
+    const [courseData, setCourseData] = useState<Course[]>(initialCourses);
     const [isLoading, setIsLoading] = useState(false);
     // convert DB text → slug
     const makeSlug = (text: string) => {
@@ -66,6 +74,11 @@ const DomainDataPage: React.FC = () => {
     };
 
     useEffect(() => {
+        // Only fetch if no initial data (fallback for client-side navigation)
+        if (initialCourses.length > 0) {
+            return;
+        }
+
         const fetchCourseData = async () => {
             if (domaindata === undefined || typeof domaindata !== 'string') {
                 return;
@@ -95,7 +108,7 @@ const DomainDataPage: React.FC = () => {
         };
 
         fetchCourseData();
-    }, [domaindata]);
+    }, [domaindata, initialCourses]);
 
     // Helper function to format domain name for display
    const formatDomainName = (slug: string): string => {
@@ -127,7 +140,7 @@ const DomainDataPage: React.FC = () => {
                     <title>Loading... | TechPratham</title>
                 </Head>
 
-                <Navbar />
+                <Navbar navbarData={navbarData} />
 
                 <div className="w-full h-screen flex items-center justify-center">
                     <div className="text-center">
@@ -213,19 +226,19 @@ const DomainDataPage: React.FC = () => {
                 />
             </Head>
 
-            <Navbar />
+            <Navbar navbarData={navbarData} />
 
             <div className='w-full h-auto flex flex-col items-center justify-center'>
                 <ReachForm />
                 <ToolTip />
 
                 <div className=' w-full h-auto flex items-center justify-center relative'>
-                    <Image src='/training/header.jpg' alt='' width={1920} height={1080} className='w-full h-72 object-cover' />
+                    <Image src='/training/categoryhero.webp' alt='' width={1920} height={1080} className='w-full md:h-[66vh] h-56 object-cover ' />
                     <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 md:text-6xl text-2xl font-semibold text-white text-center'>{domainName} Courses</div>
                 </div>
 
                 {courseData.length > 0 ? (
-                    <div className='w-full h-auto flex flex-col gap-10 items-center justify-center py-12 text-black'>
+                    <div className='w-full h-auto flex flex-col gap-10 items-center justify-center py-8 text-black'>
 
                         <div className='md:w-10/12 w-11/12 flex flex-col items-center justify-center h-auto'>
                             <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6 w-full justify-items-center">
@@ -266,7 +279,7 @@ const DomainDataPage: React.FC = () => {
                                                 variant="default"
                                                 className="w-full bg-gradient-to-r from-[#CD4647] to-[#7F3B40] hover:from-[#B73E3F] hover:to-[#6F3336] transition-all duration-200"
                                             >
-                                                Enroll Now
+                                                Explore Now
                                             </Button>
                                         </Link>
                                     </div>
@@ -294,3 +307,65 @@ const DomainDataPage: React.FC = () => {
 }
 
 export default DomainDataPage
+
+
+// Server-side data fetching
+export const getServerSideProps: GetServerSideProps<DomainDataPageProps> = async (context) => {
+    const { domaindata } = context.query;
+
+    if (!domaindata || typeof domaindata !== 'string') {
+        const navbarData = await getNavbarData();
+        return {
+            props: {
+                initialCourses: [],
+                domainSlug: '',
+                navbarData,
+            },
+        };
+    }
+
+    try {
+        // Use dynamic URL
+        const protocol = context.req.headers.host?.includes('localhost') ? 'http' : 'https';
+        const baseUrl = `${protocol}://${context.req.headers.host}`;
+        
+        // Convert slug to category
+        const originalCategory = domaindata.replace(/-/g, " ");
+        
+        // Fetch courses and navbar data in parallel
+        const [response, navbarData] = await Promise.all([
+            fetch(`${baseUrl}/api/course/filtered/get-all?category=${encodeURIComponent(originalCategory)}`),
+            getNavbarData()
+        ]);
+
+        if (!response.ok) {
+            return {
+                props: {
+                    initialCourses: [],
+                    domainSlug: domaindata,
+                    navbarData,
+                },
+            };
+        }
+
+        const data = await response.json();
+
+        return {
+            props: {
+                initialCourses: data.courses || [],
+                domainSlug: domaindata,
+                navbarData,
+            },
+        };
+    } catch (error) {
+        console.error('Error fetching domain courses:', error);
+        const navbarData = await getNavbarData();
+        return {
+            props: {
+                initialCourses: [],
+                domainSlug: domaindata,
+                navbarData,
+            },
+        };
+    }
+};

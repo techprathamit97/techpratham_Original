@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectMongo } from '@/utils/mongodb';
 import { Category } from '@/models/category';
+import { clearNavbarCache } from '@/utils/navbarData';
 
 export async function POST(request: NextRequest) {
     try {
@@ -22,6 +23,9 @@ export async function POST(request: NextRequest) {
             description,
             position
         });
+
+        // Clear navbar cache since category has been created
+        clearNavbarCache();
 
         return NextResponse.json(response, { status: 201 });
 

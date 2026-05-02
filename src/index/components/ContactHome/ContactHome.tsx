@@ -3,13 +3,21 @@
 import { MapPin, Phone, Mail } from "lucide-react";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import PhoneInput from "@/components/common/PhoneInput/PhoneInput";
 
 export default function ContactLayout() {
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit, reset, setValue } = useForm();
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [isPhoneValid, setIsPhoneValid] = useState(false);
 
   const onSubmit = async (data: any) => {
+    // Prevent submission if phone is invalid
+    if (!isPhoneValid) {
+      return;
+    }
+
     try {
       setSubmitting(true);
       const response = await fetch('/api/leads', {
@@ -19,6 +27,7 @@ export default function ContactLayout() {
         },
         body: JSON.stringify({
           ...data,
+          phone: phoneNumber,
           formType: "Home-contact-form",
         }),
       });
@@ -26,6 +35,8 @@ export default function ContactLayout() {
         setSubmitSuccess(true);
         console.log(data);
         reset();
+        setPhoneNumber('');
+        setIsPhoneValid(false);
       } else {
         console.error('Failed to submit form');
       }
@@ -63,12 +74,16 @@ export default function ContactLayout() {
               className="w-full rounded-lg border border-black/10 p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
             />
 
-            <input
-              {...register("phone")}
-              type="tel"
+            <PhoneInput
+              value={phoneNumber}
+              onChange={(phone) => {
+                setPhoneNumber(phone);
+                setValue('phone', phone);
+              }}
+              onValidationChange={setIsPhoneValid}
               placeholder="Phone Number"
               required
-              className="w-full rounded-lg border border-black/10 p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              size="md"
             />
 
             <input
@@ -89,8 +104,8 @@ export default function ContactLayout() {
 
             <button
               type="submit"
-              disabled={submitting}
-              className="w-full bg-gradient-to-tl from-[#C6151D] to-[#600A0E] text-white py-2 rounded-xl font-semibold hover:bg-blue-700 transition"
+              disabled={submitting || !isPhoneValid}
+              className="w-full bg-gradient-to-tl from-[#C6151D] to-[#600A0E] text-white py-2 rounded-xl font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? "Submitting..." : "Submit"}
             </button>

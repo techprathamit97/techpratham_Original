@@ -42,7 +42,7 @@ export default function TrainingBatches({ id, course }: any) {
 
   return (
     <section id={id} className="w-full bg-gray-100 px-3 py-3 md:px-0">
-      <div className="max-w-6xl  mx-auto">
+      <div className="m-2 p-2 py-5 border-2">
  
  <div className="text-center">
         <h2 className="text-[#7f1d1d] md:text-3xl text-2xl font-bold">
@@ -67,7 +67,7 @@ export default function TrainingBatches({ id, course }: any) {
         <div className="bg-gray-100 rounded-xl shadow-lg p-4 md:p-6">
 
           {/* BATCH ROW */}
-          <div className="flex gap-4  overflow-x-auto pb-3 no-scrollbar">
+          <div className="flex gap-4 justify-center overflow-x-auto pb-3 no-scrollbar">
             {batches.map((batch) => (
               <label
                 key={batch.id}

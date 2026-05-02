@@ -30,6 +30,11 @@ const faqSchema = z.object({
     ans: z.string().min(1, "Answer is required")
 });
 
+const seoFaqSchema = z.object({
+    que: z.string().min(1, "Question is required"),
+    ans: z.string().min(1, "Answer is required")
+});
+
 const projectSchema = z.object({
     company: z.string().min(1, "Company is required"),
     logo: z.string().optional(),
@@ -69,11 +74,17 @@ const courseSchema = z.object({
             (val) => val.trim().split(/\s+/).length <= 800,
             "Detailed description must not exceed 800 words"
         ),
+    certificateName: z.string().optional(), // Dynamic certificate name field
+    whoShouldTakeTitle: z.string().optional(), // Custom title for Who Should Take section
+    jobRoleTitle: z.string().optional(), // Custom title for Job Role section
+    curriculumTitle: z.string().optional(), // Custom title for Curriculum section
+    projectTitle: z.string().optional(), // Custom title for Project section
     rating: z.string().min(1, "Rating is required"),
     duration: z.string().min(1, "Duration is required"),
     level: z.enum(["Beginner", "Intermediate", "Advanced"], { required_error: "Level is required" }),
     category: z.string().min(1, "Category is required"),
     trending: z.boolean().optional(),
+    priority: z.number().min(0, "Priority must be 0 or higher").optional(), // Add priority field
     placement_report: z.string().min(1, "Placement report is required"),
     curriculum: z.string().min(1, "Curriculum is required"),
     interview: z.string().min(1, "Interview information is required"),
@@ -83,6 +94,7 @@ const courseSchema = z.object({
     curriculum_data: z.array(curriculumSchema).optional(),
     skills_data: z.array(z.string()).optional(),
     faqs_data: z.array(faqSchema).optional(),
+    seo_faqs_data: z.array(seoFaqSchema).optional(), // SEO FAQs
     project_data: z.array(projectSchema).optional(),
     interview_questions_data: z.array(interviewQuestionSchema).optional(),
     job_role: z.array(jobRoleSchema).optional(),
@@ -244,11 +256,17 @@ const CourseTab = () => {
             image: '',
             alt: '',
             description: '',
+            certificateName: '', // Dynamic certificate name field
+            whoShouldTakeTitle: '', // Custom title for Who Should Take section
+            jobRoleTitle: '', // Custom title for Job Role section
+            curriculumTitle: '', // Custom title for Curriculum section
+            projectTitle: '', // Custom title for Project section
             rating: '',
             duration: '',
             level: 'Beginner',
             category: '',
             trending: false,
+            priority: 0, // Add priority field with default value
             placement_report: '',
             curriculum: '',
             interview: '',
@@ -258,6 +276,7 @@ const CourseTab = () => {
             curriculum_data: [{ que: '', ans: '', topics: [] }],
             skills_data: [],
             faqs_data: [{ que: '', ans: '' }],
+            seo_faqs_data: [{ que: '', ans: '' }], // SEO FAQs default
             project_data: [
                 {
                     company: '',
@@ -312,6 +331,16 @@ const CourseTab = () => {
         control: form.control,
         name: 'faqs_data'
     });
+
+    const {
+        fields: seoFaqFields,
+        append: appendSeoFaq,
+        remove: removeSeoFaq
+    } = useFieldArray({
+        control: form.control,
+        name: 'seo_faqs_data'
+    });
+
     const {
         fields: interviewFields,
         append: appendInterview,
@@ -574,6 +603,23 @@ const CourseTab = () => {
                                             </FormItem>
                                         )}
                                     />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="certificateName"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Certificate Name</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="e.g., Workday HCM Training" {...field} />
+                                                </FormControl>
+                                                <FormDescription>
+                                                    Name to display on the certificate (optional)
+                                                </FormDescription>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
                                 </div>
 
                                 <div className='w-full grid grid-cols-1 md:grid-cols-2 gap-6 mb-4'>
@@ -602,6 +648,30 @@ const CourseTab = () => {
                                                                 This course will be displayed in the trending section
                                                             </FormDescription>
                                                         </div>
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            <FormField
+                                                control={form.control}
+                                                name="priority"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Course Priority</FormLabel>
+                                                        <FormControl>
+                                                            <Input
+                                                                type="number"
+                                                                min="0"
+                                                                max="100"
+                                                                placeholder="0"
+                                                                {...field}
+                                                                onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                                                            />
+                                                        </FormControl>
+                                                        <FormDescription>
+                                                            Lower numbers appear first (1=first, 2=second, 3=third, etc.). Leave 0 for default order.
+                                                        </FormDescription>
+                                                        <FormMessage />
                                                     </FormItem>
                                                 )}
                                             />
@@ -1036,6 +1106,24 @@ const CourseTab = () => {
 
                             {/* Curriculum Section */}
                             <div className="flex flex-col">
+                                {/* Curriculum Title Field */}
+                                <FormField
+                                    control={form.control}
+                                    name="curriculumTitle"
+                                    render={({ field }) => (
+                                        <FormItem className="mb-4">
+                                            <FormLabel>Curriculum Section Title</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g., Course Curriculum" {...field} />
+                                            </FormControl>
+                                            <FormDescription>
+                                                Custom title for the "Curriculum" section (optional)
+                                            </FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
                                 <FormLabel className="text-lg font-semibold mb-1">Curriculum Details</FormLabel>
                                 <Separator className='h-[0.5px] mb-4' />
 
@@ -1184,6 +1272,23 @@ const CourseTab = () => {
 
 
                             <div>
+                                <FormField
+                                    control={form.control}
+                                    name="jobRoleTitle"
+                                    render={({ field }) => (
+                                        <FormItem className="mb-4">
+                                            <FormLabel>Job Role Section Title</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g., Career Opportunities" {...field} />
+                                            </FormControl>
+                                            <FormDescription>
+                                                Custom title for the "Job Role" section (optional)
+                                            </FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
                                 <FormLabel className="text-lg font-semibold">Job Roles</FormLabel>
 
                                 {jobRoleFields.map((field, index) => (
@@ -1210,6 +1315,72 @@ const CourseTab = () => {
                                 <Button type="button" onClick={() => appendJobRole({ role: "" })}>
                                     Add Job Role
                                 </Button>
+                            </div>
+
+                            {/* SEO FAQs Section */}
+                            <div className="flex flex-col">
+                                <FormLabel className="text-lg font-semibold mb-1">SEO FAQs</FormLabel>
+                                <Separator className='h-[0.5px] mb-4' />
+
+                                <div className="space-y-4 mb-4">
+                                    {seoFaqFields.map((field, index) => (
+                                        <div key={field.id} className="border rounded-lg p-4 space-y-4">
+                                            <div className="flex items-center justify-between">
+                                                <h4 className="font-medium">SEO FAQ {index + 1}</h4>
+                                                {seoFaqFields.length > 1 && (
+                                                    <Button
+                                                        type="button"
+                                                        onClick={() => removeSeoFaq(index)}
+                                                        variant="destructive"
+                                                        size="sm"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </Button>
+                                                )}
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`seo_faqs_data.${index}.que`}
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Question</FormLabel>
+                                                            <FormControl>
+                                                                <Input placeholder="Enter SEO FAQ question" {...field} />
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`seo_faqs_data.${index}.ans`}
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Answer</FormLabel>
+                                                            <FormControl>
+                                                                <QuillEditor field={field} />
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="flex justify-start">
+                                    <Button
+                                        type="button"
+                                        onClick={() => appendSeoFaq({ que: '', ans: '' })}
+                                        variant="default"
+                                        size="sm"
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                        Add SEO FAQ
+                                    </Button>
+                                </div>
                             </div>
 
                             <div className="space-y-6">
@@ -1248,6 +1419,24 @@ const CourseTab = () => {
 
                             {/* Project Section */}
                             <div className="flex flex-col">
+                                {/* Project Title Field */}
+                                <FormField
+                                    control={form.control}
+                                    name="projectTitle"
+                                    render={({ field }) => (
+                                        <FormItem className="mb-4">
+                                            <FormLabel>Project Section Title</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g., Key Projects" {...field} />
+                                            </FormControl>
+                                            <FormDescription>
+                                                Custom title for the "Project" section (optional)
+                                            </FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
                                 <FormLabel className="text-lg font-semibold mb-1">
                                     Projects
                                 </FormLabel>
@@ -1473,7 +1662,30 @@ Rebuilding Business Process security policies`}
                                 </div>
                             </div>
 
+                            {/* Custom Who Should Take Title */}
+                            <div className="flex flex-col">
+                                <FormLabel className="text-lg font-semibold mb-1">Who Should Take Section Title</FormLabel>
+                                <Separator className='h-[0.5px] mb-4' />
 
+                                <div className="grid grid-cols-1 gap-6">
+                                    <FormField
+                                        control={form.control}
+                                        name="whoShouldTakeTitle"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Who Should Take Section Title</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="e.g., Who Should Take This Course" {...field} />
+                                                </FormControl>
+                                                <FormDescription>
+                                                    Custom title for the "Who Should Take" section (optional)
+                                                </FormDescription>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </div>
 
                             {/* Submit Button */}
                             <div className="flex justify-end pt-6">

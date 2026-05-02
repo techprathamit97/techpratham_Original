@@ -4,8 +4,6 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
-import { client } from "@/lib/sanity";
-import { allPostsQuery } from "@/lib/queries";
 import { Button } from '@/components/ui/button';
 
 const BlogSection: React.FC = () => {
@@ -16,9 +14,28 @@ const BlogSection: React.FC = () => {
         setLoading(true);
 
         const fetchPosts = async () => {
-            const data = await client.fetch(allPostsQuery);
-            setPosts(data);
-            setLoading(false);
+            try {
+                // Use API route with timeout for better performance
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('API timeout')), 5000)
+                );
+
+                const fetchPromise = fetch('/api/blog/home-posts');
+                
+                const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
+                
+                if (!response.ok) {
+                    throw new Error(`API failed with status ${response.status}`);
+                }
+                
+                const data = await response.json();
+                setPosts(data.posts || []);
+            } catch (error) {
+                console.error("Error fetching posts:", error);
+                setPosts([]);
+            } finally {
+                setLoading(false);
+            }
         };
         fetchPosts();
     }, []);
@@ -60,45 +77,49 @@ const BlogSection: React.FC = () => {
                     </>
                 ) : posts?.length > 0 ? (
                     posts.map((post) => (
-                        <article
+                        <Link
                             key={post._id}
-                            className="w-full max-w-3xl mb-12 border-b pb-8"
+                            href={`/blog/general-blogs/${post.slug}`}
+                            className="block group"
                         >
-                            {post.coverImage && (
-                                <img
-                                    src={post.coverImage}
-                                    alt={post.title}
-                                    className="w-full h-auto object-cover rounded-lg mb-4"
-                                />
-                            )}
-                            <h2 className="md:text-xl text-base font-bold mb-2">{post.title}</h2>
-                            <p className="text-gray-600 md:text-sm text-xs mb-4">
-                                By {post.authorName} •{" "}
-                                {new Date(post.publishedAt).toDateString()}
-                            </p>
-
-
-
-                            {/* Categories */}
-                            {post.categories?.length > 0 && (
-                                <div className="mb-4">
-                                    {post.categories.map((cat: string, i: number) => (
-                                        <span
-                                            key={i}
-                                            className="inline-block bg-blue-100 text-blue-700 text-xs px-3 py-1 rounded-full mr-2"
-                                        >
-                                            {cat}
-                                        </span>
-                                    ))}
+                            {/* Special design for Sanity blogs (like screenshot) */}
+                            <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
+                                {/* Featured Image */}
+                                <div className="relative overflow-hidden rounded-t-2xl">
+                                    {post.coverImage && (
+                                        <img
+                                            src={post.coverImage}
+                                            alt={post.title}
+                                            className="w-full h-auto object-contain"
+                                        />
+                                    )}
                                 </div>
-                            )}
-
-                            <Link href={`/blog/${post.slug}`}>
-                                <Button variant={'default'}>
-                                    Read More
-                                </Button>
-                            </Link>
-                        </article>
+                                
+                                {/* Content Below Image */}
+                                <div className="p-6 bg-white">
+                                    {/* Title (repeated for better readability) */}
+                                    <h3 className="text-xl font-bold text-gray-900 mb-3 leading-tight">
+                                        {post.title}
+                                    </h3>
+                                    
+                                    {/* Author and Date */}
+                                    <p className="text-gray-600 text-sm mb-4">
+                                        By {post.authorName} • {new Date(post.publishedAt).toLocaleDateString('en-US', {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric'
+                                        })}
+                                    </p>
+                                    
+                                    {/* Read More Button */}
+                                    <div className="flex justify-start">
+                                        <div className="bg-black text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
+                                            Read More
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </Link>
                     ))
                 ) : (
                     <EmptyState />
