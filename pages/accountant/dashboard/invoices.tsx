@@ -101,7 +101,9 @@ const InvoicesDashboard = () => {
   const [customEndDate, setCustomEndDate] = useState('');
   const [showAllInvoices, setShowAllInvoices] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [selectedPayment, setSelectedPayment] = useState<{invoice: Invoice, payment: any, paymentNumber: number} | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isPaymentReceiptDialogOpen, setIsPaymentReceiptDialogOpen] = useState(false);
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paymentMode, setPaymentMode] = useState('online');
@@ -513,18 +515,8 @@ const InvoicesDashboard = () => {
     const newTotalPaidAmount = Math.round((selectedInvoice.paidAmount + roundedPaymentAmount) * 100) / 100;
     const newPendingAmount = Math.round((selectedInvoice.totalAmount - newTotalPaidAmount) * 100) / 100;
 
-    // Determine which installment this payment covers
-    let installmentNumber = 1;
-    if (selectedInvoice.installmentDates && selectedInvoice.feeType !== 'Full Payment') {
-      let cumulativeAmount = 0;
-      for (const installment of selectedInvoice.installmentDates) {
-        cumulativeAmount += installment.amount;
-        if (newTotalPaidAmount <= cumulativeAmount) {
-          installmentNumber = installment.installmentNumber;
-          break;
-        }
-      }
-    }
+    // Determine which installment number this is (based on number of payments already made)
+    const installmentNumber = (selectedInvoice.installmentPayments?.length || 0) + 1;
 
     // Calculate next due date
     let nextDueDate = null;
@@ -540,7 +532,7 @@ const InvoicesDashboard = () => {
           }
         }
       } else {
-        // For full payment type, set due date to 30 days from now if there's still pending amount
+        // For installments without fixed dates, set due date to 30 days from now if there's still pending amount
         const dueDate = new Date();
         dueDate.setDate(dueDate.getDate() + 30);
         nextDueDate = dueDate.toISOString().split('T')[0];
@@ -721,16 +713,9 @@ const InvoicesDashboard = () => {
                   {isAccountant && (
                     <>
                       <Link href="/accountant/dashboard/create-manual-invoice">
-                        <Button variant="outline" className="flex gap-2 border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+                        <Button variant="manual" className="flex gap-2 border-zinc-700 text-zinc-300 hover:bg-zinc-800">
                           <Plus className='w-5 h-5' />
                           Manual Invoice
-                        </Button>
-                      </Link>
-
-                      <Link href="/accountant/dashboard/create-simple-invoice">
-                        <Button variant="manual" className="flex gap-2">
-                          <Plus className='w-5 h-5' />
-                          Simple Invoice
                         </Button>
                       </Link>
                     </>
@@ -860,6 +845,7 @@ const InvoicesDashboard = () => {
                               <th className="text-left p-3 text-white font-medium text-sm w-28">Paid</th>
                               <th className="text-left p-3 text-white font-medium text-sm w-28">Pending</th>
                               <th className="text-left p-3 text-white font-medium text-sm w-24">Status</th>
+                              <th className="text-left p-3 text-white font-medium text-sm w-48">Payment History</th>
                               <th className="text-left p-3 text-white font-medium text-sm w-40">Payment Info</th>
                               <th className="text-left p-3 text-white font-medium text-sm w-32">Due Date</th>
                               <th className="text-left p-3 text-white font-medium text-sm w-24">Screenshot</th>
@@ -922,6 +908,49 @@ const InvoicesDashboard = () => {
                                 )}
                               </div>
                             </td>
+                            
+                            {/* Payment History Column */}
+                            <td className="p-3">
+                              <div className="text-xs space-y-1">
+                                {invoice.feeType === 'Installments' && invoice.installmentPayments && invoice.installmentPayments.length > 0 ? (
+                                  <>
+                                    {invoice.installmentPayments.map((payment, index) => (
+                                      <button
+                                        key={index}
+                                        onClick={() => {
+                                          setSelectedPayment({
+                                            invoice: invoice,
+                                            payment: payment,
+                                            paymentNumber: index + 1
+                                          });
+                                          setIsPaymentReceiptDialogOpen(true);
+                                        }}
+                                        className="text-zinc-300 bg-zinc-800 hover:bg-zinc-700 px-2 py-1 rounded mb-1 w-full text-left transition-colors cursor-pointer"
+                                      >
+                                        <div className="font-medium text-green-400">
+                                          {index + 1}{index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th'} Installment
+                                        </div>
+                                        <div>{formatCurrency(payment.amount)}</div>
+                                        <div className="text-zinc-500">{formatDate(payment.paidDate)}</div>
+                                      </button>
+                                    ))}
+                                  </>
+                                ) : invoice.feeType === 'Full Payment' ? (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedInvoice(invoice);
+                                      setIsViewDialogOpen(true);
+                                    }}
+                                    className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 px-2 py-1 rounded transition-colors cursor-pointer"
+                                  >
+                                    View Invoice
+                                  </button>
+                                ) : (
+                                  <div className="text-zinc-600">No payments yet</div>
+                                )}
+                              </div>
+                            </td>
+                            
                             <td className="p-3">
                               <div className="text-zinc-400 text-xs">
                                 <div>Mode: {invoice.paymentMode?.replace('_', ' ').toUpperCase() || 'N/A'}</div>
@@ -1220,6 +1249,116 @@ const InvoicesDashboard = () => {
                     View Full Invoice
                   </Button>
                 </Link>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Payment Receipt Dialog - Shows individual payment details */}
+      <Dialog open={isPaymentReceiptDialogOpen} onOpenChange={setIsPaymentReceiptDialogOpen}>
+        <DialogContent className="bg-black border-zinc-800 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">
+              Payment Receipt - {selectedPayment?.paymentNumber}{selectedPayment?.paymentNumber === 1 ? 'st' : selectedPayment?.paymentNumber === 2 ? 'nd' : selectedPayment?.paymentNumber === 3 ? 'rd' : 'th'} Installment
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedPayment && (
+            <div className="space-y-4">
+              {/* Customer & Course Info */}
+              <div className="bg-zinc-900 p-4 rounded-lg">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-zinc-400 text-xs">RECEIPT TO:</Label>
+                    <div className="text-white font-medium">{selectedPayment.invoice.customerDetails.name}</div>
+                    <div className="text-zinc-400 text-xs mt-2">
+                      <div>Email Id: {selectedPayment.invoice.customerDetails.email}</div>
+                      <div>Mobile Number: {selectedPayment.invoice.customerDetails.phone}</div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-zinc-400 text-xs">
+                      <div>Course: {selectedPayment.invoice.courseDetails.title}</div>
+                      <div>Student Id: {selectedPayment.invoice.customerDetails.studentId}</div>
+                      <div>Fees Type: {selectedPayment.invoice.feeType}</div>
+                      <div>Next Due Date: N.A</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pay Components Table */}
+              <div className="bg-zinc-900 rounded-lg overflow-hidden">
+                <div className="bg-red-600 text-white p-3 flex justify-between font-semibold">
+                  <span>Pay Components</span>
+                  <span>Amount ( ₹ )</span>
+                </div>
+                <div className="divide-y divide-zinc-700">
+                  <div className="flex justify-between p-3">
+                    <span className="text-zinc-300">Course Price</span>
+                    <span className="text-white font-medium">{selectedPayment.invoice.totalAmount.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between p-3">
+                    <span className="text-zinc-300">Amount Paid</span>
+                    <span className="text-white font-medium">
+                      {(() => {
+                        // Calculate cumulative amount paid up to this payment
+                        const cumulativeAmount = selectedPayment.invoice.installmentPayments
+                          ?.slice(0, selectedPayment.paymentNumber)
+                          .reduce((sum: number, p: any) => sum + p.amount, 0) || 0;
+                        return cumulativeAmount.toFixed(2);
+                      })()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between p-3">
+                    <span className="text-zinc-300">Rest Amount</span>
+                    <span className="text-white font-medium">
+                      {(() => {
+                        // Calculate remaining amount after this payment
+                        const cumulativeAmount = selectedPayment.invoice.installmentPayments
+                          ?.slice(0, selectedPayment.paymentNumber)
+                          .reduce((sum: number, p: any) => sum + p.amount, 0) || 0;
+                        const restAmount = selectedPayment.invoice.totalAmount - cumulativeAmount;
+                        return restAmount.toFixed(2);
+                      })()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Info */}
+              <div className="text-sm text-zinc-300">
+                <div>
+                  <span className="font-semibold">Payment Mode:</span> {selectedPayment.payment.paymentMode?.replace('_', ' ').toUpperCase()} | 
+                  <span className="font-semibold"> Paid Date:</span> {formatDate(selectedPayment.payment.paidDate)}
+                </div>
+              </div>
+
+              {/* Terms & Conditions */}
+             
+
+              {/* Thank You */}
+             
+
+              {/* Download Button */}
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsPaymentReceiptDialogOpen(false)}
+                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                >
+                  Close
+                </Button>
+                <Button
+                  onClick={() => {
+                    window.open(`/invoice/${selectedPayment.invoice._id}?payment=${selectedPayment.paymentNumber}`, '_blank');
+                  }}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download Receipt
+                </Button>
               </div>
             </div>
           )}

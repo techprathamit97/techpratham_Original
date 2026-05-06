@@ -191,12 +191,26 @@ export async function PATCH(req: Request) {
           updateData.dueDate = null; // Clear due date when fully paid
         } else if (amount > 0) {
           updateData.status = 'partial';
-          // Update due date if provided
+          // Update due date if provided, or keep existing due date
           if (nextDueDate) {
             updateData.dueDate = new Date(nextDueDate);
+          } else if (!invoice.dueDate) {
+            // If no due date exists and none provided, set default 30 days from now
+            const defaultDueDate = new Date();
+            defaultDueDate.setDate(defaultDueDate.getDate() + 30);
+            updateData.dueDate = defaultDueDate;
           }
+          // If invoice already has a due date and no new one provided, keep the existing one
         } else {
           updateData.status = 'due';
+          // Ensure due date exists for unpaid invoices
+          if (!invoice.dueDate && !nextDueDate) {
+            const defaultDueDate = new Date();
+            defaultDueDate.setDate(defaultDueDate.getDate() + 30);
+            updateData.dueDate = defaultDueDate;
+          } else if (nextDueDate) {
+            updateData.dueDate = new Date(nextDueDate);
+          }
         }
         
         console.log('Payment update data:', updateData);

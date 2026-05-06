@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { connectMongo } from "@/utils/mongodb";
 import { User } from "@/models/user";
 import crypto from "crypto";
-import nodemailer from "nodemailer";
+import { sendEmail } from "@/lib/sendEmail";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,6 +12,33 @@ export async function POST(req: NextRequest) {
       return Response.json(
         { success: false, error: "Email is required" },
         { status: 400 }
+      );
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return Response.json(
+        { success: false, error: "Invalid email format" },
+        { status: 400 }
+      );
+    }
+
+    // Check if SMTP credentials are configured
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      console.error("SMTP credentials not configured");
+      return Response.json(
+        { success: false, error: "Email service is not configured. Please contact support." },
+        { status: 500 }
+      );
+    }
+
+    // Check if NEXTAUTH_URL is configured
+    if (!process.env.NEXTAUTH_URL) {
+      console.error("NEXTAUTH_URL not configured");
+      return Response.json(
+        { success: false, error: "Application URL is not configured. Please contact support." },
+        { status: 500 }
       );
     }
 
@@ -47,18 +74,7 @@ export async function POST(req: NextRequest) {
     // Create reset URL
     const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${resetToken}`;
 
-    // Send email
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-    });
-
+    // Email HTML template
     const emailHtml = `
       <!DOCTYPE html>
       <html>
@@ -144,14 +160,42 @@ export async function POST(req: NextRequest) {
       </html>
     `;
 
-    await transporter.sendMail({
-      from: `"TechPratham" <${process.env.SMTP_USER}>`,
-      to: email,
-      subject: "Password Reset Request - TechPratham",
-      html: emailHtml,
-    });
+    // Send email using utility function
+    try {
+      await sendEmail({
+        to: email,
+        subject: "Password Reset Request - TechPratham",
+        html: emailHtml,
+      });
 
-    console.log("✅ Password reset email sent to:", email);
+      console.log("✅ Password reset email sent to:", email);
+    } catch (emailError: any) {
+      console.error("Email sending error:", emailError);
+      console.error("Email error message:", emailError.message);
+      
+      // Rollback: Remove the token from user since email failed
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpiry = undefined;
+      await user.save();
+      
+      // Return specific error
+      if (emailError.message?.includes("Invalid login") || emailError.message?.includes("535")) {
+        return Response.json(
+          { success: false, error: "Email authentication failed. Please verify your Gmail App Password is correct and 2-Step Verification is enabled." },
+          { status: 500 }
+        );
+      } else if (emailError.message?.includes("ECONNREFUSED") || emailError.message?.includes("ETIMEDOUT")) {
+        return Response.json(
+          { success: false, error: "Unable to connect to email service. Please check your internet connection and try again." },
+          { status: 500 }
+        );
+      } else {
+        return Response.json(
+          { success: false, error: `Failed to send reset email: ${emailError.message}` },
+          { status: 500 }
+        );
+      }
+    }
 
     return Response.json({
       success: true,
@@ -159,8 +203,22 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("Forgot password error:", error);
+    console.error("Error stack:", error.stack);
+    console.error("Error message:", error.message);
+    
+    // Return more specific error message
+    let errorMessage = "Failed to process request";
+    
+    if (error.message?.includes("SMTP") || error.message?.includes("ECONNREFUSED")) {
+      errorMessage = "Email service is currently unavailable. Please try again later.";
+    } else if (error.message?.includes("Invalid login")) {
+      errorMessage = "Email configuration error. Please contact support.";
+    } else if (error.message) {
+      errorMessage = `Error: ${error.message}`;
+    }
+    
     return Response.json(
-      { success: false, error: "Failed to process request" },
+      { success: false, error: errorMessage },
       { status: 500 }
     );
   }

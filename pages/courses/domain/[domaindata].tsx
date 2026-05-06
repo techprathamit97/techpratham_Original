@@ -232,14 +232,50 @@ const DomainDataPage: React.FC<DomainDataPageProps> = ({ initialCourses, domainS
                 <ReachForm />
                 <ToolTip />
 
-                <div className=' w-full h-auto flex items-center justify-center relative'>
-                    <Image src='/training/categoryhero.webp' alt='' width={1920} height={1080} className='w-full md:h-[66vh] h-56 object-cover ' />
-                    <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 md:text-6xl text-2xl font-semibold text-white text-center'>{domainName} Courses</div>
+                <div className='w-full h-auto flex items-center justify-center relative'>
+                    {/* Background Image */}
+                    <Image 
+                        src='/training/categoryhero.webp' 
+                        alt='Course Category Hero' 
+                        width={1920} 
+                        height={1080} 
+                        className='w-full md:h-[400px] sm:h-[250px] h-[200px] object-cover' 
+                    />
+                    
+                    {/* Text Overlay - Left Side */}
+                    <div className='absolute top-0 left-0 w-full h-full flex items-center md:px-16 px-3'>
+                        <div className='max-w-2xl'>
+                            <h1 className='md:text-5xl sm:text-4xl text-[18px] font-bold text-white leading-tight'>
+                                <span className='text-[#f5deb3]'>BUILD SKILLS</span> WITH OUR <br/> PROFESSIONAL COURSES
+                            </h1>
+                        </div>
+                    </div>
                 </div>
 
                 {courseData.length > 0 ? (
                     <div className='w-full h-auto flex flex-col gap-10 items-center justify-center py-8 text-black'>
+<div className="text-center mb-5">
 
+          <div className="text-center mb-12">
+            <h2 className="text-[#7f1d1d] md:text-3xl text-2xl font-bold">
+               Explore {domainName} Courses
+            </h2>
+
+            <svg
+              className="mx-auto"
+              width="340"
+              height="6"
+              viewBox="0 0 340 6"
+              preserveAspectRatio="none"
+            >
+              <path
+                d="M0 3 Q170 0 340 3 Q170 6 0 3 Z"
+                fill="#7f1d1d"
+              />
+            </svg>
+          </div>
+          {/* <div className="w-[280px] h-[6px] bg-gradient-to-tl from-[#C6151D] to-[#600A0E] rounded-full mx-auto" /> */}
+        </div>
                         <div className='md:w-10/12 w-11/12 flex flex-col items-center justify-center h-auto'>
                             <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6 w-full justify-items-center">
                                 {courseData.map((course: any, index: any) => (

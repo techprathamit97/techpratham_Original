@@ -73,6 +73,17 @@ export async function POST(req: Request) {
     // Generate student ID if not provided
     const studentId = customerDetails.studentId || `TP${Date.now().toString().slice(-6)}`;
 
+    // Initialize installmentPayments array with first payment if applicable
+    let installmentPayments = [];
+    if (feeType === 'Installments' && paidAmount > 0) {
+      installmentPayments.push({
+        installmentNumber: 1,
+        paidDate: paidDate ? new Date(paidDate) : new Date(),
+        amount: paidAmount,
+        paymentMode: paymentMode || 'online'
+      });
+    }
+
     // Create invoice data
     const invoiceData = {
       enrollmentId: null, // Explicitly set to null for manual invoices
@@ -112,6 +123,9 @@ export async function POST(req: Request) {
       dueDate: dueDate ? new Date(dueDate) : (feeType === 'Full Payment' ? null : null),
       paidDate: paidDate ? new Date(paidDate) : ((paidAmount || 0) > 0 ? new Date() : null),
       paymentScreenshot: paymentScreenshot || null,
+      
+      // Add installment payments array
+      installmentPayments: installmentPayments,
       
       // Mark as manual invoice
       isManual: true,

@@ -41,22 +41,51 @@ interface Invoice {
     dueDate: string;
     amount: number;
   }>;
+  installmentPayments?: Array<{
+    installmentNumber: number;
+    paidDate: string;
+    amount: number;
+    paymentMode: string;
+  }>;
   isManual?: boolean;
 }
 
 const InvoiceViewPage = () => {
   const router = useRouter();
-  const { invoiceId } = router.query;
+  const { invoiceId, payment } = router.query;
 
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [paymentNumber, setPaymentNumber] = useState<number | null>(null);
+  const [cumulativePaid, setCumulativePaid] = useState<number>(0);
+  const [restAmount, setRestAmount] = useState<number>(0);
 
   useEffect(() => {
     if (invoiceId && typeof invoiceId === 'string') {
       fetchInvoice(invoiceId);
     }
   }, [invoiceId]);
+
+  useEffect(() => {
+    if (invoice && payment) {
+      const payNum = parseInt(payment as string);
+      setPaymentNumber(payNum);
+      
+      // Calculate cumulative amount paid up to this payment
+      if (invoice.installmentPayments && invoice.installmentPayments.length > 0) {
+        const cumulative = invoice.installmentPayments
+          .slice(0, payNum)
+          .reduce((sum: number, p: any) => sum + p.amount, 0);
+        setCumulativePaid(cumulative);
+        setRestAmount(invoice.totalAmount - cumulative);
+      }
+    } else if (invoice) {
+      // No payment parameter, show current invoice state
+      setCumulativePaid(invoice.paidAmount);
+      setRestAmount(invoice.pendingAmount);
+    }
+  }, [invoice, payment]);
 
   const fetchInvoice = async (id: string) => {
     setIsLoading(true);
@@ -303,7 +332,11 @@ const InvoiceViewPage = () => {
                         </td>
                         <td className="border border-gray-400 pb-3  text-[10px] text-black" style={{ width: '33.33%' }}>
                           <span className="font-semibold">Fees Type :</span>{' '}
-                          <span className="text-[10px]">{invoice.feeType}</span>
+                          <span className="text-[10px]">
+                            {paymentNumber && invoice.feeType === 'Installments' 
+                              ? `${paymentNumber}${paymentNumber === 1 ? 'st' : paymentNumber === 2 ? 'nd' : paymentNumber === 3 ? 'rd' : 'th'} Installment`
+                              : invoice.feeType}
+                          </span>
                         </td>
                       </tr>
                       <tr>
@@ -318,7 +351,38 @@ const InvoiceViewPage = () => {
                         <td className="border border-gray-400 pb-3 text-[10px] text-black align-middle">
                           <span className="font-semibold">Next Due Date :-</span>{' '}
                           <span className="text-[10px]">
-                            {invoice.pendingAmount > 0 && invoice.dueDate ? formatDate(invoice.dueDate) : 'N.A'}
+                            {(() => {
+                              // If viewing a specific payment receipt
+                              if (paymentNumber && invoice.installmentPayments) {
+                                // Check if this is the last payment (rest amount is 0)
+                                if (restAmount === 0) {
+                                  return 'N.A';
+                                }
+                                
+                                // Find next due date from installmentDates
+                                if (invoice.installmentDates && invoice.installmentDates.length > 0) {
+                                  // Calculate total paid up to this payment
+                                  const totalPaidUpToNow = invoice.installmentPayments
+                                    .slice(0, paymentNumber)
+                                    .reduce((sum: number, p: any) => sum + p.amount, 0);
+                                  
+                                  // Find the next installment that hasn't been fully paid
+                                  let cumulativeAmount = 0;
+                                  for (const installment of invoice.installmentDates) {
+                                    cumulativeAmount += installment.amount;
+                                    if (totalPaidUpToNow < cumulativeAmount) {
+                                      return formatDate(installment.dueDate);
+                                    }
+                                  }
+                                }
+                                
+                                // Fallback to invoice dueDate
+                                return invoice.dueDate ? formatDate(invoice.dueDate) : 'N.A';
+                              }
+                              
+                              // Default view (not a specific payment)
+                              return invoice.pendingAmount > 0 && invoice.dueDate ? formatDate(invoice.dueDate) : 'N.A';
+                            })()}
                           </span>
                         </td>
                       </tr>
@@ -348,23 +412,23 @@ const InvoiceViewPage = () => {
                           {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                         </td>
                       </tr>
-                      {invoice.paidAmount > 0 && (
+                      {cumulativePaid > 0 && (
                         <tr>
                           <td className="border border-gray-400  p-2 text-[10px] font-semibold text-black align-middle">
                             Amount Paid
                           </td>
                           <td className="border border-gray-400  p-2 text-[10px] font-bold text-black text-right align-middle">
-                            {invoice.paidAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                            {cumulativePaid.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                           </td>
                         </tr>
                       )}
-                      {invoice.pendingAmount > 0 && (
+                      {restAmount > 0 && (
                         <tr>
                           <td className="border border-gray-400  p-2 text-[10px] font-semibold text-black align-middle">
-                            Due Amount
+                            Rest Amount
                           </td>
                           <td className="border border-gray-400  p-2 text-[10px] font-bold text-black text-right  align-middle">
-                            {invoice.pendingAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                            {restAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                           </td>
                         </tr>
                       )}
@@ -373,14 +437,18 @@ const InvoiceViewPage = () => {
                 </div>
 
                 {/* Payment Mode and Paid Date */}
-                {invoice.paidDate && (
+                {(invoice.paidDate || (paymentNumber && invoice.installmentPayments && invoice.installmentPayments[paymentNumber - 1])) && (
                   <div className="mb-2">
                     <div className="text-[10px] ">
                       <span className="font-semibold">Payment Mode:</span>{' '}
-                      {invoice.paymentMode?.replace('_', ' ').toUpperCase() || 'ONLINE'}{' '}
+                      {paymentNumber && invoice.installmentPayments && invoice.installmentPayments[paymentNumber - 1]
+                        ? invoice.installmentPayments[paymentNumber - 1].paymentMode?.replace('_', ' ').toUpperCase()
+                        : invoice.paymentMode?.replace('_', ' ').toUpperCase() || 'ONLINE'}{' '}
                       |{' '}
                       <span className="font-semibold">Paid Date:</span>{' '}
-                      {formatDate(invoice.paidDate)}
+                      {paymentNumber && invoice.installmentPayments && invoice.installmentPayments[paymentNumber - 1]
+                        ? formatDate(invoice.installmentPayments[paymentNumber - 1].paidDate)
+                        : invoice.paidDate ? formatDate(invoice.paidDate) : 'N/A'}
                     </div>
                   </div>
                 )}

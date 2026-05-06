@@ -273,31 +273,11 @@ const CreateManualInvoice = () => {
       setPaidAmount(courseDetails.price);
       setNextPaymentDate('');
       setInstallmentDates([]);
-    } else if (newFeeType === '2 Installments') {
-      // For 2 installments: first payment is current paid amount, second payment is remaining amount
-      const totalAmount = calculateTotal();
-      const remainingAmount = totalAmount - paidAmount;
-      
-      // Set next payment date to next day
-      const nextDate = new Date();
-      nextDate.setDate(nextDate.getDate() + 1);
-      setNextPaymentDate(nextDate.toISOString().split('T')[0]);
-      
-      // Generate installment schedule
-      const installments = [
-        {
-          installmentNumber: 1,
-          dueDate: new Date().toISOString().split('T')[0], // Today
-          amount: paidAmount
-        },
-        {
-          installmentNumber: 2,
-          dueDate: nextDate.toISOString().split('T')[0],
-          amount: remainingAmount
-        }
-      ];
-      
-      setInstallmentDates(installments);
+    } else if (newFeeType === 'Installments') {
+      // For installments: just clear the dates, don't auto-calculate
+      // User can pay any amount as first installment
+      setNextPaymentDate('');
+      setInstallmentDates([]);
     }
   };
 
@@ -342,24 +322,12 @@ const CreateManualInvoice = () => {
     if (feeType === 'Full Payment') {
       // For full payment, amount paid must equal course price
       if (paidAmount !== courseDetails.price) {
-        newErrors.push(`For Full Payment, amount paid must equal course price (₹${courseDetails.price.toLocaleString('en-IN')}). Either pay the full amount or select "2 Installments".`);
+        newErrors.push(`For Full Payment, amount paid must equal course price (₹${courseDetails.price.toLocaleString('en-IN')}). Either pay the full amount or select "Installments".`);
       }
-    } else if (feeType === '2 Installments') {
+    } else if (feeType === 'Installments') {
       // For installments, validate partial payment
       if (paidAmount <= 0) newErrors.push('First installment amount must be greater than 0');
       if (paidAmount >= courseDetails.price) newErrors.push('First installment cannot be equal to or greater than total price');
-      if (!nextPaymentDate) {
-        newErrors.push('Next payment date is required for installments');
-      } else {
-        // Validate that next payment date is in the future
-        const nextDate = new Date(nextPaymentDate);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set to start of today
-        
-        if (nextDate <= today) {
-          newErrors.push('Next payment date must be a future date');
-        }
-      }
     }
 
     setErrors(newErrors);
@@ -417,7 +385,7 @@ const CreateManualInvoice = () => {
         feeType,
         paidAmount: paidAmount || 0,
         installmentDates: installmentDates.length > 0 ? installmentDates : undefined,
-        dueDate: feeType === '2 Installments' ? nextPaymentDate : null,
+        dueDate: null, // No fixed due date for installments
         paidDate: paidDate || null,
         paymentScreenshot: screenshotUrl,
         salesPerson: salesPerson && salesPerson !== 'none' ? salesPerson : null
@@ -652,12 +620,14 @@ const CreateManualInvoice = () => {
                         </SelectTrigger>
                         <SelectContent className="bg-zinc-800 border-zinc-700">
                           <SelectItem value="Full Payment">Full Payment</SelectItem>
-                          <SelectItem value="2 Installments">2 Installments</SelectItem>
+                          <SelectItem value="Installments">Installments</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
-                      <Label className="text-white">Amount Paid Today (₹) *</Label>
+                      <Label className="text-white">
+                        {feeType === 'Installments' ? '1st Installment Amount (₹) *' : 'Amount Paid Today (₹) *'}
+                      </Label>
                       <Input
                         type="number"
                         min="0"
@@ -667,10 +637,7 @@ const CreateManualInvoice = () => {
                         onChange={(e) => {
                           const amount = parseFloat(e.target.value) || 0;
                           setPaidAmount(amount);
-                          // Recalculate installments if in installment mode
-                          if (feeType === '2 Installments') {
-                            handleFeeTypeChange('2 Installments');
-                          }
+                          // No need to recalculate for installments
                         }}
                         className={`bg-zinc-800 border-zinc-700 text-white ${
                           feeType === 'Full Payment' && paidAmount !== courseDetails.price && paidAmount > 0
@@ -752,22 +719,6 @@ const CreateManualInvoice = () => {
                         Cannot be a future date
                       </div>
                     </div>
-                    {feeType === '2 Installments' && (
-                      <div>
-                        <Label className="text-white">Next Payment Date *</Label>
-                        <Input
-                          type="date"
-                          value={nextPaymentDate}
-                          min={new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]} // Tomorrow
-                          onChange={(e) => setNextPaymentDate(e.target.value)}
-                          className="bg-zinc-800 border-zinc-700 text-white"
-                          required
-                        />
-                        <div className="text-xs text-zinc-500 mt-1">
-                          Must be a future date
-                        </div>
-                      </div>
-                    )}
                   </div>
 
                   {/* Payment Summary */}
@@ -777,7 +728,9 @@ const CreateManualInvoice = () => {
                       <div className="text-lg font-bold text-white">₹{courseDetails.price.toLocaleString('en-IN')}</div>
                     </div>
                     <div>
-                      <Label className="text-xs text-zinc-400">Amount Paid Today</Label>
+                      <Label className="text-xs text-zinc-400">
+                        {feeType === 'Installments' ? '1st Installment' : 'Amount Paid Today'}
+                      </Label>
                       <div className={`text-lg font-bold ${
                         feeType === 'Full Payment' && paidAmount !== courseDetails.price && paidAmount > 0
                           ? 'text-red-400'

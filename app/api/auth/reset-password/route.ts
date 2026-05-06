@@ -65,8 +65,20 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("Reset password error:", error);
+    console.error("Error stack:", error.stack);
+    console.error("Error message:", error.message);
+    
+    // Return more specific error message
+    let errorMessage = "Failed to reset password";
+    
+    if (error.message?.includes("validation")) {
+      errorMessage = "Invalid password format. Please try again.";
+    } else if (error.message) {
+      errorMessage = `Error: ${error.message}`;
+    }
+    
     return Response.json(
-      { success: false, error: "Failed to reset password" },
+      { success: false, error: errorMessage },
       { status: 500 }
     );
   }

@@ -412,36 +412,39 @@
 //             </div>
 
 //             {/* RIGHT - FIXED ABOUT CERTIFICATE */}
-//             <div className="space-y-6 mt-5">
-//               <div className="bg-white p-5 rounded-lg space-y-4">
-//                 <h3 className="font-semibold">
-//                   {STATIC_CERTIFICATE.heading}
-//                 </h3>
-
-//                 <div className="border-2 relative overflow-hidden group">
-
-//                   {/* Image */}
-//                   <img
-//                     src={STATIC_CERTIFICATE.image}
-//                     alt="Certificate"
-//                     className="w-full rounded"
-//                   />
-
-//                   {/* Dynamic Certificate Name Text on Image */}
-//                   <div className="absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-20">
-//                     <div
-//                       className="text-transparent bg-gradient-to-b from-[#ff0000] to-[#1f1e1f] bg-clip-text text-lg md:text-2xl lg:text-2xl font-bold uppercase tracking-wide drop-shadow-sm whitespace-nowrap"
-//                       style={{ fontFamily: 'Noto Serif Ethiopic Condensed, serif' }}
-//                     >
-//                       {course?.certificateName || "Course Name"}
-//                     </div>
-//                   </div>
-
-//                   {/* Hover Shine Effect */}
-//                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
-//                 </div>
-//               </div>
-//             </div>
+//               const renderCertPanel = (isMobile = false) => (
+//     <div className="bg-white p-5 rounded-lg space-y-2 mt-4">
+//       <h3 className="font-semibold">{STATIC_CERTIFICATE.heading}</h3>
+//       <div className={`${isMobile ? "" : "border-2"} relative overflow-hidden group`}>
+//         <img
+//           src={STATIC_CERTIFICATE.image}
+//           alt="Certificate"
+//           className="w-full rounded"
+//         />
+//         <div
+//           className={`absolute ${
+//             isMobile ? "top-[39%]" : "top-[38%]"
+//           } left-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-20 ${
+//             isMobile ? "max-w-[85%]" : ""
+//           }`}
+//         >
+//           <div
+//             className={`text-transparent bg-gradient-to-b from-[#ff0000] to-[#1f1e1f] bg-clip-text ${
+//               isMobile
+//                 ? "text-lg sm:text-lg whitespace-nowrap overflow-hidden text-ellipsis"
+//                 : "text-lg md:text-2xl lg:text-2xl uppercase whitespace-nowrap"
+//             } font-bold tracking-wide drop-shadow-sm`}
+//             style={{ fontFamily: "Noto Serif Ethiopic Condensed, serif" }}
+//           >
+//             {course?.certificateName || "Course Name"}
+//           </div>
+//         </div>
+//         {!isMobile && (
+//           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+//         )}
+//       </div>
+//     </div>
+//   );
 //           </div>
 //         )}
 //       </div>
@@ -492,7 +495,6 @@
 
 "use client";
 import React, { useEffect, useState } from "react";
-import Script from "next/script";
 import { CaretUpIcon } from "@radix-ui/react-icons";
 import { CircleCheckBig } from "lucide-react";
 import LeadForm from "@/components/common/LeadForm/LeadForm";
@@ -517,18 +519,6 @@ const STATIC_CERTIFICATE = {
   image: "/course/certificate/certificate_no_name.webp",
 };
 
-/* ─── helper: strip HTML tags for schema text ─── */
-const stripHtml = (html: string): string =>
-  html
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/\s+/g, " ")
-    .trim();
-
 const FaqSection = ({ id, course }: Props) => {
   /* ================= STATE ================= */
   const [activeTab, setActiveTab] = useState<"faq" | "interview" | "dumps">("faq");
@@ -548,45 +538,6 @@ const FaqSection = ({ id, course }: Props) => {
   const hasFaqs = courseFaqs.length > 0;
   const hasInterview = interviewFaqs.length > 0;
   const hasDumps = !!aboutCert;
-
-  /* ================= AEO: FAQPage JSON-LD schema ================= */
-  // Uses ALL faqs (not limited) so Google indexes every Q&A
-  const faqSchema =
-    courseFaqs.length > 0
-      ? {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: courseFaqs.map((faq: any) => ({
-            "@type": "Question",
-            name: stripHtml(faq.que),
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: stripHtml(faq.ans),
-            },
-          })),
-        }
-      : null;
-
-  /* ================= AEO: Course JSON-LD schema ================= */
-  const courseSchema = course
-    ? {
-        "@context": "https://schema.org",
-        "@type": "Course",
-        name: course.title || "",
-        description: stripHtml(course.description || course.title || ""),
-        provider: {
-          "@type": "Organization",
-          name: "TechPratham",
-          url: "https://www.techpratham.com",
-        },
-        educationalCredentialAwarded: course.certificateName || "",
-        hasCourseInstance: {
-          "@type": "CourseInstance",
-          courseMode: ["online", "onsite"],
-          inLanguage: "en-IN",
-        },
-      }
-    : null;
 
   /* ================= VIEWPORT ================= */
   const [isMobileView, setIsMobileView] = useState(
@@ -727,26 +678,6 @@ const FaqSection = ({ id, course }: Props) => {
   /* ================= RENDER ================= */
   return (
     <section id={id} className="w-full bg-[#F3F4F6]">
-
-      {/* ── AEO: Inject FAQPage schema into <head> ── */}
-      {faqSchema && (
-        <Script
-          id="faq-schema"
-          type="application/ld+json"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-        />
-      )}
-
-      {/* ── AEO: Inject Course schema into <head> ── */}
-      {courseSchema && (
-        <Script
-          id="course-schema"
-          type="application/ld+json"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(courseSchema) }}
-        />
-      )}
 
       <div className="m-2 p-2 border-2">
 
