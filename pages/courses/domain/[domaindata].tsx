@@ -244,10 +244,11 @@ const DomainDataPage: React.FC<DomainDataPageProps> = ({ initialCourses, domainS
                     
                     {/* Text Overlay - Left Side */}
                     <div className='absolute top-0 left-0 w-full h-full flex items-center md:px-16 px-3'>
-                        <div className='max-w-2xl'>
-                            <h1 className='md:text-5xl sm:text-4xl text-[18px] font-bold text-white leading-tight'>
-                                <span className='text-[#f5deb3]'>BUILD SKILLS</span> WITH OUR <br/> PROFESSIONAL COURSES
+                        <div className='max-w-[60%]'>
+                            <h1 className='md:text-4xl sm:text-3xl text-[18px] font-bold text-white leading-tight uppercase'>
+                               Professional  <span className='text-[#f5deb3]'>{domainName} </span> Courses to Boost Your Career 
                             </h1>
+                           
                         </div>
                     </div>
                 </div>

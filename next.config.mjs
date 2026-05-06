@@ -57,7 +57,11 @@ const nextConfig = {
     REGION: process.env.REGION, 
     BUCKET_NAME: process.env.BUCKET_NAME,
     NEXT_PUBLIC_BASE_URL:process.env.NEXT_PUBLIC_BASE_URL,
-    WEB3FORMS_ACCESS_KEY:process.env.WEB3FORMS_ACCESS_KEY
+    WEB3FORMS_ACCESS_KEY:process.env.WEB3FORMS_ACCESS_KEY,
+    SMTP_PASS:process.env.SMTP_PASS,
+    SMTP_USER:process.env.SMTP_USER,
+    SMTP_HOST:process.env.SMTP_HOST,
+    SMTP_PORT:process.env.SMTP_PORT,
   },
 
   async redirects() {
