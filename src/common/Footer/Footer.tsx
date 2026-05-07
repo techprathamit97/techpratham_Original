@@ -57,7 +57,7 @@ const Footer = () => {
                 <FaInstagram className="w-6 h-6" />
               </Link>
               <Link
-                href="/"
+                href="https://x.com/TechPratham_"
                 className="w-8 h-8 rounded-full bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white flex items-center justify-center"
               >
                 <FaTwitter className="w-6 h-6" />

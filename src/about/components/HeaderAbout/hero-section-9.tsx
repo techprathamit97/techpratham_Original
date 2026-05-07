@@ -4,6 +4,7 @@ import { motion,Variants } from 'framer-motion';
 import { Button, type ButtonProps } from '@/components/ui/button'; // Assuming Button is in your components folder
 import { cn } from '@/lib/utils'; // Your utility for class names
 import React from 'react';
+import Image from 'next/image';
 // import { motion, Variants } from "framer-motion";
 // Define the props for reusability
 interface StatProps {
@@ -177,7 +178,7 @@ const HeroSection = ({ title, subtitle, actions, stats, images, className }: Her
             style={{ transformOrigin: 'bottom center' }}
             variants={imageVariants}
           >
-            <img src={images[0]} alt="Student learning" className="h-full w-full  rounded-xl object-contain object-bottom" />
+            <Image src={images[0]} alt="Student learning" className="h-full w-full  rounded-xl object-contain object-bottom" />
           </motion.div>
           {/* <motion.div
             className="absolute right-0  bottom-1 h-40 w-40 rounded-2xl bg-muted p-2 shadow-lg sm:h-56 sm:w-56"

@@ -1,6 +1,6 @@
 
 "use client";
-
+import Image from 'next/image';
 
 /* ================= DATA ================= */
 
@@ -68,7 +68,7 @@ const InfoCard = ({ number, title, desc, icon, color, videoUrl, link, onVideoCli
 
       {/* ICON */}
       <div className="flex items-center justify-center w-14 h-14 shrink-0">
-        <img src={icon} className="w-10 h-10 object-contain" />
+        <Image alt={title} src={icon} width={40} height={40} className="w-10 h-10 object-contain" />
       </div>
 
       {/* DIVIDER */}

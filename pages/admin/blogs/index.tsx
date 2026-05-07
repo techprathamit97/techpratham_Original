@@ -405,12 +405,12 @@ export default function BlogDashboard() {
                     <td className="p-4">
                       <div className="flex gap-2">
                         {post.status === 'published' ? (
-                          <Link href={`/blogs/${post.categorySlug}/${post.slug}`} target="_blank">
+                          <Link href={`/blog/${post.categorySlug}/${post.slug}`} target="_blank">
                             <Button size="sm" variant="outline">View</Button>
                           </Link>
                         ) : (
                           <>
-                            <Link href={`/blogs/${post.categorySlug}/${post.slug}?preview=true`} target="_blank">
+                            <Link href={`/blog/${post.categorySlug}/${post.slug}?preview=true`} target="_blank">
                               <Button size="sm" variant="outline">Preview</Button>
                             </Link>
                             <Button 

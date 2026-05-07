@@ -7,8 +7,8 @@ const blogPostSchema = new mongoose.Schema(
     title: { type: String, required: true },
     excerpt: { type: String, required: true, maxlength: 150 },
     author: { type: String, required: true, default: "TechPratham Team" },
-    category: { type: String, required: true },
-    categorySlug: { type: String, required: true },
+    category: { type: String, required: true, default: "General Blogs" },
+    categorySlug: { type: String, required: true, default: "general-blogs" },
     tags: [{ type: String }],
     
     // Images

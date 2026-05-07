@@ -39,7 +39,7 @@ async function getBlogUrls() {
   try {
     const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
     const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
-    const query = encodeURIComponent(`*[_type == "post"]{slug, _updatedAt}`);
+    const query = encodeURIComponent(`*[_type == "post"]{slug, _updatedAt, "categorySlug": category->slug.current}`);
     const url = `https://${projectId}.api.sanity.io/v2021-10-21/data/query/${dataset}?query=${query}`;
 
     const res = await fetch(url, { next: { revalidate: 3600 } });
@@ -51,7 +51,7 @@ async function getBlogUrls() {
     return result
       .filter((post) => post?.slug?.current)
       .map((post) => ({
-        loc: `${siteUrl}/blogs/${post.slug.current}`,
+        loc: `${siteUrl}/blog/${post.categorySlug || 'general-blogs'}/${post.slug.current}`,
         lastmod: post._updatedAt || new Date().toISOString(),
         priority: "0.75",
       }));
@@ -106,7 +106,9 @@ async function getEbookUrls() {
 
     contents.forEach((content) => {
       const courseId = content.courseId;
-      const lastmod = content.updatedAt || new Date().toISOString();
+      const lastmod = content.updatedAt 
+        ? new Date(content.updatedAt).toISOString() 
+        : new Date().toISOString();
 
       // Add main e-book course page
       urls.push({

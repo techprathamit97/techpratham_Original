@@ -4,6 +4,7 @@ import { MapPin, Phone, Mail } from "lucide-react";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import PhoneInput from "@/components/common/PhoneInput/PhoneInput";
+import Image from "next/image";
 
 export default function ContactLayout() {
   const { register, handleSubmit, reset, setValue } = useForm();
@@ -135,12 +136,12 @@ export default function ContactLayout() {
             </div>
 
             <div className="flex gap-2 items-center">
-              <img src="/course/icons/indian.jpg" alt="India Flag" className="w-4 h-4" />
+              <Image src="/course/icons/indian.jpg" alt="India Flag" width={16} height={16} className="w-4 h-4" />
               <p>+91-8882178896</p>
             </div>
 
             <div className="flex gap-2 items-center">
-              <img src="/course/icons/uslogo.png" alt="US Flag" className="w-4 h-4" />
+              <Image src="/course/icons/uslogo.png" alt="US Flag" width={16} height={16} className="w-4 h-4" />
               <p>+1 (343) 477-0926</p>
             </div>
 

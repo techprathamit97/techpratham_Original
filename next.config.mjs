@@ -37,6 +37,11 @@ const nextConfig = {
         hostname: 'cdn.sanity.io',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'maps.gstatic.com',
+        pathname: '/**',
+      },
     ],
   },
   env: {
@@ -69,6 +74,11 @@ const nextConfig = {
        {
         source: '/courses/servicenow-developer-certification', // replace with your dead URL path
         destination: '/courses/servicenow-developer-certification-training',        // home page
+        permanent: true,         // 301 redirect
+      },
+      {
+        source: '/courses/best-sap-training-certification-courses-online', // replace with your dead URL path
+        destination: '/courses/sap-training-in-india',        // home page
         permanent: true,         // 301 redirect
       },
        {

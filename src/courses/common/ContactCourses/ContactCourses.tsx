@@ -3,6 +3,7 @@
 
 import { MessageCircle } from "lucide-react";
 import CategoryList from "./CategoryList";
+import Image from "next/image";
 
 const items = [
     {
@@ -53,14 +54,16 @@ export default function AddressCards() {
                     >
                         {/* Header */}
                         <div className="flex items-center gap-2 px-2 py-1 bg-gradient-to-tl from-[#C6151D] to-[#600A0E]">
-                            <img
+                            <Image
                                 src={
                                     item.country === "USA"
                                         ? item.imgUs
                                         : item.imgIn
                                 }
+                                width={32}
+                                height={20}
                                 className="w-8 h-5 object-cover"
-                                alt="flag"
+                                alt={`${item.country} Flag`}
                             />
                             <h3 className="text-lg text-white font-semibold">{item.country}</h3>
                         </div>
@@ -82,8 +85,10 @@ export default function AddressCards() {
                                 {item.phone && (
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center md:gap-2 gap-1">
-                                            <img
+                                            <Image
                                                 src={item.imgIn}
+                                                width={20}
+                                                height={16}
                                                 alt="India Flag"
                                                 className="w-5 h-4 object-cover rounded-sm"
                                             />
@@ -108,8 +113,10 @@ export default function AddressCards() {
                                 {item.phoneUs && (
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center md:gap-2 gap-1">
-                                            <img
+                                            <Image
                                                 src={item.imgUs}
+                                                width={20}
+                                                height={16}
                                                 alt="USA Flag"
                                                 className="w-5 h-4 object-cover rounded-sm"
                                             />
@@ -143,10 +150,12 @@ export default function AddressCards() {
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-2 hover:underline"
                             >
-                                <img
+                                <Image
                                     src="https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2.png"
+                                    width={20}
+                                    height={20}
                                     className="w-5 h-5"
-                                    alt="map"
+                                    alt="Google Maps Location Pin"
                                 />
                                 View on Google Maps
                             </a>

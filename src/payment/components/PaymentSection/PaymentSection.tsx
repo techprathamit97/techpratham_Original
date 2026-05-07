@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import Image from 'next/image';
 
 const FormContact = () => {
     const { register, handleSubmit, reset } = useForm();
@@ -49,16 +50,18 @@ const FormContact = () => {
                             <h3 className="text-lg font-bold text-gray-800 mb-1">QR Scan & Pay</h3>
                             <p className="text-sm text-gray-600 mb-2">Scan with any UPI app</p>
                             <div className="flex justify-center space-x-2 mb-4">
-                                <img src="/header/upi.png" alt="Google Pay" className="w-8 h-8" />
-                                <img src="/header/gpay.png" alt="PhonePe" className="w-10 h-8" />
-                                <img src="/header/paytem.png" alt="Paytm" className="w-10 h-8" />
-                                <img src="/header/phonepay.png" alt="Paytm" className="w-10 h-8" />
-                                <img src="/header/amazonpay.png" alt="Paytm" className="w-10 h-10" />
+                                <Image src="/header/upi.png" alt="UPI Payment" width={32} height={32} className="w-8 h-8" />
+                                <Image src="/header/gpay.png" alt="Google Pay" width={40} height={32} className="w-10 h-8" />
+                                <Image src="/header/paytem.png" alt="Paytm" width={40} height={32} className="w-10 h-8" />
+                                <Image src="/header/phonepay.png" alt="PhonePe" width={40} height={32} className="w-10 h-8" />
+                                <Image src="/header/amazonpay.png" alt="Amazon Pay" width={40} height={40} className="w-10 h-10" />
                             </div>
                             <div className="bg-white p-4 rounded-xl shadow-inner mb-4">
-                                <img 
+                                <Image 
                                     src="/navbar/qr.jpeg" 
                                     alt="QR Code for Payment" 
+                                    width={200}
+                                    height={200}
                                     className="w-full max-w-[200px] mx-auto"
                                 />
                             </div>
@@ -86,9 +89,9 @@ const FormContact = () => {
                                 
                                 {/* Credit Card and Debit Card Logos */}
                                 <div className="flex justify-center items-center gap-3 mb-3">
-                                    <img src="/header/visa.png" alt="Visa" className="w-12 h-8 object-contain" />
-                                    <img src="/header/mastercard.png" alt="Mastercard" className="w-12 h-8 object-contain" />
-                                    <img src="/header/atm.webp" alt="Visa" className="w-12 h-12 object-contain" />
+                                    <Image src="/header/visa.png" alt="Visa Card" width={48} height={32} className="w-12 h-8 object-contain" />
+                                    <Image src="/header/mastercard.png" alt="Mastercard" width={48} height={32} className="w-12 h-8 object-contain" />
+                                    <Image src="/header/atm.webp" alt="Debit Card" width={48} height={48} className="w-12 h-12 object-contain" />
                                 </div>
 
                                 <div className="text-sm text-gray-600 mb-1">Enter Your Details</div>
@@ -184,8 +187,8 @@ const FormContact = () => {
                             </div>
                             <h3 className="text-lg font-bold text-gray-800">Transfer to Bank</h3>
                             <div className="flex justify-center items-center ">
-                                    <img src="/header/kotak.png" alt="Visa" className="w-20 h-6 object-contain" />
-                                    {/* <img src="/header/mastercard.png" alt="Mastercard" className="w-12 h-8 object-contain" /> */}
+                                    <Image src="/header/kotak.png" alt="Kotak Mahindra Bank" width={80} height={24} className="w-20 h-6 object-contain" />
+                                    {/* <Image src="/header/mastercard.png" alt="Mastercard" width={48} height={32} className="w-12 h-8 object-contain" /> */}
                                 </div>
                             <p className="text-sm text-gray-600">Direct bank transfer details</p>
                         </div>

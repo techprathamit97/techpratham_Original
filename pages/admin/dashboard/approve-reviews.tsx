@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 
 interface Review {
   _id: string;
@@ -142,9 +143,11 @@ const ApproveReviewsPage = () => {
               <div key={review._id} className='bg-white rounded-lg shadow p-6'>
                 <div className='flex items-start gap-4'>
                   {review.profileImage ? (
-                    <img 
+                    <Image 
                       src={review.profileImage} 
                       alt={review.name}
+                      width={64}
+                      height={64}
                       className='w-16 h-16 rounded-full object-cover'
                     />
                   ) : (

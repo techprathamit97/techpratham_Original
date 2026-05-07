@@ -117,6 +117,7 @@
 // export default PaymentHeader;
 
 import React from 'react';
+import Image from 'next/image';
 
 const PaymentHeader = () => {
   const scrollToPaymentSection = () => {
@@ -217,31 +218,31 @@ const PaymentHeader = () => {
 
           {/* Center Bank Logo */}
           <div className="w-36 h-36 rounded-full bg-gradient-to-br from-white  to-black flex items-center justify-center z-10 shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
-            <img src="/header/bank.png" alt="Bank" className="w-36 h-36 object-contain" />
+            <Image src="/header/bank.png" alt="Bank Logo" width={144} height={144} className="w-36 h-36 object-contain" />
           </div>
 
           {/* Circular Logos */}
 
           {/* Top */}
-          <img src="/header/upi.png" className="absolute top-[30px]  w-20" />
+          <Image src="/header/upi.png" alt="UPI Logo" width={80} height={80} className="absolute top-[30px]  w-20" />
 
           {/* Bottom */}
-          <img src="/header/payu.png" className="absolute bottom-[10px] w-40" />
+          <Image src="/header/payu.png" alt="PayU Logo" width={160} height={160} className="absolute bottom-[10px] w-40" />
 
           {/* Left */}
-          <img src="/header/paytem.png" className="absolute left-[80px]  w-20" />
+          <Image src="/header/paytem.png" alt="Paytm Logo" width={80} height={80} className="absolute left-[80px]  w-20" />
 
           {/* Right */}
-          <img src="/header/visa.png" className="absolute right-[90px] w-20" />
-          <img src="/header/phonepay.png" className="absolute bottom-[50px]  rounded-lg left-[100px] w-28" />
+          <Image src="/header/visa.png" alt="Visa Logo" width={80} height={80} className="absolute right-[90px] w-20" />
+          <Image src="/header/phonepay.png" alt="PhonePe Logo" width={112} height={112} className="absolute bottom-[50px]  rounded-lg left-[100px] w-28" />
 
           {/* GPay - Right Bottom */}
-          <img src="/header/gpay.png" className="absolute bottom-[60px] right-[90px] w-40" />
+          <Image src="/header/gpay.png" alt="Google Pay Logo" width={160} height={160} className="absolute bottom-[60px] right-[90px] w-40" />
           {/* Top Left */}
-          <img src="/header/mastercard.png" className="absolute top-[90px] left-[120px] w-20" />
+          <Image src="/header/mastercard.png" alt="Mastercard Logo" width={80} height={80} className="absolute top-[90px] left-[120px] w-20" />
 
           {/* Top Right */}
-          <img src="/header/amazonpay.png" className="absolute top-[90px] right-[120px] bg-white rounded-lg w-16" />
+          <Image src="/header/amazonpay.png" alt="Amazon Pay Logo" width={64} height={64} className="absolute top-[90px] right-[120px] bg-white rounded-lg w-16" />
 
           {/* Overlay */}
           <div className="absolute inset-0 bg-gradient-to-l from-black/70 via-transparent to-transparent"></div>
