@@ -46,6 +46,8 @@ interface Invoice {
     paidDate: string;
     amount: number;
     paymentMode: string;
+    dueDate?: string;
+    nextDueDate?: string;
   }>;
   isManual?: boolean;
 }
@@ -359,21 +361,10 @@ const InvoiceViewPage = () => {
                                   return 'N.A';
                                 }
                                 
-                                // Find next due date from installmentDates
-                                if (invoice.installmentDates && invoice.installmentDates.length > 0) {
-                                  // Calculate total paid up to this payment
-                                  const totalPaidUpToNow = invoice.installmentPayments
-                                    .slice(0, paymentNumber)
-                                    .reduce((sum: number, p: any) => sum + p.amount, 0);
-                                  
-                                  // Find the next installment that hasn't been fully paid
-                                  let cumulativeAmount = 0;
-                                  for (const installment of invoice.installmentDates) {
-                                    cumulativeAmount += installment.amount;
-                                    if (totalPaidUpToNow < cumulativeAmount) {
-                                      return formatDate(installment.dueDate);
-                                    }
-                                  }
+                                // Get the next due date from the current payment record
+                                const currentPayment = invoice.installmentPayments[paymentNumber - 1];
+                                if (currentPayment && currentPayment.nextDueDate) {
+                                  return formatDate(currentPayment.nextDueDate);
                                 }
                                 
                                 // Fallback to invoice dueDate

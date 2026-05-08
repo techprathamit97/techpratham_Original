@@ -327,6 +327,11 @@ const CreateManualInvoice = () => {
       // For installments, validate partial payment
       if (paidAmount <= 0) newErrors.push('First installment amount must be greater than 0');
       if (paidAmount >= courseDetails.price) newErrors.push('First installment cannot be equal to or greater than total price');
+      
+      // Validate next payment due date for installments with pending amount
+      if (calculateRemainingAmount() > 0 && !nextPaymentDate) {
+        newErrors.push('Next payment due date is required for installment payments');
+      }
     }
 
     setErrors(newErrors);
@@ -384,7 +389,7 @@ const CreateManualInvoice = () => {
         feeType,
         paidAmount: paidAmount || 0,
         installmentDates: installmentDates.length > 0 ? installmentDates : undefined,
-        dueDate: null, // No fixed due date for installments
+        dueDate: feeType === 'Installments' && calculateRemainingAmount() > 0 ? nextPaymentDate : null,
         paidDate: paidDate || null,
         paymentScreenshot: screenshotUrl,
         salesPerson: salesPerson && salesPerson !== 'none' ? salesPerson : null
@@ -713,6 +718,22 @@ const CreateManualInvoice = () => {
                           Cannot be a future date
                         </div>
                       </div>
+                      {feeType === 'Installments' && calculateRemainingAmount() > 0 && (
+                        <div>
+                          <Label className="text-white">Next Payment Due Date *</Label>
+                          <Input
+                            type="date"
+                            value={nextPaymentDate}
+                            min={new Date().toISOString().split('T')[0]} // Today or later
+                            onChange={(e) => setNextPaymentDate(e.target.value)}
+                            className="bg-zinc-800 border-zinc-700 text-white"
+                            required
+                          />
+                          <div className="text-xs text-zinc-500 mt-1">
+                            Due date for next installment payment
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Payment Summary */}

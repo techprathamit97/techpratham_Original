@@ -41,7 +41,7 @@ const FormContact = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-auto">
                 
                 {/* Left Section - QR Code */}
-                <div className="lg:col-span-3 order-1 lg:order-1">
+                <div className="lg:col-span-6 order-1 lg:order-1">
                     <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-6 shadow-lg border border-blue-200 h-full">
                         <div className="text-center">
                             <div className="bg-gradient-to-tl from-[#C6151D] to-[#600A0E] text-white px-4 py-2 rounded-lg mb-3 font-bold text-sm inline-block">
@@ -175,60 +175,63 @@ const FormContact = () => {
                 </div>
 
                 {/* Right Section - Bank Details */}
-                <div className="lg:col-span-3 order-3">
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl p-6 shadow-lg border border-green-200 h-full relative">
-                        
-                        {/* Kotak Logo - Top Right Corner */}
-                      
-                        
-                        <div className="text-center mb-6">
-                            <div className="bg-gradient-to-tl from-[#C6151D] to-[#600A0E] text-white px-4 py-2 rounded-lg mb-3 font-bold text-sm inline-block">
-                                OPTION - 3
-                            </div>
-                            <h3 className="text-lg font-bold text-gray-800">Transfer to Bank</h3>
-                            <div className="flex justify-center items-center ">
-                                    <Image src="/header/kotak.png" alt="Kotak Mahindra Bank" width={80} height={24} className="w-20 h-6 object-contain" />
-                                    {/* <Image src="/header/mastercard.png" alt="Mastercard" width={48} height={32} className="w-12 h-8 object-contain" /> */}
-                                </div>
-                            <p className="text-sm text-gray-600">Direct bank transfer details</p>
-                        </div>
-                        
-                        <div className="space-y-2">
-                            <div className="bg-white rounded-lg p-2 shadow-sm border border-gray-100">
-                                <div className="text-xs text-gray-500 mb-1">Account Name</div>
-                                <div className="font-semibold text-gray-800">Techpratham Training and Development Pvt. Ltd.</div>
-                            </div>
-                            
-                            <div className="bg-white rounded-lg p-2 shadow-sm border border-gray-100">
-                                <div className="text-xs text-gray-500 mb-1">Account Number</div>
-                                <div className="font-mono text-sm font-semibold text-gray-800">7949729016</div>
-                            </div>
-                            
-                            <div className="bg-white rounded-lg p-2 shadow-sm border border-gray-100">
-                                <div className="text-xs text-gray-500 mb-1">IFSC Code</div>
-                                <div className="font-mono text-sm font-semibold text-gray-800">KKBK0000181</div>
-                            </div>
-                            
-                            <div className="bg-white rounded-lg p-2 shadow-sm border border-gray-100">
-                                <div className="text-xs text-gray-500 mb-1">Bank Name</div>
-                                <div className="font-semibold text-gray-800">Kotak Mahindra Bank</div>
-                            </div>
-                            
-                            <div className="bg-white rounded-lg p-2 shadow-sm border border-gray-100">
-                                <div className="text-xs text-gray-500 mb-1">Branch</div>
-                                <div className="font-semibold text-sm text-gray-800">Kotak Mahindra Bank, Sector 18, Noida (Uttar Pradesh)</div>
-                            </div>
-                        </div>
-                        
-                        <div className="mt-6 bg-yellow-100 border border-yellow-300 rounded-lg p-3">
-                            <p className="text-xs text-yellow-700 font-medium">⚠️ Important Note</p>
-                            <p className="text-xs text-yellow-700 mt-1">Please share payment screenshot after transfer for verification.</p>
-                        </div>
-                    </div>
-                </div>
+       
             </div>
         </div>
     )
 }
 
 export default FormContact
+
+
+        //  <div className="lg:col-span-3 order-3">
+        //             <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl p-6 shadow-lg border border-green-200 h-full relative">
+                        
+        //                 {/* Kotak Logo - Top Right Corner */}
+                      
+                        
+        //                 <div className="text-center mb-6">
+        //                     <div className="bg-gradient-to-tl from-[#C6151D] to-[#600A0E] text-white px-4 py-2 rounded-lg mb-3 font-bold text-sm inline-block">
+        //                         OPTION - 3
+        //                     </div>
+        //                     <h3 className="text-lg font-bold text-gray-800">Transfer to Bank</h3>
+        //                     <div className="flex justify-center items-center ">
+        //                             <Image src="/header/kotak.png" alt="Kotak Mahindra Bank" width={80} height={24} className="w-20 h-6 object-contain" />
+        //                             {/* <Image src="/header/mastercard.png" alt="Mastercard" width={48} height={32} className="w-12 h-8 object-contain" /> */}
+        //                         </div>
+        //                     <p className="text-sm text-gray-600">Direct bank transfer details</p>
+        //                 </div>
+                        
+        //                 <div className="space-y-2">
+        //                     <div className="bg-white rounded-lg p-2 shadow-sm border border-gray-100">
+        //                         <div className="text-xs text-gray-500 mb-1">Account Name</div>
+        //                         <div className="font-semibold text-gray-800">Techpratham Training and Development Pvt. Ltd.</div>
+        //                     </div>
+                            
+        //                     <div className="bg-white rounded-lg p-2 shadow-sm border border-gray-100">
+        //                         <div className="text-xs text-gray-500 mb-1">Account Number</div>
+        //                         <div className="font-mono text-sm font-semibold text-gray-800">7949729016</div>
+        //                     </div>
+                            
+        //                     <div className="bg-white rounded-lg p-2 shadow-sm border border-gray-100">
+        //                         <div className="text-xs text-gray-500 mb-1">IFSC Code</div>
+        //                         <div className="font-mono text-sm font-semibold text-gray-800">KKBK0000181</div>
+        //                     </div>
+                            
+        //                     <div className="bg-white rounded-lg p-2 shadow-sm border border-gray-100">
+        //                         <div className="text-xs text-gray-500 mb-1">Bank Name</div>
+        //                         <div className="font-semibold text-gray-800">Kotak Mahindra Bank</div>
+        //                     </div>
+                            
+        //                     <div className="bg-white rounded-lg p-2 shadow-sm border border-gray-100">
+        //                         <div className="text-xs text-gray-500 mb-1">Branch</div>
+        //                         <div className="font-semibold text-sm text-gray-800">Kotak Mahindra Bank, Sector 18, Noida (Uttar Pradesh)</div>
+        //                     </div>
+        //                 </div>
+                        
+        //                 <div className="mt-6 bg-yellow-100 border border-yellow-300 rounded-lg p-3">
+        //                     <p className="text-xs text-yellow-700 font-medium">⚠️ Important Note</p>
+        //                     <p className="text-xs text-yellow-700 mt-1">Please share payment screenshot after transfer for verification.</p>
+        //                 </div>
+        //             </div>
+        //         </div>

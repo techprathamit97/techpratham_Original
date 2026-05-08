@@ -80,7 +80,9 @@ export async function POST(req: Request) {
         installmentNumber: 1,
         paidDate: paidDate ? new Date(paidDate) : new Date(),
         amount: paidAmount,
-        paymentMode: paymentMode || 'online'
+        paymentMode: paymentMode || 'online',
+        dueDate: null, // First payment doesn't have a due date (it's being paid now)
+        nextDueDate: dueDate ? new Date(dueDate) : null // Store next due date with first payment
       });
     }
 

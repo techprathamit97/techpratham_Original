@@ -109,6 +109,7 @@ const InvoicesDashboard = () => {
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paymentMode, setPaymentMode] = useState('online');
   const [paidDate, setPaidDate] = useState('');
+  const [nextDueDate, setNextDueDate] = useState('');
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null);
@@ -316,14 +317,29 @@ const InvoicesDashboard = () => {
       errors.paymentMode = 'Payment mode is required';
     }
     
-    // Validate payment date if provided
-    if (paidDate && paidDate.trim() !== '') {
+    // Validate payment date - make it required
+    if (!paidDate || paidDate.trim() === '') {
+      errors.paidDate = 'Payment date is required';
+    } else {
       const paymentDate = new Date(paidDate);
       const today = new Date();
       today.setHours(23, 59, 59, 999); // Set to end of today
       
       if (paymentDate > today) {
         errors.paidDate = 'Payment date cannot be in the future';
+      }
+    }
+    
+    // Validate payment screenshot - make it required
+    if (!paymentScreenshot && !paymentScreenshotPreview) {
+      errors.paymentScreenshot = 'Payment screenshot is required';
+    }
+    
+    // Validate next due date if there will be remaining balance
+    if (selectedInvoice && paymentAmount) {
+      const remainingBalance = Math.round((selectedInvoice.pendingAmount - (parseFloat(paymentAmount) || 0)) * 100) / 100;
+      if (remainingBalance > 0 && (!nextDueDate || nextDueDate.trim() === '')) {
+        errors.nextDueDate = 'Next payment due date is required when there is remaining balance';
       }
     }
     
@@ -542,25 +558,11 @@ const InvoicesDashboard = () => {
     // Determine which installment number this is (based on number of payments already made)
     const installmentNumber = (selectedInvoice.installmentPayments?.length || 0) + 1;
 
-    // Calculate next due date
-    let nextDueDate = null;
+    // Use the user-provided next due date if there's remaining balance
+    let calculatedNextDueDate = null;
     if (newPendingAmount > 0) {
-      if (selectedInvoice.installmentDates && selectedInvoice.installmentDates.length > 0) {
-        // Find the next unpaid installment
-        let cumulativeAmount = 0;
-        for (const installment of selectedInvoice.installmentDates) {
-          cumulativeAmount += installment.amount;
-          if (newTotalPaidAmount < cumulativeAmount) {
-            nextDueDate = installment.dueDate;
-            break;
-          }
-        }
-      } else {
-        // For installments without fixed dates, set due date to 30 days from now if there's still pending amount
-        const dueDate = new Date();
-        dueDate.setDate(dueDate.getDate() + 30);
-        nextDueDate = dueDate.toISOString().split('T')[0];
-      }
+      // Use the next due date from the form if provided
+      calculatedNextDueDate = nextDueDate || null;
     }
 
     try {
@@ -584,7 +586,7 @@ const InvoicesDashboard = () => {
           paidDate: paidDate || null,
           installmentNumber, // Track which installment this payment covers
           installmentPaymentAmount: roundedPaymentAmount, // The actual payment amount for this installment
-          nextDueDate, // Update the due date based on payment
+          nextDueDate: calculatedNextDueDate, // Update the due date based on payment
           paymentScreenshotUrl // Add the screenshot URL
         })
       });
@@ -597,6 +599,7 @@ const InvoicesDashboard = () => {
         setPaymentAmount('');
         setPaymentMode('online');
         setPaidDate('');
+        setNextDueDate('');
         setValidationErrors({});
         setSelectedInvoice(null);
         // Clear screenshot states
@@ -1150,7 +1153,24 @@ const InvoicesDashboard = () => {
                       <div>Course: {selectedPayment.invoice.courseDetails.title}</div>
                       <div>Student Id: {selectedPayment.invoice.customerDetails.studentId}</div>
                       <div>Fees Type: {selectedPayment.invoice.feeType}</div>
-                      <div>Next Due Date: N.A</div>
+                      <div>Next Due Date: {
+                        (() => {
+                          // If there's no pending amount, show N.A
+                          if (selectedPayment.invoice.pendingAmount <= 0) return 'N.A';
+                          
+                          // Try to get next due date from the payment record
+                          if (selectedPayment.payment && selectedPayment.payment.nextDueDate) {
+                            return formatDate(selectedPayment.payment.nextDueDate);
+                          }
+                          
+                          // Fallback to invoice due date
+                          if (selectedPayment.invoice.dueDate) {
+                            return formatDate(selectedPayment.invoice.dueDate);
+                          }
+                          
+                          return 'N.A';
+                        })()
+                      }</div>
                     </div>
                   </div>
                 </div>
@@ -1403,7 +1423,7 @@ const InvoicesDashboard = () => {
               </div>
 
               <div>
-                <Label htmlFor="paid-date">Payment Date (Optional)</Label>
+                <Label htmlFor="paid-date">Payment Date *</Label>
                 <Input
                   id="paid-date"
                   type="date"
@@ -1417,18 +1437,52 @@ const InvoicesDashboard = () => {
                     }
                   }}
                   className={`bg-zinc-900 border-zinc-700 text-white ${validationErrors.paidDate ? 'border-red-500' : ''}`}
+                  required
                 />
                 {validationErrors.paidDate && (
                   <div className="text-red-400 text-xs mt-1">{validationErrors.paidDate}</div>
                 )}
                 <div className="text-xs text-zinc-500 mt-1">
-                  Leave empty to use current date. Cannot be a future date.
+                  Cannot be a future date
                 </div>
               </div>
 
+              {/* Next Due Date - Show only if there will be remaining balance after this payment */}
+              {selectedInvoice && paymentAmount && (
+                Math.round((selectedInvoice.pendingAmount - (parseFloat(paymentAmount) || 0)) * 100) / 100 > 0
+              ) && (
+                <div>
+                  <Label htmlFor="next-due-date">Next Payment Due Date *</Label>
+                  <Input
+                    id="next-due-date"
+                    type="date"
+                    value={nextDueDate}
+                    min={new Date().toISOString().split('T')[0]} // Today or later
+                    onChange={(e) => {
+                      setNextDueDate(e.target.value);
+                      // Clear validation error when user changes date
+                      if (validationErrors.nextDueDate) {
+                        setValidationErrors(prev => ({ ...prev, nextDueDate: '' }));
+                      }
+                    }}
+                    className={`bg-zinc-900 border-zinc-700 text-white ${validationErrors.nextDueDate ? 'border-red-500' : ''}`}
+                    required
+                  />
+                  {validationErrors.nextDueDate && (
+                    <div className="text-red-400 text-xs mt-1">{validationErrors.nextDueDate}</div>
+                  )}
+                  <div className="text-xs text-zinc-500 mt-1">
+                    Due date for the next installment payment
+                  </div>
+                </div>
+              )}
+
               {/* Payment Screenshot Upload */}
               <div>
-                <Label>Payment Screenshot (Optional)</Label>
+                <Label>Payment Screenshot *</Label>
+                {validationErrors.paymentScreenshot && (
+                  <div className="text-red-400 text-xs mt-1">{validationErrors.paymentScreenshot}</div>
+                )}
                 <div className="mt-2">
                   {!paymentScreenshotPreview ? (
                     <div className="border-2 border-dashed border-zinc-700 rounded-lg p-6 text-center">
@@ -1517,6 +1571,7 @@ const InvoicesDashboard = () => {
                 setPaymentAmount('');
                 setPaymentMode('online');
                 setPaidDate('');
+                setNextDueDate('');
                 setValidationErrors({});
                 setSelectedInvoice(null);
                 // Clear screenshot states

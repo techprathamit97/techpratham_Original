@@ -7,10 +7,10 @@ import AdminLoader from '@/src/account/common/AdminLoader';
 import AccountantSidebar from '@/src/account/common/AccountantSidebar';
 import AccountantTopBar from '@/src/account/common/AccountantTopBar';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Eye, 
-  Check, 
-  X, 
+import {
+  Eye,
+  Check,
+  X,
   Download,
   Plus,
   Pencil,
@@ -79,6 +79,8 @@ interface Invoice {
     paidDate: string;
     amount: number;
     paymentMode: string;
+    dueDate?: string;
+    nextDueDate?: string;
   }>;
   isManual?: boolean;
   paymentScreenshot?: string;
@@ -101,14 +103,16 @@ const InvoicesDashboard = () => {
   const [customEndDate, setCustomEndDate] = useState('');
   const [showAllInvoices, setShowAllInvoices] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
-  const [selectedPayment, setSelectedPayment] = useState<{invoice: Invoice, payment: any, paymentNumber: number} | null>(null);
+  const [selectedPayment, setSelectedPayment] = useState<{ invoice: Invoice, payment: any, paymentNumber: number } | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isPaymentReceiptDialogOpen, setIsPaymentReceiptDialogOpen] = useState(false);
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paymentMode, setPaymentMode] = useState('online');
   const [paidDate, setPaidDate] = useState('');
-  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
+  const [thisDueDate, setThisDueDate] = useState(''); // This installment's due date
+  const [nextDueDate, setNextDueDate] = useState('');
+  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null);
   const [isScreenshotDialogOpen, setIsScreenshotDialogOpen] = useState(false);
@@ -116,6 +120,17 @@ const InvoicesDashboard = () => {
   const [remarkText, setRemarkText] = useState('');
   const [selectedInvoiceForRemark, setSelectedInvoiceForRemark] = useState<Invoice | null>(null);
   
+  // Edit Installment states
+  const [isEditInstallmentDialogOpen, setIsEditInstallmentDialogOpen] = useState(false);
+  const [selectedInvoiceForInstallment, setSelectedInvoiceForInstallment] = useState<Invoice | null>(null);
+  const [editInstallmentAmount, setEditInstallmentAmount] = useState('');
+  const [editInstallmentDueDate, setEditInstallmentDueDate] = useState(''); // Next due date
+  const [editInstallmentThisDueDate, setEditInstallmentThisDueDate] = useState(''); // This installment's due date
+  const [editInstallmentPaymentMode, setEditInstallmentPaymentMode] = useState('online');
+  const [editInstallmentPaidDate, setEditInstallmentPaidDate] = useState('');
+  const [editInstallmentScreenshot, setEditInstallmentScreenshot] = useState<File | null>(null);
+  const [editInstallmentScreenshotPreview, setEditInstallmentScreenshotPreview] = useState<string | null>(null);
+
   // Payment screenshot upload states
   const [paymentScreenshot, setPaymentScreenshot] = useState<File | null>(null);
   const [paymentScreenshotPreview, setPaymentScreenshotPreview] = useState<string | null>(null);
@@ -129,16 +144,16 @@ const InvoicesDashboard = () => {
       }
       // Request all invoices by setting a high limit
       params.append('limit', '1000');
-      
+
       const res = await fetch(`/api/invoice/fetch?${params.toString()}`);
       const data = await res.json();
-      
+
       if (data.success) {
         // Sort invoices by most recent first (invoice date)
         const sortedInvoices = data.invoices.sort((a: Invoice, b: Invoice) => {
           return new Date(b.invoiceDate).getTime() - new Date(a.invoiceDate).getTime();
         });
-        
+
         setInvoices(sortedInvoices);
       } else {
         throw new Error(data.error);
@@ -153,7 +168,7 @@ const InvoicesDashboard = () => {
 
   const handleDeleteInvoice = async () => {
     if (!invoiceToDelete) return;
-    
+
     try {
       const res = await fetch(`/api/invoice/manage?id=${invoiceToDelete._id}`, {
         method: 'DELETE',
@@ -205,7 +220,7 @@ const InvoicesDashboard = () => {
       due: { color: 'bg-red-500/10 text-red-500 border-red-500/20', label: '🔴 Due' },
       overdue: { color: 'bg-red-600/10 text-red-600 border-red-600/20', label: '🔴 Overdue' }
     };
-    
+
     const config = statusConfig[status as keyof typeof statusConfig];
     return (
       <Badge className={config.color}>
@@ -267,10 +282,10 @@ const InvoicesDashboard = () => {
   // Filter invoices based on status, sales person, and date
   const filteredInvoices = invoices.filter(invoice => {
     const statusMatch = statusFilter === 'all' || invoice.status === statusFilter;
-    const salesPersonMatch = salesPersonFilter === 'all' || 
+    const salesPersonMatch = salesPersonFilter === 'all' ||
       (salesPersonFilter === 'none' && (!invoice.salesPerson || invoice.salesPerson.trim() === '')) ||
       invoice.salesPerson === salesPersonFilter;
-    
+
     // Date filtering
     let dateMatch = true;
     if (dateFilter !== 'all') {
@@ -280,14 +295,14 @@ const InvoicesDashboard = () => {
         dateMatch = invoiceDate >= dateRange.start && invoiceDate <= dateRange.end;
       }
     }
-    
+
     return statusMatch && salesPersonMatch && dateMatch;
   });
 
   // Get sales summary by person for the filtered period
   const getSalesSummary = () => {
     const summary: { [key: string]: { count: number; total: number; paid: number } } = {};
-    
+
     filteredInvoices.forEach(invoice => {
       const person = invoice.salesPerson || 'No Sales Person';
       if (!summary[person]) {
@@ -297,7 +312,7 @@ const InvoicesDashboard = () => {
       summary[person].total += invoice.totalAmount || 0;
       summary[person].paid += invoice.paidAmount || 0;
     });
-    
+
     return Object.entries(summary)
       .map(([person, data]) => ({ person, ...data }))
       .sort((a, b) => b.total - a.total);
@@ -313,7 +328,7 @@ const InvoicesDashboard = () => {
       }),
       { count: 0, total: 0, paid: 0 }
     );
-    
+
     return {
       ...totals,
       pending: totals.total - totals.paid,
@@ -353,10 +368,10 @@ const InvoicesDashboard = () => {
       const res = await fetch('/api/invoice/manage', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          invoiceId, 
+        body: JSON.stringify({
+          invoiceId,
           action: 'approve_certificate',
-          certificateData 
+          certificateData
         })
       });
 
@@ -374,8 +389,8 @@ const InvoicesDashboard = () => {
   };
 
   const validatePaymentForm = () => {
-    const errors: {[key: string]: string} = {};
-    
+    const errors: { [key: string]: string } = {};
+
     // Validate payment amount
     if (!paymentAmount || paymentAmount.trim() === '') {
       errors.paymentAmount = 'Payment amount is required';
@@ -387,23 +402,45 @@ const InvoicesDashboard = () => {
         errors.paymentAmount = `Payment amount cannot exceed pending amount of ${formatCurrency(selectedInvoice!.pendingAmount)}`;
       }
     }
-    
+
     // Validate payment mode
     if (!paymentMode || paymentMode.trim() === '') {
       errors.paymentMode = 'Payment mode is required';
     }
-    
-    // Validate payment date if provided
-    if (paidDate && paidDate.trim() !== '') {
+
+    // Validate payment date - make it required
+    if (!paidDate || paidDate.trim() === '') {
+      errors.paidDate = 'Payment date is required';
+    } else {
       const paymentDate = new Date(paidDate);
       const today = new Date();
       today.setHours(23, 59, 59, 999); // Set to end of today
-      
+
       if (paymentDate > today) {
         errors.paidDate = 'Payment date cannot be in the future';
       }
     }
-    
+
+    // Validate payment screenshot - make it required
+    if (!paymentScreenshot && !paymentScreenshotPreview) {
+      errors.paymentScreenshot = 'Payment screenshot is required';
+    }
+
+    // Validate this installment's due date - required for installment payments
+    if (selectedInvoice && selectedInvoice.feeType === 'Installments') {
+      if (!thisDueDate || thisDueDate.trim() === '') {
+        errors.thisDueDate = 'This installment due date is required';
+      }
+    }
+
+    // Validate next due date if there will be remaining balance
+    if (selectedInvoice && paymentAmount) {
+      const remainingBalance = Math.round((selectedInvoice.pendingAmount - (parseFloat(paymentAmount) || 0)) * 100) / 100;
+      if (remainingBalance > 0 && (!nextDueDate || nextDueDate.trim() === '')) {
+        errors.nextDueDate = 'Next payment due date is required when there is remaining balance';
+      }
+    }
+
     return errors;
   };
 
@@ -416,15 +453,15 @@ const InvoicesDashboard = () => {
         toast.error('Please select an image file');
         return;
       }
-      
+
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         toast.error('File size must be less than 5MB');
         return;
       }
-      
+
       setPaymentScreenshot(file);
-      
+
       // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -442,16 +479,16 @@ const InvoicesDashboard = () => {
   const uploadPaymentScreenshot = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('screenshot', file);
-    
+
     const res = await fetch('/api/upload-payment-screenshot', {
       method: 'POST',
       body: formData
     });
-    
+
     if (!res.ok) {
       throw new Error('Failed to upload payment screenshot');
     }
-    
+
     const data = await res.json();
     return data.url;
   };
@@ -466,15 +503,15 @@ const InvoicesDashboard = () => {
       const res = await fetch('/api/invoice/manage', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          invoiceId: selectedInvoiceForRemark._id, 
+        body: JSON.stringify({
+          invoiceId: selectedInvoiceForRemark._id,
           action: 'update_remark',
           remark: remarkText.trim()
         })
       });
 
       const data = await res.json();
-      
+
       if (data.success) {
         toast.success('Remark updated successfully');
         setIsRemarkDialogOpen(false);
@@ -490,6 +527,121 @@ const InvoicesDashboard = () => {
     }
   };
 
+  const handleEditInstallmentScreenshotUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select an image file');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('File size must be less than 5MB');
+        return;
+      }
+      setEditInstallmentScreenshot(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setEditInstallmentScreenshotPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeEditInstallmentScreenshot = () => {
+    setEditInstallmentScreenshot(null);
+    setEditInstallmentScreenshotPreview(null);
+  };
+
+  const handleEditInstallmentSubmit = async () => {
+    if (!selectedInvoiceForInstallment) {
+      toast.error('No invoice selected');
+      return;
+    }
+
+    // Validate all required fields
+    const errors: string[] = [];
+    if (!editInstallmentAmount || parseFloat(editInstallmentAmount) <= 0) {
+      errors.push('Payment amount is required and must be greater than 0');
+    }
+    if (!editInstallmentThisDueDate) {
+      errors.push('This installment due date is required');
+    }
+    if (!editInstallmentDueDate) {
+      errors.push('Next due date is required');
+    }
+    if (!editInstallmentPaymentMode) {
+      errors.push('Payment mode is required');
+    }
+    if (!editInstallmentPaidDate) {
+      errors.push('Payment date is required');
+    }
+    if (!editInstallmentScreenshot && !editInstallmentScreenshotPreview) {
+      errors.push('Payment screenshot is required');
+    }
+
+    if (errors.length > 0) {
+      errors.forEach(err => toast.error(err));
+      return;
+    }
+
+    const paymentAmountNum = parseFloat(editInstallmentAmount);
+    if (paymentAmountNum > selectedInvoiceForInstallment.pendingAmount) {
+      toast.error(`Payment amount cannot exceed pending amount of ${formatCurrency(selectedInvoiceForInstallment.pendingAmount)}`);
+      return;
+    }
+
+    try {
+      let paymentScreenshotUrl = editInstallmentScreenshotPreview;
+      
+      if (editInstallmentScreenshot) {
+        paymentScreenshotUrl = await uploadPaymentScreenshot(editInstallmentScreenshot);
+      }
+
+      const roundedPaymentAmount = Math.round(paymentAmountNum * 100) / 100;
+      const newTotalPaidAmount = Math.round((selectedInvoiceForInstallment.paidAmount + roundedPaymentAmount) * 100) / 100;
+      const newPendingAmount = Math.round((selectedInvoiceForInstallment.totalAmount - newTotalPaidAmount) * 100) / 100;
+      const installmentNumber = (selectedInvoiceForInstallment.installmentPayments?.length || 0) + 1;
+
+      const res = await fetch('/api/invoice/manage', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invoiceId: selectedInvoiceForInstallment._id,
+          action: 'update_payment',
+          amount: newTotalPaidAmount,
+          paymentMode: editInstallmentPaymentMode,
+          paidDate: editInstallmentPaidDate,
+          installmentNumber,
+          installmentPaymentAmount: roundedPaymentAmount,
+          thisDueDate: editInstallmentThisDueDate, // This installment's due date
+          nextDueDate: newPendingAmount > 0 ? editInstallmentDueDate : null,
+          paymentScreenshotUrl
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        toast.success(`Installment payment of ${formatCurrency(roundedPaymentAmount)} added successfully`);
+        setIsEditInstallmentDialogOpen(false);
+        setEditInstallmentAmount('');
+        setEditInstallmentDueDate('');
+        setEditInstallmentThisDueDate('');
+        setEditInstallmentPaymentMode('online');
+        setEditInstallmentPaidDate('');
+        setEditInstallmentScreenshot(null);
+        setEditInstallmentScreenshotPreview(null);
+        setSelectedInvoiceForInstallment(null);
+        fetchInvoices();
+      } else {
+        toast.error(data.error || 'Failed to add installment payment');
+      }
+    } catch (error) {
+      console.error('Error adding installment payment:', error);
+      toast.error('Network error. Please try again.');
+    }
+  };
+
   const handleUpdatePayment = async () => {
     if (!selectedInvoice) {
       toast.error('No invoice selected');
@@ -499,14 +651,14 @@ const InvoicesDashboard = () => {
     // Validate form
     const errors = validatePaymentForm();
     setValidationErrors(errors);
-    
+
     if (Object.keys(errors).length > 0) {
       toast.error('Please fix the validation errors');
       return;
     }
 
     const paymentAmountNum = parseFloat(paymentAmount);
-    
+
     // Round to 2 decimal places to avoid floating point issues
     const roundedPaymentAmount = Math.round(paymentAmountNum * 100) / 100;
     const roundedPendingAmount = Math.round(selectedInvoice.pendingAmount * 100) / 100;
@@ -518,30 +670,16 @@ const InvoicesDashboard = () => {
     // Determine which installment number this is (based on number of payments already made)
     const installmentNumber = (selectedInvoice.installmentPayments?.length || 0) + 1;
 
-    // Calculate next due date
-    let nextDueDate = null;
+    // Use the user-provided next due date if there's remaining balance
+    let calculatedNextDueDate = null;
     if (newPendingAmount > 0) {
-      if (selectedInvoice.installmentDates && selectedInvoice.installmentDates.length > 0) {
-        // Find the next unpaid installment
-        let cumulativeAmount = 0;
-        for (const installment of selectedInvoice.installmentDates) {
-          cumulativeAmount += installment.amount;
-          if (newTotalPaidAmount < cumulativeAmount) {
-            nextDueDate = installment.dueDate;
-            break;
-          }
-        }
-      } else {
-        // For installments without fixed dates, set due date to 30 days from now if there's still pending amount
-        const dueDate = new Date();
-        dueDate.setDate(dueDate.getDate() + 30);
-        nextDueDate = dueDate.toISOString().split('T')[0];
-      }
+      // Use the next due date from the form if provided
+      calculatedNextDueDate = nextDueDate || null;
     }
 
     try {
       let paymentScreenshotUrl = null;
-      
+
       // Upload payment screenshot if provided
       if (paymentScreenshot) {
         console.log('Uploading payment screenshot...');
@@ -552,27 +690,30 @@ const InvoicesDashboard = () => {
       const res = await fetch('/api/invoice/manage', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          invoiceId: selectedInvoice._id, 
+        body: JSON.stringify({
+          invoiceId: selectedInvoice._id,
           action: 'update_payment',
           amount: newTotalPaidAmount, // Send the new total paid amount
           paymentMode,
           paidDate: paidDate || null,
           installmentNumber, // Track which installment this payment covers
           installmentPaymentAmount: roundedPaymentAmount, // The actual payment amount for this installment
-          nextDueDate, // Update the due date based on payment
+          thisDueDate: thisDueDate || null, // This installment's due date
+          nextDueDate: calculatedNextDueDate, // Update the due date based on payment
           paymentScreenshotUrl // Add the screenshot URL
         })
       });
 
       const data = await res.json();
-      
+
       if (data.success) {
         toast.success(`Payment of ${formatCurrency(roundedPaymentAmount)} added successfully`);
         setIsUpdateDialogOpen(false);
         setPaymentAmount('');
         setPaymentMode('online');
         setPaidDate('');
+        setThisDueDate('');
+        setNextDueDate('');
         setValidationErrors({});
         setSelectedInvoice(null);
         // Clear screenshot states
@@ -591,9 +732,9 @@ const InvoicesDashboard = () => {
   const formatCurrency = (amount: number) => {
     // Round to 2 decimal places to avoid floating point precision issues
     const roundedAmount = Math.round(amount * 100) / 100;
-    return `₹${roundedAmount.toLocaleString('en-IN', { 
-      minimumFractionDigits: 2, 
-      maximumFractionDigits: 2 
+    return `₹${roundedAmount.toLocaleString('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
     })}`;
   };
 
@@ -631,7 +772,7 @@ const InvoicesDashboard = () => {
             <div className="bg-black p-6 overflow-y-auto h-full flex-1">
               <div className='w-full h-auto flex flex-row items-start justify-between mb-8'>
                 <h2 className="text-2xl font-bold text-white">Invoice Management</h2>
-                
+
                 <div className="flex gap-4 items-center flex-wrap">
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
                     <SelectTrigger className="w-40 bg-zinc-900 border-zinc-700 text-white">
@@ -733,14 +874,14 @@ const InvoicesDashboard = () => {
                   {(dateFilter !== 'all' || salesPersonFilter !== 'all') && (
                     <div className="bg-zinc-900 rounded-lg p-6 mb-6">
                       <h3 className="text-lg font-semibold text-white mb-4">
-                        Sales Summary 
+                        Sales Summary
                         {dateFilter !== 'all' && (
                           <span className="text-sm text-zinc-400 ml-2">
                             ({dateFilter === 'custom' ? 'Custom Range' : dateFilter.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())})
                           </span>
                         )}
                       </h3>
-                      
+
                       {/* Overall Totals */}
                       <div className="bg-zinc-800 rounded-lg p-6 mb-6 border-l-4 border-blue-500">
                         <h4 className="text-white font-semibold text-lg mb-4">📊 Overall Totals</h4>
@@ -767,7 +908,7 @@ const InvoicesDashboard = () => {
                             <span className="text-zinc-400">Collection Rate:</span>
                             <div className="flex items-center gap-2">
                               <div className="w-32 bg-zinc-700 rounded-full h-2">
-                                <div 
+                                <div
                                   className="bg-green-500 h-2 rounded-full transition-all duration-300"
                                   style={{ width: `${Math.min(getOverallTotals().paidPercentage, 100)}%` }}
                                 ></div>
@@ -812,7 +953,7 @@ const InvoicesDashboard = () => {
                                   </span>
                                 </div>
                                 <div className="w-full bg-zinc-700 rounded-full h-1.5 mt-1">
-                                  <div 
+                                  <div
                                     className="bg-green-500 h-1.5 rounded-full transition-all duration-300"
                                     style={{ width: `${summary.total > 0 ? Math.min((summary.paid / summary.total) * 100, 100) : 0}%` }}
                                   ></div>
@@ -855,312 +996,339 @@ const InvoicesDashboard = () => {
                             </tr>
                           </thead>
                           <tbody>
-                        {(showAllInvoices ? filteredInvoices : filteredInvoices.slice(0, 30)).map((invoice) => (
-                          <tr key={invoice._id} className="border-b border-zinc-800 hover:bg-zinc-800/50">
-                            <td className="p-3 text-white font-mono text-xs">
-                              {invoice.invoiceNumber}
-                            </td>
-                            <td className="p-3">
-                              <div className="text-white font-medium text-sm">{invoice.customerDetails.name}</div>
-                              <div className="text-zinc-400 text-xs">{invoice.customerDetails.email}</div>
-                              <div className="text-zinc-500 text-xs">
-                                ID: {invoice.customerDetails.studentId}
-                              </div>
-                              <div className="text-zinc-500 text-xs">
-                                {invoice.isManual ? '📝 Manual' : '🎓 Enrolled'}
-                              </div>
-                            </td>
-                            <td className="p-3">
-                              <div className="text-white text-sm">{invoice.customerDetails.phone || 'N/A'}</div>
-                            </td>
-                            <td className="p-3">
-                              <div className="text-white text-sm">{invoice.courseDetails.title}</div>
-                            </td>
-                            <td className="p-3">
-                              <div className="text-white font-medium text-sm">{invoice.feeType || 'Full Payment'}</div>
-                              {invoice.installmentDates && invoice.installmentDates.length > 0 && (
-                                <div className="text-zinc-400 text-xs">
-                                  {invoice.installmentDates.length} Installments
-                                </div>
-                              )}
-                            </td>
-                            <td className="p-3">
-                              <div className="text-white font-bold text-sm">{formatCurrency(invoice.totalAmount)}</div>
-                            </td>
-                            <td className="p-3">
-                              <div className="text-green-400 font-bold text-sm">{formatCurrency(invoice.paidAmount)}</div>
-                            </td>
-                            <td className="p-3">
-                              <div className="text-red-400 font-bold text-sm">{formatCurrency(invoice.pendingAmount)}</div>
-                            </td>
-                            <td className="p-3">
-                              {getStatusBadge(invoice.status)}
-                              <div className="mt-1 flex gap-1">
-                                {invoice.isApproved && (
-                                  <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20 text-xs">
-                                    ✓
-                                  </Badge>
-                                )}
-                                {invoice.certificateApproved && (
-                                  <Badge className="bg-purple-500/10 text-purple-500 border-purple-500/20 text-xs">
-                                    Cert
-                                  </Badge>
-                                )}
-                              </div>
-                            </td>
-                            
-                            {/* Payment History Column */}
-                            <td className="p-3">
-                              <div className="text-xs space-y-1">
-                                {invoice.feeType === 'Installments' && invoice.installmentPayments && invoice.installmentPayments.length > 0 ? (
-                                  <>
-                                    {invoice.installmentPayments.map((payment, index) => (
-                                      <button
-                                        key={index}
-                                        onClick={() => {
-                                          setSelectedPayment({
-                                            invoice: invoice,
-                                            payment: payment,
-                                            paymentNumber: index + 1
-                                          });
-                                          setIsPaymentReceiptDialogOpen(true);
-                                        }}
-                                        className="text-zinc-300 bg-zinc-800 hover:bg-zinc-700 px-2 py-1 rounded mb-1 w-full text-left transition-colors cursor-pointer"
-                                      >
-                                        <div className="font-medium text-green-400">
-                                          {index + 1}{index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th'} Installment
-                                        </div>
-                                        <div>{formatCurrency(payment.amount)}</div>
-                                        <div className="text-zinc-500">{formatDate(payment.paidDate)}</div>
-                                      </button>
-                                    ))}
-                                  </>
-                                ) : invoice.feeType === 'Full Payment' ? (
-                                  <button
-                                    onClick={() => {
-                                      setSelectedInvoice(invoice);
-                                      setIsViewDialogOpen(true);
-                                    }}
-                                    className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 px-2 py-1 rounded transition-colors cursor-pointer"
-                                  >
-                                    View Invoice
-                                  </button>
-                                ) : (
-                                  <div className="text-zinc-600">No payments yet</div>
-                                )}
-                              </div>
-                            </td>
-                            
-                            <td className="p-3">
-                              <div className="text-zinc-400 text-xs">
-                                <div>Mode: {invoice.paymentMode?.replace('_', ' ').toUpperCase() || 'N/A'}</div>
-                                <div>Date: {formatDate(invoice.invoiceDate)}</div>
-                                {invoice.paidDate && invoice.feeType === 'Full Payment' && (
-                                  <div className="text-green-400 text-xs">
-                                    Paid: {formatDateTime(invoice.paidDate)}
+                            {(showAllInvoices ? filteredInvoices : filteredInvoices.slice(0, 30)).map((invoice) => (
+                              <tr key={invoice._id} className="border-b border-zinc-800 hover:bg-zinc-800/50">
+                                <td className="p-3 text-white font-mono text-xs">
+                                  {invoice.invoiceNumber}
+                                </td>
+                                <td className="p-3">
+                                  <div className="text-white font-medium text-sm">{invoice.customerDetails.name}</div>
+                                  <div className="text-zinc-400 text-xs">{invoice.customerDetails.email}</div>
+                                  <div className="text-zinc-500 text-xs">
+                                    ID: {invoice.customerDetails.studentId}
                                   </div>
-                                )}
-                              </div>
-                            </td>
-                            
-                            {/* Due Date Column */}
-                            <td className="p-3">
-                              <div className="text-xs">
-                                {invoice.dueDate ? (
-                                  <div>
-                                    <div className="text-yellow-400 font-medium">
-                                      {formatDate(invoice.dueDate)}
-                                    </div>
-                                    <div className="text-zinc-500">
-                                      {invoice.feeType === 'Full Payment' ? 'Full Payment' : 'Next Due'}
-                                    </div>
+                                  <div className="text-zinc-500 text-xs">
+                                    {invoice.isManual ? '📝 Manual' : '🎓 Enrolled'}
                                   </div>
-                                ) : (
-                                  <div className="text-zinc-600">N/A</div>
-                                )}
-                              </div>
-                            </td>
-                            
-                            {/* Payment Screenshot Column */}
-                            <td className="p-3">
-                              <div className="text-xs">
-                                {(() => {
-                                  const screenshots = [];
-                                  
-                                  // Add original screenshot if exists
-                                  if (invoice.paymentScreenshot && invoice.paymentScreenshot.trim() !== '') {
-                                    screenshots.push({
-                                      url: invoice.paymentScreenshot,
-                                      name: 'Original'
-                                    });
-                                  }
-                                  
-                                  // Add payment screenshots if exist
-                                  if (invoice.paymentScreenshots && invoice.paymentScreenshots.length > 0) {
-                                    invoice.paymentScreenshots.forEach((screenshot, index) => {
-                                      screenshots.push({
-                                        url: screenshot.url,
-                                        name: `pay-${screenshot.paymentNumber || index + 1}`
-                                      });
-                                    });
-                                  }
-                                  
-                                  if (screenshots.length > 0) {
-                                    return (
-                                      <div className="flex flex-wrap gap-1">
-                                        {screenshots.map((screenshot, index) => (
-                                          <Button
-                                            key={index}
-                                            size="sm"
-                                            variant="outline"
-                                            className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 text-xs px-1 py-1"
-                                            onClick={() => {
-                                              setSelectedInvoice({
-                                                ...invoice,
-                                                paymentScreenshot: screenshot.url
-                                              });
-                                              setIsScreenshotDialogOpen(true);
-                                            }}
-                                            title={`View ${screenshot.name} Screenshot`}
-                                          >
-                                            📷 {screenshot.name}
-                                          </Button>
+                                </td>
+                                <td className="p-3">
+                                  <div className="text-white text-sm">{invoice.customerDetails.phone || 'N/A'}</div>
+                                </td>
+                                <td className="p-3">
+                                  <div className="text-white text-sm">{invoice.courseDetails.title}</div>
+                                </td>
+                                <td className="p-3">
+                                  <div className="text-white font-medium text-sm">{invoice.feeType || 'Full Payment'}</div>
+                                  {invoice.installmentDates && invoice.installmentDates.length > 0 && (
+                                    <div className="text-zinc-400 text-xs">
+                                      {invoice.installmentDates.length} Installments
+                                    </div>
+                                  )}
+                                </td>
+                                <td className="p-3">
+                                  <div className="text-white font-bold text-sm">{formatCurrency(invoice.totalAmount)}</div>
+                                </td>
+                                <td className="p-3">
+                                  <div className="text-green-400 font-bold text-sm">{formatCurrency(invoice.paidAmount)}</div>
+                                </td>
+                                <td className="p-3">
+                                  <div className="text-red-400 font-bold text-sm">{formatCurrency(invoice.pendingAmount)}</div>
+                                </td>
+                                <td className="p-3">
+                                  {getStatusBadge(invoice.status)}
+                                  <div className="mt-1 flex gap-1">
+                                    {invoice.isApproved && (
+                                      <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20 text-xs">
+                                        ✓
+                                      </Badge>
+                                    )}
+                                    {invoice.certificateApproved && (
+                                      <Badge className="bg-purple-500/10 text-purple-500 border-purple-500/20 text-xs">
+                                        Cert
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </td>
+
+                                {/* Payment History Column */}
+                                <td className="p-3">
+                                  <div className="text-xs space-y-1">
+                                    {invoice.feeType === 'Installments' && invoice.installmentPayments && invoice.installmentPayments.length > 0 ? (
+                                      <>
+                                        {invoice.installmentPayments.map((payment, index) => (
+                                          <div key={index} className="flex items-center gap-2">
+                                            <button
+                                              onClick={() => {
+                                                setSelectedPayment({
+                                                  invoice: invoice,
+                                                  payment: payment,
+                                                  paymentNumber: index + 1
+                                                });
+                                                setIsPaymentReceiptDialogOpen(true);
+                                              }}
+                                              className="text-zinc-300 bg-zinc-800 hover:bg-zinc-700 px-2 py-1 rounded flex-1 text-left transition-colors cursor-pointer"
+                                            >
+                                              <div className="font-medium text-green-400 whitespace-nowrap">
+                                                {index + 1}
+                                                {index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th'} Installment
+                                              </div>
+                                              {payment.dueDate && (
+                                                <div className="text-zinc-500 text-[10px]">
+                                                  Due: {formatDate(payment.dueDate)}
+                                                </div>
+                                              )}
+                                            </button>
+                                            {isAccountant && (
+                                              <button
+                                                onClick={() => {
+                                                  // Pre-fill the edit dialog with existing payment data
+                                                  setSelectedInvoiceForInstallment(invoice);
+                                                  setEditInstallmentAmount(payment.amount.toString());
+                                                  setEditInstallmentThisDueDate(payment.dueDate ? new Date(payment.dueDate).toISOString().split('T')[0] : '');
+                                                  setEditInstallmentDueDate(payment.nextDueDate ? new Date(payment.nextDueDate).toISOString().split('T')[0] : '');
+                                                  setEditInstallmentPaymentMode(payment.paymentMode || 'online');
+                                                  setEditInstallmentPaidDate(payment.paidDate ? new Date(payment.paidDate).toISOString().split('T')[0] : '');
+                                                  setEditInstallmentScreenshot(null);
+                                                  setEditInstallmentScreenshotPreview(null);
+                                                  setIsEditInstallmentDialogOpen(true);
+                                                }}
+                                                className="text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 p-1 rounded transition-colors"
+                                                title="Edit Installment"
+                                              >
+                                                <Pencil className="w-3 h-3" />
+                                              </button>
+                                            )}
+                                          </div>
                                         ))}
+                                      </>
+                                    ) : invoice.feeType === 'Full Payment' ? (
+                                      <button
+                                        onClick={() => {
+                                          setSelectedInvoice(invoice);
+                                          setIsViewDialogOpen(true);
+                                        }}
+                                        className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 px-2 py-1 rounded transition-colors cursor-pointer"
+                                      >
+                                        View Invoice
+                                      </button>
+                                    ) : (
+                                      <div className="text-zinc-600">No payments yet</div>
+                                    )}
+                                  </div>
+                                </td>
+
+                                <td className="p-3">
+                                  <div className="text-zinc-400 text-xs">
+                                    <div>Mode: {invoice.paymentMode?.replace('_', ' ').toUpperCase() || 'N/A'}</div>
+                                    <div>Date: {formatDate(invoice.invoiceDate)}</div>
+                                    {invoice.paidDate && invoice.feeType === 'Full Payment' && (
+                                      <div className="text-green-400 text-xs">
+                                        Paid: {formatDateTime(invoice.paidDate)}
                                       </div>
-                                    );
-                                  } else {
-                                    return <div className="text-zinc-600">No Image</div>;
-                                  }
-                                })()}
-                              </div>
-                            </td>
-                            
-                            {/* Sales Person Column */}
-                            <td className="p-3">
-                              <div className="text-xs">
-                                {invoice.salesPerson ? (
-                                  <div className="text-zinc-300">
-                                    {invoice.salesPerson}
+                                    )}
                                   </div>
-                                ) : (
-                                  <div className="text-zinc-600">Not assigned</div>
-                                )}
-                              </div>
-                            </td>
-                            
-                            {/* Remark Column */}
-                            <td className="p-3">
-                              <div className="text-xs">
-                                {invoice.remark ? (
-                                  <div className="text-zinc-300 break-words">
-                                    {invoice.remark}
+                                </td>
+
+                                {/* Due Date Column */}
+                                <td className="p-3">
+                                  <div className="text-xs">
+                                    {invoice.dueDate ? (
+                                      <div>
+                                        <div className="text-yellow-400 font-medium">
+                                          {formatDate(invoice.dueDate)}
+                                        </div>
+                                        <div className="text-zinc-500">
+                                          {invoice.feeType === 'Full Payment' ? 'Full Payment' : 'Next Due'}
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="text-zinc-600">N/A</div>
+                                    )}
                                   </div>
-                                ) : (
-                                  <div className="text-zinc-600">No remark</div>
-                                )}
-                              </div>
-                            </td>
-                            
-                            <td className="p-3">
-                              <div className="flex gap-1 flex-wrap">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 text-xs px-2 py-1"
-                                  onClick={() => {
-                                    setSelectedInvoice(invoice);
-                                    setIsViewDialogOpen(true);
-                                  }}
-                                  title="View Invoice"
-                                >
-                                  <Eye className="w-3 h-3" />
-                                </Button>
+                                </td>
 
-                                {/* Remark Button */}
-                                {invoice.remark ? (
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 text-xs px-2 py-1"
-                                    onClick={() => {
-                                      setSelectedInvoiceForRemark(invoice);
-                                      setRemarkText(invoice.remark || '');
-                                      setIsRemarkDialogOpen(true);
-                                    }}
-                                    title="Edit Remark"
-                                  >
-                                    Edit Remark
-                                  </Button>
-                                ) : (
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 text-xs px-2 py-1"
-                                    onClick={() => {
-                                      setSelectedInvoiceForRemark(invoice);
-                                      setRemarkText('');
-                                      setIsRemarkDialogOpen(true);
-                                    }}
-                                    title="Add Remark"
-                                  >
-                                    Add Remark
-                                  </Button>
-                                )}
+                                {/* Payment Screenshot Column */}
+                                <td className="p-3">
+                                  <div className="text-xs">
+                                    {(() => {
+                                      const screenshots = [];
 
-                                {/* Only show Pay button if there's pending amount */}
-                                {invoice.pendingAmount > 0 && isAccountant && (
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 text-xs px-2 py-1"
-                                    onClick={() => {
-                                      setSelectedInvoice(invoice);
-                                      // Round to 2 decimal places to avoid floating point issues
-                                      const roundedPendingAmount = Math.round(invoice.pendingAmount * 100) / 100;
-                                      setPaymentAmount(roundedPendingAmount.toString());
-                                      setPaymentMode(invoice.paymentMode || 'online');
-                                      setPaidDate(invoice.paidDate ? new Date(invoice.paidDate).toISOString().split('T')[0] : '');
-                                      // Clear screenshot states
-                                      setPaymentScreenshot(null);
-                                      setPaymentScreenshotPreview(null);
-                                      setIsUpdateDialogOpen(true);
-                                    }}
-                                    title="Update Payment"
-                                  >
-                                    Pay
-                                  </Button>
-                                )}
+                                      // Add original screenshot if exists
+                                      if (invoice.paymentScreenshot && invoice.paymentScreenshot.trim() !== '') {
+                                        screenshots.push({
+                                          url: invoice.paymentScreenshot,
+                                          name: 'Original'
+                                        });
+                                      }
 
-                                {isAccountant && (
-                                  <>
+                                      // Add payment screenshots if exist
+                                      if (invoice.paymentScreenshots && invoice.paymentScreenshots.length > 0) {
+                                        invoice.paymentScreenshots.forEach((screenshot, index) => {
+                                          screenshots.push({
+                                            url: screenshot.url,
+                                            name: `pay-${screenshot.paymentNumber || index + 1}`
+                                          });
+                                        });
+                                      }
+
+                                      if (screenshots.length > 0) {
+                                        return (
+                                          <div className="flex flex-wrap gap-1">
+                                            {screenshots.map((screenshot, index) => (
+                                              <Button
+                                                key={index}
+                                                size="sm"
+                                                variant="outline"
+                                                className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 text-xs px-1 py-1"
+                                                onClick={() => {
+                                                  setSelectedInvoice({
+                                                    ...invoice,
+                                                    paymentScreenshot: screenshot.url
+                                                  });
+                                                  setIsScreenshotDialogOpen(true);
+                                                }}
+                                                title={`View ${screenshot.name} Screenshot`}
+                                              >
+                                                📷 {screenshot.name}
+                                              </Button>
+                                            ))}
+                                          </div>
+                                        );
+                                      } else {
+                                        return <div className="text-zinc-600">No Image</div>;
+                                      }
+                                    })()}
+                                  </div>
+                                </td>
+
+                                {/* Sales Person Column */}
+                                <td className="p-3">
+                                  <div className="text-xs">
+                                    {invoice.salesPerson ? (
+                                      <div className="text-zinc-300">
+                                        {invoice.salesPerson}
+                                      </div>
+                                    ) : (
+                                      <div className="text-zinc-600">Not assigned</div>
+                                    )}
+                                  </div>
+                                </td>
+
+                                {/* Remark Column */}
+                                <td className="p-3">
+                                  <div className="text-xs">
+                                    {invoice.remark ? (
+                                      <div className="text-zinc-300 break-words">
+                                        {invoice.remark}
+                                      </div>
+                                    ) : (
+                                      <div className="text-zinc-600">No remark</div>
+                                    )}
+                                  </div>
+                                </td>
+
+                                <td className="p-3">
+                                  <div className="flex gap-1 flex-wrap">
                                     <Button
                                       size="sm"
                                       variant="outline"
-                                      className="border-blue-700 text-blue-300 hover:bg-blue-800 text-xs px-2 py-1"
-                                      onClick={() => handleEditInvoice(invoice)}
-                                      title="Edit Invoice"
-                                    >
-                                      <Pencil className="w-3 h-3" />
-                                    </Button>
-
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      className="border-red-700 text-red-400 hover:bg-red-900/20 text-xs px-2 py-1"
+                                      className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 text-xs px-2 py-1"
                                       onClick={() => {
-                                        setInvoiceToDelete(invoice);
-                                        setIsDeleteDialogOpen(true);
+                                        setSelectedInvoice(invoice);
+                                        setIsViewDialogOpen(true);
                                       }}
-                                      title="Delete Invoice"
+                                      title="View Invoice"
                                     >
-                                      <Trash2 className="w-3 h-3" />
+                                      <Eye className="w-3 h-3" />
                                     </Button>
-                                  </>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
+
+                                    {/* Remark Button */}
+                                    {invoice.remark ? (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 text-xs px-2 py-1"
+                                        onClick={() => {
+                                          setSelectedInvoiceForRemark(invoice);
+                                          setRemarkText(invoice.remark || '');
+                                          setIsRemarkDialogOpen(true);
+                                        }}
+                                        title="Edit Remark"
+                                      >
+                                        Edit Remark
+                                      </Button>
+                                    ) : (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 text-xs px-2 py-1"
+                                        onClick={() => {
+                                          setSelectedInvoiceForRemark(invoice);
+                                          setRemarkText('');
+                                          setIsRemarkDialogOpen(true);
+                                        }}
+                                        title="Add Remark"
+                                      >
+                                        Add Remark
+                                      </Button>
+                                    )}
+
+                                    {/* Only show Pay button if there's pending amount */}
+                                    {invoice.pendingAmount > 0 && isAccountant && (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 text-xs px-2 py-1"
+                                        onClick={() => {
+                                          setSelectedInvoice(invoice);
+                                          // Round to 2 decimal places to avoid floating point issues
+                                          const roundedPendingAmount = Math.round(invoice.pendingAmount * 100) / 100;
+                                          setPaymentAmount(roundedPendingAmount.toString());
+                                          setPaymentMode(invoice.paymentMode || 'online');
+                                          setPaidDate(invoice.paidDate ? new Date(invoice.paidDate).toISOString().split('T')[0] : '');
+                                          setThisDueDate(''); // Clear this due date
+                                          setNextDueDate(''); // Clear next due date
+                                          // Clear screenshot states
+                                          setPaymentScreenshot(null);
+                                          setPaymentScreenshotPreview(null);
+                                          setIsUpdateDialogOpen(true);
+                                        }}
+                                        title="Update Payment"
+                                      >
+                                        Pay
+                                      </Button>
+                                    )}
+
+                                    {isAccountant && (
+                                      <>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="border-blue-700 text-blue-300 hover:bg-blue-800 text-xs px-2 py-1"
+                                          onClick={() => handleEditInvoice(invoice)}
+                                          title="Edit Invoice"
+                                        >
+                                          <Pencil className="w-3 h-3" />
+                                        </Button>
+
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="border-red-700 text-red-400 hover:bg-red-900/20 text-xs px-2 py-1"
+                                          onClick={() => {
+                                            setInvoiceToDelete(invoice);
+                                            setIsDeleteDialogOpen(true);
+                                          }}
+                                          title="Delete Invoice"
+                                        >
+                                          <Trash2 className="w-3 h-3" />
+                                        </Button>
+                                      </>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
                           </tbody>
                         </table>
                       </div>
@@ -1215,7 +1383,7 @@ const InvoicesDashboard = () => {
                   <div className="font-mono">{selectedInvoice.receiptNo}</div>
                 </div>
               </div>
-              
+
               <div>
                 <Label>Customer</Label>
                 <div>{selectedInvoice.customerDetails.name}</div>
@@ -1263,7 +1431,7 @@ const InvoicesDashboard = () => {
               Payment Receipt - {selectedPayment?.paymentNumber}{selectedPayment?.paymentNumber === 1 ? 'st' : selectedPayment?.paymentNumber === 2 ? 'nd' : selectedPayment?.paymentNumber === 3 ? 'rd' : 'th'} Installment
             </DialogTitle>
           </DialogHeader>
-          
+
           {selectedPayment && (
             <div className="space-y-4">
               {/* Customer & Course Info */}
@@ -1282,7 +1450,19 @@ const InvoicesDashboard = () => {
                       <div>Course: {selectedPayment.invoice.courseDetails.title}</div>
                       <div>Student Id: {selectedPayment.invoice.customerDetails.studentId}</div>
                       <div>Fees Type: {selectedPayment.invoice.feeType}</div>
-                      <div>Next Due Date: N.A</div>
+                      <div>Due Date: {
+                        (() => {
+                          // Show this installment's due date from the payment record
+                          if (selectedPayment.payment && selectedPayment.payment.dueDate) {
+                            return formatDate(selectedPayment.payment.dueDate);
+                          }
+                          // Fallback for old data without dueDate stored
+                          if (selectedPayment.invoice.dueDate) {
+                            return formatDate(selectedPayment.invoice.dueDate);
+                          }
+                          return 'N.A';
+                        })()
+                      }</div>
                     </div>
                   </div>
                 </div>
@@ -1330,16 +1510,16 @@ const InvoicesDashboard = () => {
               {/* Payment Info */}
               <div className="text-sm text-zinc-300">
                 <div>
-                  <span className="font-semibold">Payment Mode:</span> {selectedPayment.payment.paymentMode?.replace('_', ' ').toUpperCase()} | 
+                  <span className="font-semibold">Payment Mode:</span> {selectedPayment.payment.paymentMode?.replace('_', ' ').toUpperCase()} |
                   <span className="font-semibold"> Paid Date:</span> {formatDate(selectedPayment.payment.paidDate)}
                 </div>
               </div>
 
               {/* Terms & Conditions */}
-             
+
 
               {/* Thank You */}
-             
+
 
               {/* Download Button */}
               <div className="flex justify-end gap-2">
@@ -1374,7 +1554,7 @@ const InvoicesDashboard = () => {
               Update the payment for this invoice. Enter the outstanding amount to be paid.
             </DialogDescription>
           </DialogHeader>
-          
+
           {selectedInvoice && (
             <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
               {/* Invoice Summary */}
@@ -1438,7 +1618,7 @@ const InvoicesDashboard = () => {
                   <div className="text-xs text-zinc-500 mt-1">
                     Enter the amount being paid now (max: {formatCurrency(selectedInvoice.pendingAmount)})
                   </div>
-                  
+
                   {/* Quick Payment Buttons for Installments */}
                   {selectedInvoice.installmentDates && selectedInvoice.installmentDates.length > 0 && (
                     <div className="mt-2">
@@ -1448,14 +1628,14 @@ const InvoicesDashboard = () => {
                           const cumulativeAmount = selectedInvoice.installmentDates!
                             .slice(0, index + 1)
                             .reduce((sum, inst) => sum + inst.amount, 0);
-                          
+
                           // Calculate remaining amount for this installment
                           const remainingForInstallment = Math.max(0, cumulativeAmount - selectedInvoice.paidAmount);
                           // Round to 2 decimal places
                           const roundedRemaining = Math.round(remainingForInstallment * 100) / 100;
-                          
+
                           if (roundedRemaining <= 0) return null;
-                          
+
                           return (
                             <Button
                               key={index}
@@ -1472,7 +1652,7 @@ const InvoicesDashboard = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Always show Pay Full Outstanding button */}
                   <div className="mt-2">
                     <div className="text-xs text-zinc-400 mb-1">Quick Pay Full Amount:</div>
@@ -1496,8 +1676,8 @@ const InvoicesDashboard = () => {
                 </div>
                 <div>
                   <Label htmlFor="payment-mode">Payment Mode *</Label>
-                  <Select 
-                    value={paymentMode} 
+                  <Select
+                    value={paymentMode}
                     onValueChange={(value) => {
                       setPaymentMode(value);
                       // Clear validation error when user selects
@@ -1526,7 +1706,7 @@ const InvoicesDashboard = () => {
               </div>
 
               <div>
-                <Label htmlFor="paid-date">Payment Date (Optional)</Label>
+                <Label htmlFor="paid-date">Payment Date *</Label>
                 <Input
                   id="paid-date"
                   type="date"
@@ -1540,18 +1720,79 @@ const InvoicesDashboard = () => {
                     }
                   }}
                   className={`bg-zinc-900 border-zinc-700 text-white ${validationErrors.paidDate ? 'border-red-500' : ''}`}
+                  required
                 />
                 {validationErrors.paidDate && (
                   <div className="text-red-400 text-xs mt-1">{validationErrors.paidDate}</div>
                 )}
                 <div className="text-xs text-zinc-500 mt-1">
-                  Leave empty to use current date. Cannot be a future date.
+                  Cannot be a future date
                 </div>
               </div>
 
+              {/* This Installment Due Date - Show for installment payments */}
+              {selectedInvoice && selectedInvoice.feeType === 'Installments' && (
+                <div>
+                  <Label htmlFor="this-due-date">This Installment Due Date *</Label>
+                  <Input
+                    id="this-due-date"
+                    type="date"
+                    value={thisDueDate}
+                    onChange={(e) => {
+                      setThisDueDate(e.target.value);
+                      // Clear validation error when user changes date
+                      if (validationErrors.thisDueDate) {
+                        setValidationErrors(prev => ({ ...prev, thisDueDate: '' }));
+                      }
+                    }}
+                    className={`bg-zinc-900 border-zinc-700 text-white ${validationErrors.thisDueDate ? 'border-red-500' : ''}`}
+                    required
+                  />
+                  {validationErrors.thisDueDate && (
+                    <div className="text-red-400 text-xs mt-1">{validationErrors.thisDueDate}</div>
+                  )}
+                  <div className="text-xs text-zinc-500 mt-1">
+                    When was this installment due to be paid
+                  </div>
+                </div>
+              )}
+
+              {/* Next Due Date - Show only if there will be remaining balance after this payment */}
+              {selectedInvoice && paymentAmount && (
+                Math.round((selectedInvoice.pendingAmount - (parseFloat(paymentAmount) || 0)) * 100) / 100 > 0
+              ) && (
+                  <div>
+                    <Label htmlFor="next-due-date">Next Payment Due Date *</Label>
+                    <Input
+                      id="next-due-date"
+                      type="date"
+                      value={nextDueDate}
+                      min={new Date().toISOString().split('T')[0]} // Today or later
+                      onChange={(e) => {
+                        setNextDueDate(e.target.value);
+                        // Clear validation error when user changes date
+                        if (validationErrors.nextDueDate) {
+                          setValidationErrors(prev => ({ ...prev, nextDueDate: '' }));
+                        }
+                      }}
+                      className={`bg-zinc-900 border-zinc-700 text-white ${validationErrors.nextDueDate ? 'border-red-500' : ''}`}
+                      required
+                    />
+                    {validationErrors.nextDueDate && (
+                      <div className="text-red-400 text-xs mt-1">{validationErrors.nextDueDate}</div>
+                    )}
+                    <div className="text-xs text-zinc-500 mt-1">
+                      Due date for the next installment payment
+                    </div>
+                  </div>
+                )}
+
               {/* Payment Screenshot Upload */}
               <div>
-                <Label>Payment Screenshot (Optional)</Label>
+                <Label>Payment Screenshot *</Label>
+                {validationErrors.paymentScreenshot && (
+                  <div className="text-red-400 text-xs mt-1">{validationErrors.paymentScreenshot}</div>
+                )}
                 <div className="mt-2">
                   {!paymentScreenshotPreview ? (
                     <div className="border-2 border-dashed border-zinc-700 rounded-lg p-6 text-center">
@@ -1640,6 +1881,8 @@ const InvoicesDashboard = () => {
                 setPaymentAmount('');
                 setPaymentMode('online');
                 setPaidDate('');
+                setThisDueDate('');
+                setNextDueDate('');
                 setValidationErrors({});
                 setSelectedInvoice(null);
                 // Clear screenshot states
@@ -1649,11 +1892,215 @@ const InvoicesDashboard = () => {
             >
               Cancel
             </Button>
-            <Button 
-              variant="manual" 
+            <Button
+              variant="manual"
               onClick={handleUpdatePayment}
             >
               Update Payment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Installment Dialog */}
+      <Dialog open={isEditInstallmentDialogOpen} onOpenChange={setIsEditInstallmentDialogOpen}>
+        <DialogContent className="bg-black border-zinc-800 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-yellow-400">Edit Installment Payment</DialogTitle>
+            <DialogDescription className="text-zinc-400">
+              Add a new installment payment. All fields are required.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedInvoiceForInstallment && (
+            <div className="space-y-6">
+              {/* Invoice Summary */}
+              <div className="bg-zinc-900 p-4 rounded-lg">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <Label className="text-xs text-zinc-400">Invoice Number</Label>
+                    <div className="font-semibold">{selectedInvoiceForInstallment.invoiceNumber}</div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-zinc-400">Customer</Label>
+                    <div className="font-semibold">{selectedInvoiceForInstallment.customerDetails.name}</div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-zinc-400">Course</Label>
+                    <div className="font-semibold">{selectedInvoiceForInstallment.courseDetails.title}</div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-zinc-400">Fee Type</Label>
+                    <div className="font-semibold">{selectedInvoiceForInstallment.feeType}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Summary */}
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-zinc-900 p-3 rounded">
+                  <Label className="text-xs">Total Amount</Label>
+                  <div className="text-lg font-bold text-white">{formatCurrency(selectedInvoiceForInstallment.totalAmount)}</div>
+                </div>
+                <div className="bg-zinc-900 p-3 rounded">
+                  <Label className="text-xs">Already Paid</Label>
+                  <div className="text-lg font-bold text-green-400">{formatCurrency(selectedInvoiceForInstallment.paidAmount)}</div>
+                </div>
+                <div className="bg-zinc-900 p-3 rounded">
+                  <Label className="text-xs">Outstanding Amount</Label>
+                  <div className="text-lg font-bold text-red-400">{formatCurrency(selectedInvoiceForInstallment.pendingAmount)}</div>
+                </div>
+              </div>
+
+              {/* Installment Form */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="edit-installment-amount">Payment Amount *</Label>
+                    <Input
+                      id="edit-installment-amount"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max={selectedInvoiceForInstallment.pendingAmount}
+                      value={editInstallmentAmount}
+                      onChange={(e) => setEditInstallmentAmount(e.target.value)}
+                      className="bg-zinc-900 border-zinc-700 text-white"
+                      placeholder="Enter payment amount"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-installment-payment-mode">Payment Mode *</Label>
+                    <Select value={editInstallmentPaymentMode} onValueChange={setEditInstallmentPaymentMode} required>
+                      <SelectTrigger className="bg-zinc-900 border-zinc-700 text-white">
+                        <SelectValue placeholder="Select payment mode" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-zinc-900 border-zinc-700">
+                        <SelectItem value="online">Online</SelectItem>
+                        <SelectItem value="cash">Cash</SelectItem>
+                        <SelectItem value="credit_card">Credit Card</SelectItem>
+                        <SelectItem value="debit_card">Debit Card</SelectItem>
+                        <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                        <SelectItem value="upi">UPI</SelectItem>
+                        <SelectItem value="cheque">Cheque</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="edit-installment-paid-date">Payment Date *</Label>
+                    <Input
+                      id="edit-installment-paid-date"
+                      type="date"
+                      value={editInstallmentPaidDate}
+                      max={new Date().toISOString().split('T')[0]}
+                      onChange={(e) => setEditInstallmentPaidDate(e.target.value)}
+                      className="bg-zinc-900 border-zinc-700 text-white"
+                      required
+                    />
+                    <div className="text-xs text-zinc-500 mt-1">Cannot be a future date</div>
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-installment-this-due-date">This Installment Due Date *</Label>
+                    <Input
+                      id="edit-installment-this-due-date"
+                      type="date"
+                      value={editInstallmentThisDueDate}
+                      onChange={(e) => setEditInstallmentThisDueDate(e.target.value)}
+                      className="bg-zinc-900 border-zinc-700 text-white"
+                      required
+                    />
+                    <div className="text-xs text-zinc-500 mt-1">When was this installment due</div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <Label htmlFor="edit-installment-due-date">Next Payment Due Date *</Label>
+                    <Input
+                      id="edit-installment-due-date"
+                      type="date"
+                      value={editInstallmentDueDate}
+                      min={new Date().toISOString().split('T')[0]}
+                      onChange={(e) => setEditInstallmentDueDate(e.target.value)}
+                      className="bg-zinc-900 border-zinc-700 text-white"
+                      required
+                    />
+                    <div className="text-xs text-zinc-500 mt-1">Due date for next installment</div>
+                  </div>
+                </div>
+
+                {/* Payment Screenshot Upload */}
+                <div>
+                  <Label>Payment Screenshot *</Label>
+                  <div className="mt-2">
+                    {!editInstallmentScreenshotPreview ? (
+                      <div className="border-2 border-dashed border-zinc-700 rounded-lg p-6 text-center">
+                        <Upload className="w-8 h-8 text-zinc-500 mx-auto mb-2" />
+                        <p className="text-zinc-400 mb-2">Upload payment screenshot</p>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleEditInstallmentScreenshotUpload}
+                          className="hidden"
+                          id="edit-installment-screenshot-upload"
+                          required
+                        />
+                        <label
+                          htmlFor="edit-installment-screenshot-upload"
+                          className="cursor-pointer bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded-md transition-colors"
+                        >
+                          Choose File
+                        </label>
+                        <p className="text-xs text-zinc-500 mt-2">Max file size: 5MB</p>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <img
+                          src={editInstallmentScreenshotPreview}
+                          alt="Payment Screenshot"
+                          className="max-w-xs max-h-48 rounded-lg border border-zinc-700"
+                        />
+                        <button
+                          onClick={removeEditInstallmentScreenshot}
+                          className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="mt-6">
+            <Button
+              variant="outline"
+              className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+              onClick={() => {
+                setIsEditInstallmentDialogOpen(false);
+                setEditInstallmentAmount('');
+                setEditInstallmentDueDate('');
+                setEditInstallmentThisDueDate('');
+                setEditInstallmentPaymentMode('online');
+                setEditInstallmentPaidDate('');
+                setEditInstallmentScreenshot(null);
+                setEditInstallmentScreenshotPreview(null);
+                setSelectedInvoiceForInstallment(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="manual" 
+              onClick={handleEditInstallmentSubmit}
+            >
+              Add Installment Payment
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1668,7 +2115,7 @@ const InvoicesDashboard = () => {
               Are you sure you want to delete this invoice? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          
+
           {invoiceToDelete && (
             <div className="space-y-4">
               <div className="bg-zinc-900 p-4 rounded-lg">
@@ -1679,7 +2126,7 @@ const InvoicesDashboard = () => {
                   <div className="text-zinc-400">Amount: {formatCurrency(invoiceToDelete.totalAmount)}</div>
                 </div>
               </div>
-              
+
               <div className="bg-red-900/20 border border-red-700 p-3 rounded-lg">
                 <div className="text-red-400 text-sm font-medium">⚠️ Warning</div>
                 <div className="text-red-300 text-xs mt-1">
@@ -1700,7 +2147,7 @@ const InvoicesDashboard = () => {
             >
               Cancel
             </Button>
-            <Button 
+            <Button
               variant="outline"
               className="border-red-700 text-red-400 hover:bg-red-900/20"
               onClick={handleDeleteInvoice}
@@ -1720,7 +2167,7 @@ const InvoicesDashboard = () => {
               Payment screenshot for invoice {selectedInvoice?.invoiceNumber}
             </DialogDescription>
           </DialogHeader>
-          
+
           {selectedInvoice?.paymentScreenshot && (
             <div className="flex justify-center">
               <img
@@ -1730,7 +2177,7 @@ const InvoicesDashboard = () => {
               />
             </div>
           )}
-          
+
           <DialogFooter>
             <Button
               variant="outline"
@@ -1752,7 +2199,7 @@ const InvoicesDashboard = () => {
               Add or edit a remark for invoice {selectedInvoiceForRemark?.invoiceNumber}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             <div>
               <Label htmlFor="remark-text">Remark</Label>
@@ -1783,8 +2230,8 @@ const InvoicesDashboard = () => {
             >
               Cancel
             </Button>
-            <Button 
-              variant="manual" 
+            <Button
+              variant="manual"
               onClick={handleUpdateRemark}
               disabled={remarkText.trim() === (selectedInvoiceForRemark?.remark || '')}
             >

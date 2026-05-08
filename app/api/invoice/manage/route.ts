@@ -13,9 +13,11 @@ export async function PATCH(req: Request) {
     await connectMongo();
 
     const body = await req.json();
-    const { invoiceId, action, amount, certificateData, paymentMode, paidDate, installmentNumber, installmentPaymentAmount, nextDueDate } = body;
+    const { invoiceId, action, amount, certificateData, paymentMode, paidDate, installmentNumber, installmentPaymentAmount, nextDueDate, thisDueDate } = body;
 
-    console.log('PATCH request received:', { invoiceId, action, amount, paymentMode, paidDate, installmentNumber, installmentPaymentAmount, nextDueDate });
+    console.log('PATCH request received:', { invoiceId, action, amount, paymentMode, paidDate, installmentNumber, installmentPaymentAmount, nextDueDate, thisDueDate });
+    console.log('thisDueDate value:', thisDueDate);
+    console.log('thisDueDate type:', typeof thisDueDate);
 
     if (!invoiceId || !action) {
       return NextResponse.json(
@@ -173,7 +175,9 @@ export async function PATCH(req: Request) {
             installmentNumber,
             paidDate: paidDate ? new Date(paidDate) : new Date(),
             amount: installmentPaymentAmount,
-            paymentMode: paymentMode || 'online'
+            paymentMode: paymentMode || 'online',
+            dueDate: thisDueDate ? new Date(thisDueDate) : null, // Store this installment's due date (user must provide it)
+            nextDueDate: nextDueDate ? new Date(nextDueDate) : null // Store next due date with this payment
           };
           
           if (existingPaymentIndex >= 0) {
