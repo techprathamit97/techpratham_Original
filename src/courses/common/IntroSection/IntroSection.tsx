@@ -43,7 +43,7 @@ const IntroSection = ({ id, course }: any) => {
               </h2>
             </div>
 
-            <div className="w-full text-base text-justify font-normal text-gray-600">
+            <div className="w-full text-base text-justify font-normal text-gray-600 rich-text-content">
               <div
                 dangerouslySetInnerHTML={{ __html: course.description }}
               />

@@ -104,9 +104,9 @@ const SeoFaqPopup = ({ course }: Props) => {
                   
                   {/* FAQ Answer - Expandable */}
                   {expandedFaqIndex === index && (
-                    <div className="px-4 pb-4 pt-2 border-t border-yellow-700 bg-yellow-800">
+                    <div className="px-4 pb-4 pt-2 border-t border-yellow-700 bg-white/50">
                       <div 
-                        className="text-white/90 leading-relaxed text-sm"
+                        className="leading-relaxed text-sm rich-text-content"
                         dangerouslySetInnerHTML={{ __html: faq.ans }} 
                       />
                     </div>
@@ -125,3 +125,5 @@ const SeoFaqPopup = ({ course }: Props) => {
 };
 
 export default SeoFaqPopup;
+
+
