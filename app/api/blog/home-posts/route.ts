@@ -1,35 +1,51 @@
 import { NextResponse } from "next/server";
-import { client } from "@/lib/sanity";
+import { connectMongo } from "@/utils/mongodb";
+import BlogPost from "@/models/BlogPost";
 
 // Enable ISR with revalidation
 export const revalidate = 600; // Revalidate every 10 minutes
 export const dynamic = 'force-static';
 
 /* ===================== GET - Fetch Home Page Blog Posts ===================== */
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    // Fetch only 3 posts for homepage - faster loading
-    // Simplified query for better performance
-    const query = `*[_type == "post"] | order(publishedAt desc)[0...3] {
-      _id,
-      title,
-      "slug": slug.current,
-      "coverImage": mainImage.asset->url
-    }`;
+    // Connect to MongoDB
+    await connectMongo();
 
-    // Fetch with 10 second timeout (increased from 5)
-    const posts = await Promise.race([
-      client.fetch(query, {}, { 
-        cache: 'force-cache',
-        next: { revalidate: 600 }
-      }),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Sanity timeout')), 10000)
-      )
-    ]);
+    // Get page from query params (default to 1)
+    const { searchParams } = new URL(req.url);
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = 12; // 12 posts per page
+    const skip = (page - 1) * limit;
+
+    // Fetch published posts with pagination
+    const posts = await BlogPost.find({ status: 'published' })
+      .select('_id title slug excerpt category categorySlug featuredImage publishedAt')
+      .sort({ publishedAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    // Get total count for pagination
+    const total = await BlogPost.countDocuments({ status: 'published' });
+
+    // Transform posts to match expected format
+    const transformedPosts = posts.map((post: any) => ({
+      _id: post._id,
+      title: post.title,
+      slug: post.slug,
+      excerpt: post.excerpt,
+      category: post.category || 'Blog',
+      categorySlug: post.categorySlug || 'general-blogs',
+      coverImage: post.featuredImage?.url || null,
+      publishedAt: post.publishedAt
+    }));
 
     const response = NextResponse.json({ 
-      posts: posts || [],
+      posts: transformedPosts || [],
+      total,
+      page,
+      hasMore: skip + limit < total,
       success: true 
     });
     
@@ -43,6 +59,9 @@ export async function GET() {
     // Return empty array on error with success flag
     const response = NextResponse.json({ 
       posts: [], 
+      total: 0,
+      page: 1,
+      hasMore: false,
       success: false,
       error: error.message 
     });

@@ -15,12 +15,14 @@ const BlogSection: React.FC = () => {
 
         const fetchPosts = async () => {
             try {
-                // Use API route with timeout for better performance
+                // Use API route with cache-busting
                 const timeoutPromise = new Promise((_, reject) => 
                     setTimeout(() => reject(new Error('API timeout')), 5000)
                 );
 
-                const fetchPromise = fetch('/api/blog/home-posts');
+                const fetchPromise = fetch(`/api/blog/home-posts?t=${Date.now()}`, {
+                    cache: 'no-store'
+                });
                 
                 const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
                 
