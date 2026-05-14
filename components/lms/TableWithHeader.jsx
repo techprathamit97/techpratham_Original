@@ -14,59 +14,75 @@ export default function TableWithHeader({
 
   borderColor = "#e5e7eb",
 }) {
+  // Calculate minimum width based on number of columns
+  const minColumnWidth = 120; // Minimum width per column
+  const minTableWidth = Math.max(cols * minColumnWidth, 300); // At least 300px wide
+
   return (
-    <section className="w-full overflow-x-auto">
-      <div
-        style={{
-          minWidth: "900px",
-          border: `1px solid ${borderColor}`,
-          borderRadius: "12px",
-          overflow: "scroll",
-        }}
-      >
-        {/* GRID */}
+    <section className="w-full">
+      {/* Responsive wrapper with horizontal scroll */}
+      <div className="overflow-x-auto overflow-y-hidden">
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: `repeat(${cols}, minmax(10px, 1fr))`,
+            minWidth: `${minTableWidth}px`,
+            border: `1px solid ${borderColor}`,
+            borderRadius: "12px",
+            overflow: "hidden", // Changed from scroll to hidden
           }}
         >
-          {/* HEADER */}
-          {Array.from({ length: cols }).map((_, colIndex) => (
-            <div
-              key={`header-${colIndex}`}
-              style={{
-                background: headerBg,
-                color: headerText,
-                padding: "14px",
-                fontWeight: 600,
-                borderRight: `1px solid ${borderColor}`,
-              }}
-            >
-              <DropZone zone={`kpi-header-${colIndex}`} />
-            </div>
-          ))}
-
-          {/* BODY */}
-          {Array.from({ length: rows }).map((_, rowIndex) =>
-            Array.from({ length: cols }).map((_, colIndex) => (
+          {/* GRID */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: `repeat(${cols}, minmax(${minColumnWidth}px, 1fr))`,
+            }}
+          >
+            {/* HEADER */}
+            {Array.from({ length: cols }).map((_, colIndex) => (
               <div
-                key={`cell-${rowIndex}-${colIndex}`}
+                key={`header-${colIndex}`}
                 style={{
-                  padding: "12px",
-                  background:
-                    rowIndex % 2 === 0 ? rowBg : altRowBg,
-                  borderTop: `1px solid ${borderColor}`,
-                  borderRight: `1px solid ${borderColor}`,
+                  background: headerBg,
+                  color: headerText,
+                  padding: "14px 8px", // Reduced horizontal padding for mobile
+                  fontWeight: 600,
+                  borderRight: colIndex < cols - 1 ? `1px solid ${borderColor}` : 'none',
+                  fontSize: "14px", // Responsive font size
+                  lineHeight: "1.2",
+                  wordBreak: "break-word", // Handle long text
                 }}
               >
-                <DropZone
-                  zone={`kpi-cell-${rowIndex}-${colIndex}`}
-                />
+                <DropZone zone={`kpi-header-${colIndex}`} />
               </div>
-            ))
-          )}
+            ))}
+
+            {/* BODY */}
+            {Array.from({ length: rows }).map((_, rowIndex) =>
+              Array.from({ length: cols }).map((_, colIndex) => (
+                <div
+                  key={`cell-${rowIndex}-${colIndex}`}
+                  style={{
+                    padding: "12px 8px", // Reduced horizontal padding for mobile
+                    background: rowIndex % 2 === 0 ? rowBg : altRowBg,
+                    borderTop: `1px solid ${borderColor}`,
+                    borderRight: colIndex < cols - 1 ? `1px solid ${borderColor}` : 'none',
+                    fontSize: "13px", // Slightly smaller font for mobile
+                    lineHeight: "1.3",
+                    wordBreak: "break-word", // Handle long text
+                    minHeight: "40px", // Minimum height for touch targets
+                  }}
+                >
+                  <DropZone zone={`kpi-cell-${rowIndex}-${colIndex}`} />
+                </div>
+              ))
+            )}
+          </div>
         </div>
+      </div>
+      
+      {/* Mobile scroll indicator */}
+      <div className="block sm:hidden text-xs text-gray-500 mt-2 text-center">
+        ← Scroll horizontally to see more →
       </div>
     </section>
   );

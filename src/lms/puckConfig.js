@@ -1,5 +1,6 @@
 
 
+import React from "react";
 import Syllabus from "@/components/lms/Syllabus";
 import BorderLine from "@/components/lms/BorderLine";
 import GatewaySection from "@/components/lms/GatewaySection";
@@ -170,6 +171,608 @@ export const puckConfig = {
       type: "text",
       label: "Margin",
       defaultValue: "0 auto",
+    },
+  },
+},
+
+RichTextEditor: {
+  label: "Rich Text Editor",
+  render: (props) => {
+    return (
+      <div 
+        className="rich-text-display"
+        style={{ 
+          direction: 'ltr !important', 
+          textAlign: 'left !important',
+          unicodeBidi: 'normal !important',
+          writingMode: 'horizontal-tb !important',
+          textOrientation: 'mixed !important',
+          fontFamily: 'inherit',
+          transform: 'none !important',
+          filter: 'none !important'
+        }}
+        dir="ltr"
+        lang="en"
+        dangerouslySetInnerHTML={{ __html: props.content || '<p style="direction: ltr; text-align: left;">Enter content in the sidebar →</p>' }}
+      />
+    );
+  },
+  fields: {
+    content: {
+      type: "custom",
+      label: "Rich Text Content",
+      render: ({ value, onChange }) => {
+        const [linkUrl, setLinkUrl] = React.useState('');
+        const [showLinkDialog, setShowLinkDialog] = React.useState(false);
+        const [showColorPicker, setShowColorPicker] = React.useState(false);
+        const [showFontSizeMenu, setShowFontSizeMenu] = React.useState(false);
+        const [showHeadingMenu, setShowHeadingMenu] = React.useState(false);
+        const [savedSelection, setSavedSelection] = React.useState(null);
+        const [selectedText, setSelectedText] = React.useState('');
+        const editorRef = React.useRef(null);
+
+        const colors = [
+          '#000000', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', 
+          '#FF00FF', '#00FFFF', '#FFA500', '#800080', '#008000',
+          '#FFC0CB', '#A52A2A', '#808080', '#000080', '#800000'
+        ];
+
+        React.useEffect(() => {
+          if (editorRef.current && value && editorRef.current.innerHTML !== value) {
+            editorRef.current.innerHTML = value || '';
+          }
+        }, [value]);
+
+        React.useEffect(() => {
+          const handleClickOutside = (event) => {
+            if (!event.target.closest('.toolbar-dropdown')) {
+              setShowFontSizeMenu(false);
+              setShowHeadingMenu(false);
+              setShowColorPicker(false);
+            }
+          };
+
+          document.addEventListener('mousedown', handleClickOutside);
+          return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+          };
+        }, []);
+
+        const handleInput = () => {
+          if (editorRef.current && onChange) {
+            const content = editorRef.current.innerHTML;
+            onChange(content);
+          }
+        };
+
+        const execCommand = (command, val = null) => {
+          editorRef.current?.focus();
+          document.execCommand(command, false, val);
+          setTimeout(() => {
+            handleInput();
+          }, 10);
+        };
+
+        const openLinkDialog = () => {
+          const selection = window.getSelection();
+          if (selection && selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            const text = selection.toString();
+            
+            // Save the selection and selected text
+            setSavedSelection(range.cloneRange());
+            setSelectedText(text);
+          } else {
+            setSavedSelection(null);
+            setSelectedText('');
+          }
+          setShowLinkDialog(true);
+        };
+
+        const insertLink = () => {
+          if (linkUrl.trim()) {
+            editorRef.current?.focus();
+            
+            if (savedSelection && selectedText) {
+              // Restore the saved selection
+              const selection = window.getSelection();
+              selection.removeAllRanges();
+              selection.addRange(savedSelection);
+              
+              // Create a link element with the selected text
+              const linkElement = document.createElement('a');
+              linkElement.href = linkUrl;
+              linkElement.target = '_blank';
+              linkElement.rel = 'noopener noreferrer';
+              linkElement.textContent = selectedText;
+              linkElement.style.color = '#2563eb';
+              linkElement.style.textDecoration = 'underline';
+              
+              // Replace the selection with the link
+              savedSelection.deleteContents();
+              savedSelection.insertNode(linkElement);
+              
+              // Move cursor after the link
+              savedSelection.setStartAfter(linkElement);
+              savedSelection.setEndAfter(linkElement);
+              selection.removeAllRanges();
+              selection.addRange(savedSelection);
+            } else {
+              // No text selected, insert URL as both text and link
+              const linkHTML = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: underline;">${linkUrl}</a>`;
+              document.execCommand('insertHTML', false, linkHTML);
+            }
+            
+            // Update content
+            setTimeout(() => {
+              handleInput();
+            }, 10);
+            
+            // Reset states
+            setLinkUrl('');
+            setShowLinkDialog(false);
+            setSavedSelection(null);
+            setSelectedText('');
+          }
+        };
+
+        const removeLink = () => {
+          execCommand('unlink');
+          setShowLinkDialog(false);
+        };
+
+        const applyColor = (color) => {
+          execCommand('foreColor', color);
+          setShowColorPicker(false);
+        };
+
+        const applyFontSize = (size) => {
+          execCommand('fontSize', size);
+          setShowFontSizeMenu(false);
+        };
+
+        const applyHeading = (tag) => {
+          execCommand('formatBlock', tag);
+          setShowHeadingMenu(false);
+        };
+
+        const handleKeyDown = (e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            execCommand('insertHTML', '<br>');
+          }
+        };
+
+        const handlePaste = (e) => {
+          e.preventDefault();
+          const text = e.clipboardData.getData('text/plain');
+          execCommand('insertText', text);
+        };
+
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {/* CSS for proper link styling */}
+            <style dangerouslySetInnerHTML={{
+              __html: `
+                .rich-text-editor a {
+                  color: #2563eb !important;
+                  text-decoration: underline !important;
+                  cursor: pointer !important;
+                }
+                .rich-text-editor a:hover {
+                  color: #1d4ed8 !important;
+                }
+                .rich-text-display a {
+                  color: #2563eb !important;
+                  text-decoration: underline !important;
+                  cursor: pointer !important;
+                }
+                .rich-text-display a:hover {
+                  color: #1d4ed8 !important;
+                }
+              `
+            }} />
+
+            {/* Toolbar */}
+            <div style={{ 
+              display: 'flex', 
+              gap: '4px', 
+              padding: '8px', 
+              border: '1px solid #e5e7eb', 
+              borderRadius: '6px',
+              backgroundColor: '#f9fafb',
+              flexWrap: 'wrap'
+            }}>
+              {/* Heading Dropdown */}
+              <div style={{ position: 'relative' }} className="toolbar-dropdown">
+                <button
+                  type="button"
+                  onClick={() => setShowHeadingMenu(!showHeadingMenu)}
+                  style={{
+                    padding: '4px 8px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    backgroundColor: '#fff',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    minWidth: '40px'
+                  }}
+                  onMouseDown={(e) => e.preventDefault()}
+                >
+                  H
+                </button>
+                
+                {showHeadingMenu && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    marginTop: '2px',
+                    backgroundColor: '#fff',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                    zIndex: 1000,
+                    minWidth: '80px'
+                  }}>
+                    <button
+                      type="button"
+                      onClick={() => applyHeading('h1')}
+                      style={{
+                        display: 'block',
+                        width: '100%',
+                        padding: '6px 12px',
+                        border: 'none',
+                        backgroundColor: 'transparent',
+                        cursor: 'pointer',
+                        fontSize: '18px',
+                        fontWeight: 'bold',
+                        textAlign: 'left'
+                      }}
+                      onMouseDown={(e) => e.preventDefault()}
+                    >
+                      H1
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyHeading('h2')}
+                      style={{
+                        display: 'block',
+                        width: '100%',
+                        padding: '6px 12px',
+                        border: 'none',
+                        backgroundColor: 'transparent',
+                        cursor: 'pointer',
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        textAlign: 'left'
+                      }}
+                      onMouseDown={(e) => e.preventDefault()}
+                    >
+                      H2
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyHeading('h3')}
+                      style={{
+                        display: 'block',
+                        width: '100%',
+                        padding: '6px 12px',
+                        border: 'none',
+                        backgroundColor: 'transparent',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        textAlign: 'left'
+                      }}
+                      onMouseDown={(e) => e.preventDefault()}
+                    >
+                      H3
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyHeading('p')}
+                      style={{
+                        display: 'block',
+                        width: '100%',
+                        padding: '6px 12px',
+                        border: 'none',
+                        backgroundColor: 'transparent',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        textAlign: 'left'
+                      }}
+                      onMouseDown={(e) => e.preventDefault()}
+                    >
+                      P
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Font Size Dropdown */}
+              <div style={{ position: 'relative' }} className="toolbar-dropdown">
+                <button
+                  type="button"
+                  onClick={() => setShowFontSizeMenu(!showFontSizeMenu)}
+                  style={{
+                    padding: '4px 8px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    backgroundColor: '#fff',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    minWidth: '30px'
+                  }}
+                  onMouseDown={(e) => e.preventDefault()}
+                >
+                  A
+                </button>
+                
+                {showFontSizeMenu && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    marginTop: '2px',
+                    backgroundColor: '#fff',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                    zIndex: 1000,
+                    minWidth: '60px'
+                  }}>
+                    {[1, 2, 3, 4, 5, 6, 7].map(size => (
+                      <button
+                        key={size}
+                        type="button"
+                        onClick={() => applyFontSize(size)}
+                        style={{
+                          display: 'block',
+                          width: '100%',
+                          padding: '4px 8px',
+                          border: 'none',
+                          backgroundColor: 'transparent',
+                          cursor: 'pointer',
+                          fontSize: size === 1 ? '10px' : size === 2 ? '12px' : size === 3 ? '14px' : size === 4 ? '16px' : size === 5 ? '18px' : size === 6 ? '20px' : '24px',
+                          textAlign: 'left'
+                        }}
+                        onMouseDown={(e) => e.preventDefault()}
+                      >
+                        {size === 1 ? '10px' : size === 2 ? '12px' : size === 3 ? '14px' : size === 4 ? '16px' : size === 5 ? '18px' : size === 6 ? '20px' : '24px'}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ width: '1px', height: '24px', backgroundColor: '#d1d5db', margin: '0 4px' }} />
+
+              <button
+                type="button"
+                onClick={() => execCommand('bold')}
+                style={{
+                  padding: '4px 8px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  backgroundColor: '#fff',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: 'bold'
+                }}
+                onMouseDown={(e) => e.preventDefault()}
+              >
+                B
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => execCommand('italic')}
+                style={{
+                  padding: '4px 8px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  backgroundColor: '#fff',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontStyle: 'italic'
+                }}
+                onMouseDown={(e) => e.preventDefault()}
+              >
+                I
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => execCommand('underline')}
+                style={{
+                  padding: '4px 8px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  backgroundColor: '#fff',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  textDecoration: 'underline'
+                }}
+                onMouseDown={(e) => e.preventDefault()}
+              >
+                U
+              </button>
+
+              <button
+                type="button"
+                onClick={openLinkDialog}
+                style={{
+                  padding: '4px 8px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  backgroundColor: '#fff',
+                  cursor: 'pointer',
+                  fontSize: '12px'
+                }}
+                onMouseDown={(e) => e.preventDefault()}
+              >
+                🔗
+              </button>
+
+              {/* Color */}
+              <div style={{ position: 'relative' }} className="toolbar-dropdown">
+                <button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowColorPicker(!showColorPicker)}
+                  style={{
+                    padding: '4px 8px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    backgroundColor: '#fff',
+                    cursor: 'pointer',
+                    fontSize: '12px'
+                  }}
+                  onMouseDown={(e) => e.preventDefault()}
+                >
+                  🎨
+                </button>
+              </div>
+            </div>
+
+            {/* Link Dialog */}
+            {showLinkDialog && (
+              <div style={{ 
+                padding: '8px', 
+                border: '1px solid #e5e7eb', 
+                borderRadius: '6px',
+                backgroundColor: '#f9fafb'
+              }}>
+                <input
+                  type="text"
+                  placeholder={selectedText ? `Enter URL for "${selectedText}"` : "Enter URL (select text first)"}
+                  value={linkUrl}
+                  onChange={(e) => setLinkUrl(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      insertLink();
+                    }
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '4px 8px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    marginBottom: '4px',
+                    direction: 'ltr'
+                  }}
+                />
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <button
+                    type="button"
+                    onClick={insertLink}
+                    style={{
+                      padding: '4px 8px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '4px',
+                      backgroundColor: '#3b82f6',
+                      color: '#fff',
+                      cursor: 'pointer',
+                      fontSize: '11px'
+                    }}
+                    onMouseDown={(e) => e.preventDefault()}
+                  >
+                    Add Link
+                  </button>
+                  <button
+                    type="button"
+                    onClick={removeLink}
+                    style={{
+                      padding: '4px 8px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '4px',
+                      backgroundColor: '#ef4444',
+                      color: '#fff',
+                      cursor: 'pointer',
+                      fontSize: '11px'
+                    }}
+                    onMouseDown={(e) => e.preventDefault()}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Color Picker */}
+            {showColorPicker && (
+              <div style={{ 
+                padding: '8px', 
+                border: '1px solid #e5e7eb', 
+                borderRadius: '6px',
+                backgroundColor: '#f9fafb'
+              }}>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(5, 1fr)', 
+                  gap: '4px' 
+                }}>
+                  {colors.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => applyColor(color)}
+                      style={{
+                        width: '24px',
+                        height: '24px',
+                        backgroundColor: color,
+                        border: '1px solid #d1d5db',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                      onMouseDown={(e) => e.preventDefault()}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* WYSIWYG Editor */}
+            <div
+              ref={editorRef}
+              contentEditable
+              onInput={handleInput}
+              onKeyDown={handleKeyDown}
+              onPaste={handlePaste}
+              className="rich-text-editor"
+              style={{
+                minHeight: '120px',
+                padding: '12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                backgroundColor: '#fff',
+                fontSize: '14px',
+                lineHeight: '1.5',
+                outline: 'none',
+                direction: 'ltr',
+                textAlign: 'left',
+                unicodeBidi: 'normal',
+                writingMode: 'horizontal-tb',
+                fontFamily: 'inherit'
+              }}
+              suppressContentEditableWarning={true}
+              dir="ltr"
+              lang="en"
+            />
+            
+            <div style={{ fontSize: '11px', color: '#6b7280' }}>
+              Select text and use toolbar buttons to format. You'll see the formatting applied visually.
+            </div>
+          </div>
+        );
+      }
+    },
+    placeholder: {
+      type: "text",
+      label: "Placeholder Text",
+      defaultValue: "Enter your content...",
     },
   },
 },
