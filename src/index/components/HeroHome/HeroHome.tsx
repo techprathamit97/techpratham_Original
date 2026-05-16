@@ -350,7 +350,7 @@ const HeroHome = () => {
       <div className="absolute inset-0 bg-black/40"></div>
 
       {/* Floating Icons - Hidden on Mobile */}
-      <div className="absolute inset-0 pointer-events-none hidden md:block">
+      <div className="absolute inset-0 pointer-events-none hidden md:block z-30">
         {icons.map((icon, index) => {
           const positions = [
             { top: "10%", left: "5%" },

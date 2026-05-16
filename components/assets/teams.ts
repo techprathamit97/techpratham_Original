@@ -26,14 +26,11 @@ export const teams = [
             "ISO Nirvana 🌿"
         ]
     },
-    {
-        image: "/about/teams/amrit.webp",
-        name: "Amrit Kumar",
-        position: "Head of IT",
-        link: "amrit-kumar",
-        about: [
-            "ISO Nirvana 🌿"
-        ]
+     {
+        image: "/about/teams/yuvraj.webp",
+        name: "Yuvraj Gaur",
+        position: "Admin Manager",
+        
     },
     {
         image: "/about/teams/durgesh.webp",
@@ -72,12 +69,6 @@ export const teams = [
        
     },
     {
-        image: "/about/teams/abdul.webp",
-        name: "Abdur Razzak",
-        position: "Marketing team",
-       
-    },
-    {
         image: "/about/teams/javed.webp",
         name: "Jawed Alam",
         position: "IT Consultant",
@@ -86,7 +77,7 @@ export const teams = [
     {
         image: "/about/teams/dhruv.webp",
         name: "Dhruv",
-        position: "IT Consultant",
+        position: "Front-End Developer",
        
     },
     {
