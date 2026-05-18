@@ -542,10 +542,10 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
             </Button>
           </Link>
 
-          <Link href='/reviews' onClick={handleNavToggle} className="w-full">
+          <Link href='/e-book/workday' onClick={handleNavToggle} className="w-full">
             <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105 flex items-center gap-2">
               <StarIcon className="w-4 h-4" />
-              Reviews
+              Workday e-Book
             </Button>
           </Link>
 

@@ -174,12 +174,18 @@ const HeroSection = ({ title, subtitle, actions, stats, images, className }: Her
 
           {/* Images */}
           <motion.div
-            className="absolute right-0 bottom-0 h-80 w-80  rounded-2xl mr-5  sm:h-[340px] sm:w-[400px]"
-            style={{ transformOrigin: 'bottom center' }}
-            variants={imageVariants}
-          >
-            <Image src={images[0]} alt="Student learning" className="h-full w-full  rounded-xl object-contain object-bottom" />
-          </motion.div>
+  className="absolute right-0 bottom-0 h-80 w-80 rounded-2xl mr-5 sm:h-[340px] sm:w-[400px]"
+  style={{ transformOrigin: 'bottom center' }}
+  variants={imageVariants}
+>
+  <Image
+    src={images[0]}
+    alt="Student learning"
+    width={400}
+    height={340}
+    className="h-full w-full rounded-xl object-contain object-bottom"
+  />
+</motion.div>
           {/* <motion.div
             className="absolute right-0  bottom-1 h-40 w-40 rounded-2xl bg-muted p-2 shadow-lg sm:h-56 sm:w-56"
             style={{ transformOrigin: 'left center' }}

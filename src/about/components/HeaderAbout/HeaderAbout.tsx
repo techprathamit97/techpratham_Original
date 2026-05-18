@@ -42,7 +42,7 @@ const HeaderAbout = () => {
 {/* banner end--------------------------------------------------------------------------------------------------- */}
             {/* Content Section */}
             <div className="max-w-6xl grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-10 text-base md:py-16 py-10">
-                <div className="w-full flex justify-center">
+                <div className="w-full flex justify-center  order-2 md:order-1">
                     <Image
                         src="/about/teams/teams.jpeg"
                         alt="Mission Image"
@@ -58,16 +58,8 @@ const HeaderAbout = () => {
                 </div>
 
 
-                <div className="md:col-span-2 p-2 col-span-1 leading-relaxed space-y-4">
-                    <h1 className="text-2xl text-white md:text-3xl font-bold gap-1 mb-4"
-                        // Apply slide-up animation to heading
-                        style={{
-                            opacity: 0,
-                            animation: 'slideUp 0.8s ease-out 0.7s forwards' // Keyframe animation
-                        }}
-                    >
-                        Get to Know TechPratham...
-                    </h1>
+                <div className="md:col-span-2 p-2 col-span-1 leading-relaxed space-y-4 order-1 md:order-2">
+                    
 
                     <p className='text-justify'
                         style={{
