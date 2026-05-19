@@ -545,40 +545,31 @@ export default function BlogPostPage({ navbarData, post, relatedPosts, isPreview
                 className="sticky top-0"
                 style={{ minHeight: '200px' }} // Reserve space to prevent layout shift
               >
-                <div className="bg-gray-50 rounded-lg p-4 border">
-                  <h3 className="text-lg font-semibold mb-4 text-gray-900">Table of Contents</h3>
-                  {tocItems.length > 0 ? (
-                    <nav className="space-y-1">
+                {tocItems.length > 0 && (
+                  <div className="bg-gradient-to-tl from-[#C6151D] to-[#600A0E] rounded-lg overflow-hidden border-2 border-[#8B4513]">
+                    {/* Header */}
+                    <div className="bg-gradient-to-tl from-[#C6151D] to-[#600A0E] px-6 py-4">
+                      <h3 className="text-lg font-semibold text-white">Table of Contents</h3>
+                    </div>
+                    
+                    {/* Gold/Brown background section */}
+                    <div className="bg-gradient-to-b from-[#B8860B] to-[#8B6914] px-4 py-4 space-y-2 max-h-screen overflow-y-auto">
                       {tocItems.map((item, index) => (
                         <button
                           key={index}
                           onClick={() => post?.source === 'sanity' ? scrollToSection(item.id) : scrollToHeading(item.id)}
-                          className={`block w-full text-left py-2 px-3 rounded text-sm transition-colors ${
-                            activeHeading === item.id
-                              ? 'bg-blue-100 text-blue-700 font-medium'
-                              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                          }`}
-                          style={{
-                            paddingLeft: `${(item.level - 1) * 12 + 12}px`,
-                            borderLeft: item.level > 1 ? '2px solid #e5e7eb' : 'none',
-                            marginLeft: item.level > 1 ? '8px' : '0'
-                          }}
+                          className="flex items-center gap-2 w-full text-left py-2 px-3 rounded-full transition-all bg-gradient-to-tl from-[#C6151D] to-[#600A0E] hover:from-[#9B5523] hover:to-[#B0623D] text-white text-sm"
                         >
-                          {item.text}
+                          {/* White circular bullet */}
+                          <div className="w-4 h-4 rounded-full border-2 border-white flex-shrink-0 flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                          </div>
+                          <span className="flex-1 truncate">{item.text}</span>
                         </button>
                       ))}
-                    </nav>
-                  ) : (
-                    <div className="text-gray-500 text-sm">
-                      <div className="animate-pulse space-y-2">
-                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                        <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-                        <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-                      </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -628,20 +619,6 @@ export default function BlogPostPage({ navbarData, post, relatedPosts, isPreview
               </header>
 
               <div className="pb-12">
-                {post.tableOfContents?.enabled && post.tableOfContents.items.length > 0 && (
-                  <div className="bg-red-800 rounded-lg p-6 mb-8 lg:hidden">
-                    <h3 className="text-lg font-semibold mb-4">Table of Contents</h3>
-                    <ul className="space-y-2">
-                      {post.tableOfContents.items.map((item, index) => (
-                        <li key={index} style={{ marginLeft: `${(item.level - 1) * 20}px` }}>
-                          <a href={`#${item.anchor}`} className="text-blue-600 hover:underline">
-                            {item.title}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
 
                 <div className="prose prose-lg max-w-none">
                   {post.source === 'sanity' && post.sanityBody ? (

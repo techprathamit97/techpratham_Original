@@ -91,7 +91,7 @@ const courseSchema = z.object({
   curriculum: z.string().min(1, "Curriculum is required"),
   interview: z.string().min(1, "Interview information is required"),
   link: z.string().min(1, "Course link is required"),
-  videoLink: z.string().min(1, "Video link is required"),
+ videoLink: z.string().optional(),
   assesment_link: z.string().min(1, "Assessment link is required"),
   curriculum_data: z.array(curriculumSchema).optional(),
   skills_data: z.array(z.string()).optional(),
@@ -1140,7 +1140,7 @@ const UpdateCoursePage = () => {
                             name="videoLink"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Video Link *</FormLabel>
+                                <FormLabel>Video Link</FormLabel>
                                 <FormControl>
                                   <Input {...field} />
                                 </FormControl>

@@ -82,6 +82,11 @@ const nextConfig = {
         permanent: true,         // 301 redirect
       },
       {
+        source: '/courses/google-cloud-professional-cloud-devops-engineer', // replace with your dead URL path
+        destination: '/courses/google-cloud-professional-and-devops-engineer',        // home page
+        permanent: true,         // 301 redirect
+      },
+      {
         source: '/courses/best-sap-online-training-in-noida',
         destination: '/courses/sap-training-in-noida',
         permanent: true,

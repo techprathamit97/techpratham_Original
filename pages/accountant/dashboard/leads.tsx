@@ -37,6 +37,7 @@ interface Lead {
   course: string;
   message: string;
   formType: string;
+  source?: string; // 'google_ads', 'website_form', 'other'
   ipAddress: string;
   status?: 'reached' | 'unreached';
   metadata: {
@@ -69,6 +70,21 @@ const LeadsManagement = () => {
       return `${diffInDays} days ago`;
     } else {
       return null; // Show full date for older entries
+    }
+  };
+
+  // Helper function to get source badge
+  const getSourceBadge = (source: string | undefined) => {
+    if (!source) {
+      return <Badge className="bg-gray-500/10 text-gray-500 border-gray-500/20">Other</Badge>;
+    }
+    
+    if (source === 'google_ads') {
+      return <Badge className="bg-blue-600/10 text-blue-600 border-blue-600/20">Google Ads</Badge>;
+    } else if (source === 'website_form') {
+      return <Badge className="bg-green-600/10 text-green-600 border-green-600/20">Website Form</Badge>;
+    } else {
+      return <Badge className="bg-gray-500/10 text-gray-500 border-gray-500/20">{source}</Badge>;
     }
   };
 
@@ -444,6 +460,7 @@ const LeadsManagement = () => {
                           <th className="text-left p-4 text-white font-medium min-w-[200px]">Course</th>
                           <th className="text-left p-4 text-white font-medium min-w-[200px]">Message</th>
                           <th className="text-left p-4 text-white font-medium min-w-[120px]">Form Type</th>
+                          <th className="text-left p-4 text-white font-medium min-w-[120px]">Source</th>
                           <th className="text-left p-4 text-white font-medium min-w-[100px]">Status</th>
                           <th className="text-left p-4 text-white font-medium min-w-[150px]">IP Address</th>
                           <th className="text-left p-4 text-white font-medium min-w-[100px]">Country</th>
@@ -492,6 +509,9 @@ const LeadsManagement = () => {
                               <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">
                                 {lead.formType || 'Unknown'}
                               </Badge>
+                            </td>
+                            <td className="p-4 min-w-[120px]">
+                              {getSourceBadge(lead.source)}
                             </td>
                             <td className="p-4 min-w-[100px]">
                               <div className="flex items-center gap-2">

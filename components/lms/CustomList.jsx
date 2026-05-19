@@ -118,7 +118,7 @@ export default function CustomList({
 
   return (
     <>
-      <style>{`
+      <style suppressHydrationWarning>{`
         .custom-list {
           margin: ${margin};
           max-width: ${maxWidth};

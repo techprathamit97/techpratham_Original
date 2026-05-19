@@ -33,6 +33,7 @@ export async function saveLead(data: any) {
     message: data.message,
 
     formType: data.formType,
+    source: data.source || 'website_form', // Track if from Google Ads or website
     status: data.status || 'unreached',
     ipAddress: data.ipAddress,
 

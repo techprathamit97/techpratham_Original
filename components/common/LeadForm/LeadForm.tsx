@@ -35,6 +35,14 @@ const LeadForm: React.FC<LeadFormProps> = ({ course, onClose, onSuccess }) => {
     const [submitting, setSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState(false);
 
+    // Check if visitor came from Google Ads
+    const isGoogleAdsVisitor = () => {
+        if (typeof window === 'undefined') return false;
+        const searchParams = new URLSearchParams(window.location.search);
+        // Check for GCLID (Google Click ID) or utm_source=google
+        return searchParams.has('gclid') || searchParams.get('utm_source') === 'google';
+    };
+
     const onSubmit = async (data: any) => {
         // Prevent submission if phone is invalid
         if (!isPhoneValid) {
@@ -43,6 +51,10 @@ const LeadForm: React.FC<LeadFormProps> = ({ course, onClose, onSuccess }) => {
 
         try {
             setSubmitting(true);
+
+            // Determine source based on GCLID/UTM parameters
+            const googleAdsVisitor = isGoogleAdsVisitor();
+            const source = googleAdsVisitor ? 'google_ads' : 'website_form';
 
             const response = await fetch('/api/leads', {
                 method: 'POST',
@@ -53,6 +65,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ course, onClose, onSuccess }) => {
                     ...data,
                     phone: phoneNumber, // Use the formatted phone number from PhoneInput
                     formType: "course-callback",
+                    source: source, // Set source based on visitor origin
                 }),
             });
             if (response.ok) {
@@ -62,16 +75,23 @@ const LeadForm: React.FC<LeadFormProps> = ({ course, onClose, onSuccess }) => {
                 setPhoneNumber('');
                 setIsPhoneValid(false);
                 
-                if (typeof window !== "undefined") {
-                    (window as any).dataLayer = (window as any).dataLayer || [];
-                    (window as any).dataLayer.push({
-                        event: "google_ads_conversion",
-                        conversion_id: "17462500412",
-                        conversion_label: "K_E4CNSPy-0bELy44oZB",
-                    });
+                // ✅ Only send Google Ads conversion if visitor came from Google Ads
+                if (googleAdsVisitor && typeof window !== "undefined") {
+                    // Use gtag if available (recommended)
+                    if ((window as any).gtag) {
+                        (window as any).gtag("event", "conversion", {
+                            send_to: "AW-17462500412/K_E4CNSPy-0bELy44oZB",
+                        });
+                    } else {
+                        // Fallback to dataLayer
+                        (window as any).dataLayer = (window as any).dataLayer || [];
+                        (window as any).dataLayer.push({
+                            event: "google_ads_conversion",
+                            conversion_id: "17462500412",
+                            conversion_label: "K_E4CNSPy-0bELy44oZB",
+                        });
+                    }
                 }
-
-
 
                 setTimeout(() => {
                     onSuccess();

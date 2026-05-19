@@ -13,6 +13,12 @@ const LeadSchema = new Schema(
       required: true, // reach-form, lead-form, certificate, etc
     },
 
+    source: {
+      type: String,
+      enum: ['google_ads', 'website_form', 'other'],
+      default: 'website_form'
+    },
+
     status: {
       type: String,
       enum: ['reached', 'unreached'],
