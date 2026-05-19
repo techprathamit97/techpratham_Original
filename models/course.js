@@ -71,7 +71,7 @@ const courseSchema = new mongoose.Schema(
     // placement_report: { type: String, required: true },
     curriculum: { type: String, required: true },
     interview: { type: String, required: true },
-    videoLink: { type: String, required: true },
+    videoLink: { type: String, required: false },
     curriculum_data: [curriculumSchema],
     skills_data: [String],
     assesment_link: { type: String, required: true },
