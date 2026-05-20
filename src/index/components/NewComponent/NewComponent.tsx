@@ -513,21 +513,55 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay } from "swiper/modules";
+import { Autoplay, Navigation } from "swiper/modules";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import "swiper/css";
 import "swiper/css/navigation";
 
-/* ================= TYPES ================= */
+/* ================= CONSTANTS ================= */
 
+// Video sources - Instagram Reels for inline playback
+const VIDEO_SOURCES = [
+  {
+    type: 'instagram',
+    url: "https://www.instagram.com/reel/DW8ONcLjBuG/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    embedUrl: "https://www.instagram.com/p/DW8ONcLjBuG/embed/"
+  },
+  {
+    type: 'instagram',
+    url: "https://www.instagram.com/reel/DXDyJoBDGx2/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    embedUrl: "https://www.instagram.com/p/DXDyJoBDGx2/embed/"
+  },
+  {
+    type: 'instagram',
+    url: "https://www.instagram.com/reel/DWgoZ9fDACa/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    embedUrl: "https://www.instagram.com/p/DWgoZ9fDACa/embed/"
+  },
+  {
+    type: 'instagram',
+    url: "https://www.instagram.com/reel/DV3LObgDEGB/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    embedUrl: "https://www.instagram.com/p/DV3LObgDEGB/embed/"
+  },
+  {
+    type: 'instagram',
+    url: "https://www.instagram.com/reel/DVvvZLzjCLL/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    embedUrl: "https://www.instagram.com/p/DVvvZLzjCLL/embed/"
+  },
+  {
+    type: 'instagram',
+    url: "https://www.instagram.com/reel/DVqcYfMDFPt/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    embedUrl: "https://www.instagram.com/p/DVqcYfMDFPt/embed/"
+  }
+];
+
+/* ================= TYPES ================= */
 interface SectionProps {
   id?: string;
   initialEvents?: EventItem[];
 }
-
 interface EventItem {
   _id: string;
   type: "video" | "placement" | "hiring";
@@ -539,6 +573,7 @@ interface EventItem {
 
 /* ================= HELPERS ================= */
 
+// 🔥 Converts ANY YouTube URL to EMBED URL
 const toYoutubeEmbed = (url: string) => {
   if (url.includes("embed")) return url;
 
@@ -560,24 +595,25 @@ const toYoutubeEmbed = (url: string) => {
   return url;
 };
 
+// Check if image was uploaded or updated within last 5 days
 const isNewImage = (createdAt?: string, updatedAt?: string) => {
   if (!createdAt && !updatedAt) return false;
 
   const today = new Date();
 
+  // Check createdAt
   if (createdAt) {
     const uploadDate = new Date(createdAt);
     const diffTime = Math.abs(today.getTime() - uploadDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
     if (diffDays <= 5) return true;
   }
 
+  // Check updatedAt
   if (updatedAt) {
     const updateDate = new Date(updatedAt);
     const diffTime = Math.abs(today.getTime() - updateDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
     if (diffDays <= 5) return true;
   }
 
@@ -586,68 +622,41 @@ const isNewImage = (createdAt?: string, updatedAt?: string) => {
 
 /* ================= COMPONENT ================= */
 
-export default function PromoSection({
-  id,
-  initialEvents = [],
-}: SectionProps) {
+export default function PromoSection({ id, initialEvents = [] }: SectionProps) {
   const iframeRefs = useRef<HTMLIFrameElement[]>([]);
 
   const [videos, setVideos] = useState<string[]>([]);
   const [placements, setPlacements] = useState<string[]>([]);
   const [hirings, setHirings] = useState<string[]>([]);
-  const [hiringDates, setHiringDates] = useState<
-    { createdAt: string; updatedAt: string }[]
-  >([]);
-
+  const [hiringDates, setHiringDates] = useState<{ createdAt: string; updatedAt: string }[]>([]);
   const [loading, setLoading] = useState(false);
-
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
 
-  const [selectedImageIndex, setSelectedImageIndex] =
-    useState<number>(0);
+  /* ================= MEMOIZED VALUES ================= */
+  const hasPlacements = useMemo(() => placements.length > 0, [placements]);
+  const hasHirings = useMemo(() => hirings.length > 0, [hirings]);
 
-  const hasPlacements = useMemo(
-    () => placements.length > 0,
-    [placements]
-  );
-
-  const hasHirings = useMemo(
-    () => hirings.length > 0,
-    [hirings]
-  );
-
-  /* ================= FETCH ================= */
+  /* ================= FETCH DATA ================= */
 
   useEffect(() => {
+    // Process initial server-side data if available
     if (initialEvents.length > 0) {
       const videoItems: string[] = [];
       const placementItems: string[] = [];
       const hiringItems: string[] = [];
-
-      const hiringDateItems: {
-        createdAt: string;
-        updatedAt: string;
-      }[] = [];
+      const hiringDateItems: { createdAt: string; updatedAt: string }[] = [];
 
       initialEvents.forEach((item) => {
         if (item.type === "video" && item.videoUrl) {
-          videoItems.push(
-            `${toYoutubeEmbed(item.videoUrl)}?enablejsapi=1`
-          );
-        } else if (
-          item.type === "placement" &&
-          item.image
-        ) {
+          videoItems.push(`${toYoutubeEmbed(item.videoUrl)}?enablejsapi=1`);
+        } else if (item.type === "placement" && item.image) {
           placementItems.push(item.image);
-        } else if (
-          item.type === "hiring" &&
-          item.image
-        ) {
+        } else if (item.type === "hiring" && item.image) {
           hiringItems.push(item.image);
-
           hiringDateItems.push({
-            createdAt: item.createdAt || "",
-            updatedAt: item.updatedAt || "",
+            createdAt: item.createdAt || '',
+            updatedAt: item.updatedAt || ''
           });
         }
       });
@@ -656,21 +665,20 @@ export default function PromoSection({
       setPlacements(placementItems);
       setHirings(hiringItems);
       setHiringDates(hiringDateItems);
-
       return;
     }
 
+    // Fallback: fetch client-side if no initial data
     const load = async () => {
       setLoading(true);
-
       try {
         const res = await fetch("/api/event", {
           cache: "no-store",
-          next: { revalidate: 0 },
+          next: { revalidate: 0 }
         });
 
         if (!res.ok) {
-          throw new Error("Failed to fetch events");
+          throw new Error('Failed to fetch events');
         }
 
         const data: EventItem[] = await res.json();
@@ -678,31 +686,18 @@ export default function PromoSection({
         const videoItems: string[] = [];
         const placementItems: string[] = [];
         const hiringItems: string[] = [];
-
-        const hiringDateItems: {
-          createdAt: string;
-          updatedAt: string;
-        }[] = [];
+        const hiringDateItems: { createdAt: string; updatedAt: string }[] = [];
 
         data.forEach((item) => {
           if (item.type === "video" && item.videoUrl) {
-            videoItems.push(
-              `${toYoutubeEmbed(item.videoUrl)}?enablejsapi=1`
-            );
-          } else if (
-            item.type === "placement" &&
-            item.image
-          ) {
+            videoItems.push(`${toYoutubeEmbed(item.videoUrl)}?enablejsapi=1`);
+          } else if (item.type === "placement" && item.image) {
             placementItems.push(item.image);
-          } else if (
-            item.type === "hiring" &&
-            item.image
-          ) {
+          } else if (item.type === "hiring" && item.image) {
             hiringItems.push(item.image);
-
             hiringDateItems.push({
-              createdAt: item.createdAt || "",
-              updatedAt: item.updatedAt || "",
+              createdAt: item.createdAt || '',
+              updatedAt: item.updatedAt || ''
             });
           }
         });
@@ -712,34 +707,33 @@ export default function PromoSection({
         setHirings(hiringItems);
         setHiringDates(hiringDateItems);
       } catch (error) {
-        console.error("Error fetching events:", error);
+        console.error('Error fetching events:', error);
+        setVideos([]);
+        setPlacements([]);
+        setHirings([]);
+        setHiringDates([]);
       } finally {
         setLoading(false);
       }
     };
 
     load();
-  }, [initialEvents]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   /* ================= UI ================= */
 
   return (
-    <section
-      id={id}
-      className="w-full bg-[#b30000] overflow-hidden"
-    >
-      <div className="border py-5 m-2 p-2">
-        <div className="max-w-6xl mx-auto px-4">
-
+    <section id={id} className="w-full bg-[#b30000]  overflow-hidden">
+      <div className="border  py-5 m-2 p-2">
+        <div className="max-w-6xl  mx-auto  px-4">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-start">
 
-            {/* ================= LEFT HIRING ================= */}
-
+            {/* ================= LEFT – VIDEO CONTENT ================= */}
+            {/* ================= LEFT – HIRING ================= */}
             <div className="md:col-span-1">
-
               <h2 className="text-red-900 bg-white rounded-xl border px-4 py-2 mb-4 font-semibold text-center flex items-center justify-center gap-2">
                 Latest Hiring
-
                 <img
                   src="/home/hero/logo/new_red.gif"
                   alt="NEW"
@@ -748,7 +742,6 @@ export default function PromoSection({
               </h2>
 
               <div className="h-[220px] md:h-[290px] bg-[#b30000] rounded-xl">
-
                 {!loading && hasHirings && (
                   <Swiper
                     autoplay={{ delay: 2500 }}
@@ -757,8 +750,7 @@ export default function PromoSection({
                     className="h-full"
                   >
                     {hirings.map((img, index) => (
-                      <SwiperSlide key={`hiring-${index}`}>
-
+                      <SwiperSlide key={`left-hiring-${index}`}>
                         <div
                           onClick={() => {
                             setSelectedImage(img);
@@ -766,19 +758,18 @@ export default function PromoSection({
                           }}
                           className="cursor-pointer w-full h-full relative"
                         >
-
                           {isNewImage(
                             hiringDates[index]?.createdAt,
                             hiringDates[index]?.updatedAt
                           ) && (
-                            <div className="absolute top-1 right-2 z-10">
-                              <img
-                                src="/home/hero/logo/new_red.gif"
-                                alt="NEW"
-                                className="w-10 h-6 bg-white rounded-full object-contain"
-                              />
-                            </div>
-                          )}
+                              <div className="absolute top-1 right-2 z-10">
+                                <img
+                                  src="/home/hero/logo/new_red.gif"
+                                  alt="NEW"
+                                  className="w-10 h-6 bg-white rounded-full object-contain"
+                                />
+                              </div>
+                            )}
 
                           <div className="w-full h-full">
                             <Image
@@ -789,21 +780,28 @@ export default function PromoSection({
                               className="w-full h-full md:object-fill object-contain"
                             />
                           </div>
-
                         </div>
-
                       </SwiperSlide>
                     ))}
                   </Swiper>
                 )}
 
+                {loading && (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-white text-sm">Loading...</div>
+                  </div>
+                )}
+
+                {!loading && !hasHirings && (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-white text-sm">No hiring posts</div>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* ================= MIDDLE PLACEMENT ================= */}
-
+            {/* ================= MIDDLE – PLACEMENTS ================= */}
             <div className="md:col-span-3">
-
               <div className="flex justify-center mb-4">
                 <h2 className="inline-block text-red-900 bg-white rounded-xl border px-6 py-2 font-semibold">
                   Recently Placed Candidates
@@ -811,7 +809,6 @@ export default function PromoSection({
               </div>
 
               <div className="relative h-[180px] md:h-[300px] bg-red-600 rounded-2xl overflow-hidden">
-
                 {!loading && hasPlacements && (
                   <Swiper
                     direction="vertical"
@@ -834,22 +831,30 @@ export default function PromoSection({
                       </SwiperSlide>
                     ))}
                   </Swiper>
+
+                )}
+
+                {loading && (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-white text-sm">Loading placements...</div>
+                  </div>
+                )}
+
+                {!loading && !hasPlacements && (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-white text-sm">No placements available</div>
+                  </div>
                 )}
 
                 <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-b from-[#b30000] to-transparent z-20 pointer-events-none" />
-
                 <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-[#b30000] to-transparent z-20 pointer-events-none" />
-
               </div>
             </div>
 
-            {/* ================= RIGHT HIRING ================= */}
-
+            {/* ================= RIGHT – HIRING ================= */}
             <div className="md:col-span-1">
-
               <h2 className="text-red-900 bg-white rounded-xl border px-4 py-2 mb-4 font-semibold text-center flex items-center justify-center gap-2">
                 Latest Hiring
-
                 <img
                   src="/home/hero/logo/new_red.gif"
                   alt="NEW"
@@ -857,18 +862,11 @@ export default function PromoSection({
                 />
               </h2>
 
-              <div className="h-[220px] md:h-[290px] bg-[#b30000] rounded-xl">
-
+              <div className="h-[220px] md:h-[290px] bg-[#b30000] rounded-xl ">
                 {!loading && hasHirings && (
-                  <Swiper
-                    autoplay={{ delay: 2500 }}
-                    loop
-                    modules={[Autoplay]}
-                    className="h-full"
-                  >
+                  <Swiper autoplay={{ delay: 2500 }} loop modules={[Autoplay]} className="h-full">
                     {hirings.map((img, index) => (
-                      <SwiperSlide key={`hiring-right-${index}`}>
-
+                      <SwiperSlide key={`hiring-${index}`}>
                         <div
                           onClick={() => {
                             setSelectedImage(img);
@@ -876,11 +874,7 @@ export default function PromoSection({
                           }}
                           className="cursor-pointer w-full h-full relative"
                         >
-
-                          {isNewImage(
-                            hiringDates[index]?.createdAt,
-                            hiringDates[index]?.updatedAt
-                          ) && (
+                          {isNewImage(hiringDates[index]?.createdAt, hiringDates[index]?.updatedAt) && (
                             <div className="absolute top-1 right-2 z-10">
                               <img
                                 src="/home/hero/logo/new_red.gif"
@@ -889,7 +883,6 @@ export default function PromoSection({
                               />
                             </div>
                           )}
-
                           <div className="w-full h-full">
                             <Image
                               src={img}
@@ -899,14 +892,23 @@ export default function PromoSection({
                               className="w-full h-full md:object-fill object-contain"
                             />
                           </div>
-
                         </div>
-
                       </SwiperSlide>
                     ))}
                   </Swiper>
                 )}
 
+                {loading && (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-white text-sm">Loading...</div>
+                  </div>
+                )}
+
+                {!loading && !hasHirings && (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-white text-sm">No hiring posts</div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -914,8 +916,7 @@ export default function PromoSection({
         </div>
       </div>
 
-      {/* ================= POPUP ================= */}
-
+      {/* ================= IMAGE POPUP MODAL ================= */}
       {selectedImage && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
@@ -925,71 +926,69 @@ export default function PromoSection({
             className="relative bg-white rounded-2xl shadow-2xl max-w-[400px] w-full max-h-[90vh]"
             onClick={(e) => e.stopPropagation()}
           >
-
             <button
               className="absolute top-4 right-4 z-10 text-gray-700 hover:text-gray-900 transition-colors bg-white rounded-full p-1 shadow-lg"
               onClick={() => setSelectedImage(null)}
+              aria-label="Close popup"
             >
-              ✕
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
             </button>
 
             {/* Left Arrow */}
-
             {hirings.length > 1 && (
               <button
                 className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-100 text-gray-700 rounded-full p-2 shadow-lg transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
-
-                  const newIndex =
-                    selectedImageIndex === 0
-                      ? hirings.length - 1
-                      : selectedImageIndex - 1;
-
+                  const newIndex = selectedImageIndex === 0 ? hirings.length - 1 : selectedImageIndex - 1;
                   setSelectedImageIndex(newIndex);
                   setSelectedImage(hirings[newIndex]);
                 }}
+                aria-label="Previous image"
               >
                 <ChevronLeft size={24} />
               </button>
             )}
 
             {/* Right Arrow */}
-
             {hirings.length > 1 && (
               <button
                 className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-100 text-gray-700 rounded-full p-2 shadow-lg transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
-
-                  const newIndex =
-                    selectedImageIndex === hirings.length - 1
-                      ? 0
-                      : selectedImageIndex + 1;
-
+                  const newIndex = selectedImageIndex === hirings.length - 1 ? 0 : selectedImageIndex + 1;
                   setSelectedImageIndex(newIndex);
                   setSelectedImage(hirings[newIndex]);
                 }}
+                aria-label="Next image"
               >
                 <ChevronRight size={24} />
               </button>
             )}
 
             <div className="p-6 relative">
-
-              {isNewImage(
-                hiringDates[selectedImageIndex]?.createdAt,
-                hiringDates[selectedImageIndex]?.updatedAt
-              ) && (
+              {isNewImage(hiringDates[selectedImageIndex]?.createdAt, hiringDates[selectedImageIndex]?.updatedAt) && (
                 <div className="absolute top-0 left-0 z-10">
                   <img
                     src="/home/hero/logo/new_red.gif"
                     alt="NEW"
-                    className="w-12 h-7 object-contain"
+                    className="w-12 h-7  object-contain"
                   />
                 </div>
               )}
-
               <Image
                 src={selectedImage}
                 alt="Hiring post"
@@ -998,12 +997,10 @@ export default function PromoSection({
                 className="w-full h-full object-contain rounded-lg"
                 sizes="(max-width: 768px) 100vw, 800px"
               />
-
             </div>
           </div>
         </div>
       )}
-
     </section>
   );
 }
