@@ -53,7 +53,7 @@ const HeaderSection = ({ course }: any) => {
                         {course.category}
                     </span>
 
-                    <div className="md:text-2xl text-2xl font-semibold leading-tight flex-1 pr-2 mt-3 mb-1"><div dangerouslySetInnerHTML={{ __html: course.title }} /></div>
+                    <div className="md:text-2xl text-2xl font-semibold leading-tight flex-1 pr-2 mt-3 mb-1"><h1 dangerouslySetInnerHTML={{ __html: course.title }} /></div>
                     <div className="md:text-xs md:w-[700px] text-sm text-justify mb-4 flex-grow flex flex-row gap-2">
                         <CircleCheck className='w-6 h-6 mt-[2px] md:flex hidden' />
                         <div dangerouslySetInnerHTML={{ __html: course.shortDesc }} />

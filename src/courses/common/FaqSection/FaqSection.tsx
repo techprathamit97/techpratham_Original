@@ -642,7 +642,7 @@ const FaqSection = ({ id, course }: Props) => {
 
   /* ================= CERTIFICATE PANEL ================= */
   const renderCertPanel = (isMobile = false) => (
-    <div className="bg-white p-5 rounded-lg space-y-2 mt-4">
+    <div className="bg-white p-5 rounded-lg space-y-2 ">
       <h3 className="font-semibold">{STATIC_CERTIFICATE.heading}</h3>
       <div className={`${isMobile ? "" : "border-2"} relative overflow-hidden group`}>
         <img
