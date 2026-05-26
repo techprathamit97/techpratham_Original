@@ -98,8 +98,8 @@ export const getServerSideProps: GetServerSideProps<CourseDataPageProps> = async
   
   try {
     // Use environment variable like blog pages do
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://www.techpratham.com';
-    apiUrl = `${baseUrl}/api/course/link?link=${encodeURIComponent(coursedata)}`;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_API_URL;
+    apiUrl = `${baseUrl}/api/course/link?link=${encodeURIComponent(coursedata)}&bustCache=true`;
     
     console.log('Fetching course data from:', apiUrl);
     

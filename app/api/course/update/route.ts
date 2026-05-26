@@ -3,6 +3,7 @@ import { connectMongo } from '@/utils/mongodb';
 import Course from '@/models/course';
 import Enrolled from '@/models/enrolled';
 import { clearNavbarCache } from '@/utils/navbarData';
+import { clearFetchGroupedCache } from '@/app/api/course/fetch-grouped/route';
 
 // Handle course updates by link
 export async function PUT(req: Request) {
@@ -37,6 +38,9 @@ export async function PUT(req: Request) {
 
     // Clear navbar cache since course has been modified
     clearNavbarCache();
+    
+    // Clear fetch-grouped cache since course has been modified
+    clearFetchGroupedCache();
 
     return NextResponse.json({
       success: true,

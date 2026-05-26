@@ -13,6 +13,13 @@ let lastFetchTime = 0;
 // Cache TTL → 30 seconds (reduced for admin updates)
 const CACHE_TTL = 30 * 1000;
 
+// Function to clear the fetch-grouped cache
+export function clearFetchGroupedCache(): void {
+  cachedData = null;
+  lastFetchTime = 0;
+  console.log('🗑️ Fetch-grouped cache cleared');
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);

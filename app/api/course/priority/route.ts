@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { connectMongo } from '@/utils/mongodb';
 import Course from '@/models/course';
 import { clearNavbarCache } from '@/utils/navbarData';
+import { clearFetchGroupedCache } from '@/app/api/course/fetch-grouped/route';
 
 // Update course priority
 export async function PUT(req: Request) {
@@ -40,6 +41,9 @@ export async function PUT(req: Request) {
 
     // Clear navbar cache since course priority affects ordering
     clearNavbarCache();
+    
+    // Clear fetch-grouped cache since course priority affects ordering
+    clearFetchGroupedCache();
 
     return NextResponse.json({
       success: true,
@@ -85,6 +89,9 @@ export async function PATCH(req: Request) {
 
     // Clear navbar cache since course priorities affect ordering
     clearNavbarCache();
+    
+    // Clear fetch-grouped cache since course priorities affect ordering
+    clearFetchGroupedCache();
 
     return NextResponse.json({
       success: true,

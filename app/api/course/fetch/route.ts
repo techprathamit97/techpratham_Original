@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectMongo } from "@/utils/mongodb";
-import course from "@/models/course";
+import Course from "@/models/course";
 import { categoryPrice } from "@/components/assets/categoryPrice";
 
 export async function GET(request: NextRequest) {
@@ -9,6 +9,10 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
+    const bustCache = searchParams.get("bustCache");
+    const timestamp = searchParams.get("t");
+    
+    console.log('Course Fetch API: Cache busting requested:', !!bustCache || !!timestamp);
 
     const projection = {
       _id: 1,
@@ -33,7 +37,9 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    const courseItem = await course.find(query, projection).lean();
+    const courseItem = await Course.find(query, projection).lean();
+    
+    console.log('Course Fetch API: Found', courseItem.length, 'courses');
 
     // Sort courses by priority (handle null/undefined priority values)
     // LOWER priority numbers appear FIRST (1, 2, 3, 4, 5, etc.)
@@ -62,7 +68,14 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    return NextResponse.json(coursesWithPrice, { status: 200 });
+    return NextResponse.json(coursesWithPrice, { 
+      status: 200,
+      headers: bustCache || timestamp ? {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      } : {}
+    });
   } catch (error: any) {
     console.error("Server Error:", error.message);
     return NextResponse.json({ message: error.message }, { status: 500 });

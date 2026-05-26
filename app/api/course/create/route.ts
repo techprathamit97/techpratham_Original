@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import course from '@/models/course';
+import Course from '@/models/course';
 import { connectMongo } from '@/utils/mongodb';
 import { clearNavbarCache } from '@/utils/navbarData';
+import { clearFetchGroupedCache } from '@/app/api/course/fetch-grouped/route';
 
 export async function POST(request: NextRequest) {
     try {
@@ -10,11 +11,14 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         
         const courseItems = Array.isArray(body) 
-            ? await course.insertMany(body)
-            : await course.create(body);
+            ? await Course.insertMany(body)
+            : await Course.create(body);
 
         // Clear navbar cache since courses have been modified
         clearNavbarCache();
+        
+        // Clear fetch-grouped cache since courses have been modified
+        clearFetchGroupedCache();
             
         return NextResponse.json(courseItems, { status: 201 });
     } catch (error: any) {

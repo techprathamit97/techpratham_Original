@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectMongo } from '@/utils/mongodb';
-import course from '@/models/course';
+import Course from '@/models/course';
 
 export async function GET(request: NextRequest) {
     try {
@@ -11,16 +11,18 @@ export async function GET(request: NextRequest) {
 
         const url = new URL(request.url);
         const link = url.searchParams.get('link');
+        const bustCache = url.searchParams.get('bustCache'); // Add cache busting support
         
         console.log('Course API: Searching for course with link:', link);
+        console.log('Course API: Cache busting requested:', !!bustCache);
 
         if (!link) {
             console.log('Course API: No link parameter provided');
             return NextResponse.json({ message: 'Link parameter is required' }, { status: 400 });
         }
 
-        // Find the course by link
-        const courseItem = await course.findOne({ link });
+        // Find the course by link (always fresh from DB, no caching here)
+        const courseItem = await Course.findOne({ link });
         console.log('Course API: Course found:', !!courseItem);
 
         if (!courseItem) {
@@ -29,7 +31,18 @@ export async function GET(request: NextRequest) {
         }
 
         console.log('Course API: Returning course data');
-        return NextResponse.json(courseItem, { status: 200 });
+        
+        // Add cache control headers to prevent browser caching of course data
+        const headers = bustCache ? {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        } : {};
+        
+        return NextResponse.json(courseItem, { 
+            status: 200,
+            headers 
+        });
     } catch (error: any) {
         console.error('Course API Server Error:', error.message);
         console.error('Course API Stack trace:', error.stack);
