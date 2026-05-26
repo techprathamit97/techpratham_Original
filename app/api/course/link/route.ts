@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         console.log('Course API: Returning course data');
         
         // Add cache control headers to prevent browser caching of course data
-        const headers = bustCache ? {
+        const headers: Record<string, string> = bustCache ? {
             'Cache-Control': 'no-cache, no-store, must-revalidate',
             'Pragma': 'no-cache',
             'Expires': '0'

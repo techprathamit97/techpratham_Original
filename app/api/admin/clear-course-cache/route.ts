@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { clearNavbarCache } from '@/utils/navbarData';
-import { clearFetchGroupedCache } from '@/app/api/course/fetch-grouped/route';
+import { clearFetchGroupedCache } from '@/lib/courseCache';
 
 // Simple cache clearing endpoint
 export async function POST() {

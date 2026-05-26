@@ -3,7 +3,7 @@ import { connectMongo } from '@/utils/mongodb';
 import Course from '@/models/course';
 import Enrolled from '@/models/enrolled';
 import { clearNavbarCache } from '@/utils/navbarData';
-import { clearFetchGroupedCache } from '@/app/api/course/fetch-grouped/route';
+import { clearFetchGroupedCache } from '@/lib/courseCache';
 
 // Handle course updates by link
 export async function PUT(req: Request) {

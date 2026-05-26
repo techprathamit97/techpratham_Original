@@ -3,22 +3,7 @@
 import { NextResponse } from "next/server";
 import { connectMongo } from "@/utils/mongodb";
 import Course from "@/models/course";
-
-/* ===============================
-   SIMPLE IN-MEMORY CACHE
-================================ */
-let cachedData: any[] | null = null;
-let lastFetchTime = 0;
-
-// Cache TTL → 30 seconds (reduced for admin updates)
-const CACHE_TTL = 30 * 1000;
-
-// Function to clear the fetch-grouped cache
-export function clearFetchGroupedCache(): void {
-  cachedData = null;
-  lastFetchTime = 0;
-  console.log('🗑️ Fetch-grouped cache cleared');
-}
+import { getCachedData, setCachedData, CACHE_TTL } from "@/lib/courseCache";
 
 export async function GET(request: Request) {
   try {
@@ -27,12 +12,15 @@ export async function GET(request: Request) {
     const now = Date.now();
 
     // ✅ 1️⃣ Serve from cache if valid (unless cache busting is requested)
-    if (!bustCache && cachedData && now - lastFetchTime < CACHE_TTL) {
-      return NextResponse.json(cachedData, {
-        headers: {
-          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
-        },
-      });
+    if (!bustCache) {
+      const cached = getCachedData();
+      if (cached) {
+        return NextResponse.json(cached, {
+          headers: {
+            "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+          },
+        });
+      }
     }
 
     await connectMongo();
@@ -88,8 +76,7 @@ export async function GET(request: Request) {
       : normalCategories;
 
     // ✅ 7️⃣ Update cache
-    cachedData = groupedData;
-    lastFetchTime = now;
+    setCachedData(groupedData);
 
     // ✅ 8️⃣ Return response with CDN headers
     return NextResponse.json(groupedData, {

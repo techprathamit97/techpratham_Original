@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { connectMongo } from '@/utils/mongodb';
 import Course from '@/models/course';
 import { clearNavbarCache } from '@/utils/navbarData';
-import { clearFetchGroupedCache } from '@/app/api/course/fetch-grouped/route';
+import { clearFetchGroupedCache } from '@/lib/courseCache';
 
 // Update course priority
 export async function PUT(req: Request) {

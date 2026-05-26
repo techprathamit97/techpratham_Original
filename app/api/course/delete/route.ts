@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Course from '@/models/course';
 import { connectMongo } from '@/utils/mongodb';
 import { clearNavbarCache } from '@/utils/navbarData';
-import { clearFetchGroupedCache } from '@/app/api/course/fetch-grouped/route';
+import { clearFetchGroupedCache } from '@/lib/courseCache';
 
 export async function DELETE(request: NextRequest) {
     try {

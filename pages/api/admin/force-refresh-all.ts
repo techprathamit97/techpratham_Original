@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { clearNavbarCache } from '@/utils/navbarData';
-import { clearFetchGroupedCache } from '@/app/api/course/fetch-grouped/route';
+import { clearFetchGroupedCache } from '@/lib/courseCache';
 
 export async function POST(request: NextRequest) {
   try {
@@ -58,4 +58,18 @@ export async function GET() {
     message: 'Use POST method to force refresh all caches',
     instructions: 'This endpoint clears all course-related caches and forces fresh data from database'
   });
+}
+
+export default async function handler(
+  req: NextRequest
+) {
+  if (req.method === 'POST') {
+    return POST(req);
+  } else if (req.method === 'GET') {
+    return GET();
+  }
+  return NextResponse.json(
+    { error: 'Method not allowed' },
+    { status: 405 }
+  );
 }
