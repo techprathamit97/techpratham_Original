@@ -24,7 +24,7 @@ export interface NavbarData {
 }
 
 // Cache configuration
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+const CACHE_DURATION = 30 * 1000; // Reduced to 30 seconds for admin updates
 let cachedData: NavbarData | null = null;
 let cacheTimestamp: number = 0;
 

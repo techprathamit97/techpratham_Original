@@ -108,6 +108,8 @@ export const getServerSideProps: GetServerSideProps<CourseDataPageProps> = async
       fetch(apiUrl, {
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
         },
       }),
       getNavbarData()

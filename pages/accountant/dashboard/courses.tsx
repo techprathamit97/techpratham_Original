@@ -28,7 +28,13 @@ const courses = () => {
         return;
       }
 
-      const res = await fetch(`/api/course/fetch`);
+      // Add cache busting parameter to force fresh data
+      const res = await fetch(`/api/course/fetch?t=${Date.now()}`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
       if (!res.ok) throw new Error(`API request failed with status ${res.status}`);
 
       const data = await res.json();
@@ -59,6 +65,10 @@ const courses = () => {
       const result = await res.json();
 
       setCourseData(prevData => prevData.filter((course: any) => course._id !== courseId));
+
+      // Clear all caches after successful deletion
+      await fetch('/api/admin/clear-course-cache', { method: 'POST' });
+      await fetch('/api/admin/refresh-navbar-cache', { method: 'POST' });
 
       console.log('Course deleted successfully:', result);
       toast.success('Course deleted successfully.')

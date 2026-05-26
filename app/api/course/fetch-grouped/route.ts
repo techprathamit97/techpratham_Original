@@ -10,8 +10,8 @@ import Course from "@/models/course";
 let cachedData: any[] | null = null;
 let lastFetchTime = 0;
 
-// Cache TTL → 60 seconds (adjustable)
-const CACHE_TTL = 60 * 1000;
+// Cache TTL → 30 seconds (reduced for admin updates)
+const CACHE_TTL = 30 * 1000;
 
 export async function GET(request: Request) {
   try {
