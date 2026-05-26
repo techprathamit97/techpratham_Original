@@ -94,18 +94,24 @@ export const getServerSideProps: GetServerSideProps<CourseDataPageProps> = async
   }
 
   try {
-    // Use dynamic URL based on request
-    const protocol = context.req.headers.host?.includes('localhost') ? 'http' : 'https';
-    const baseUrl = `${protocol}://${context.req.headers.host}`;
+    // Use environment variable like blog pages do
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://www.techpratham.com';
     const apiUrl = `${baseUrl}/api/course/link?link=${encodeURIComponent(coursedata)}`;
+    
+    console.log('Fetching course data from:', apiUrl);
     
     // Fetch course data and navbar data in parallel
     const [response, navbarData] = await Promise.all([
-      fetch(apiUrl),
+      fetch(apiUrl, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
       getNavbarData()
     ]);
 
     if (!response.ok) {
+      console.error('Course API response not OK:', response.status, response.statusText);
       const error = response.status === 404 ? 'Course not found' : 'Failed to fetch course data';
       return { props: { course: null, error, navbarData } };
     }
@@ -115,6 +121,8 @@ export const getServerSideProps: GetServerSideProps<CourseDataPageProps> = async
 
   } catch (err) {
     console.error('Error fetching course data in SSR:', err);
+    console.error('API URL was:', apiUrl);
+    console.error('Course link was:', coursedata);
     const navbarData = await getNavbarData();
     return { props: { course: null, error: 'Failed to fetch course data', navbarData } };
   }
