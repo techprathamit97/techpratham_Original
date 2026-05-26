@@ -93,10 +93,13 @@ export const getServerSideProps: GetServerSideProps<CourseDataPageProps> = async
     return { props: { course: null, error: 'Invalid course link', navbarData } };
   }
 
+  // Declare apiUrl outside try block so it's accessible in catch
+  let apiUrl = '';
+  
   try {
     // Use environment variable like blog pages do
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://www.techpratham.com';
-    const apiUrl = `${baseUrl}/api/course/link?link=${encodeURIComponent(coursedata)}`;
+    apiUrl = `${baseUrl}/api/course/link?link=${encodeURIComponent(coursedata)}`;
     
     console.log('Fetching course data from:', apiUrl);
     
