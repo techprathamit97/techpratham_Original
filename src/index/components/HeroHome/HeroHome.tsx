@@ -392,7 +392,7 @@ const HeroHome = () => {
       {/* Content */}
       <div className="absolute  left-0 w-full z-10 px-4 text-center">
         <h1 className="text-xl md:text-5xl font-bold mb-4">
-          Build Better<span className="text-yellow-400">Skills</span>
+          Build<span className="text-yellow-400">Skills</span>
         </h1>
 
         {/* Search Bar with Dropdown */}
