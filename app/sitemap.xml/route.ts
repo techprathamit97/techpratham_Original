@@ -61,6 +61,30 @@ async function getBlogUrls() {
   }
 }
 
+/** 🟢 2.5. Fetch custom blog URLs from BlogPost model */
+async function getCustomBlogUrls() {
+  try {
+    await connectMongo();
+    
+    // Import BlogPost model
+    const BlogPost = (await import('@/models/BlogPost')).default;
+    
+    const posts = await BlogPost.find(
+      { status: 'published' },
+      { slug: 1, categorySlug: 1, publishedAt: 1, updatedAt: 1 }
+    ).lean();
+
+    return posts.map((post) => ({
+      loc: `${siteUrl}/blog/${post.categorySlug || 'general-blogs'}/${post.slug}`,
+      lastmod: post.updatedAt || post.publishedAt || new Date().toISOString(),
+      priority: "0.75",
+    }));
+  } catch (error) {
+    console.error("❌ Custom blog fetch error:", error);
+    return [];
+  }
+}
+
 /** 🟢 3. Fetch e-book URLs from LmsContent */
 async function getEbookUrls() {
   try {
@@ -186,12 +210,24 @@ const staticPages = [
 
 /** 🟢 5. Generate and return the sitemap XML */
 export async function GET() {
-  const [courses, blogs, ebooks] = await Promise.all([
+  const [courses, sanityBlogs, customBlogs, ebooks] = await Promise.all([
     getCourseUrls(),
     getBlogUrls(),
+    getCustomBlogUrls(),
     getEbookUrls(),
   ]);
-  const allUrls = [...staticPages, ...courses, ...blogs, ...ebooks];
+  
+  // Combine all blog URLs
+  const allBlogs = [...sanityBlogs, ...customBlogs];
+  const allUrls = [...staticPages, ...courses, ...allBlogs, ...ebooks];
+
+  console.log(`📊 Sitemap generated with:
+    - Static pages: ${staticPages.length}
+    - Courses: ${courses.length}
+    - Sanity blogs: ${sanityBlogs.length}
+    - Custom blogs: ${customBlogs.length}
+    - E-books: ${ebooks.length}
+    - Total URLs: ${allUrls.length}`);
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset 
