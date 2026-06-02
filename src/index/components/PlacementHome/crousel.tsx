@@ -3,12 +3,13 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { EffectCoverflow, Autoplay } from 'swiper/modules';
 import Image from 'next/image';
-import { useRef } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
 
-const images = [
+// Fallback images if backend is unavailable
+const fallbackImages = [
   "/achiv/1.webp",
   "/achiv/2.webp",
   "/achiv/3.webp",
@@ -19,54 +20,78 @@ const images = [
   "/achiv/8.webp",
   "/achiv/9.webp",
   "/achiv/10.webp",
-  "/achiv/11.webp",
-  "/achiv/12.webp",
-  "/achiv/13.webp",
-  "/achiv/14.webp",
-  "/achiv/15.webp",
-  "/achiv/16.webp",
-  "/achiv/17.webp",
-  "/achiv/18.webp",
-  "/achiv/19.webp",
-  "/achiv/20.webp",
-  "/achiv/21.webp",
-  "/achiv/22.webp",
-  "/achiv/23.webp",
-  "/achiv/24.webp",
-  "/achiv/25.webp",
-  "/achiv/26.webp",
-  "/achiv/29.webp",
-  "/achiv/27.webp",
-  "/achiv/28.webp",
-  "/achiv/29.webp",
-  "/achiv/30.webp",
-  "/achiv/31.webp",
-  "/achiv/32.webp",
-  "/achiv/33.webp",
-  "/achiv/34.webp",
-  "/achiv/35.webp",
-  "/achiv/36.webp",
-  
 ];
+
+interface ReviewImage {
+  _id: string;
+  imageUrl: string;
+  altText: string;
+  displayOrder: number;
+  fileKey: string;
+}
 
 export default function ThreeDCarousel() {
   const swiperRef = useRef<any>(null);
+  const [reviewImages, setReviewImages] = useState<ReviewImage[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  
+  // Fetch review images from backend
+  useEffect(() => {
+    const fetchReviewImages = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/review-images');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch review images');
+        }
+
+        const data = await response.json();
+        
+        if (data && Array.isArray(data) && data.length > 0) {
+          setReviewImages(data);
+          setError(false);
+        } else {
+          // No images in backend, use fallback
+          setError(true);
+        }
+      } catch (err) {
+        console.error('Error fetching review images:', err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReviewImages();
+  }, []);
+
+  // Determine which images to display
+  const imagesToDisplay = !error && reviewImages.length > 0 
+    ? reviewImages.map(img => ({
+        src: img.imageUrl,
+        alt: img.altText
+      }))
+    : fallbackImages.map((img, idx) => ({
+        src: img,
+        alt: "Student review testimonial"
+      }));
+
   return (
     <div
       className="w-full flex flex-col items-center py-2"
-      // ✅ Hover events on wrapper, NOT on Swiper
       onMouseEnter={() => swiperRef.current?.autoplay?.stop()}
       onMouseLeave={() => swiperRef.current?.autoplay?.start()}
     >
-       <div className="text-center flex flex-col items-center w-full">
-          <h2 className="text-xl md:text-[25px] my-2 text-white font-semibold">
-            Our Learner Voice
-          </h2>
-
-        
-        </div>
+      <div className="text-center flex flex-col items-center w-full">
+        <h2 className="text-xl md:text-[25px] my-2 text-white font-semibold">
+          Our Learner Voice
+        </h2>
+        {loading && (
+          <p className="text-gray-400 text-sm">Loading reviews...</p>
+        )}
+      </div>
         
       <Swiper
         onSwiper={(swiper) => (swiperRef.current = swiper)}
@@ -74,7 +99,7 @@ export default function ThreeDCarousel() {
         grabCursor={true}
         centeredSlides={true}
         slidesPerView="auto"
-        loop={true}
+        loop={imagesToDisplay.length > 1}
         autoplay={{
           delay: 2000,
           disableOnInteraction: false,
@@ -89,18 +114,22 @@ export default function ThreeDCarousel() {
         modules={[EffectCoverflow, Autoplay]}
         className="w-full max-w-2xl"
       >
-        {images.map((img, idx) => (
+        {imagesToDisplay.map((img, idx) => (
           <SwiperSlide
-            key={idx}
+            key={`${img.src}-${idx}`}
             style={{ width: '190px', height: '400px' }}
           >
-            <div className="w-full h-full  rounded-xl overflow-hidden shadow-xl">
+            <div className="w-full h-full rounded-xl overflow-hidden shadow-xl">
               <Image
-                src={img}
-                alt="carousel"
+                src={img.src}
+                alt={img.alt}
                 fill
                 loading="lazy"
                 className="object-cover"
+                onError={(e) => {
+                  // Fallback to first fallback image if backend image fails
+                  e.currentTarget.src = fallbackImages[0];
+                }}
               />
             </div>
           </SwiperSlide>
