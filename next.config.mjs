@@ -71,10 +71,20 @@ const nextConfig = {
 
   async redirects() {
     return [
-{
+      {
         source: '/courses/sap-online-training-in-hyderabad', // replace with your dead URL path
         destination: '/courses/sap-training-in-hyderabad',        // home page
         permanent: true,         // 301 redirect
+      },
+      {
+        source: '/courses/introduction-to-human-resources-service-delivery-hrsd',
+        destination: '/courses/servicenow-hrsd-training',
+        permanent: true,
+      },
+      {
+        source: '/courses/servicenow-it-service-management-itsm-training',
+        destination: '/courses/servicenow-itsm-training',
+        permanent: true,
       },
       {
         source: '/courses/servicenow-developer-certification', // replace with your dead URL path
