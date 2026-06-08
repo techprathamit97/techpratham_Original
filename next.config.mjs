@@ -77,6 +77,16 @@ const nextConfig = {
         permanent: true,         // 301 redirect
       },
       {
+        source: '/courses/workday-time-tracking',
+        destination: '/courses/workday-time-tracking-and-absence-management-training',
+        permanent: true,
+      },
+      {
+        source: '/courses/workday-leave-and-absence-management',
+        destination: '/courses/workday-time-tracking-and-absence-management-training',
+        permanent: true,
+      },
+      {
         source: '/courses/introduction-to-human-resources-service-delivery-hrsd',
         destination: '/courses/servicenow-hrsd-training',
         permanent: true,
