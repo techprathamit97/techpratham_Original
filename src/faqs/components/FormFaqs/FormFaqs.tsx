@@ -52,7 +52,7 @@ const FormFaqs = () => {
         <div className='mb-3'>
           <div>Have Questions?</div>
           <div className='font-bold text-xl'>
-            Request a call for our executive.
+            Request a call for our executive
           </div>
         </div>
 
