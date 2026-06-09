@@ -82,6 +82,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: '/courses/workday-studio',
+        destination: '/courses/workday-studio-training',
+        permanent: true,
+      },
+      {
         source: '/courses/workday-leave-and-absence-management',
         destination: '/courses/workday-time-tracking-and-absence-management-training',
         permanent: true,
