@@ -82,6 +82,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: '/blog/workday/workday-training-in-india', // replace with your dead URL path
+        destination: '/blog/workday/workday-training',        // home page
+        permanent: true,         // 301 redirect
+      },
+      {
         source: '/courses/workday-studio',
         destination: '/courses/workday-studio-training',
         permanent: true,
