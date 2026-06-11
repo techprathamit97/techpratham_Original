@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
-import { 
-  BackpackIcon, 
-  Cross2Icon, 
-  DashboardIcon, 
-  HamburgerMenuIcon, 
-  HomeIcon, 
-  PersonIcon, 
-  CardStackIcon, 
+import {
+  BackpackIcon,
+  Cross2Icon,
+  DashboardIcon,
+  HamburgerMenuIcon,
+  HomeIcon,
+  PersonIcon,
+  CardStackIcon,
   EnvelopeClosedIcon,
   StarIcon,
   FileTextIcon,
@@ -45,6 +45,7 @@ interface UserContextType {
   authenticated: boolean;
   isAdmin: boolean;
   loading: boolean;
+  userData: any;
 }
 
 interface NavbarProps {
@@ -56,8 +57,8 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
   const [navOpen, setNavOpen] = useState<boolean>(false);
   const [searchActive, setSearchActive] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const { authenticated, isAdmin, loading } = useContext(UserContext) as UserContextType;
-  
+  const { authenticated, isAdmin, loading, userData } = useContext(UserContext) as UserContextType;
+
   // Initialize with server-side data or empty arrays
   const [categories] = useState<NavbarCategory[]>(navbarData?.categories || []);
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -80,7 +81,7 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
   }, [categories, selectedCategory]);
 
   // Fallback: fetch data client-side if not provided via props
- 
+
   // Get courses for the selected category from server-side data
   const selectedCategoryCourses = React.useMemo(() => {
     const category = categories.find(cat => cat.name === selectedCategory);
@@ -339,58 +340,70 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
                 <Search className='w-4 h-4' />
               </button>
             </form>
-            <button
-              ref={coursesButtonRef}
-              onClick={handleCoursesToggle}
-              onMouseEnter={handleCoursesToggle}
-              className="hidden sm:flex flex-row text-white gap-1 items-center justify-center cursor-pointer text-xs hover:opacity-80 transition-opacity"
-              aria-label="Toggle courses menu"
-            >
-              <DashboardIcon className="w-4 h-4" />
-              <span className='text-sm'>All Courses</span>
-            </button>
-            <button className='lg:hidden flex' onClick={handleNavToggle} aria-label='Toggle navigation menu'>
-              <HamburgerMenuIcon className='w-5 h-5' />
-            </button>
+
+
           </div>
-
-
-          <Link href="/" className={`cursor-pointer text-sm transition-colors flex items-center gap-1 ${pathname === '/' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>
+          <Link href="/" className={`cursor-pointer text-[15px] transition-colors flex items-center gap-1 ${pathname === '/' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>
             <HomeIcon className="w-4 h-4" />
             <span>Home</span>
           </Link>
-          <Link href="/about-us" className={`cursor-pointer text-sm transition-colors flex items-center gap-1 ${pathname === '/about-us' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>
+          <button
+            ref={coursesButtonRef}
+            onClick={handleCoursesToggle}
+            onMouseEnter={handleCoursesToggle}
+            className="hidden sm:flex flex-row text-white gap-1 items-center justify-center cursor-pointer text-[15px] hover:opacity-80 transition-opacity"
+            aria-label="Toggle courses menu"
+          >
+            <DashboardIcon className="w-4 h-4" />
+            <span className='text-sm'>All Courses</span>
+          </button>
+          <button className='lg:hidden flex' onClick={handleNavToggle} aria-label='Toggle navigation menu'>
+            <HamburgerMenuIcon className='w-5 h-5' />
+          </button>
+
+          <Link href="/about-us" className={`cursor-pointer text-[15px] transition-colors flex items-center gap-1 ${pathname === '/about-us' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>
             <PersonIcon className="w-4 h-4" />
             <span>About Us</span>
           </Link>
-          <Link href="/payment" className={`cursor-pointer text-sm transition-colors flex items-center gap-1 ${pathname === '/payment' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>
+          <Link href="/payment" className={`cursor-pointer text-[15px] transition-colors flex items-center gap-1 ${pathname === '/payment' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>
             <CardStackIcon className="w-4 h-4" />
             <span>Payment</span>
           </Link>
-          <Link href="/contact-us" className={`cursor-pointer text-sm transition-colors flex items-center gap-1 ${pathname === '/contact-us' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>
+          <Link href="/contact-us" className={`cursor-pointer text-[15px] transition-colors flex items-center gap-1 ${pathname === '/contact-us' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>
             <EnvelopeClosedIcon className="w-4 h-4" />
             <span>Contact Us</span>
           </Link>
 
-          <Link href='/corporate-training' className='lg:flex hidden flex-row gap-2 items-center text-sm justify-center cursor-pointer hover:opacity-80 transition-opacity'>
+          <Link href='/corporate-training' className='lg:flex hidden flex-row gap-2 items-center text-[15px] justify-center cursor-pointer hover:opacity-80 transition-opacity'>
             <BackpackIcon className='w-4 h-4' />
             <span>Corporate Training</span>
           </Link>
-          {/* <Link href="/contact-us" className={`cursor-pointer transition-colors ${pathname === '/contact-us' ? 'text-red-700 font-semibold' : 'text-gray-800 hover:text-red-700'}`}>Contact Us</Link> */}
+          <Link href='/blog' className='lg:flex hidden flex-row gap-2 items-center text-[15px] justify-center cursor-pointer hover:opacity-80 transition-opacity'>
+            <FileTextIcon className='w-4 h-4' />
+            <span>Blog</span>
+          </Link>
 
+          {/* Conditional User Authentication */}
           {loading ? (
-            <span className='cursor-pointer opacity-50'>Loading...</span>
+            <div className="text-sm text-gray-300">Loading...</div>
           ) : authenticated ? (
-            isAdmin ? (
-              <Link href='/admin/dashboard' className='cursor-pointer text-sm hover:text-red-700 transition-colors'>Admin Dashboard</Link>
-            ) : (
-              <Link href='/user/dashboard' className='cursor-pointer text-sm hover:text-red-700 transition-colors'>Dashboard</Link>
-            )
+            /* Direct Dashboard Link - Only when authenticated */
+            <Link
+              href={isAdmin ? '/admin/dashboard' : '/user/dashboard'}
+              className="ml-4 cursor-pointer text-sm bg-yellow-600 text-white hover:bg-yellow-700 transition-colors flex items-center justify-center rounded-full w-8 h-8 font-semibold"
+              title={`Go to ${isAdmin ? 'Admin' : 'User'} Dashboard`}
+            >
+              {userData?.name ? userData.name.charAt(0).toUpperCase() : userData?.email?.charAt(0).toUpperCase() || 'U'}
+            </Link>
           ) : (
-            <Link href='/auth/login' className='bg-yellow-600 px-4  py-1 text-sm rounded-2xl cursor-pointer hover:text-black transition-colors'>Login</Link>
-          )}
-          {authenticated && (
-            <div onClick={() => signOut()} className='cursor-pointer hover:text-red-700'>Sign Out</div>
+            /* Login Button - Only when not authenticated */
+            <Link
+              href='/auth/login'
+              className="cursor-pointer bg-[#CA8A04] text-sm hover:text-yellow-600 transition-colors flex items-center justify-center p-1 hover:bg-white/10 rounded-md"
+            >
+              <PersonIcon className="w-4 h-4 mr-1" />
+              <span>Login</span>
+            </Link>
           )}
 
         </div>
@@ -441,7 +454,7 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
         </div>
       </div>
 
-      <div className="w-full bg-yellow-600  h-auto py-1 lg:flex items-center justify-center  border-b border-b-gray-100 z-50">
+      <div className="w-full bg-yellow-600  h-auto py-1 lg:flex items-center justify-center  border-b border-b-gray-100 z-70">
         <nav className="menu w-full md:pl-3  text-xs  font-extrabold flex flex-row flex-wrap gap-2 items-center justify-start">
 
           <div className="flex flex-col items-center  sm:flex-row gap-3">
@@ -464,7 +477,7 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
           </div>
 
           {/* 🔹 Scrolling Section */}
-          <div className="overflow-x-scroll flex-1 relative md:ml-4 no-scrollbar z-50">
+          <div className="overflow-x-scroll flex-1 relative md:ml-4 no-scrollbar z-70">
             <div className="whitespace-nowrap animate-scroll flex flex-row gap-2">
               {[
                 { href: "/e-book/workday/Organizations-and-Organizations-Types", text: "Organization in Workday" },
@@ -472,7 +485,7 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
                 { href: "/e-book/workday/Job-Profiles", text: "Job Profile in Workday" },
                 { href: "/e-book/workday/Core-Compensation", text: " Core Compensation in Workday" },
                 { href: "/e-book/workday/Security", text: "Security in Workday" },
-                { href: "/e-book/workday/Business-Processes", text: "Business Process in Workday" },  
+                { href: "/e-book/workday/Business-Processes", text: "Business Process in Workday" },
                 { href: "/e-book/workday/Reporting", text: "Reporting in Workday" },
                 { href: "/content/workday-hcm-training", text: "Recruitment in Workday" },
                 { href: "/e-book/workday/workday-absence-management-time-off", text: "Absence management & Time Off in Workday" },

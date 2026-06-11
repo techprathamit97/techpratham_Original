@@ -123,6 +123,7 @@ const Footer = () => {
             <div className="flex flex-col capitalize text-xs font-light">
               <Link href="/about-us" className="transition-all duration-300 hover:underline">About Us</Link>
               <Link href="/contact-us" className="transition-all duration-300 hover:underline">Contact Us</Link>
+              <Link href="/blog" className="transition-all duration-300 hover:underline">Blog</Link>
               <Link href="/job-openings" className="transition-all duration-300 hover:underline">Careers</Link>
               <Link href="/corporate-training" className="transition-all duration-300 hover:underline">Corporate Training</Link>
               <Link href="/faqs" className="transition-all duration-300 hover:underline">FAQ's</Link>

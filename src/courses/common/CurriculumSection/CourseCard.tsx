@@ -12,7 +12,7 @@ const plainTitle = getTextFromHtml(course.title);
   const firstLetter = plainTitle.charAt(0).toUpperCase() || "?";
 
   return (
-    <div className="w-full bg-white rounded-lg shadow flex overflow-hidden border">
+    <div className="w-full min-h-[80px] bg-white rounded-lg shadow flex overflow-hidden border">
 
       {/* LEFT STRIP with letter avatar */}
       <div className="w-16 flex items-center justify-center bg-gradient-to-tl from-[#C6151D] to-[#600A0E]">
@@ -22,7 +22,7 @@ const plainTitle = getTextFromHtml(course.title);
       </div>
 
       {/* CONTENT */}
-      <div className="flex-1 p-3 relative">
+      <div className="flex-1 p-2 relative">
 
         {course.rating && (
           <div className="absolute bottom-2 right-2 text-xs text-gray-600">
@@ -40,7 +40,7 @@ const plainTitle = getTextFromHtml(course.title);
           Live Online
         </div>
 
-        <div className="mt-3">
+        <div className="mt-1">
           <a
             href={`/courses/${course.link}`}
             className="text-sm text-blue-600 font-medium hover:underline"

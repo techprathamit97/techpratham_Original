@@ -455,3 +455,12 @@ body {
 .lead-form .w-full {
   overflow: visible !important;
 }
+
+/* User menu dropdown visibility fix */
+.user-menu-dropdown {
+  z-index: 99999 !important;
+  position: fixed !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
