@@ -76,7 +76,11 @@ async function getCustomBlogUrls() {
 
     return posts.map((post) => ({
       loc: `${siteUrl}/blog/${post.categorySlug || 'general-blogs'}/${post.slug}`,
-      lastmod: post.updatedAt || post.publishedAt || new Date().toISOString(),
+      lastmod: (
+  post.updatedAt ||
+  post.publishedAt ||
+  new Date()
+).toISOString(),
       priority: "0.75",
     }));
   } catch (error) {

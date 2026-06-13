@@ -1,6 +1,3 @@
-// Simple test cases for phone number parsing
-// This is for documentation purposes - shows expected behavior
-
 const testCases = [
   // Indian numbers
   { input: '919876543210', expected: { code: '+91', country: 'India' } },

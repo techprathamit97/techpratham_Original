@@ -399,9 +399,9 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
             /* Login Button - Only when not authenticated */
             <Link
               href='/auth/login'
-              className="cursor-pointer bg-[#CA8A04] text-sm hover:text-yellow-600 transition-colors flex items-center justify-center p-1 hover:bg-white/10 rounded-md"
+              className="cursor-pointer text-sm hover:text-yellow-600 transition-colors flex items-center justify-center hover:bg-white/10 rounded-full"
             >
-              <PersonIcon className="w-4 h-4 mr-1" />
+              {/* <PersonIcon className="w-4 h-4 mr-1" /> */}
               <span>Login</span>
             </Link>
           )}
