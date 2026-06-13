@@ -2,11 +2,43 @@ import React, { useState, useEffect } from 'react';
 import { ArrowTopRightIcon, ChevronRightIcon } from '@radix-ui/react-icons';
 import { CircleCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import Image from 'next/image';
 import Link from 'next/link';
 import { categoryPrice } from "@/components/assets/categoryPrice";
+import { useForm } from 'react-hook-form';
+import PhoneInput from '@/components/common/PhoneInput/PhoneInput';
 
 import './header.css';
+
+// Custom styles for PhoneInput in transparent form
+const phoneInputStyles = `
+  .phone-input-header .country-select button {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+  }
+  
+  .phone-input-header .country-select button:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+  }
+  
+  .phone-input-header input {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+  }
+  
+  .phone-input-header input::placeholder {
+    color: rgb(209, 213, 219) !important;
+  }
+  
+  .phone-input-header input:focus {
+    outline: none !important;
+    ring: 2px !important;
+    ring-color: rgba(255, 255, 255, 0.4) !important;
+  }
+`;
 
 const getPriceByCategory = (category?: string) => {
     if (!category) return null;
@@ -27,13 +59,17 @@ const formatINR = (amount: number) =>
     }).format(amount);
 
 const HeaderSection = ({ course }: any) => {
-    const [formData, setFormData] = useState({
-        fullName: '',
-        phone: '',
-        email: '',
-        course: course?.title ? course.title.replace(/<[^>]*>/g, '') : '', // Strip HTML tags
-        formType: 'course-header-enquiry',
-        consent: true // Default consent for header form
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [isPhoneValid, setIsPhoneValid] = useState(false);
+    const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
+        defaultValues: {
+            fullName: '',
+            phone: '',
+            email: '',
+            course: course?.title ? course.title.replace(/<[^>]*>/g, '') : '',
+            formType: 'course-header-enquiry',
+            consent: true
+        }
     });
 
     const [submitting, setSubmitting] = useState(false);
@@ -43,16 +79,13 @@ const HeaderSection = ({ course }: any) => {
     // Update course field when course prop changes
     useEffect(() => {
         if (course?.title) {
-            setFormData(prev => ({
-                ...prev,
-                course: course.title.replace(/<[^>]*>/g, '') // Strip HTML tags
-            }));
+            setValue('course', course.title.replace(/<[^>]*>/g, ''));
         }
-    }, [course?.title]);
+    }, [course?.title, setValue]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setValue(name as any, value);
     };
 
     // Check if visitor came from Google Ads (same logic as LeadForm)
@@ -62,12 +95,10 @@ const HeaderSection = ({ course }: any) => {
         return searchParams.has('gclid') || searchParams.get('utm_source') === 'google';
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        
-        // Basic validation
-        if (!formData.fullName || !formData.phone || !formData.email) {
-            setSubmitError('Please fill in all required fields');
+    const onSubmit = async (data: any) => {
+        // Prevent submission if phone is invalid
+        if (!isPhoneValid) {
+            setSubmitError('Please enter a valid phone number');
             return;
         }
 
@@ -85,24 +116,20 @@ const HeaderSection = ({ course }: any) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    ...formData,
+                    ...data,
+                    phone: phoneNumber, // Use the formatted phone number from PhoneInput
                     source: source,
                 }),
             });
 
             if (response.ok) {
                 setSubmitSuccess(true);
-                console.log('Header form submitted successfully:', formData);
+                console.log('Header form submitted successfully:', data);
                 
                 // Reset form
-                setFormData({
-                    fullName: '',
-                    phone: '',
-                    email: '',
-                    course: course?.title ? course.title.replace(/<[^>]*>/g, '') : '',
-                    formType: 'course-header-enquiry',
-                    consent: true
-                });
+                reset();
+                setPhoneNumber('');
+                setIsPhoneValid(false);
                 
                 // ✅ Google Ads conversion tracking (same as LeadForm)
                 if (googleAdsVisitor && typeof window !== "undefined") {
@@ -143,6 +170,9 @@ const HeaderSection = ({ course }: any) => {
 
     return (
         <div className='flex flex-col bg-gradient-to-tl from-[#C6151D] to-[#600A0E] items-center justify-center w-full h-auto headerImage text-white relative min-h-[385px]'>
+            
+            {/* Add custom styles for PhoneInput */}
+            <style dangerouslySetInnerHTML={{ __html: phoneInputStyles }} />
             
             {/* Main Content Wrapper - Shifted to grid-cols-2 on desktop */}
             <div className="md:w-10/12 w-11/12 h-auto grid md:grid-cols-[1.7fr_1fr] grid-cols-1 gap-4 items-center z-20">
@@ -204,7 +234,7 @@ const HeaderSection = ({ course }: any) => {
                 {/* Right Side: Transparent Form */}
                 <div className="w-full max-w-[300px] justify-self-center md:justify-self-end">
                     <form 
-                        onSubmit={handleSubmit} 
+                        onSubmit={handleSubmit(onSubmit)} 
                         className="bg-white/5 border border-white/20 rounded-2xl p-2 shadow-xl w-full flex flex-col gap-4 text-white"
                     >
                         <div className="text-center mb-2">
@@ -226,52 +256,59 @@ const HeaderSection = ({ course }: any) => {
 
                         {/* Name Field */}
                         <div className="flex flex-col gap-1">
-                            <input 
+                            <Input 
+                                {...register('fullName', { required: 'Full name is required' })}
                                 type="text" 
-                                name="fullName"
-                                value={formData.fullName}
-                                onChange={handleInputChange}
                                 placeholder="Full Name*" 
-                                required
                                 disabled={submitting}
                                 className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/40 transition-all disabled:opacity-50"
                             />
+                            {errors.fullName && (
+                                <span className="text-red-200 text-xs">{errors.fullName.message}</span>
+                            )}
                         </div>
 
-                        {/* Contact Number Field */}
+                        {/* Phone Number Field with Country Code */}
                         <div className="flex flex-col gap-1">
-                            <input 
-                                type="tel" 
-                                name="phone"
-                                value={formData.phone}
-                                onChange={handleInputChange}
-                                placeholder="Contact Number*" 
+                            <PhoneInput
+                                value={phoneNumber}
+                                onChange={(phone) => {
+                                    setPhoneNumber(phone);
+                                    setValue('phone', phone);
+                                }}
+                                onValidationChange={setIsPhoneValid}
+                                placeholder="Contact Number*"
                                 required
-                                disabled={submitting}
-                                className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/40 transition-all disabled:opacity-50"
+                                size="md"
+                                className="phone-input-header"
                             />
                         </div>
 
                         {/* Email ID Field */}
                         <div className="flex flex-col gap-1">
-                            <input 
+                            <Input 
+                                {...register('email', { 
+                                    required: 'Email is required',
+                                    pattern: {
+                                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                        message: 'Invalid email address'
+                                    }
+                                })}
                                 type="email" 
-                                name="email"
-                                value={formData.email}
-                                onChange={handleInputChange}
                                 placeholder="Email ID*" 
-                                required
                                 disabled={submitting}
                                 className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/40 transition-all disabled:opacity-50"
                             />
+                            {errors.email && (
+                                <span className="text-red-200 text-xs">{errors.email.message}</span>
+                            )}
                         </div>
 
                         {/* Course Autofill Field */}
                         <div className="flex flex-col gap-1">
-                            <input 
+                            <Input 
+                                {...register('course')}
                                 type="text" 
-                                name="course"
-                                value={formData.course}
                                 disabled
                                 className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-gray-300 cursor-not-allowed font-medium"
                             />
@@ -281,7 +318,7 @@ const HeaderSection = ({ course }: any) => {
                         <Button 
                             type="submit" 
                             variant="manual" 
-                            disabled={submitting}
+                            disabled={submitting || !isPhoneValid}
                             className="w-full mt-2 font-semibold shadow-md transform active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {submitting ? 'Submitting...' : 'Submit Request'}
