@@ -247,7 +247,7 @@ const IndexView: React.FC<IndexViewProps> = ({
       <BlogsHome />
 <NewsHighlights/>
       <section id="contact">
-  <ContactHome />
+  {/* <ContactHome /> */}
 </section>
 
     </div>
