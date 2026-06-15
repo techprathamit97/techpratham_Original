@@ -150,7 +150,7 @@ const router = useRouter();
       
       <button
         onClick={() => setActiveVideo(null)}
-        className="absolute top-0 right-0 text-red-600 text-4xl"
+        className="absolute top-0 right-0 text-red-600 text-7xl"
       >
         ✕
       </button>

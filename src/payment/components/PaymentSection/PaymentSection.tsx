@@ -13,13 +13,21 @@ const FormContact = () => {
     const onSubmit = async (data: any) => {
         try {
             setSubmitting(true);
-            const response = await fetch('/email/payment', {
+            
+            // Use the same API endpoint as other forms to ensure consistent email template
+            const response = await fetch('/api/leads', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(data),
+                body: JSON.stringify({
+                    ...data,
+                    formType: "payment-form",
+                    course: `${data.course} - Payment of Rs. ${data.amount}`,
+                    message: `Payment Details:\nAmount: Rs. ${data.amount}\nAddress: ${data.city}, ${data.state}, ${data.country} - ${data.pinCode}`,
+                }),
             });
+            
             if (response.ok) {
                 setSubmitSuccess(true);
                 window.location.href = 'https://payu.in/pay/E5AEF5CAEF5E85E7E367B9673CE3C477';
@@ -34,7 +42,9 @@ const FormContact = () => {
         }
     };
 
-    {submitting && <Loader />}
+    if (submitting) {
+        return <Loader />;
+    }
 
     return (
         <div id="payment-section" className="w-full max-w-7xl mx-auto p-6 my-10">

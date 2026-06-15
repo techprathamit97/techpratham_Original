@@ -20,7 +20,6 @@
 // import HeroHome from '../components/HeroHome/HeroHome';
 // import ReachForm from '@/components/common/ReachForm/ReachForm';
 // import ToolTip from '@/components/common/ToolTip/ToolTip';
-
 // interface Course {
 //   id: string;
 //   title: string;

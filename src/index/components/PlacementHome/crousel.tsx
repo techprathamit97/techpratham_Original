@@ -35,6 +35,8 @@ export default function ThreeDCarousel() {
   const [reviewImages, setReviewImages] = useState<ReviewImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<{ src: string; alt: string } | null>(null);
 
   // Fetch review images from backend
   useEffect(() => {
@@ -73,10 +75,36 @@ export default function ThreeDCarousel() {
         src: img.imageUrl,
         alt: img.altText
       }))
-    : fallbackImages.map((img, idx) => ({
+    : fallbackImages.map((img) => ({
         src: img,
         alt: "Student review testimonial"
       }));
+
+  // Handle image click to open in full screen
+  const handleImageClick = (img: { src: string; alt: string }) => {
+    setSelectedImage(img);
+    setIsModalOpen(true);
+  };
+
+  // Handle modal close
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedImage(null);
+  };
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isModalOpen]);
 
   return (
     <div
@@ -119,7 +147,10 @@ export default function ThreeDCarousel() {
             key={`${img.src}-${idx}`}
             style={{ width: '190px', height: '400px' }}
           >
-            <div className="w-full h-full rounded-xl overflow-hidden shadow-xl">
+            <div 
+              className="w-full h-full rounded-xl overflow-hidden shadow-xl cursor-pointer hover:scale-105 transition-transform duration-200"
+              onClick={() => handleImageClick(img)}
+            >
               <Image
                 src={img.src}
                 alt={img.alt}
@@ -135,6 +166,41 @@ export default function ThreeDCarousel() {
           </SwiperSlide>
         ))}
       </Swiper>
+
+      {/* Full Screen Modal - Reference from PlanSection */}
+      {isModalOpen && selectedImage && (
+        <div 
+          className="fixed inset-0 bg-black/70 flex items-center justify-center"
+          style={{ zIndex: 99999 }}
+          onClick={handleCloseModal}
+        >
+          <div 
+            className="relative w-[90%] md:w-[300px]  rounded-xl p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            
+           
+
+            <div className="relative w-full h-[400px] md:h-[500px]">
+               <button
+              onClick={handleCloseModal}
+              className="absolute top-0 right-0 text-red-600 text-4xl z-50"
+            >
+              ✕
+            </button>
+              <Image
+                src={selectedImage.src}
+                alt={selectedImage.alt}
+                fill
+                className="object-contain rounded-lg"
+                onError={(e) => {
+                  e.currentTarget.src = fallbackImages[0];
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

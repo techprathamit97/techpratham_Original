@@ -409,21 +409,7 @@ const CourseTab = () => {
     };
     const courseTitle = form.watch('title');
 
-    useEffect(() => {
-        if (!courseTitle) return;
-
-        const plainTitle = htmlToText(courseTitle);
-
-        const slug = plainTitle
-            .toLowerCase()
-            .trim()
-            .replace(/[^a-z0-9\s-]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-')
-            .replace(/^-+|-+$/g, '');
-
-        form.setValue('link', slug);
-    }, [courseTitle, form]);
+    // Remove automatic slug generation - now manual entry only
 
 
     const onSubmit = async (data: CourseFormData) => {
@@ -948,7 +934,7 @@ const CourseTab = () => {
                                                     <Input placeholder="https://example.com/course" {...field} />
                                                 </FormControl>
                                                 <FormDescription>
-                                                    Don't change as it's auto-generated from course title.
+                                                    Enter the course URL slug manually (e.g., "advanced-javascript-course")
                                                 </FormDescription>
                                                 <FormMessage />
                                             </FormItem>

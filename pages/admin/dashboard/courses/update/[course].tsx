@@ -644,6 +644,8 @@ const UpdateCoursePage = () => {
 
   const courseTitle = form.watch('title');
 
+  // Remove automatic slug generation - now manual entry only
+
   const addKeyword = () => {
     if (newKeyword.trim()) {
       const currentKeywords = form.getValues('metadata.keywords') || [];
@@ -658,29 +660,15 @@ const UpdateCoursePage = () => {
     const updatedKeywords = currentKeywords.filter((_, i) => i !== index);
     form.setValue('metadata.keywords', updatedKeywords);
   };
+  
   const htmlToText = (html: string = ''): string => {
     if (typeof window === 'undefined') return '';
     const el = document.createElement('div');
     el.innerHTML = html;
     return el.textContent || el.innerText || '';
   };
+  
   const keywords = form.watch('metadata.keywords') || [];
-
-  useEffect(() => {
-    if (!courseTitle) return;
-
-    const plainTitle = htmlToText(courseTitle);
-
-    const slug = plainTitle
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-+|-+$/g, '');
-
-    form.setValue('link', slug);
-  }, [courseTitle, form]);
 
  const onSubmit = async (data: CourseFormData) => {
   setIsSubmitting(true);
