@@ -16,8 +16,8 @@ const TrainingPage: NextPage<TrainingPageProps> = ({ navbarData }) => (
         <IndexController navbarData={navbarData}>
             <Head>
                 <link rel="icon" href="/favicon.ico" type="image/ico" sizes="70x70" />
-                <title>Corporate Training | TechPratham - Upskill Your Team with Industry Experts</title>
-                <meta name="description" content="Empower your workforce with TechPratham's customized corporate IT training solutions. Enhance productivity, bridge skill gaps, and drive business growth with expert-led programs." />
+                <title>Top Corporate Training Companies , Corporate Training & Certification Programs</title>
+                <meta name="description" content="Explore top corporate training companies offering certification programs, leadership development, employee upskilling, and customized training solutions." />
                 <meta name="keywords" content="Corporate Training, IT Training for Companies, Employee Upskilling, TechPratham Corporate, Customized Training, Business IT Solutions, Team Training India" />
                 <meta name="author" content="the-bipu" />
 
