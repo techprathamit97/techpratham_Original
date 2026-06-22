@@ -28,8 +28,14 @@ export async function GET(request: Request) {
     // ✅ 3️⃣ Fetch only required fields including priority
     const courses = await Course.find(
       {},
-      "_id title image alt category link trending priority"
+      "_id title image alt category link trending priority createdAt"
     ).lean();
+
+    console.log('📊 Database Query Results:');
+    console.log('   - Total courses found:', courses.length);
+    console.log('   - Courses with trending=true:', courses.filter(c => c.trending === true).length);
+    console.log('   - Courses with trending=false:', courses.filter(c => c.trending === false).length);
+    console.log('   - Courses with trending=null/undefined:', courses.filter(c => c.trending == null).length);
 
     // ✅ Sort courses by priority (handle null/undefined priority values)
     // LOWER priority numbers appear FIRST (1, 2, 3, 4, 5, etc.)
@@ -49,11 +55,10 @@ export async function GET(request: Request) {
     // ✅ 4️⃣ Separate trending & normal courses (both sorted by priority)
     const trendingCourses = sortedCourses.filter(course => course.trending === true);
 
+    // ✅ 4️⃣ Keep trending courses in their original categories AND include them in trending category
     const categoryMap: Record<string, any[]> = {};
 
     for (const course of sortedCourses) {
-      if (course.trending) continue;
-
       if (!categoryMap[course.category]) {
         categoryMap[course.category] = [];
       }
@@ -61,19 +66,20 @@ export async function GET(request: Request) {
       categoryMap[course.category].push(course);
     }
 
+    // Debug: Count trending courses (using previously declared trendingCourses)
+    console.log('🔍 API Debug - Total courses found:', sortedCourses.length);
+    console.log('🔍 API Debug - Trending courses found:', trendingCourses.length);
+    console.log('🔍 API Debug - Trending course titles:', trendingCourses.map(c => c.title?.substring(0, 30) || 'No title'));
+
     // ✅ 5️⃣ Convert category map → array (courses already sorted by priority from query)
     const normalCategories = Object.keys(categoryMap).map(category => ({
       name: category,
       courses: categoryMap[category], // Already sorted by priority from the main query
     }));
 
-    // ✅ 6️⃣ Trending ALWAYS first
-    const groupedData = trendingCourses.length
-      ? [
-          { name: "Trending Courses", courses: trendingCourses },
-          ...normalCategories,
-        ]
-      : normalCategories;
+    // ✅ 6️⃣ DON'T include "Trending Courses" as separate category - CoursesHome will create "Training Courses" 
+    // from trending courses found in other categories
+    const groupedData = normalCategories;
 
     // ✅ 7️⃣ Update cache
     setCachedData(groupedData);

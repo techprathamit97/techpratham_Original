@@ -1,31 +1,27 @@
-import { NextResponse } from 'next/server';
-import { clearNavbarCache } from '@/utils/navbarData';
-import { clearFetchGroupedCache } from '@/lib/courseCache';
+import { NextResponse } from "next/server";
+import { clearFetchGroupedCache } from "@/lib/courseCache";
 
-// Simple cache clearing endpoint
-export async function POST() {
+export async function GET() {
   try {
-    // Clear both navbar and fetch-grouped caches directly
-    clearNavbarCache();
     clearFetchGroupedCache();
     
-    console.log('✅ All course caches cleared successfully');
-    
-    return NextResponse.json({
-      success: true,
-      message: 'All course caches cleared and refreshed successfully'
-    });
-  } catch (error: any) {
-    console.error('CACHE CLEAR ERROR:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to clear cache' },
+      { 
+        message: "Course cache cleared successfully",
+        cleared: true,
+        timestamp: new Date().toISOString()
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Failed to clear course cache:", error);
+    return NextResponse.json(
+      { message: "Failed to clear cache" },
       { status: 500 }
     );
   }
 }
 
-export async function GET() {
-  return NextResponse.json({
-    message: 'Use POST method to clear course cache'
-  });
+export async function POST() {
+  return GET(); // Allow both GET and POST for convenience
 }
