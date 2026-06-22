@@ -6,11 +6,15 @@ export interface NavbarCourse {
   id: string;
   title: string;
   category: string;
+  categoryId?: string;
+  subcategoryPath?: string;
+  subcategoryName?: string;
   link: string;
   shortDesc: string;
   level: string;
   rating: number;
   duration: string;
+  priority?: number;
 }
 
 export interface NavbarCategory {
@@ -24,7 +28,7 @@ export interface NavbarData {
 }
 
 // Cache configuration
-const CACHE_DURATION = 30 * 1000; // Reduced to 30 seconds for admin updates
+const CACHE_DURATION = 5 * 1000; // Reduced to 5 seconds for debugging
 let cachedData: NavbarData | null = null;
 let cacheTimestamp: number = 0;
 
@@ -49,11 +53,14 @@ export async function getNavbarData(): Promise<NavbarData> {
       .sort({ priority: -1, position: 1 })
       .lean();
 
-    // Fetch all courses for search functionality
+    // Fetch all courses for search functionality  
     const projection = {
       _id: 1,
       title: 1,
       category: 1,
+      categoryId: 1,
+      subcategoryPath: 1,
+      subcategoryName: 1,
       link: 1,
       shortDesc: 1,
       level: 1,
@@ -84,11 +91,15 @@ export async function getNavbarData(): Promise<NavbarData> {
       id: c._id?.toString() || '',
       title: c.title || '',
       category: c.category || '',
+      categoryId: c.categoryId?.toString() || '',
+      subcategoryPath: c.subcategoryPath || '',
+      subcategoryName: c.subcategoryName || '',
       link: c.link || '',
       shortDesc: c.shortDesc || '',
       level: c.level || '',
       rating: c.rating || 0,
       duration: c.duration || '',
+      priority: c.priority || 999,
     }));
 
     // Group courses by category for the navbar dropdown
@@ -116,6 +127,8 @@ export async function getNavbarData(): Promise<NavbarData> {
     console.log('✅ Navbar data cached:', {
       categoriesCount: result.categories.length,
       allCoursesCount: result.allCourses.length,
+      sampleCategories: result.categories.slice(0, 3).map(c => ({ name: c.name, courseCount: c.courses.length })),
+      sampleCourses: result.allCourses.slice(0, 3).map(c => ({ title: c.title, category: c.category })),
       cacheExpiry: new Date(cacheTimestamp + CACHE_DURATION).toISOString()
     });
 

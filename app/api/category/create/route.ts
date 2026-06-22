@@ -1,36 +1,61 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectMongo } from '@/utils/mongodb';
 import { Category } from '@/models/category';
-import { clearNavbarCache } from '@/utils/navbarData';
 
 export async function POST(request: NextRequest) {
     try {
         await connectMongo();
 
-        const { name, description, position } = await request.json();
+        const { name, position, slug, displayInNavbar, subcategories } = await request.json();
 
-        console.log("CREATE BODY:", { name, description, position });
+        console.log("CREATE CATEGORY:", { name, position, slug, displayInNavbar });
 
-        if (!name || !description || position === undefined) {
+        if (!name || !slug) {
             return NextResponse.json(
-                { message: "name, description and position required" },
+                { message: "Category name and slug are both required" },
                 { status: 400 }
             );
         }
 
-        const response = await Category.create({
+        // Validate slug format
+        const slugRegex = /^[a-z0-9-]+$/;
+        if (!slugRegex.test(slug)) {
+            return NextResponse.json(
+                { message: "Slug can only contain lowercase letters, numbers, and hyphens" },
+                { status: 400 }
+            );
+        }
+
+        // Check if slug exists
+        const existingSlug = await Category.findOne({ slug: slug });
+        if (existingSlug) {
+            return NextResponse.json(
+                { message: "Slug already exists. Please choose a different slug." },
+                { status: 400 }
+            );
+        }
+
+        // Find max position if not provided
+        let categoryPosition = position || 1;
+        if (!position) {
+            const maxPosCategory = await Category.findOne().sort({ position: -1 });
+            categoryPosition = maxPosCategory ? maxPosCategory.position + 1 : 1;
+        }
+
+        // Create the category
+        const category = await Category.create({
             name,
-            description,
-            position
+            position: categoryPosition,
+            slug: slug, // Use provided slug directly
+            displayInNavbar: displayInNavbar !== undefined ? displayInNavbar : true,
+            subcategories: subcategories || [],
+            isActive: true
         });
 
-        // Clear navbar cache since category has been created
-        clearNavbarCache();
-
-        return NextResponse.json(response, { status: 201 });
+        return NextResponse.json(category, { status: 201 });
 
     } catch (error: any) {
-        console.error(error);
+        console.error('Error creating category:', error);
         return NextResponse.json({ message: error.message }, { status: 500 });
     }
 }

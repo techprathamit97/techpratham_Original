@@ -83,6 +83,9 @@ const courseSchema = z.object({
     duration: z.string().min(1, "Duration is required"),
     level: z.enum(["Beginner", "Intermediate", "Advanced"], { required_error: "Level is required" }),
     category: z.string().min(1, "Category is required"),
+    categoryId: z.string().optional(),
+    subcategoryPath: z.string().optional(),
+    subcategoryName: z.string().optional(),
     trending: z.boolean().optional(),
     priority: z.number().min(0, "Priority must be 0 or higher").optional(), // Add priority field
     placement_report: z.string().min(1, "Placement report is required"),
@@ -109,9 +112,17 @@ const courseSchema = z.object({
 interface Category {
     _id: string;
     name: string;
-    description: string;
+    slug: string;
+    subcategories?: Subcategory[];
     createdAt: string;
     updatedAt: string;
+}
+
+interface Subcategory {
+    id: string;
+    name: string;
+    slug: string;
+    children?: Subcategory[];
 }
 
 type CourseFormData = z.infer<typeof courseSchema>;
@@ -244,6 +255,13 @@ const CourseTab = () => {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
     const [isFetchingCategories, setIsFetchingCategories] = useState(true);
+    const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+    const [flattenedSubcategories, setFlattenedSubcategories] = useState<Array<{
+        id: string;
+        name: string;
+        path: string;
+        displayName: string;
+    }>>([]);
     const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
     const imageSrc = preview || publicId || "/course/course-banner.png";
     const router = useRouter();
@@ -265,6 +283,9 @@ const CourseTab = () => {
             duration: '',
             level: 'Beginner',
             category: '',
+            categoryId: '',
+            subcategoryPath: '',
+            subcategoryName: '',
             trending: false,
             priority: 0, // Add priority field with default value
             placement_report: '',
@@ -461,11 +482,78 @@ const CourseTab = () => {
 
             const data = await response.json();
             setCategories(data);
+
+            // Flatten all subcategories for dropdown
+            const flattened: Array<{
+                id: string;
+                name: string;
+                path: string;
+                displayName: string;
+            }> = [];
+
+            data.forEach((category: Category) => {
+                // Add main category
+                flattened.push({
+                    id: category._id,
+                    name: category.name,
+                    path: '',
+                    displayName: `📁 ${category.name} (Main Category)`
+                });
+
+                // Flatten subcategories recursively
+                const flattenSubcategories = (subcategories: Subcategory[], parentPath: string = '', depth: number = 0) => {
+                    subcategories.forEach((sub) => {
+                        const currentPath = parentPath ? `${parentPath}.${sub.slug}` : sub.slug;
+                        const indent = '  '.repeat(depth + 1);
+                        const icon = depth === 0 ? '📂' : '📄';
+                        
+                        flattened.push({
+                            id: `${category._id}:${currentPath}`,
+                            name: sub.name,
+                            path: currentPath,
+                            displayName: `${indent}${icon} ${sub.name}`
+                        });
+
+                        if (sub.children && sub.children.length > 0) {
+                            flattenSubcategories(sub.children, currentPath, depth + 1);
+                        }
+                    });
+                };
+
+                if (category.subcategories && category.subcategories.length > 0) {
+                    flattenSubcategories(category.subcategories);
+                }
+            });
+
+            setFlattenedSubcategories(flattened);
+
         } catch (error) {
             console.error('Error fetching categories:', error);
             toast.error("Failed to fetch categories. Please try again.");
         } finally {
             setIsFetchingCategories(false);
+        }
+    };
+
+    const handleCategoryChange = (value: string) => {
+        const selected = flattenedSubcategories.find(item => item.id === value);
+        if (!selected) return;
+
+        if (selected.path === '') {
+            // Main category selected
+            form.setValue('category', selected.name);
+            form.setValue('categoryId', selected.id);
+            form.setValue('subcategoryPath', '');
+            form.setValue('subcategoryName', '');
+        } else {
+            // Subcategory selected
+            const [categoryId] = selected.id.split(':');
+            const category = categories.find(cat => cat._id === categoryId);
+            
+            form.setValue('category', category?.name || '');
+            form.setValue('categoryId', categoryId);
+            form.setValue('subcategoryPath', selected.path);
+            form.setValue('subcategoryName', selected.name);
         }
     };
 
@@ -556,14 +644,14 @@ const CourseTab = () => {
                                         name="category"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Category <span className='text-red-500'>*</span></FormLabel>
-                                                <Select onValueChange={field.onChange} value={field.value}>
+                                                <FormLabel>Category / Subcategory <span className='text-red-500'>*</span></FormLabel>
+                                                <Select onValueChange={handleCategoryChange} value={form.watch('categoryId')}>
                                                     <FormControl>
                                                         <SelectTrigger>
                                                             <SelectValue placeholder={
                                                                 isFetchingCategories
                                                                     ? "Loading categories..."
-                                                                    : "Select a category"
+                                                                    : "Select a category or subcategory"
                                                             } />
                                                         </SelectTrigger>
                                                     </FormControl>
@@ -572,23 +660,35 @@ const CourseTab = () => {
                                                             <SelectItem value="loading" disabled>
                                                                 Loading categories...
                                                             </SelectItem>
-                                                        ) : categories.length === 0 ? (
+                                                        ) : flattenedSubcategories.length === 0 ? (
                                                             <SelectItem value="none" disabled>
                                                                 No categories available
                                                             </SelectItem>
                                                         ) : (
-                                                            categories.map((category) => (
-                                                                <SelectItem key={category._id} value={category.name}>
-                                                                    {category.name}
+                                                            flattenedSubcategories.map((item) => (
+                                                                <SelectItem key={item.id} value={item.id}>
+                                                                    {item.displayName}
                                                                 </SelectItem>
                                                             ))
                                                         )}
                                                     </SelectContent>
                                                 </Select>
+                                                <FormDescription>
+                                                    Select a main category or nested subcategory for this course
+                                                </FormDescription>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
                                     />
+
+                                    {/* Show selected category information */}
+                                    {form.watch('subcategoryPath') && (
+                                        <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+                                            <span className="font-medium">Selected:</span> {form.watch('category')} → {form.watch('subcategoryName')}
+                                            <br />
+                                            <span className="font-medium">Path:</span> {form.watch('subcategoryPath')}
+                                        </div>
+                                    )}
 
                                     <FormField
                                         control={form.control}

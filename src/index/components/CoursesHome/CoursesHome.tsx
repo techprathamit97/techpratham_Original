@@ -28,6 +28,7 @@ interface CoursesHomeProps {
 
 export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeProps) {
   const [coursesByCategory, setCoursesByCategory] = useState<CourseCategory[]>(initialGroupedCourses);
+  const [categoriesData, setCategoriesData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const sectionRef = useRef<HTMLElement | null>(null);
   const [selectedCategoryIdx, setSelectedCategoryIdx] = useState<number | null>(null);
@@ -44,9 +45,41 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
     const fetchCourses = async () => {
       setLoading(true);
       try {
-        const res = await fetch("/api/course/fetch-grouped");
-        const data: CourseCategory[] = await res.json();
-        setCoursesByCategory(data);
+        // Fetch both courses and categories data
+        const [coursesRes, categoriesRes] = await Promise.all([
+          fetch("/api/course/fetch-grouped"),
+          fetch("/api/category/fetch")
+        ]);
+        
+        const coursesData: CourseCategory[] = await coursesRes.json();
+        const categoriesApiData = await categoriesRes.json();
+        setCategoriesData(categoriesApiData);
+
+        // Filter courses to only show categories that exist in categories collection
+        const filteredCourses = coursesData
+          .filter((category) => {
+            // Hide specific categories
+            const hiddenCategories = ['High Demanding', 'Trending Courses'];
+            if (hiddenCategories.includes(category.name)) {
+              return false;
+            }
+            
+            // Only show categories that exist in the categories collection
+            const categoryData = categoriesApiData.find((cat: any) => cat.name === category.name);
+            return categoryData && categoryData.slug;
+          })
+          .sort((a, b) => {
+            // Sort categories by position (lower position = shown first)
+            const categoryDataA = categoriesApiData.find((cat: any) => cat.name === a.name);
+            const categoryDataB = categoriesApiData.find((cat: any) => cat.name === b.name);
+            
+            const positionA = categoryDataA?.position || 999;
+            const positionB = categoryDataB?.position || 999;
+            
+            return positionA - positionB;
+          });
+
+        setCoursesByCategory(filteredCourses);
       } catch (err) {
         console.error("Failed to fetch courses", err);
       } finally {
@@ -57,6 +90,53 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
     fetchCourses();
   }, [initialGroupedCourses]);
 
+  // ✅ Filter initial courses when categoriesData is available
+  useEffect(() => {
+    if (initialGroupedCourses.length > 0 && categoriesData.length > 0) {
+      const filteredCourses = initialGroupedCourses
+        .filter((category) => {
+          // Hide specific categories
+          const hiddenCategories = ['High Demanding', 'Trending Courses'];
+          if (hiddenCategories.includes(category.name)) {
+            return false;
+          }
+          
+          // Only show categories that exist in the categories collection
+          const categoryData = categoriesData.find((cat: any) => cat.name === category.name);
+          return categoryData && categoryData.slug;
+        })
+        .sort((a, b) => {
+          // Sort categories by position (lower position = shown first)
+          const categoryDataA = categoriesData.find((cat: any) => cat.name === a.name);
+          const categoryDataB = categoriesData.find((cat: any) => cat.name === b.name);
+          
+          const positionA = categoryDataA?.position || 999;
+          const positionB = categoryDataB?.position || 999;
+          
+          return positionA - positionB;
+        });
+
+      setCoursesByCategory(filteredCourses);
+    }
+  }, [initialGroupedCourses, categoriesData]);
+
+  // ✅ Fetch categories data when initial courses are provided
+  useEffect(() => {
+    if (initialGroupedCourses.length > 0 && categoriesData.length === 0) {
+      const fetchCategories = async () => {
+        try {
+          const categoriesRes = await fetch("/api/category/fetch");
+          const categoriesApiData = await categoriesRes.json();
+          setCategoriesData(categoriesApiData);
+        } catch (err) {
+          console.error("Failed to fetch categories", err);
+        }
+      };
+      
+      fetchCategories();
+    }
+  }, [initialGroupedCourses, categoriesData.length]);
+  
   // ✅ AUTO SELECT FIRST CATEGORY
   useEffect(() => {
     if (coursesByCategory.length) {

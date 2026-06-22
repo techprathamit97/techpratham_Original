@@ -17,11 +17,10 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Edit, Plus, Loader2 } from 'lucide-react';
+import { Trash2, Edit, Plus, Loader2, GripVertical } from 'lucide-react';
 import { toast } from 'sonner';
 import Head from 'next/head';
 
@@ -29,22 +28,34 @@ import Head from 'next/head';
 const categorySchema = z.object({
     name: z.string()
         .min(2, { message: "Category name must be at least 2 characters." })
-        .max(50, { message: "Category name must not exceed 50 characters." })
-        .regex(/^[a-zA-Z0-9\s]+$/, { message: "Category name can only contain letters, numbers, and spaces." }),
-    description: z.string()
-        .min(10, { message: "Description must be at least 10 characters." })
-        .max(200, { message: "Description must not exceed 200 characters." }),
+        .max(50, { message: "Category name must not exceed 50 characters." }),
     position: z.coerce.number({ invalid_type_error: "Position must be a number" })
         .min(1, { message: "Position must be 1 or greater." }),
+    slug: z.string()
+        .min(2, { message: "Slug must be at least 2 characters." })
+        .max(50, { message: "Slug must not exceed 50 characters." })
+        .regex(/^[a-z0-9-]+$/, { message: "Slug can only contain lowercase letters, numbers, and hyphens." }),
+    displayInNavbar: z.boolean().optional(),
 });
 
 type CategoryFormValues = z.infer<typeof categorySchema>;
 
+interface Subcategory {
+    id: string;
+    name: string;
+    slug: string;
+    position: number;
+    children?: Subcategory[];
+}
+
 interface Category {
     _id: string;
     name: string;
-    description: string;
-     position: number;
+    position: number;
+    slug: string;
+    displayInNavbar: boolean;
+    isActive: boolean;
+    subcategories: Subcategory[];
     createdAt: string;
     updatedAt: string;
 }
@@ -57,12 +68,24 @@ const CategoryPage = () => {
 
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
+    const [showSubcategoryForm, setShowSubcategoryForm] = useState(false);
+    const [subcategoryParent, setSubcategoryParent] = useState<{ categoryId: string; path?: number[] } | null>(null);
+
+    // Subcategory form
+    const subcategoryForm = useForm({
+        defaultValues: {
+            name: "",
+            slug: "",
+        },
+    });
 
     const form = useForm<CategoryFormValues>({
         resolver: zodResolver(categorySchema),
         defaultValues: {
             name: "",
-            description: "",
+            position: 1,
+            slug: "",
+            displayInNavbar: true,
         },
     });
 
@@ -88,15 +111,44 @@ const CategoryPage = () => {
             setCategories(data);
         } catch (error) {
             console.error('Error fetching categories:', error);
-            toast("Failed to fetch categories. Please try again.");
+            toast.error('Failed to fetch categories. Please try again.');
         } finally {
             setIsFetching(false);
         }
     };
 
+    // Generate slug from name
+    const generateSlug = (name: string): string => {
+        return name
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-');
+    };
+
+    // Generate unique ID for subcategories
+    const generateId = (): string => {
+        return 'sub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    };
+
     const onSubmit = async (values: CategoryFormValues) => {
         try {
             setIsSubmitting(true);
+
+            // Validate slug is provided
+            if (!values.slug || values.slug.trim() === '') {
+                toast.error('Slug is required');
+                return;
+            }
+
+            // Prepare data for submission (no auto slug generation)
+            const submitData = {
+                name: values.name,
+                position: values.position,
+                slug: values.slug.toLowerCase().trim(),
+                displayInNavbar: values.displayInNavbar
+            };
 
             if (editingCategory) {
                 // Update existing category
@@ -105,7 +157,7 @@ const CategoryPage = () => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(values),
+                    body: JSON.stringify(submitData),
                 });
 
                 if (!response.ok) {
@@ -113,17 +165,9 @@ const CategoryPage = () => {
                     throw new Error(errorData.message || 'Failed to update category');
                 }
 
-                const updatedCategory = await response.json();
-
-                // Update category in the list
-                setCategories(prev =>
-                    prev.map(cat =>
-                        cat._id === editingCategory._id ? updatedCategory : cat
-                    )
-                );
-
+                await fetchCategories();
                 setEditingCategory(null);
-                toast("Category updated successfully!");
+                toast.success('Category updated successfully!');
             } else {
                 // Create new category
                 const response = await fetch('/api/category/create', {
@@ -131,7 +175,10 @@ const CategoryPage = () => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(values),
+                    body: JSON.stringify({
+                        ...submitData,
+                        subcategories: [] // Initialize with empty subcategories
+                    }),
                 });
 
                 if (!response.ok) {
@@ -139,9 +186,8 @@ const CategoryPage = () => {
                     throw new Error(errorData.message || 'Failed to create category');
                 }
 
-                const newCategory = await response.json();
-                setCategories(prev => [newCategory, ...prev]);
-                toast("Category created successfully!");
+                await fetchCategories();
+                toast.success('Category created successfully!');
             }
 
             // Reset form
@@ -149,19 +195,19 @@ const CategoryPage = () => {
 
         } catch (error: any) {
             console.error('Error with category:', error);
-            toast("Operation failed. Please try again.");
+            toast.error(error.message || 'Operation failed. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    // Add these three new functions after your onSubmit function:
-  const handleEdit = (category: Category) => {
-    setEditingCategory(category);
-    form.setValue('name', category.name);
-    form.setValue('description', category.description);
-    form.setValue('position', category.position); // Add this line
-};
+    const handleEdit = (category: Category) => {
+        setEditingCategory(category);
+        form.setValue('name', category.name);
+        form.setValue('position', category.position);
+        form.setValue('slug', category.slug);
+        form.setValue('displayInNavbar', category.displayInNavbar);
+    };
 
     const handleCancelEdit = () => {
         setEditingCategory(null);
@@ -181,16 +227,197 @@ const CategoryPage = () => {
                 throw new Error(errorData.message || 'Failed to delete category');
             }
 
-            // Remove category from the list
-            setCategories(prev => prev.filter(cat => cat._id !== categoryId));
-            toast("Category deleted successfully!");
+            await fetchCategories();
+            toast.success('Category deleted successfully!');
 
         } catch (error: any) {
             console.error('Error deleting category:', error);
-            toast("Failed to delete category. Please try again.");
+            toast.error(error.message || 'Failed to delete category. Please try again.');
         } finally {
             setIsDeleting(null);
         }
+    };
+
+    // Add subcategory to a category
+    const openSubcategoryForm = (categoryId: string, path?: number[]) => {
+        setSubcategoryParent({ categoryId, path });
+        setShowSubcategoryForm(true);
+        subcategoryForm.reset();
+    };
+
+    const closeSubcategoryForm = () => {
+        setShowSubcategoryForm(false);
+        setSubcategoryParent(null);
+        subcategoryForm.reset();
+    };
+
+    const onSubmitSubcategory = async (values: { name: string; slug: string }) => {
+        try {
+            if (!subcategoryParent) return;
+
+            // Validate inputs
+            if (!values.name.trim() || !values.slug.trim()) {
+                toast.error('Both name and slug are required');
+                return;
+            }
+
+            // Validate slug format
+            const slugRegex = /^[a-z0-9-]+$/;
+            if (!slugRegex.test(values.slug)) {
+                toast.error('Slug can only contain lowercase letters, numbers, and hyphens');
+                return;
+            }
+
+            const { categoryId, path } = subcategoryParent;
+            const category = categories.find(cat => cat._id === categoryId);
+            if (!category) return;
+
+            const newSubcategory: Subcategory = {
+                id: generateId(),
+                name: values.name.trim(),
+                slug: values.slug.toLowerCase().trim(),
+                position: 1,
+                children: []
+            };
+
+            let updatedSubcategories = JSON.parse(JSON.stringify(category.subcategories));
+
+            if (!path) {
+                // Adding to main category
+                newSubcategory.position = category.subcategories.length + 1;
+                updatedSubcategories.push(newSubcategory);
+            } else {
+                // Adding to nested subcategory
+                let current = updatedSubcategories;
+                for (let i = 0; i < path.length - 1; i++) {
+                    current = current[path[i]].children;
+                }
+                
+                const parent = current[path[path.length - 1]];
+                if (!parent.children) parent.children = [];
+                newSubcategory.position = parent.children.length + 1;
+                parent.children.push(newSubcategory);
+            }
+
+            const response = await fetch(`/api/category/update/${categoryId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    subcategories: updatedSubcategories
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to add subcategory');
+            }
+
+            await fetchCategories();
+            toast.success('Subcategory added successfully!');
+            closeSubcategoryForm();
+
+        } catch (error: any) {
+            console.error('Error adding subcategory:', error);
+            toast.error(error.message || 'Failed to add subcategory');
+        }
+    };
+
+    // Delete subcategory
+    const deleteSubcategory = async (categoryId: string, path: number[]) => {
+        try {
+            const category = categories.find(cat => cat._id === categoryId);
+            if (!category) return;
+
+            const updatedSubcategories = JSON.parse(JSON.stringify(category.subcategories));
+            
+            if (path.length === 1) {
+                // Delete from root level
+                updatedSubcategories.splice(path[0], 1);
+            } else {
+                // Navigate to parent and delete
+                let current = updatedSubcategories;
+                for (let i = 0; i < path.length - 2; i++) {
+                    current = current[path[i]].children;
+                }
+                current[path[path.length - 2]].children.splice(path[path.length - 1], 1);
+            }
+
+            const response = await fetch(`/api/category/update/${categoryId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    subcategories: updatedSubcategories
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete subcategory');
+            }
+
+            await fetchCategories();
+            toast.success('Subcategory deleted successfully!');
+
+        } catch (error: any) {
+            console.error('Error deleting subcategory:', error);
+            toast.error(error.message || 'Failed to delete subcategory');
+        }
+    };
+
+    // Render subcategory tree
+    const renderSubcategories = (subcategories: Subcategory[], categoryId: string, path: number[] = []) => {
+        return subcategories.map((sub, index) => {
+            const currentPath = [...path, index];
+            
+            return (
+                <div key={sub.id} className={`border border-gray-600 rounded-lg mb-2 ${path.length > 0 ? 'ml-6' : ''}`}>
+                    <div className="bg-gray-750 p-3">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                                <GripVertical className="w-4 h-4 text-gray-400" />
+                                <span className="text-sm font-medium text-gray-200">
+                                    {'📂'.repeat(path.length + 1)} {sub.name}
+                                </span>
+                                <Badge variant="outline" className="text-xs text-gray-400 border-gray-500">
+                                    {sub.slug}
+                                </Badge>
+                            </div>
+                            <div className="flex gap-1">
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="border-green-600 text-green-400 hover:bg-green-900 p-1"
+                                    onClick={() => openSubcategoryForm(categoryId, currentPath)}
+                                >
+                                    <Plus className="w-3 h-3" />
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="border-red-600 text-red-400 hover:bg-red-900 p-1"
+                                    onClick={() => {
+                                        if (confirm(`Delete "${sub.name}"?`)) {
+                                            deleteSubcategory(categoryId, currentPath);
+                                        }
+                                    }}
+                                >
+                                    <Trash2 className="w-3 h-3" />
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Nested children */}
+                    {sub.children && sub.children.length > 0 && (
+                        <div className="p-2">
+                            {renderSubcategories(sub.children, categoryId, currentPath)}
+                        </div>
+                    )}
+                </div>
+            );
+        });
     };
 
     const formatDate = (dateString: string) => {
@@ -208,7 +435,7 @@ const CategoryPage = () => {
             <Head>
                 <link rel="icon" href="/favicon.ico" type="image/ico" sizes="70x70" />
                 <title>Manage Category | Admin Dashboard</title>
-                <meta name="description" content="Explore the Manage Category section in Admin Dashboard of TechPratham." />
+                <meta name="description" content="Manage categories with nested subcategories." />
             </Head>
 
             {loading ? (
@@ -254,7 +481,7 @@ const CategoryPage = () => {
                                                     name="position"
                                                     render={({ field }) => (
                                                         <FormItem>
-                                                            <FormLabel className="text-gray-200">Display Order (Position))</FormLabel>
+                                                            <FormLabel className="text-gray-200">Display Order</FormLabel>
                                                             <FormControl>
                                                                 <Input
                                                                     type="number"
@@ -267,12 +494,13 @@ const CategoryPage = () => {
                                                         </FormItem>
                                                     )}
                                                 />
+                                                
                                                 <FormField
                                                     control={form.control}
                                                     name="name"
                                                     render={({ field }) => (
                                                         <FormItem>
-                                                            <FormLabel className="text-gray-200">Category Name</FormLabel>
+                                                            <FormLabel className="text-gray-200">Category Name *</FormLabel>
                                                             <FormControl>
                                                                 <Input
                                                                     placeholder="Enter category name"
@@ -287,19 +515,44 @@ const CategoryPage = () => {
 
                                                 <FormField
                                                     control={form.control}
-                                                    name="description"
+                                                    name="slug"
                                                     render={({ field }) => (
                                                         <FormItem>
-                                                            <FormLabel className="text-gray-200">Description</FormLabel>
+                                                            <FormLabel className="text-gray-200">Slug *</FormLabel>
                                                             <FormControl>
-                                                                <Textarea
-                                                                    placeholder="Enter category description"
+                                                                <Input
+                                                                    placeholder="enter-url-friendly-slug"
                                                                     {...field}
-                                                                    className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 resize-none"
-                                                                    rows={3}
+                                                                    className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                                                                 />
                                                             </FormControl>
+                                                            <div className="text-xs text-gray-400 mt-1">
+                                                                Must be lowercase, use hyphens instead of spaces
+                                                            </div>
                                                             <FormMessage className="text-red-400" />
+                                                        </FormItem>
+                                                    )}
+                                                />
+
+                                                <FormField
+                                                    control={form.control}
+                                                    name="displayInNavbar"
+                                                    render={({ field }) => (
+                                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border border-gray-600 p-4">
+                                                            <div className="space-y-0.5">
+                                                                <FormLabel className="text-gray-200">Display in Navbar</FormLabel>
+                                                                <div className="text-sm text-gray-400">
+                                                                    Show this category in the navigation dropdown
+                                                                </div>
+                                                            </div>
+                                                            <FormControl>
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={field.value}
+                                                                    onChange={field.onChange}
+                                                                    className="w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 rounded"
+                                                                />
+                                                            </FormControl>
                                                         </FormItem>
                                                     )}
                                                 />
@@ -339,7 +592,7 @@ const CategoryPage = () => {
                                 <Card className="bg-gray-900 border-gray-700">
                                     <CardHeader>
                                         <CardTitle className="text-white flex items-center justify-between">
-                                            <span>Existing Categories ({categories.length})</span>
+                                            <span>Categories ({categories.length})</span>
                                             <Button
                                                 onClick={fetchCategories}
                                                 variant="outline"
@@ -362,55 +615,66 @@ const CategoryPage = () => {
                                                 <p className="text-sm text-gray-500">Create your first category using the form</p>
                                             </div>
                                         ) : (
-                                            <div className="max-h-96 overflow-y-auto space-y-3">
+                                            <div className="max-h-96 overflow-y-auto space-y-4">
                                                 {categories.map((category) => (
-                                                    <div
-                                                        key={category._id}
-                                                        className="bg-gray-800 border border-gray-700 rounded-lg p-4 hover:bg-gray-750 transition-colors"
-                                                    >
-                                                        <div className="flex items-start justify-between mb-2">
-                                                            <h3 className="font-semibold text-white text-lg">
-                                                                {category.name}
-                                                            </h3>
-                                                            <div className="flex gap-2">
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="outline"
-                                                                    className="border-gray-600 text-gray-300 hover:bg-gray-700 p-2"
-                                                                    onClick={() => handleEdit(category)}
-                                                                >
-                                                                    <Edit className="w-4 h-4" />
-                                                                </Button>
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="outline"
-                                                                    className="border-red-600 text-red-400 hover:bg-red-900 p-2"
-                                                                    onClick={() => handleDelete(category._id)}
-                                                                    disabled={isDeleting === category._id}
-                                                                >
-                                                                    {isDeleting === category._id ? (
-                                                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                                                    ) : (
-                                                                        <Trash2 className="w-4 h-4" />
-                                                                    )}
-                                                                </Button>
+                                                    <div key={category._id} className="border border-gray-700 rounded-lg">
+                                                        {/* Main Category */}
+                                                        <div className="bg-gray-800 p-4 rounded-t-lg">
+                                                            <div className="flex items-start justify-between mb-2">
+                                                                <div className="flex items-center gap-2">
+                                                                    <h3 className="font-bold text-white text-lg">
+                                                                        📁 {category.name}
+                                                                    </h3>
+                                                                    <Badge variant="outline" className="border-blue-600 text-blue-400 text-xs">
+                                                                        Main Category
+                                                                    </Badge>
+                                                                </div>
+                                                                <div className="flex gap-2">
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="outline"
+                                                                        className="border-green-600 text-green-400 hover:bg-green-900 p-2"
+                                                                        onClick={() => openSubcategoryForm(category._id)}
+                                                                        title="Add Subcategory"
+                                                                    >
+                                                                        <Plus className="w-4 h-4" />
+                                                                    </Button>
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="outline"
+                                                                        className="border-gray-600 text-gray-300 hover:bg-gray-700 p-2"
+                                                                        onClick={() => handleEdit(category)}
+                                                                        title="Edit Category"
+                                                                    >
+                                                                        <Edit className="w-4 h-4" />
+                                                                    </Button>
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="outline"
+                                                                        className="border-red-600 text-red-400 hover:bg-red-900 p-2"
+                                                                        onClick={() => handleDelete(category._id)}
+                                                                        disabled={isDeleting === category._id}
+                                                                        title="Delete Category"
+                                                                    >
+                                                                        {isDeleting === category._id ? (
+                                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                                        ) : (
+                                                                            <Trash2 className="w-4 h-4" />
+                                                                        )}
+                                                                    </Button>
+                                                                </div>
+                                                            </div>
+                                                            <div className="text-xs text-gray-500">
+                                                                Position: {category.position} | Slug: {category.slug} | Created: {formatDate(category.createdAt)}
                                                             </div>
                                                         </div>
 
-                                                        <p className="text-gray-300 text-sm mb-3 leading-relaxed">
-                                                            {category.description}
-                                                        </p>
-
-                                                        <div className="flex items-center justify-between text-xs text-gray-500">
-                                                            <Badge variant="secondary" className="bg-gray-700 text-gray-300">
-                                                                Created: {formatDate(category.createdAt)}
-                                                            </Badge>
-                                                            {category.updatedAt !== category.createdAt && (
-                                                                <Badge variant="outline" className="border-gray-600 text-gray-400">
-                                                                    Updated: {formatDate(category.updatedAt)}
-                                                                </Badge>
-                                                            )}
-                                                        </div>
+                                                        {/* Nested Subcategories */}
+                                                        {category.subcategories && category.subcategories.length > 0 && (
+                                                            <div className="p-4 bg-gray-850">
+                                                                {renderSubcategories(category.subcategories, category._id)}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 ))}
                                             </div>
@@ -419,6 +683,88 @@ const CategoryPage = () => {
                                 </Card>
                             </div>
                         </div>
+
+                        {/* Subcategory Form Modal */}
+                        {showSubcategoryForm && (
+                            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                                <Card className="bg-gray-900 border-gray-700 w-96 max-w-lg mx-4">
+                                    <CardHeader>
+                                        <CardTitle className="text-white flex items-center justify-between">
+                                            <span>Add Subcategory</span>
+                                            <Button
+                                                onClick={closeSubcategoryForm}
+                                                variant="ghost"
+                                                size="sm"
+                                                className="text-gray-400 hover:text-white"
+                                            >
+                                                ✕
+                                            </Button>
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <form onSubmit={subcategoryForm.handleSubmit(onSubmitSubcategory)} className="space-y-4">
+                                            <div>
+                                                <label className="text-gray-200 text-sm font-medium block mb-2">
+                                                    Subcategory Name *
+                                                </label>
+                                                <Input
+                                                    {...subcategoryForm.register('name', { required: 'Name is required' })}
+                                                    placeholder="Enter subcategory name"
+                                                    className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                                                />
+                                                {subcategoryForm.formState.errors.name && (
+                                                    <p className="text-red-400 text-xs mt-1">
+                                                        {subcategoryForm.formState.errors.name.message}
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            <div>
+                                                <label className="text-gray-200 text-sm font-medium block mb-2">
+                                                    Slug *
+                                                </label>
+                                                <Input
+                                                    {...subcategoryForm.register('slug', { 
+                                                        required: 'Slug is required',
+                                                        pattern: {
+                                                            value: /^[a-z0-9-]+$/,
+                                                            message: 'Slug can only contain lowercase letters, numbers, and hyphens'
+                                                        }
+                                                    })}
+                                                    placeholder="enter-url-friendly-slug"
+                                                    className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
+                                                />
+                                                <div className="text-xs text-gray-400 mt-1">
+                                                    Must be lowercase, use hyphens instead of spaces
+                                                </div>
+                                                {subcategoryForm.formState.errors.slug && (
+                                                    <p className="text-red-400 text-xs mt-1">
+                                                        {subcategoryForm.formState.errors.slug.message}
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            <div className="flex gap-3 pt-4">
+                                                <Button
+                                                    type="button"
+                                                    onClick={closeSubcategoryForm}
+                                                    variant="outline"
+                                                    className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-800"
+                                                >
+                                                    Cancel
+                                                </Button>
+                                                <Button
+                                                    type="submit"
+                                                    className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                                                >
+                                                    Add Subcategory
+                                                </Button>
+                                            </div>
+                                        </form>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

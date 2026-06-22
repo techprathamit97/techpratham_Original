@@ -11,23 +11,50 @@ export async function PUT(
         await connectMongo();
 
         const { id } = await params;
-        const { name, description, position } = await request.json();
+        const { name, position, slug, displayInNavbar, subcategories } = await request.json();
+
+        // Get current category to validate changes
+        const currentCategory = await Category.findById(id);
+        if (!currentCategory) {
+            return NextResponse.json({ message: 'Category not found' }, { status: 404 });
+        }
 
         const updateData: any = {};
 
         if (name !== undefined) updateData.name = name;
-        if (description !== undefined) updateData.description = description;
         if (position !== undefined) updateData.position = position;
+        if (displayInNavbar !== undefined) updateData.displayInNavbar = displayInNavbar;
+        if (subcategories !== undefined) updateData.subcategories = subcategories;
 
+        // Handle slug updates
+        if (slug !== undefined) {
+            // Validate slug format
+            const slugRegex = /^[a-z0-9-]+$/;
+            if (!slugRegex.test(slug)) {
+                return NextResponse.json(
+                    { message: "Slug can only contain lowercase letters, numbers, and hyphens" },
+                    { status: 400 }
+                );
+            }
+
+            // Check if slug exists (excluding current category)
+            const existingSlug = await Category.findOne({ slug: slug, _id: { $ne: id } });
+            if (existingSlug) {
+                return NextResponse.json(
+                    { message: "Slug already exists. Please choose a different slug." },
+                    { status: 400 }
+                );
+            }
+
+            updateData.slug = slug;
+        }
+
+        // Update the category
         const updatedCategory = await Category.findByIdAndUpdate(
             id,
             updateData,
             { new: true, runValidators: true }
         );
-
-        if (!updatedCategory) {
-            return NextResponse.json({ message: 'Category not found' }, { status: 404 });
-        }
 
         // Clear navbar cache since category has been updated
         clearNavbarCache();
@@ -35,7 +62,7 @@ export async function PUT(
         return NextResponse.json(updatedCategory, { status: 200 });
 
     } catch (error: any) {
-        console.error(error);
+        console.error('Error updating category:', error);
         return NextResponse.json({ message: error.message }, { status: 500 });
     }
 }

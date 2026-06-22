@@ -34,8 +34,8 @@ const curriculumSchema = z.object({
 });
 
 const interviewFaqSchema = z.object({
-  que: z.string().min(1, "Question is required"),
-  ans: z.string().min(1, "Answer is required"),
+  que: z.string().optional(),
+  ans: z.string().optional(),
 });
 
 const jobRoleSchema = z.object({
@@ -55,17 +55,17 @@ const faqSchema = z.object({
 });
 
 const seoFaqSchema = z.object({
-  que: z.string().min(1, "Question is required"),
-  ans: z.string().min(1, "Answer is required")
+  que: z.string().optional(),
+  ans: z.string().optional()
 });
 
 const projectSchema = z.object({
-  company: z.string().min(1, "Company is required"),
+  company: z.string().optional(),
   logo: z.string().optional(),
-  title: z.string().min(1, "Title is required"),
-  scenario: z.string().min(1, "Scenario is required"),
+  title: z.string().optional(),
+  scenario: z.string().optional(),
   liveWork: z.array(z.string()).optional(),
-  outcome: z.string().min(1, "Outcome is required"),
+  outcome: z.string().optional(),
   objective: z.string().optional(),
 });
 
@@ -85,6 +85,9 @@ const courseSchema = z.object({
   duration: z.string().min(1, "Duration is required"),
   level: z.enum(["Beginner", "Intermediate", "Advanced"], { required_error: "Level is required" }),
   category: z.string().min(1, "Category is required"),
+  categoryId: z.string().optional(),
+  subcategoryPath: z.string().optional(),
+  subcategoryName: z.string().optional(),
   trending: z.boolean().optional(),
   priority: z.number().min(0, "Priority must be 0 or higher").optional(), // Add priority field
   placement_report: z.string().min(1, "Placement report is required"),
@@ -96,7 +99,7 @@ const courseSchema = z.object({
   curriculum_data: z.array(curriculumSchema).optional(),
   skills_data: z.array(z.string()).optional(),
   faqs_data: z.array(faqSchema).optional(),
-  seo_faqs_data: z.array(seoFaqSchema).optional(), // SEO FAQs
+  seo_faqs_data: z.array(seoFaqSchema).optional(),
   interview_questions_data: z.array(interviewFaqSchema).optional(),
   job_role: z.array(jobRoleSchema).optional(),
   about_certificate_data: aboutCertificateSchema,
@@ -125,9 +128,18 @@ interface Course extends CourseFormData {
 interface Category {
   _id: string;
   name: string;
+  slug: string;
+  subcategories?: Subcategory[];
   description: string;
   createdAt: string;
   updatedAt: string;
+}
+
+interface Subcategory {
+  id: string;
+  name: string;
+  slug: string;
+  children?: Subcategory[];
 }
 
 // CurriculumTopicItem Component
@@ -258,6 +270,12 @@ const UpdateCoursePage = () => {
   const [certUploading, setCertUploading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isFetchingCategories, setIsFetchingCategories] = useState(true);
+  const [flattenedSubcategories, setFlattenedSubcategories] = useState<Array<{
+    id: string;
+    name: string;
+    path: string;
+    displayName: string;
+  }>>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [uploading, setUploading] = useState(false);
   const courseLink = encodedCourse ? decodeURIComponent(encodedCourse as string) : "";
@@ -285,6 +303,9 @@ const UpdateCoursePage = () => {
       duration: '',
       level: 'Beginner',
       category: '',
+      categoryId: '',
+      subcategoryPath: '',
+      subcategoryName: '',
       trending: false,
       priority: 0, // Add priority field with default value
       placement_report: '',
@@ -352,6 +373,17 @@ const UpdateCoursePage = () => {
         setPublicId(courseData.image || "");
 
         // Reset form with fetched data
+        const courseCategoryId = (courseData as any).categoryId || '';
+        const courseSubcategoryPath = (courseData as any).subcategoryPath || '';
+        const courseSubcategoryName = (courseData as any).subcategoryName || '';
+
+        // Determine the correct categoryId for dropdown selection
+        let dropdownCategoryId = courseCategoryId;
+        if (courseCategoryId && courseSubcategoryPath) {
+          // If has subcategory, combine categoryId with subcategoryPath for dropdown
+          dropdownCategoryId = `${courseCategoryId}:${courseSubcategoryPath}`;
+        }
+
         reset({
           title: courseData.title || '',
           shortDesc: courseData.shortDesc || '',
@@ -367,6 +399,9 @@ const UpdateCoursePage = () => {
           duration: courseData.duration || '',
           level: courseData.level as "Beginner" | "Intermediate" | "Advanced" || 'Beginner',
           category: courseData.category || '',
+          categoryId: dropdownCategoryId,
+          subcategoryPath: courseSubcategoryPath,
+          subcategoryName: courseSubcategoryName,
           trending: courseData.trending ?? false,
           priority: courseData.priority || 0, // Add priority field
           placement_report: courseData.placement_report || '',
@@ -469,11 +504,90 @@ const UpdateCoursePage = () => {
 
       const data = await response.json();
       setCategories(data);
+
+      // Flatten all subcategories for dropdown
+      const flattened: Array<{
+        id: string;
+        name: string;
+        path: string;
+        displayName: string;
+      }> = [];
+
+      // Track unique IDs to prevent duplicates
+      const uniqueIds = new Set<string>();
+
+      data.forEach((category: Category) => {
+        // Add main category (only if unique)
+        const mainCategoryId = category._id;
+        if (!uniqueIds.has(mainCategoryId)) {
+          uniqueIds.add(mainCategoryId);
+          flattened.push({
+            id: mainCategoryId,
+            name: category.name,
+            path: '',
+            displayName: `📁 ${category.name} (Main Category)`
+          });
+        }
+
+        // Flatten subcategories recursively
+        const flattenSubcategories = (subcategories: Subcategory[], parentPath: string = '', depth: number = 0) => {
+          subcategories.forEach((sub) => {
+            const currentPath = parentPath ? `${parentPath}.${sub.slug}` : sub.slug;
+            const indent = '  '.repeat(depth + 1);
+            const icon = depth === 0 ? '📂' : '📄';
+
+            // Use unique ID: categoryId + path + subcategory name to ensure uniqueness
+            const uniqueId = `${category._id}:${currentPath}:${sub.name}`;
+
+            if (!uniqueIds.has(uniqueId)) {
+              uniqueIds.add(uniqueId);
+              flattened.push({
+                id: uniqueId,
+                name: sub.name,
+                path: currentPath,
+                displayName: `${indent}${icon} ${sub.name}`
+              });
+
+              if (sub.children && sub.children.length > 0) {
+                flattenSubcategories(sub.children, currentPath, depth + 1);
+              }
+            }
+          });
+        };
+
+        if (category.subcategories && category.subcategories.length > 0) {
+          flattenSubcategories(category.subcategories);
+        }
+      });
+
+      setFlattenedSubcategories(flattened);
     } catch (error) {
       console.error('Error fetching categories:', error);
       toast.error("Failed to fetch categories. Please try again.");
     } finally {
       setIsFetchingCategories(false);
+    }
+  };
+
+  const handleCategoryChange = (value: string) => {
+    const selected = flattenedSubcategories.find(item => item.id === value);
+    if (!selected) return;
+
+    if (selected.path === '') {
+      // Main category selected
+      form.setValue('category', selected.name);
+      form.setValue('categoryId', selected.id);
+      form.setValue('subcategoryPath', '');
+      form.setValue('subcategoryName', '');
+    } else {
+      // Subcategory selected
+      const [categoryId] = selected.id.split(':');
+      const category = categories.find(cat => cat._id === categoryId);
+
+      form.setValue('category', category?.name || '');
+      form.setValue('categoryId', categoryId);
+      form.setValue('subcategoryPath', selected.path);
+      form.setValue('subcategoryName', selected.name);
     }
   };
 
@@ -809,39 +923,51 @@ const UpdateCoursePage = () => {
                             name="category"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Category *</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
+                                <FormLabel>Category / Subcategory <span className='text-red-500'>*</span></FormLabel>
+                                <Select onValueChange={handleCategoryChange} value={form.watch('categoryId')}>
                                   <FormControl>
                                     <SelectTrigger>
                                       <SelectValue placeholder={
                                         isFetchingCategories
                                           ? "Loading categories..."
-                                          : "Select a category"
+                                          : "Select a category or subcategory"
                                       } />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
                                     {isFetchingCategories ? (
-                                      <SelectItem value="" disabled>
+                                      <SelectItem value="loading" disabled>
                                         Loading categories...
                                       </SelectItem>
-                                    ) : categories.length === 0 ? (
-                                      <SelectItem value="" disabled>
+                                    ) : flattenedSubcategories.length === 0 ? (
+                                      <SelectItem value="none" disabled>
                                         No categories available
                                       </SelectItem>
                                     ) : (
-                                      categories.map((category) => (
-                                        <SelectItem key={category._id} value={category.name}>
-                                          {category.name}
+                                      flattenedSubcategories.map((item) => (
+                                        <SelectItem key={item.id} value={item.id}>
+                                          {item.displayName}
                                         </SelectItem>
                                       ))
                                     )}
                                   </SelectContent>
                                 </Select>
+                                <FormDescription>
+                                  Select a main category or nested subcategory for this course
+                                </FormDescription>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
+
+                          {/* Show selected category information */}
+                          {form.watch('subcategoryPath') && (
+                            <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+                              <span className="font-medium">Selected:</span> {form.watch('category')} → {form.watch('subcategoryName')}
+                              <br />
+                              <span className="font-medium">Path:</span> {form.watch('subcategoryPath')}
+                            </div>
+                          )}
 
                           <FormField
                             control={form.control}

@@ -61,6 +61,8 @@ const formatINR = (amount: number) =>
 const HeaderSection = ({ course }: any) => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [isPhoneValid, setIsPhoneValid] = useState(false);
+    const [categorySlug, setCategorySlug] = useState<string>('');
+    
     const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
         defaultValues: {
             fullName: '',
@@ -75,6 +77,33 @@ const HeaderSection = ({ course }: any) => {
     const [submitting, setSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState(false);
     const [submitError, setSubmitError] = useState('');
+
+    // Fetch category slug when component mounts or course changes
+    useEffect(() => {
+        const fetchCategorySlug = async () => {
+            if (!course?.category) return;
+            
+            try {
+                const response = await fetch('/api/category/fetch');
+                if (response.ok) {
+                    const categories = await response.json();
+                    const foundCategory = categories.find((cat: any) => cat.name === course.category);
+                    if (foundCategory) {
+                        setCategorySlug(foundCategory.slug);
+                    } else {
+                        // Fallback to converting category name to slug
+                        setCategorySlug(course.category.toLowerCase().replace(/\s+/g, '-'));
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching category slug:', error);
+                // Fallback to converting category name to slug
+                setCategorySlug(course.category.toLowerCase().replace(/\s+/g, '-'));
+            }
+        };
+
+        fetchCategorySlug();
+    }, [course?.category]);
 
     // Update course field when course prop changes
     useEffect(() => {
@@ -182,7 +211,7 @@ const HeaderSection = ({ course }: any) => {
                     <div className='flex flex-row gap-2 items-center justify-start mb-6 md:text-sm text-xs'>
                         <span>Courses</span>
                         <ChevronRightIcon />
-                        <Link href={`/courses/domain/${course.category}`} className='transition-all duration-300 hover:underline'>{course.category}</Link>
+                        <Link href={`/courses/domain/${categorySlug}`} className='transition-all duration-300 hover:underline'>{course.category}</Link>
                         <ChevronRightIcon />
                         <div dangerouslySetInnerHTML={{ __html: course.title }} />
                     </div>

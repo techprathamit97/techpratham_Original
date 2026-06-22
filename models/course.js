@@ -13,17 +13,17 @@ const faqSchema = new mongoose.Schema({
 });
 
 const seoFaqSchema = new mongoose.Schema({
-  que: { type: String, required: true },
-  ans: { type: String, required: true },
+  que: { type: String, required: false },
+  ans: { type: String, required: false },
 });
 
 const projectSchema = new mongoose.Schema({
-  company: { type: String, required: true },
+  company: { type: String, required: false },
   logo: { type: String, required: false },
-  title: { type: String, required: true },
-  scenario: { type: String, required: true },
+  title: { type: String, required: false },
+  scenario: { type: String, required: false },
   liveWork: [{ type: String, required: false }],
-  outcome: { type: String, required: true },
+  outcome: { type: String, required: false },
   objective: { type: String, required: false, default: '' },
 });
 
@@ -63,6 +63,10 @@ const courseSchema = new mongoose.Schema(
     level: { type: String, required: true, index: true }, 
     // 💡 Change: Add index to 'category' (critical for grouping and filtering)
     category: { type: String, required: true, index: true }, 
+    // New fields for subcategory support
+    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: false },
+    subcategoryPath: { type: String, required: false }, // e.g., "workday-hcm.core-hr" for nested subcategories
+    subcategoryName: { type: String, required: false }, // Human readable subcategory name
     // 💡 Change: Add index to 'trending' (used for filtering/sorting)
     trending: { type: Boolean, default: false, index: true },
     // 💡 Priority field for ordering courses (higher number = higher priority)

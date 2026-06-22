@@ -22,7 +22,7 @@ export async function POST() {
         message: 'Navbar cache refreshed successfully',
         courseCount: data.reduce((total: number, category: any) => total + category.courses.length, 0),
         categories: data.map((cat: any) => ({
-          name: cat.name,
+          title: cat.title || cat.name || 'Untitled',
           courseCount: cat.courses.length,
           firstThreeCourses: cat.courses.slice(0, 3).map((course: any) => ({
             title: course.title,

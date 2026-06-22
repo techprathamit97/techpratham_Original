@@ -26,7 +26,7 @@ export async function POST() {
       
       // Calculate base priority for this category
       // Higher category priority = higher course priority
-      const basePriority = category.priority || (categories.length - i) * 10;
+      const basePriority = category.position ? (categories.length - i) * 10 : (categories.length - i) * 10;
 
       // Get courses in this category
       const courses = await Course.find({ category: category.name }, '_id title');
@@ -58,8 +58,7 @@ export async function POST() {
       categoriesProcessed: categories.length,
       coursesUpdated: result.modifiedCount,
       categoryPriorities: categories.map(cat => ({
-        name: cat.name,
-        priority: cat.priority || 0,
+        name: cat.name || 'Untitled',
         position: cat.position
       }))
     });
@@ -91,7 +90,7 @@ export async function GET() {
 
       priorityDistribution.push({
         categoryName: category.name,
-        categoryPriority: category.priority || 0,
+        categoryPriority: category.position || 0,
         categoryPosition: category.position,
         courseCount: courses.length,
         courses: courses.map(course => ({

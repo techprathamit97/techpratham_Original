@@ -16,13 +16,42 @@ export async function GET(request: Request) {
             );
         }
 
-        const courseItems = await course
+        console.log('🔍 Searching for courses with category:', category);
+
+        // Try exact match first
+        let courseItems = await course
             .find({ category: category })
             .sort({ createdAt: -1 });
 
+        // If no exact match, try case-insensitive match
         if (courseItems.length === 0) {
+            console.log('❌ No exact match found, trying case-insensitive search...');
+            courseItems = await course
+                .find({ category: { $regex: new RegExp(`^${category}$`, 'i') } })
+                .sort({ createdAt: -1 });
+        }
+
+        // If still no match, try partial match
+        if (courseItems.length === 0) {
+            console.log('❌ No case-insensitive match found, trying partial match...');
+            courseItems = await course
+                .find({ category: { $regex: new RegExp(category, 'i') } })
+                .sort({ createdAt: -1 });
+        }
+
+        console.log('📊 Found courses:', courseItems.length);
+
+        if (courseItems.length === 0) {
+            // Get all unique categories for debugging
+            const allCategories = await course.distinct('category');
+            console.log('📝 All available categories:', allCategories);
+            
             return NextResponse.json(
-                { message: 'No courses found for this category' },
+                { 
+                    message: 'No courses found for this category',
+                    searchedCategory: category,
+                    availableCategories: allCategories
+                },
                 { status: 404 }
             );
         }

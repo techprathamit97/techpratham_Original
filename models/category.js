@@ -22,18 +22,32 @@ import mongoose from "mongoose";
 
 const categorySchema = new mongoose.Schema(
   {
-    position: { type: Number, required: true, unique: true },
-    name: { type: String, required: true, unique: true },
-    description: { type: String, required: true },
-    // Priority field for additional ordering control (higher number = higher priority)
-    priority: { type: Number, default: 0, index: true },
-    displayInNavbar: { type: Boolean, default: true }, // Control navbar visibility
+    position: { type: Number, default: 1 },
+    name: { type: String, required: true }, // Changed from title to name for consistency
+    slug: { type: String, required: true },
+    description: { type: String, default: '' }, // Optional description
+
+    // Hierarchical structure fields
+    parentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', default: null },
+    level: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+    displayInNavbar: { type: Boolean, default: true },
+    
+    // Nested subcategories as JSON array
+    subcategories: { type: Array, default: [] }, // Array of nested subcategory objects
   },
   {
-    timestamps: true,
+    timestamps: true
   }
 );
 
-export const Category =
-  mongoose.models.Category ||
-  mongoose.model("Category", categorySchema);
+// Simple indexes (no unique constraints)
+categorySchema.index({ parentId: 1, position: 1 });
+categorySchema.index({ slug: 1 });
+
+// Force delete cached model to use new schema
+if (mongoose.models.Category) {
+  delete mongoose.models.Category;
+}
+
+export const Category = mongoose.model("Category", categorySchema);

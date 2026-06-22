@@ -1,17 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Maitree:wght@400;700&family=Montserrat:wght@400;500;700&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Maitree:wght@400;700&family=Montserrat:wght@400;500;700&display=swap'); */
 
 
 
-.font-playfair {
-  font-family: 'Playfair Display', serif;
-}
-@font-face {
-  font-family: "Serpentine";
-  src: url("/fonts/rerpentine-regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
 
 .font-serpentine {
   font-family: 'Serpentine', sans-serif;

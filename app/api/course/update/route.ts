@@ -22,11 +22,16 @@ export async function PUT(req: Request) {
 
     const updateData = await req.json();
 
-    // Find and update the course by link
+    // Handle empty categoryId - convert empty string to null
+    if (updateData.categoryId === '') {
+      updateData.categoryId = null;
+    }
+
+    // Find and update the course by link (skip validators to allow optional fields)
     const updatedCourse = await Course.findOneAndUpdate(
       { link: courseLink },
       updateData,
-      { new: true, runValidators: true }
+      { new: true, runValidators: false }
     );
 
     if (!updatedCourse) {

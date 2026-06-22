@@ -63,6 +63,11 @@ const DomainDataPage: React.FC<DomainDataPageProps> = ({ initialCourses, domainS
 
     const [courseData, setCourseData] = useState<Course[]>(initialCourses);
     const [isLoading, setIsLoading] = useState(false);
+
+    // Update course data when initial courses change (for server-side rendering)
+    useEffect(() => {
+        setCourseData(initialCourses);
+    }, [initialCourses]);
     // convert DB text → slug
     const makeSlug = (text: string) => {
         return text.toLowerCase().replace(/\s+/g, "-");
@@ -74,11 +79,7 @@ const DomainDataPage: React.FC<DomainDataPageProps> = ({ initialCourses, domainS
     };
 
     useEffect(() => {
-        // Only fetch if no initial data (fallback for client-side navigation)
-        if (initialCourses.length > 0) {
-            return;
-        }
-
+        // Fetch data whenever domaindata changes (route change) or if no initial data
         const fetchCourseData = async () => {
             if (domaindata === undefined || typeof domaindata !== 'string') {
                 return;
@@ -86,10 +87,20 @@ const DomainDataPage: React.FC<DomainDataPageProps> = ({ initialCourses, domainS
 
             setIsLoading(true);
             try {
-                const originalCategory = slugToCategory(domaindata);
+                // First fetch categories to find the category name from slug
+                const categoriesResponse = await fetch('/api/category/fetch');
+                let categoryName = domaindata; // fallback to slug as name
+                
+                if (categoriesResponse.ok) {
+                    const categories = await categoriesResponse.json();
+                    const foundCategory = categories.find((cat: any) => cat.slug === domaindata);
+                    if (foundCategory) {
+                        categoryName = foundCategory.name; // Use actual category name
+                    }
+                }
 
                 const response = await fetch(
-                    `/api/course/filtered/get-all?category=${encodeURIComponent(originalCategory)}`
+                    `/api/course/filtered/get-all?category=${encodeURIComponent(categoryName)}`
                 );
 
                 if (!response.ok) {
@@ -107,8 +118,9 @@ const DomainDataPage: React.FC<DomainDataPageProps> = ({ initialCourses, domainS
             }
         };
 
+        // Always fetch when domaindata changes, regardless of initial data
         fetchCourseData();
-    }, [domaindata, initialCourses]);
+    }, [domaindata]); // Remove initialCourses from dependency array
 
     // Helper function to format domain name for display
    const formatDomainName = (slug: string): string => {
@@ -366,12 +378,21 @@ export const getServerSideProps: GetServerSideProps<DomainDataPageProps> = async
         const protocol = context.req.headers.host?.includes('localhost') ? 'http' : 'https';
         const baseUrl = `${protocol}://${context.req.headers.host}`;
         
-        // Convert slug to category
-        const originalCategory = domaindata.replace(/-/g, " ");
+        // First, fetch categories to find the category name from slug
+        const categoriesResponse = await fetch(`${baseUrl}/api/category/fetch`);
+        let categoryName = domaindata; // fallback to slug as name
         
-        // Fetch courses and navbar data in parallel
+        if (categoriesResponse.ok) {
+            const categories = await categoriesResponse.json();
+            const foundCategory = categories.find((cat: any) => cat.slug === domaindata);
+            if (foundCategory) {
+                categoryName = foundCategory.name; // Use actual category name
+            }
+        }
+        
+        // Fetch courses and navbar data in parallel using the category name
         const [response, navbarData] = await Promise.all([
-            fetch(`${baseUrl}/api/course/filtered/get-all?category=${encodeURIComponent(originalCategory)}`),
+            fetch(`${baseUrl}/api/course/filtered/get-all?category=${encodeURIComponent(categoryName)}`),
             getNavbarData()
         ]);
 

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import {
   BackpackIcon,
@@ -21,7 +21,8 @@ import { UserContext } from '@/context/userContext';
 import { signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
-import { NavbarData, NavbarCategory } from '@/utils/navbarData';
+import { NavbarData, NavbarCategory, NavbarCourse } from '@/utils/navbarData';
+import CoursesDropdown from './CoursesDropdown';
 
 
 // Type definitions
@@ -59,169 +60,100 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const { authenticated, isAdmin, loading, userData } = useContext(UserContext) as UserContextType;
 
-  // Initialize with server-side data or empty arrays
-  const [categories] = useState<NavbarCategory[]>(navbarData?.categories || []);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [allCourses] = useState<Course[]>(navbarData?.allCourses || []);
-  const [isLoading] = useState<boolean>(false);
+  // Data states - using same approach as CoursesHome
+  const [coursesByCategory, setCoursesByCategory] = useState<NavbarCategory[]>([]);
+  const [allCourses, setAllCourses] = useState<NavbarCourse[]>([]);
+  const [categoriesData, setCategoriesData] = useState<any[]>([]); // Categories with subcategories
+  const [isLoading, setIsLoading] = useState(false);
   const pathname = usePathname();
-  // const [hasFetched, setHasFetched] = useState<boolean>(false);
+
   // Refs for click outside detection
   const coursesDropdownRef = useRef<HTMLDivElement>(null);
   const coursesButtonRef = useRef<HTMLButtonElement>(null);
   const searchDrawerRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
   const searchContainerRef = useRef<HTMLFormElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Initialize selected category when categories are available
+  // Click outside handler to close dropdown and search
   useEffect(() => {
-    if (categories.length > 0 && !selectedCategory) {
-      setSelectedCategory(categories[0].name);
-    }
-  }, [categories, selectedCategory]);
-
-  // Fallback: fetch data client-side if not provided via props
-
-  // Get courses for the selected category from server-side data
-  const selectedCategoryCourses = React.useMemo(() => {
-    const category = categories.find(cat => cat.name === selectedCategory);
-    return category?.courses || [];
-  }, [categories, selectedCategory]);
-
-
-  // Remove the filteredCategories memo since categories already come filtered from server
-  // const filteredCategories = React.useMemo(() => {
-  //   return categories.filter(
-  //     (cat) => cat.name !== "Trending Courses"
-  //   );
-  // }, [categories]);
-
-
-  // Remove the useEffect that fetches courses by category since we have server-side data
-  // useEffect(() => {
-  //   if (filteredCategories.length) {
-  //     const first = filteredCategories[0].name;
-  //     setSelectedCategory(first);
-  //     fetchCoursesByCategory(first);
-  //   }
-  // }, [filteredCategories]);
-
-  // Remove the useEffect that fetches all courses since we have server-side data
-  // useEffect(() => {
-  //   // Only fetch all courses if not provided via props
-  //   if (navbarData?.allCourses && navbarData.allCourses.length > 0) {
-  //     return; // Use server-side data
-  //   }
-
-  //   const fetchAllCourses = async () => {
-  //     try {
-  //       const res = await fetch(`/api/course/fetch`);
-
-  //       if (!res.ok) throw new Error("Failed");
-
-  //       const data: Course[] = await res.json();
-
-  //       setAllCourses(data);
-
-  //     } catch (err) {
-  //       console.error("Global course fetch failed", err);
-  //     }
-  //   };
-
-  //   fetchAllCourses();
-  // }, [navbarData]);
-
-
-  // useEffect(() => {
-  //   const fetchCourseData = async (): Promise<void> => {
-  //     setIsLoading(true);
-  //     try {
-  //       const res = await fetch(`/api/course/fetch`);
-  //       if (!res.ok) throw new Error(`API request failed with status ${res.status}`);
-
-  //       const data: Course[] = await res.json();
-  //       setCourse(data);
-
-  //     } catch (error: any) {
-  //       console.error("Failed to fetch course data:", error);
-  //       toast.error("Failed to fetch course data. Please try again.");
-  //       setCourse([]);
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-
-  //   fetchCourseData();
-  // }, []);
-
-  useEffect(() => {
-    if (isActive || searchActive) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isActive, searchActive]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent): void => {
-      const target = event.target as Node;
-
+    const handleClickOutside = (event: MouseEvent) => {
+      // Handle courses dropdown click outside
       if (
         coursesDropdownRef.current &&
+        !coursesDropdownRef.current.contains(event.target as Node) &&
         coursesButtonRef.current &&
-        !coursesDropdownRef.current.contains(target) &&
-        !coursesButtonRef.current.contains(target)
+        !coursesButtonRef.current.contains(event.target as Node)
       ) {
         setIsActive(false);
       }
-    };
 
-    if (isActive) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isActive]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent): void => {
-      const target = event.target as Node;
-
+      // Handle search drawer click outside
       if (
         searchDrawerRef.current &&
+        !searchDrawerRef.current.contains(event.target as Node) &&
         searchContainerRef.current &&
-        !searchDrawerRef.current.contains(target) &&
-        !searchContainerRef.current.contains(target)
+        !searchContainerRef.current.contains(event.target as Node)
       ) {
         setSearchActive(false);
         setSearchQuery('');
       }
     };
 
-    // Add event listener when search drawer is active
-    if (searchActive) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    // Cleanup
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [searchActive]);
+  }, []);
+
+  // ✅ FETCH GROUPED API (courses) and categories with subcategories
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch courses grouped by category
+        const coursesRes = await fetch("/api/course/fetch-grouped");
+        const coursesData: NavbarCategory[] = await coursesRes.json();
+        setCoursesByCategory(coursesData);
+
+        // Extract all courses for search
+        const allCoursesData: NavbarCourse[] = [];
+        coursesData.forEach(category => {
+          category.courses.forEach(course => {
+            allCoursesData.push({
+              ...course,
+              category: category.name
+            });
+          });
+        });
+        setAllCourses(allCoursesData);
+
+        // Fetch categories with subcategories
+        const categoriesRes = await fetch("/api/category/fetch");
+        const categoriesApiData = await categoriesRes.json();
+        setCategoriesData(categoriesApiData);
+
+        console.log('📋 Navbar data loaded:', {
+          totalCourses: allCoursesData.length,
+          categoriesCount: coursesData.length,
+          categoriesWithSubcategories: categoriesApiData.length,
+          subcategoriesFound: categoriesApiData.reduce((total: number, cat: any) => total + (cat.subcategories?.length || 0), 0)
+        });
+      } catch (err) {
+        console.error("Failed to fetch navbar data", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // Filter courses based on search query
-  const filteredCourses = React.useMemo((): Course[] => {
+  const filteredCourses = useMemo(() => {
     if (!searchQuery.trim() || !allCourses) return [];
 
     const query = searchQuery.toLowerCase();
     return allCourses.filter(c =>
-
       c.title?.toLowerCase().includes(query) ||
       c.category?.toLowerCase().includes(query) ||
       c.shortDesc?.toLowerCase().includes(query) ||
@@ -230,7 +162,7 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
   }, [allCourses, searchQuery]);
 
   // Group filtered courses by category for search results
-  const searchResultsByCategory = React.useMemo((): CourseCategory[] => {
+  const searchResultsByCategory = useMemo(() => {
     if (filteredCourses.length === 0) return [];
 
     const categories = [...new Set(filteredCourses.map(c => c?.category).filter(Boolean))];
@@ -241,22 +173,10 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
     }));
   }, [filteredCourses]);
 
-  // Remove the old coursesByCategory memo since we're using selectedCategoryCourses
-  // const coursesByCategory = React.useMemo(() => {
-  //   return filteredCategories.map((category) => ({
-  //     name: category.name,
-  //     courses:
-  //       selectedCategory === category.name
-  //         ? course
-  //         : [],
-  //   }));
-  // }, [filteredCategories, course, selectedCategory]);
-
-
-
-  // Simplified category selection - no need to fetch since we have all data
-  const handleCategorySelect = (name: string) => {
-    setSelectedCategory(name);
+  const handleCourseClick = (): void => {
+    setIsActive(false);
+    setSearchActive(false);
+    setSearchQuery('');
   };
 
 
@@ -271,12 +191,6 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
       setSearchActive(false);
       setSearchQuery('');
     }
-  };
-
-  const handleCourseClick = (): void => {
-    setIsActive(false);
-    setSearchActive(false);
-    setSearchQuery('');
   };
 
   const handleSearchFocus = (): void => {
@@ -623,112 +537,16 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
         </nav>
       </div>
 
-      {/* Courses Dropdown */}
-      <div
-        ref={coursesDropdownRef}
-        className={`transition-all duration-300 border-2 border-red-600 ${!isActive ? '-top-80 ' : 'top-24 '} absolute left-1/2 -translate-x-1/2 md:flex hidden w-full h-auto bg-black/40 text-[#1a1a1a] flex-col items-center  md:overflow-hidden overflow-y-auto md:pb-0 pb-5 z-40`}
-      >
-        <div className='px-4 h-auto w-full bg-white grid grid-cols-1 md:grid-cols-3 gap-4 py-4'>
-
-          <div className='col-span-1  p-2 flex h-80 flex-col gap-2 overflow-auto'>
-            <h3 className='font-semibold text-lg text-gray-800'>Course Categories</h3>
-            {categories.length === 0 ? (
-              <span>No categories available</span>
-            ) : (
-              categories.map((category) => (
-                <button
-                  key={category.name}
-                  data-testid="category-button"
-                  className={`text-left bg-gray-50 px-3 py-1 rounded ${selectedCategory === category.name
-                    ? "bg-red-700 text-white font-semibold"
-                    : "hover:bg-gray-100 text-gray-700"
-                    }`}
-                  onClick={() =>
-                    handleCategorySelect(category.name)
-                  }
-                  onMouseEnter={() =>
-                    handleCategorySelect(category.name)
-                  }
-                >
-                  {category.name}
-
-                  {selectedCategory === category.name && (
-                    <span className="ml-2 text-xs opacity-75">
-                      ({selectedCategoryCourses.length})
-                    </span>
-                  )}
-                </button>
-              ))
-
-            )}
-
-          </div>
-
-          <div className='col-span-1 md:col-span-2 p-4 flex flex-col bg-gray-100 rounded gap-2 border border-gray-200 max-h-80 overflow-y-auto'>
-            <div className='bg-[#B91C1C] rounded-lg text-center justify-center  border-b border-gray-200'>
-              <h3 className='font-semibold text-lg text-white p-1'>
-                {selectedCategory || 'All'} Courses
-              </h3>
-            </div>
-
-            <div className='grid grid-cols-1 gap-3'>
-              {isLoading ? (
-                <div className='flex items-center justify-center h-32'>
-                  <span className='text-gray-500'>Loading courses...</span>
-                </div>
-              ) : selectedCategoryCourses.length === 0 ? (
-                <div className='flex items-center justify-center h-32'>
-                  <span className='text-gray-500'>
-                    No courses available in this category
-                  </span>
-                </div>
-              ) : (
-                selectedCategoryCourses.map((c: Course) => (
-                  <Link
-                    key={`${c.id}-${c.link}`}
-                    href={`/courses/${c.link}`}
-                    onClick={handleCourseClick}
-                    data-testid="course-item"
-                    className='block p-2 bg-white rounded-lg border border-gray-200 hover:border-red-300 hover:shadow-sm transition-all duration-200 group'
-                  >
-                    <div className='flex flex-col gap-1'>
-                      <div className='flex items-start justify-between'>
-                        <h5 className='text-sm font-bold text-gray-900 group-hover:text-red-700 transition-colors'>
-                          <span
-                            dangerouslySetInnerHTML={{
-                              __html: c.title,
-                            }}
-                          />
-                        </h5>
-
-                        <span className='text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full whitespace-nowrap ml-2'>
-                          {c.level}
-                        </span>
-                      </div>
-
-                      <div className='text-sm text-gray-600 line-clamp-1'>
-                        <div
-                          dangerouslySetInnerHTML={{
-                            __html: c.shortDesc,
-                          }}
-                        />
-                      </div>
-
-                      <div className='flex items-center gap-4 text-xs text-gray-500'>
-                        <span>⭐ {c.rating}</span>
-                        <span>📅 {c.duration}</span>
-                      </div>
-                    </div>
-                  </Link>
-                ))
-              )}
-            </div>
-          </div>
-
-
-
-        </div>
-      </div>
+      {/* Courses Dropdown Component */}
+      <CoursesDropdown
+        isActive={isActive}
+        coursesByCategory={coursesByCategory}
+        allCourses={allCourses}
+        categoriesData={categoriesData}
+        isLoading={isLoading}
+        onCourseClick={handleCourseClick}
+        dropdownRef={coursesDropdownRef}
+      />
 
       {/* Search Drawer */}
       <div

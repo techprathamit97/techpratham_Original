@@ -28,7 +28,7 @@ const EmployeeLifecycle: React.FC = () => {
   };
 
   return (
-    <section className="relative z-40 w-full  mx-auto">
+    <section className="relative  w-full  mx-auto">
       {/* Lifecycle */}
       <div className="relative z-10 w-full">
         <div className="overflow-x-auto no-scrollbar">
