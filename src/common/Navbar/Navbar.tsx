@@ -73,12 +73,57 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
   const searchDrawerRef = useRef<HTMLDivElement>(null);
   const searchContainerRef = useRef<HTMLFormElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Click outside handler to close dropdown and search
+  // Hover handlers for dropdown - open on hover, close on mouse leave
+  const handleButtonMouseEnter = () => {
+    // Clear any pending close timeout
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current);
+      dropdownTimeoutRef.current = null;
+    }
+    setIsActive(true);
+  };
+
+  const handleButtonMouseLeave = () => {
+    // Delay closing to allow mouse to reach dropdown
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setIsActive(false);
+    }, 200);
+  };
+
+  const handleDropdownMouseEnter = () => {
+    // Clear any pending close timeout when mouse enters dropdown
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current);
+      dropdownTimeoutRef.current = null;
+    }
+    setIsActive(true);
+  };
+
+  const handleDropdownMouseLeave = () => {
+    // Close dropdown when mouse leaves the dropdown area
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setIsActive(false);
+    }, 200);
+  };
+
+  // Click handler for toggle (works with hover)
+  const handleCoursesClick = () => {
+    // Clear any pending close timeout
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current);
+      dropdownTimeoutRef.current = null;
+    }
+    setIsActive(!isActive);
+  };
+
+  // Click outside handler to close dropdown AND search
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // Handle courses dropdown click outside
       if (
+        isActive &&
         coursesDropdownRef.current &&
         !coursesDropdownRef.current.contains(event.target as Node) &&
         coursesButtonRef.current &&
@@ -103,7 +148,7 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [isActive]);
 
   // ✅ FETCH GROUPED API (courses) and categories with subcategories
   useEffect(() => {
@@ -184,15 +229,6 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
     setNavOpen(!navOpen);
   };
 
-  const handleCoursesToggle = (): void => {
-    setIsActive(!isActive);
-    // Close search drawer if open
-    if (searchActive) {
-      setSearchActive(false);
-      setSearchQuery('');
-    }
-  };
-
   const handleSearchFocus = (): void => {
     setSearchActive(true);
     // Close courses dropdown if open
@@ -263,10 +299,11 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
           </Link>
           <button
             ref={coursesButtonRef}
-            onClick={handleCoursesToggle}
-            onMouseEnter={handleCoursesToggle}
+            onClick={handleCoursesClick}
+            onMouseEnter={handleButtonMouseEnter}
+            onMouseLeave={handleButtonMouseLeave}
             className="hidden sm:flex flex-row text-white gap-1 items-center justify-center cursor-pointer text-[15px] hover:opacity-80 transition-opacity"
-            aria-label="Toggle courses menu"
+            aria-label="All Courses"
           >
             <DashboardIcon className="w-4 h-4" />
             <span className='text-sm'>All Courses</span>
@@ -546,6 +583,8 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
         isLoading={isLoading}
         onCourseClick={handleCourseClick}
         dropdownRef={coursesDropdownRef}
+        onMouseEnter={handleDropdownMouseEnter}
+        onMouseLeave={handleDropdownMouseLeave}
       />
 
       {/* Search Drawer */}

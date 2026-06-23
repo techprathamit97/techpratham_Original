@@ -11,6 +11,8 @@ interface CoursesDropdownProps {
   isLoading: boolean;
   onCourseClick: () => void;
   dropdownRef?: React.RefObject<HTMLDivElement>;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
 const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
@@ -20,7 +22,9 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
   categoriesData,
   isLoading,
   onCourseClick,
-  dropdownRef
+  dropdownRef,
+  onMouseEnter,
+  onMouseLeave
 }) => {
   const [hoveredCategory, setHoveredCategory] = useState<string>("");
   const [hoveredPath, setHoveredPath] = useState<string[]>([]); // Track the full path of nested subcategories
@@ -111,7 +115,8 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
     setHoveredPath([]);
   };
 
-  if (!isActive) return null;
+  // Use CSS visibility instead of conditional return so dropdown can detect hover
+  // when parent is transitioning between states
 
   // Render columns dynamically
   const renderColumns = () => {
@@ -299,7 +304,7 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
                     {hoveredPath[level]} - Courses
                   </h3>
                   <div className='flex-1 bg-white '>
-                    {courses.slice(0, 10).map((course) => (
+                    {courses.map((course) => (
                       <Link
                         key={course.id}
                         href={`/courses/${course.link}`}
@@ -334,7 +339,6 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
             <div className='flex-1 bg-white overflow-y-auto  max-h-[460px] [&::-webkit-scrollbar]:hidden '>
               {hoveredCategoryCourses.length > 0 ? (
                 hoveredCategoryCourses
-                  .slice(0, 15)
                   .map((course) => (
                     <Link
                       key={course.id}
@@ -364,11 +368,12 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
   return (
     <div
       ref={dropdownRef}
-      className={`transition-all duration-300  top-12 absolute left-1/2 -translate-x-1/2 md:flex hidden h-auto flex-col items-center md:overflow-hidden overflow-y-auto md:pb-0 pb-5 z-40`}
+      className={`transition-all duration-300 top-12 absolute left-1/2 -translate-x-1/2 md:flex h-auto flex-col items-center md:overflow-hidden overflow-y-auto md:pb-0 pb-5 z-40 ${isActive ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}
       style={{ width: calculateWidth() }}
-      onMouseLeave={handleDropdownLeave}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
-      <div className='px-2 h-auto w-full  flex py-4'>
+      <div className='px-2 h-auto w-full flex py-4'>
         {renderColumns()}
       </div>
     </div>

@@ -15,6 +15,7 @@ interface Course {
   link: string;
   shortDesc?: string;
   trending?: boolean;
+  priority?: number; // Add priority field
 }
 
 interface CourseCategory {
@@ -25,6 +26,22 @@ interface CourseCategory {
 interface CoursesHomeProps {
   initialGroupedCourses?: CourseCategory[];
 }
+
+// Helper function to sort courses by priority (lower number = higher priority)
+const sortCoursesByPriority = (courses: Course[]): Course[] => {
+  return courses.sort((a, b) => {
+    const priorityA = a.priority ?? 999; // Use nullish coalescing - if priority is null/undefined, use 999
+    const priorityB = b.priority ?? 999;
+    
+    // Sort by priority ASCENDING (lower numbers first: 0, 0, 1, 1, 2, 3, 3, 4, 5, 7, 7, 7, 8...)
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+    
+    // If priorities are equal, sort by title alphabetically as secondary sort
+    return (a.title || '').localeCompare(b.title || '');
+  });
+};
 
 export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeProps) {
   const [categoriesData, setCategoriesData] = useState<any[]>([]);
@@ -54,11 +71,11 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
       // Add trending courses to the collection
       trendingCourses.push(...trending);
 
-      // Keep non-trending courses in their original category
+      // Keep non-trending courses in their original category, sorted by priority
       if (nonTrending.length > 0) {
         nonTrendingCategories.push({
           name: category.name,
-          courses: nonTrending
+          courses: sortCoursesByPriority(nonTrending) // Sort courses by priority
         });
       }
     });
@@ -67,11 +84,13 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
     const result: CourseCategory[] = [];
     
     if (trendingCourses.length > 0) {
+      const sortedTrendingCourses = sortCoursesByPriority(trendingCourses);
       result.push({
         name: 'Trending Courses',
-        courses: trendingCourses
+        courses: sortedTrendingCourses
       });
-      console.log('✅ Created Trending Courses with', trendingCourses.length, 'courses:', trendingCourses.map(c => c.title?.substring(0, 30) || 'No title'));
+      console.log('✅ Created Trending Courses with', sortedTrendingCourses.length, 'courses (sorted by priority):');
+      console.log('   Course priorities:', sortedTrendingCourses.map(c => `${c.title?.substring(0, 25)}... (priority: ${c.priority ?? 'null'})`));
     }
 
     // Add other categories
@@ -136,9 +155,14 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
     const finalResult = categoriesFiltered.map(category => {
       if (category.name === 'Trending Courses') {
         console.log(`🔄 Updating Trending Courses: ${category.courses.length} -> ${allTrendingCourses.length} courses`);
+        const sortedTrendingCourses = sortCoursesByPriority(allTrendingCourses);
+        console.log('🎯 Final trending courses order by priority:');
+        sortedTrendingCourses.forEach((course, idx) => {
+          console.log(`   ${idx + 1}. ${course.title?.substring(0, 40)}... (priority: ${course.priority ?? 'undefined'})`);
+        });
         return {
           ...category,
-          courses: allTrendingCourses // Use ALL trending courses we found earlier
+          courses: sortedTrendingCourses // Use ALL trending courses we found earlier, sorted by priority
         };
       }
       return category;
@@ -148,9 +172,10 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
     const hasTrainingCoursesCategory = finalResult.some(cat => cat.name === 'Trending Courses');
     if (!hasTrainingCoursesCategory && allTrendingCourses.length > 0) {
       console.log('🆕 Creating Trending Courses category with', allTrendingCourses.length, 'courses');
+      const sortedTrendingCourses = sortCoursesByPriority(allTrendingCourses);
       finalResult.unshift({
         name: 'Trending Courses',
-        courses: allTrendingCourses
+        courses: sortedTrendingCourses
       });
     }
 
@@ -349,9 +374,9 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
   };
 
   return (
-    <section ref={sectionRef} id="courses" className="w-full bg-[#f3f9ff] py-10">
+    <section ref={sectionRef} id="courses" className="w-full bg-[#f3f9ff] py-5">
       <div className="max-w-6xl mx-auto px-4">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 md:mb-10 text-center md:text-left">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 md:mb-4 text-center md:text-left">
           Explore Our All Courses
         </h2>
 

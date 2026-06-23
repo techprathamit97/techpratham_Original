@@ -35,8 +35,7 @@ export default function ThreeDCarousel() {
   const [reviewImages, setReviewImages] = useState<ReviewImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<{ src: string; alt: string } | null>(null);
+
 
   // Fetch review images from backend
   useEffect(() => {
@@ -81,30 +80,13 @@ export default function ThreeDCarousel() {
       }));
 
   // Handle image click to open in full screen
-  const handleImageClick = (img: { src: string; alt: string }) => {
-    setSelectedImage(img);
-    setIsModalOpen(true);
-  };
-
+ 
+const middleIndex = Math.floor(imagesToDisplay.length / 2);
   // Handle modal close
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedImage(null);
-  };
+  
 
   // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isModalOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    
-    // Cleanup on unmount
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isModalOpen]);
+ 
 
   return (
     <div
@@ -121,27 +103,29 @@ export default function ThreeDCarousel() {
         )}
       </div>
         
-      <Swiper
-        onSwiper={(swiper) => (swiperRef.current = swiper)}
-        effect="coverflow"
-        grabCursor={true}
-        centeredSlides={true}
-        slidesPerView="auto"
-        loop={imagesToDisplay.length > 1}
-        autoplay={{
-          delay: 2000,
-          disableOnInteraction: false,
-        }}
-        coverflowEffect={{
-          rotate: 0,
-          stretch: 0,
-          depth: 200,
-          modifier: 3,
-          slideShadows: false,
-        }}
-        modules={[EffectCoverflow, Autoplay]}
-        className="w-full max-w-2xl"
-      >
+     <Swiper
+  onSwiper={(swiper) => (swiperRef.current = swiper)}
+  effect="coverflow"
+  grabCursor={true}
+  centeredSlides={true}
+  slidesPerView="auto"
+  initialSlide={middleIndex}   // ✅ ADD THIS - starts at center
+  loop={true}                  // ✅ Always true, not conditional
+  autoplay={{
+    delay: 1500,
+    disableOnInteraction: false,
+    reverseDirection: true,
+  }}
+  coverflowEffect={{
+    rotate: 0,
+    stretch: 0,
+    depth: 200,
+    modifier: 3,
+    slideShadows: false,
+  }}
+  modules={[EffectCoverflow, Autoplay]}
+  className="w-full max-w-2xl"
+>
         {imagesToDisplay.map((img, idx) => (
           <SwiperSlide
             key={`${img.src}-${idx}`}
@@ -149,7 +133,6 @@ export default function ThreeDCarousel() {
           >
             <div 
               className="w-full h-full rounded-xl overflow-hidden shadow-xl cursor-pointer hover:scale-105 transition-transform duration-200"
-              onClick={() => handleImageClick(img)}
             >
               <Image
                 src={img.src}
@@ -167,40 +150,6 @@ export default function ThreeDCarousel() {
         ))}
       </Swiper>
 
-      {/* Full Screen Modal - Reference from PlanSection */}
-      {isModalOpen && selectedImage && (
-        <div 
-          className="fixed inset-0 bg-black/70 flex items-center justify-center"
-          style={{ zIndex: 99999 }}
-          onClick={handleCloseModal}
-        >
-          <div 
-            className="relative w-[90%] md:w-[300px]  rounded-xl p-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            
-           
-
-            <div className="relative w-full h-[400px] md:h-[500px]">
-               <button
-              onClick={handleCloseModal}
-              className="absolute top-0 right-0 text-red-600 text-4xl z-50"
-            >
-              ✕
-            </button>
-              <Image
-                src={selectedImage.src}
-                alt={selectedImage.alt}
-                fill
-                className="object-contain rounded-lg"
-                onError={(e) => {
-                  e.currentTarget.src = fallbackImages[0];
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

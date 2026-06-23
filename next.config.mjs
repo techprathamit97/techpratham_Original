@@ -278,6 +278,26 @@ const nextConfig = {
         destination: '/blogs/how-to-master-workday-integration-how-it-works-the-best-modules-and-tools-for-smooth',
         permanent: true,         // 301 redirect
       },
+      {
+        source: '/courses/tosca-certification-training',
+        destination: '/courses/tosca-certification-training-in-india',
+        permanent: true,
+      },
+      {
+        source: '/courses/manual-testing-training',
+        destination: '/courses/manual-testing-training-in-india',
+        permanent: true,
+      },
+      {
+        source: '/courses/automation-software-testing',
+        destination: '/courses/automation-software-testing-in-india',
+        permanent: true,
+      },
+      {
+        source: '/courses/software-testing-using-selenium-training',
+        destination: '/courses/selenium-testing-training-in-india',
+        permanent: true,
+      },
 
     ];
   },
