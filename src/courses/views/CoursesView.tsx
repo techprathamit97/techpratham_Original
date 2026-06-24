@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { ChevronRightIcon, ChevronUpIcon, ChevronDownIcon } from "lucide-react";
 import Image from "next/image";
@@ -15,59 +14,81 @@ interface Course {
   link: string;
   shortDesc?: string;
   trending?: boolean;
+  priority?: number;
 }
 
 interface CourseCategory {
   name: string;
+  position?: number;
   courses: Course[];
 }
 
-export default function CoursesHome() {
+interface CoursesViewProps {
+  initialGroupedCourses?: CourseCategory[];
+}
+
+export default function CoursesHome({ initialGroupedCourses }: CoursesViewProps) {
   const [coursesByCategory, setCoursesByCategory] = useState<CourseCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const sectionRef = useRef<HTMLElement>(null);
 
-  const [selectedCategoryIdx, setSelectedCategoryIdx] = useState<number | null>(null);
-  const [visibleLimit, setVisibleLimit] = useState(8);
-  const [sidebarLimit, setSidebarLimit] = useState(8);
+  const [selectedCategoryIdx, setSelectedCategoryIdx] = useState<number>(0);
 
-  // ✅ FETCH GROUPED API
+  // ✅ Single state for courses show more/less - synchronized between sidebar and main
+  const [isCoursesExpanded, setIsCoursesExpanded] = useState(false);
+
+  // ✅ Mobile only - show more/less categories
+  const [showAllCategories, setShowAllCategories] = useState(false);
+
+  // ✅ Mobile - visible limit for courses
+  const [visibleLimit, setVisibleLimit] = useState(4);
+
+  // ✅ FETCH GROUPED API - use initialGroupedCourses if provided
   useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const res = await fetch("/api/course/fetch-grouped");
-        const data: CourseCategory[] = await res.json();
-        setCoursesByCategory(data);
-      } catch (err) {
-        console.error("Failed to fetch courses", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (initialGroupedCourses && initialGroupedCourses.length > 0) {
+      setCoursesByCategory(initialGroupedCourses);
+      setLoading(false);
+    } else {
+      const fetchCourses = async () => {
+        try {
+          const res = await fetch("/api/course/fetch-grouped?bustCache=true");
+          const data: CourseCategory[] = await res.json();
+          setCoursesByCategory(data);
+        } catch (err) {
+          console.error("Failed to fetch courses", err);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    fetchCourses();
+      fetchCourses();
+    }
   }, []);
 
-
-  // ✅ AUTO SELECT FIRST CATEGORY
-
-
-  useEffect(() => {
-    if (coursesByCategory.length) {
-      setSelectedCategoryIdx(0);
-    }
-  }, [coursesByCategory]);
-
+  // ✅ Handle category click - scroll to top and reset course expansion
   const handleCategoryChange = (idx: number) => {
-    setSelectedCategoryIdx(prev => (prev === idx ? null : idx));
-    setVisibleLimit(8);
+    setSelectedCategoryIdx(idx);
+    setIsCoursesExpanded(false);
+    setVisibleLimit(4);
+
+    // Scroll to top of the section
+    if (sectionRef.current) {
+      const offsetTop = sectionRef.current.offsetTop - 100;
+      window.scrollTo({ top: offsetTop, behavior: 'smooth' });
+    }
   };
 
-  const currentCategory =
-    selectedCategoryIdx !== null
-      ? coursesByCategory[selectedCategoryIdx]
-      : null;
+  // ✅ Toggle courses show more/less (synchronizes sidebar mobile and desktop main)
+  const toggleCourses = () => {
+    setIsCoursesExpanded(prev => !prev);
+  };
 
-  // 🔹 COURSE CARD (UNCHANGED)
+  const currentCategory = coursesByCategory[selectedCategoryIdx];
+
+  // ✅ Helper to get visible limits for desktop
+  const getCoursesLimit = (length: number) => isCoursesExpanded ? length : 8;
+
+  // 🔹 COURSE CARD
   const CourseCard = ({ course }: { course: Course }) => (
     <Link
       href={`/courses/${course.link}`}
@@ -112,7 +133,7 @@ export default function CoursesHome() {
   );
 
   return (
-    <section className="w-full bg-[#f3f9ff] py-10">
+    <section ref={sectionRef} className="w-full bg-[#f3f9ff] py-10">
       <div className="max-w-6xl mx-auto px-4">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 md:mb-10 text-center md:text-left">
           Explore Our All Courses
@@ -122,71 +143,125 @@ export default function CoursesHome() {
           {/* SIDEBAR */}
           <aside className="w-full md:w-1/4 flex flex-col gap-3">
             {loading ? (
-              <p className="text-gray-500">Loading categories...</p>
+              <div className="flex flex-col gap-3">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="h-10 bg-gray-200 rounded-lg animate-pulse"></div>
+                ))}
+              </div>
             ) : (
               <>
-                {coursesByCategory.slice(0, sidebarLimit).map((cat, idx) => (
-                  <div key={cat.name}>
-                    <button
-                      onClick={() => handleCategoryChange(idx)}
-                      className={`flex items-center justify-between px-5 py-2 rounded-lg w-full border transition-all
-                        ${
-                          selectedCategoryIdx === idx
+                {/* DESKTOP - SCROLLABLE */}
+                <div
+                  className="hidden md:flex flex-col gap-3 max-h-[400px] overflow-y-auto pr-2"
+                  style={{ scrollbarWidth: 'thin', scrollbarColor: '#C6151D #f3f9ff' }}
+                >
+                  <style jsx>{`
+                    div::-webkit-scrollbar {
+                      width: 6px;
+                    }
+                    div::-webkit-scrollbar-track {
+                      background: #f3f9ff;
+                      border-radius: 10px;
+                    }
+                    div::-webkit-scrollbar-thumb {
+                      background: #C6151D;
+                      border-radius: 10px;
+                    }
+                    div::-webkit-scrollbar-thumb:hover {
+                      background: #600A0E;
+                    }
+                  `}</style>
+                  {coursesByCategory.map((cat, idx) => (
+                    <div key={cat.name}>
+                      <button
+                        onClick={() => handleCategoryChange(idx)}
+                        onMouseEnter={() => {
+                          setSelectedCategoryIdx(idx);
+                          setVisibleLimit(4);
+                        }}
+                        className={`flex items-center justify-between px-5 py-2 rounded-lg w-full border transition-all
+                          ${selectedCategoryIdx === idx
                             ? "bg-gradient-to-tl from-[#C6151D] to-[#600A0E] text-white"
                             : "bg-white text-gray-700 hover:bg-yellow-500"
-                        }`}
-                    >
-                      {cat.name}
-                      <ChevronDownIcon
-                        className={`md:hidden transition-transform ${
-                          selectedCategoryIdx === idx ? "rotate-180" : ""
-                        }`}
-                      />
-                    </button>
+                          }`}
+                      >
+                        {cat.name}
+                      </button>
+                    </div>
+                  ))}
+                </div>
 
-                    {/* MOBILE */}
-                    {selectedCategoryIdx === idx && (
-                      <div className="md:hidden mt-4">
-                        <div className="flex overflow-x-auto gap-4 pb-4 no-scrollbar">
-                          {cat.courses.slice(0, visibleLimit).map(course => (
-                            <div key={course._id} className="flex-shrink-0 w-[85%]">
-                              <CourseCard course={course} />
-                            </div>
-                          ))}
-                        </div>
+                {/* MOBILE - SHOW MORE/LESS */}
+                <div className="md:hidden flex flex-col gap-3">
+                  {coursesByCategory
+                    .slice(0, showAllCategories ? coursesByCategory.length : 5)
+                    .map((cat, idx) => (
+                    <div key={cat.name}>
+                      <button
+                        onClick={() => handleCategoryChange(idx)}
+                        className={`flex items-center justify-between px-5 py-2 rounded-lg w-full border transition-all
+                          ${selectedCategoryIdx === idx
+                            ? "bg-gradient-to-tl from-[#C6151D] to-[#600A0E] text-white"
+                            : "bg-white text-gray-700 hover:bg-yellow-500"
+                          }`}
+                      >
+                        {cat.name}
+                        <ChevronDownIcon
+                          className={`transition-transform ${selectedCategoryIdx === idx ? "rotate-180" : ""
+                            }`}
+                        />
+                      </button>
 
-                        {cat.courses.length > 4 && (
-                          <div className="flex justify-center mt-2">
-                            <button
-                              onClick={() =>
-                                setVisibleLimit(
-                                  visibleLimit === 4 ? cat.courses.length : 4
-                                )
-                              }
-                              className="text-[#C6151D] text-xs font-bold"
-                            >
-                              {visibleLimit === 4 ? "Show More" : "Show Less"}
-                            </button>
+                      {/* MOBILE COURSES */}
+                      {selectedCategoryIdx === idx && (
+                        <div className="mt-4">
+                          <div className="flex overflow-x-auto gap-4 pb-4 no-scrollbar">
+                            {cat.courses.slice(0, visibleLimit).map(course => (
+                              <div key={course._id} className="flex-shrink-0 w-[85%]">
+                                <CourseCard course={course} />
+                              </div>
+                            ))}
                           </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
 
-                {/* SIDEBAR PAGINATION */}
-                {coursesByCategory.length > 8 && (
-                  <button
-                    onClick={() =>
-                      setSidebarLimit(
-                        sidebarLimit === 8 ? coursesByCategory.length : 8
-                      )
-                    }
-                    className="text-blue-600 text-sm font-medium mt-2 flex items-center gap-1 px-5 hover:underline"
-                  >
-                    {sidebarLimit === 8 ? "View more categories" : "View less"}
-                  </button>
-                )}
+                          {cat.courses.length > 4 && (
+                            <div className="flex justify-center mt-2">
+                              <button
+                                onClick={() =>
+                                  setVisibleLimit(
+                                    visibleLimit === 4 ? cat.courses.length : 4
+                                  )
+                                }
+                                className="text-[#C6151D] text-xs font-bold"
+                              >
+                                {visibleLimit === 4 ? "Show More" : "Show Less"}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* SHOW MORE/LESS CATEGORIES BUTTON - MOBILE ONLY */}
+                  {coursesByCategory.length > 5 && (
+                    <div className="flex justify-center mt-4">
+                      <button
+                        onClick={() => setShowAllCategories(!showAllCategories)}
+                        className="flex items-center gap-2 bg-white border border-[#C6151D] text-[#C6151D] px-4 py-2 rounded-full text-sm font-semibold hover:bg-[#C6151D] hover:text-white transition-colors"
+                      >
+                        {showAllCategories ? (
+                          <>
+                            Show Less <ChevronUpIcon className="w-4 h-4" />
+                          </>
+                        ) : (
+                          <>
+                            Show More <ChevronDownIcon className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </>
             )}
           </aside>
@@ -196,7 +271,7 @@ export default function CoursesHome() {
             {currentCategory && (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                  {currentCategory.courses.slice(0, visibleLimit).map(course => (
+                  {currentCategory.courses.slice(0, getCoursesLimit(currentCategory.courses.length)).map(course => (
                     <CourseCard key={course._id} course={course} />
                   ))}
                 </div>
@@ -204,22 +279,16 @@ export default function CoursesHome() {
                 {currentCategory.courses.length > 8 && (
                   <div className="flex justify-center mt-10">
                     <button
-                      onClick={() =>
-                        setVisibleLimit(
-                          visibleLimit === 8
-                            ? currentCategory.courses.length
-                            : 8
-                        )
-                      }
+                      onClick={toggleCourses}
                       className="flex items-center gap-2 bg-white border border-[#C6151D] text-[#C6151D] px-6 py-2 rounded-full font-semibold hover:bg-[#C6151D] hover:text-white transition-colors"
                     >
-                      {visibleLimit === 8 ? (
+                      {isCoursesExpanded ? (
                         <>
-                          Show more <ChevronRightIcon className="w-4 h-4" />
+                          Show less <ChevronUpIcon className="w-4 h-4" />
                         </>
                       ) : (
                         <>
-                          Show less <ChevronUpIcon className="w-4 h-4" />
+                          Show more <ChevronRightIcon className="w-4 h-4" />
                         </>
                       )}
                     </button>
@@ -233,5 +302,3 @@ export default function CoursesHome() {
     </section>
   );
 }
-
-

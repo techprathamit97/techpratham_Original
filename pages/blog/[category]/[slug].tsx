@@ -18,7 +18,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { client } from "@/lib/sanity";
 import { urlFor } from "@/lib/sanity";
 import { PortableText } from "@portabletext/react";
-
+import ReachForm from '@/components/common/ReachForm/ReachForm';
+import ToolTip from '@/components/common/ToolTip/ToolTip';
+import { notFound } from 'next/navigation';
 interface BlogPostWithStatus {
   _id: string;
   slug: string;
@@ -342,25 +344,16 @@ export default function BlogPostPage({ navbarData, post, relatedPosts, isPreview
             <p className="text-gray-600">Please wait while we load the article.</p>
           </div>
         </div>
+         <ReachForm />
+
+      <ToolTip />
       </IndexController>
     );
   }
 
   if (!post) {
-    return (
-      <IndexController navbarData={navbarData}>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-2xl font-semibold mb-2">Article Not Found</h2>
-            <p className="text-gray-600 mb-4">The article you're looking for doesn't exist.</p>
-            <Link href="/blog">
-              <Button>Back to Blog</Button>
-            </Link>
-          </div>
-        </div>
-      </IndexController>
-    );
-  }
+  notFound();
+}
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -736,6 +729,9 @@ export default function BlogPostPage({ navbarData, post, relatedPosts, isPreview
           </div>
         )}
       </article>
+     <ReachForm />
+
+      <ToolTip />
     </IndexController>
   );
 } 

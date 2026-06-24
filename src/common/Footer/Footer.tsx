@@ -109,7 +109,7 @@ const Footer = () => {
             <div className="text-base uppercase font-normal">Trending Certification Courses</div>
             <div className="flex flex-col capitalize text-[12px] font-light">
               <Link href="/courses/workday-certification-trainings" className="transition-all duration-300 hover:underline">Workday training</Link>
-              <Link href="/courses/workday-hcm-functional" className="transition-all duration-300 hover:underline">Workday HCM Training</Link>
+              <Link href="/courses/workday-hcm-functional-training" className="transition-all duration-300 hover:underline">Workday HCM Training</Link>
               <Link href="/courses/workday-finance-training-certification-online" className="transition-all duration-300 hover:underline">Workday Finance Training</Link>
               <Link href="/courses/servicenow-training-in-india" className="transition-all duration-300 hover:underline">Servicenow training</Link>
               <Link href="/courses/sap-training-in-india" className="transition-all duration-300 hover:underline">SAP Certification Training</Link>

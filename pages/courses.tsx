@@ -1,41 +1,4 @@
-// import React from 'react';
-// import Head from 'next/head';
 
-// import type { NextPage } from 'next';
-// import CoursesView from '@/src/courses/views/CoursesView';
-// import { CoursesController } from '@/src/courses/controller/CoursesController';
-
-
-
-// const CoursesPage: NextPage = () => {
-//     return (
-//         <div>
-//             <CoursesController>
-//                 <Head>
-//                     <link rel="icon" href="/favicon.ico" type="image/ico" sizes="70x70" />
-//                     <title>Courses | TechPratham - India's Leading IT Training Institute</title>
-//                     <meta name="description" content="Explore a wide range of IT courses at TechPratham. Advance your career with industry-relevant training and expert-led classes in programming, data science, cloud, and more." />
-//                     <meta name="keywords" content="TechPratham Courses, IT Training, Programming Courses, Data Science, Cloud Computing, Best IT Institute India, Online IT Courses" />
-//                     <meta name="author" content="the-bipu" />
-
-//                     <meta property="og:title" content="Courses | TechPratham - India's Leading IT Training Institute" />
-//                     <meta property="og:description" content="Browse our comprehensive IT courses and boost your skills with TechPratham's expert-led training programs." />
-//                     <meta property="og:image" content="/navbar/techpratham.svg" />
-//                     <meta property="og:url" content="https://www.techpratham.com/courses" />
-
-//                     <meta name="twitter:card" content="summary_large_image" />
-//                     <meta name="twitter:title" content="Courses | TechPratham - India's Leading IT Training Institute" />
-//                     <meta name="twitter:description" content="Advance your IT career with TechPratham's industry-focused courses and hands-on learning." />
-//                     <meta name="twitter:image" content="/navbar/techpratham.svg" />
-//                 </Head>
-
-//                 <CoursesView />
-//             </CoursesController>
-//         </div>
-//     );
-// };
-
-// export default CoursesPage;
 
 
 
@@ -51,16 +14,33 @@ import { getNavbarData, NavbarData } from '@/utils/navbarData';
 
 interface Course {
   id: string;
-  title: string;               
-  shortDescription: string;    
+  title: string;
+  shortDescription: string;
   link: string;
   rating?: number;
   ratingCount?: number;
+}
+interface Course {
+  _id: string;
+  title: string;
+  image: string;
+  alt?: string;
+  category: string;
+  link: string;
+  shortDesc?: string;
+  trending?: boolean;
+  priority?: number;
+}
+
+interface CourseCategory {
+  name: string;
+  courses: Course[];
 }
 
 interface CoursesPageProps {
   initialCourses: Course[];
   navbarData: NavbarData;
+  initialGroupedCourses?: CourseCategory[];
 }
 
 /* -------------------- Helpers -------------------- */
@@ -68,7 +48,7 @@ interface CoursesPageProps {
 const stripHtml = (html = ''): string =>
   html.replace(/<[^>]*>?/gm, '').trim();
 
-const CoursesPage: NextPage<CoursesPageProps> = ({ initialCourses, navbarData }) => {
+const CoursesPage: NextPage<CoursesPageProps> = ({ initialCourses, navbarData, initialGroupedCourses }) => {
   const [courses, setCourses] = useState<Course[]>(initialCourses);
 
   /* -------------------- Fetch courses (fallback for client-side navigation) -------------------- */
@@ -168,7 +148,7 @@ const CoursesPage: NextPage<CoursesPageProps> = ({ initialCourses, navbarData })
         ))}
 
         {/* -------------------- UI -------------------- */}
-        <CoursesView />
+        <CoursesView initialGroupedCourses={initialGroupedCourses} />
         
       </IndexController>
     </div>
@@ -180,22 +160,34 @@ export const getServerSideProps: GetServerSideProps<CoursesPageProps> = async (c
     // Use absolute URL for server-side fetch
     const protocol = context.req.headers.host?.includes('localhost') ? 'http' : 'https';
     const baseUrl = `${protocol}://${context.req.headers.host}`;
-    
+
     const res = await fetch(`${baseUrl}/api/get-course/pages?page=1`);
-    
+
     if (!res.ok) {
       throw new Error('Failed to fetch courses');
     }
-    
+
     const courses: Course[] = await res.json();
-    
+
     // Fetch navbar data
     const navbarData = await getNavbarData();
-    
+
+    // Fetch grouped courses for CoursesView
+    let groupedCourses: CourseCategory[] = [];
+    try {
+      const groupedRes = await fetch(`${baseUrl}/api/course/fetch-grouped`);
+      if (groupedRes.ok) {
+        groupedCourses = await groupedRes.json();
+      }
+    } catch (groupErr) {
+      console.error('Failed to fetch grouped courses:', groupErr);
+    }
+
     return {
       props: {
         initialCourses: courses || [],
         navbarData,
+        // Don't pass groupedCourses here - CoursesView will fetch its own data
       },
     };
   } catch (error) {

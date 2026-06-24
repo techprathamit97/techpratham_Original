@@ -3,6 +3,7 @@
 import { NextResponse } from "next/server";
 import { connectMongo } from "@/utils/mongodb";
 import Course from "@/models/course";
+import { Category } from "@/models/category";
 import { getCachedData, setCachedData, CACHE_TTL } from "@/lib/courseCache";
 
 export async function GET(request: Request) {
@@ -71,11 +72,24 @@ export async function GET(request: Request) {
     console.log('🔍 API Debug - Trending courses found:', trendingCourses.length);
     console.log('🔍 API Debug - Trending course titles:', trendingCourses.map(c => c.title?.substring(0, 30) || 'No title'));
 
+    // ✅ Fetch categories with position to sort them
+    const categoriesData = await Category.find({}, 'name position').sort({ position: 1 }).lean();
+
+    // Create a map of category name to position
+    const categoryPositionMap: Record<string, number> = {};
+    categoriesData.forEach(cat => {
+      categoryPositionMap[cat.name] = cat.position || 999;
+    });
+
     // ✅ 5️⃣ Convert category map → array (courses already sorted by priority from query)
     const normalCategories = Object.keys(categoryMap).map(category => ({
       name: category,
+      position: categoryPositionMap[category] || 999, // Include position for sorting
       courses: categoryMap[category], // Already sorted by priority from the main query
     }));
+
+    // ✅ Sort categories by position (lower position first)
+    normalCategories.sort((a, b) => a.position - b.position);
 
     // ✅ 6️⃣ DON'T include "Trending Courses" as separate category - CoursesHome will create "Training Courses" 
     // from trending courses found in other categories

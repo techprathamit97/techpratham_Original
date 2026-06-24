@@ -10,7 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
-
+import ReachForm from '@/components/common/ReachForm/ReachForm';
+import ToolTip from '@/components/common/ToolTip/ToolTip';
 interface BlogPost {
   _id: string;
   slug: string;
@@ -48,13 +49,13 @@ interface BlogsPageProps {
   totalPages: number;
 }
 
-export default function BlogsPage({ 
-  navbarData, 
-  posts, 
-  categories, 
-  totalPosts, 
-  currentPage, 
-  totalPages 
+export default function BlogsPage({
+  navbarData,
+  posts,
+  categories,
+  totalPosts,
+  currentPage,
+  totalPages
 }: BlogsPageProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
@@ -77,13 +78,15 @@ export default function BlogsPage({
       return;
     }
 
-    const filtered = posts.filter(post => 
+    const filtered = posts.filter(post =>
       post.title.toLowerCase().includes(query.toLowerCase()) ||
       post.excerpt.toLowerCase().includes(query.toLowerCase()) ||
       post.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
     );
     setFilteredPosts(filtered);
   };
+  const sortedCategories = categories
+    .sort((a, b) => b.postCount - a.postCount);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -100,12 +103,12 @@ export default function BlogsPage({
         <meta name="description" content="Explore our comprehensive blog covering the latest in technology, programming tutorials, industry insights, and professional development tips." />
         <meta name="keywords" content="tech blog, programming tutorials, technology insights, software development, IT training" />
         <link rel="canonical" href="https://www.techpratham.com/blog" />
-        
+
         <meta property="og:title" content="Blog - TechPratham | Latest Tech Insights & Tutorials" />
         <meta property="og:description" content="Explore our comprehensive blog covering the latest in technology, programming tutorials, industry insights, and professional development tips." />
         <meta property="og:url" content="https://www.techpratham.com/blog" />
         <meta property="og:type" content="website" />
-        
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -136,7 +139,7 @@ export default function BlogsPage({
               <p className="text-xl text-white mb-8">
                 Stay updated with the latest technology trends, tutorials, and industry insights
               </p>
-              
+
               {/* Search Bar */}
               <div className="relative max-w-md mx-auto">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -156,7 +159,7 @@ export default function BlogsPage({
           <div className="flex gap-3">
             {/* Categories Sidebar */}
             <div className="hidden lg:block w-64 flex-shrink-0">
-              <div className="bg-white rounded-lg p-3 shadow-sm border sticky top-24">
+              <div className="bg-white rounded-lg p-3 shadow-sm border sticky top-0">
                 <h2 className="text-lg font-semibold mb-4 text-gray-900">Categories</h2>
                 <div className="space-y-1">
                   <Link
@@ -164,17 +167,15 @@ export default function BlogsPage({
                     className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition-colors border-l-4 border-blue-500 bg-blue-50"
                   >
                     <span className="font-medium text-blue-700">All Posts</span>
-                    <Badge variant="secondary">{totalPosts}</Badge>
                   </Link>
-                  
-                  {categories.map((category) => (
+
+                  {sortedCategories.map((category) => (
                     <Link
                       key={category._id}
                       href={`/blog/${category.slug}`}
                       className="flex items-center justify-between p-1 rounded-lg hover:bg-gray-50 transition-colors border-l-4 border-transparent hover:border-gray-300"
                     >
                       <span className="text-gray-700">{category.name}</span>
-                      <Badge variant="outline">{category.postCount}</Badge>
                     </Link>
                   ))}
                 </div>
@@ -238,19 +239,19 @@ export default function BlogsPage({
                               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             />
                           </div>
-                          
+
                           {/* Content Below Image */}
                           <div className="p-6 bg-white">
                             {/* Title (repeated for better readability) */}
                             <h3 className="text-xl font-bold text-gray-900 mb-3 leading-tight">
                               {post.title}
                             </h3>
-                            
+
                             {/* Author and Date */}
                             <p className="text-gray-600 text-sm mb-4">
                               By {post.author} • {formatDate(post.publishedAt)}
                             </p>
-                            
+
                             {/* Read More Button */}
                             <div className="flex justify-start">
                               <div className="bg-black text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
@@ -269,10 +270,10 @@ export default function BlogsPage({
                             className="object-fill group-hover:scale-105 transition-transform duration-500"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 73vw"
                           />
-                          
+
                           {/* Gradient Overlay */}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                          
+
                           {/* Content Overlay */}
                           <div className="absolute inset-0 flex flex-col justify-between p-6">
                             {/* Category Badge at Top */}
@@ -281,17 +282,17 @@ export default function BlogsPage({
                                 {post.category}
                               </Badge> */}
                             </div>
-                            
+
                             {/* Title and Description at Bottom */}
                             <div>
                               <h3 className="text-xl md:text-2xl font-bold text-white mb-1 leading-tight group-hover:text-blue-200 transition-colors">
                                 {post.title}
                               </h3>
-                              
+
                               <p className="text-gray-200 text-sm mb-1 line-clamp-2 leading-relaxed">
                                 {post.excerpt}
                               </p>
-                              
+
                               <p className="text-gray-300 text-xs">
                                 {formatDate(post.publishedAt)}
                               </p>
@@ -326,14 +327,14 @@ export default function BlogsPage({
                 <div className="flex justify-center mt-12">
                   <div className="flex gap-2">
                     {currentPage > 1 && (
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => handlePageChange(currentPage - 1)}
                       >
                         Previous
                       </Button>
                     )}
-                    
+
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                       const page = i + 1;
                       return (
@@ -346,10 +347,10 @@ export default function BlogsPage({
                         </Button>
                       );
                     })}
-                    
+
                     {currentPage < totalPages && (
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => handlePageChange(currentPage + 1)}
                       >
                         Next
@@ -362,6 +363,9 @@ export default function BlogsPage({
           </div>
         </div>
       </div>
+      <ReachForm />
+
+      <ToolTip />
     </IndexController>
   );
 }
@@ -370,19 +374,19 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   try {
     const page = parseInt(query.page as string) || 1;
     const limit = 12;
-    
+
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    
+
     // Add cache headers and timeout to API requests
     const cacheHeaders = {
       'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
     };
-    
+
     const fetchOptions = {
       headers: cacheHeaders,
       timeout: 10000 // 10 second timeout
     };
-    
+
     // Fetch all data in parallel for better performance
     const [postsResponse, categoriesResponse, navbarResult] = await Promise.all([
       Promise.race([
@@ -395,29 +399,29 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
       ]) as Promise<Response>,
       (async () => {
         const navbarSSRFunction = withNavbarSSR<{ navbarData: any }>();
-        return await navbarSSRFunction({ 
-          params: {}, 
-          query, 
-          req: {} as any, 
-          res: {} as any, 
-          resolvedUrl: '' 
+        return await navbarSSRFunction({
+          params: {},
+          query,
+          req: {} as any,
+          res: {} as any,
+          resolvedUrl: ''
         });
       })()
     ]);
-    
+
     if (!postsResponse.ok) {
       throw new Error(`Posts API failed with status ${postsResponse.status}`);
     }
-    
+
     if (!categoriesResponse.ok) {
       throw new Error(`Categories API failed with status ${categoriesResponse.status}`);
     }
-    
+
     const [postsData, categoriesData] = await Promise.all([
       postsResponse.json(),
       categoriesResponse.json()
     ]);
-    
+
     let navbarData: any = {};
     if ('props' in navbarResult) {
       navbarData = (navbarResult as { props: { navbarData: any } }).props.navbarData;

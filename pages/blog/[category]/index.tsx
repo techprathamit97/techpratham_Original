@@ -9,7 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
-
+import ReachForm from '@/components/common/ReachForm/ReachForm';
+import ToolTip from '@/components/common/ToolTip/ToolTip';
 interface BlogPost {
   _id: string;
   slug: string;
@@ -84,7 +85,11 @@ export default function CategoryPage({
   };
 
   return (
+    <>
     <IndexController navbarData={navbarData}>
+       <ReachForm />
+
+      <ToolTip />
       <Head>
         <title>{currentCategory.name} - Blog | TechPratham</title>
         <meta name="description" content={currentCategory.description || `Explore ${currentCategory.name} articles and tutorials on TechPratham blog.`} />
@@ -129,7 +134,7 @@ export default function CategoryPage({
               
               {/* Search Bar */}
               <div className="relative max-w-md mx-auto">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-100 w-5 h-5" />
                 <Input
                   type="text"
                   placeholder="Search articles..."
@@ -344,7 +349,12 @@ export default function CategoryPage({
           </div>
         </div>
       </div>
+      
     </IndexController>
+     <ReachForm />
+
+      <ToolTip />
+    </>
   );
 }
 
