@@ -76,7 +76,7 @@ const Footer = () => {
               </span>
             </div>
             <div className="flex flex-col capitalize text-[14px] font-light gap-1">
-              <Link href="/" className="transition-all duration-300 hover:underline">
+              <Link href="https://maps.app.goo.gl/25dxU54X7i6CDC2aA" className="transition-all duration-300 hover:underline">
                 G-31, 1st Floor Sector-3, Noida 201301
               </Link>
             </div>
@@ -87,7 +87,7 @@ const Footer = () => {
               </span>
             </div>
             <div className="flex flex-col capitalize text-[14px] font-light gap-1">
-              <Link href="/" className="transition-all duration-300 hover:underline">
+              <Link href="https://maps.app.goo.gl/25dxU54X7i6CDC2aA" className="transition-all duration-300 hover:underline">
                 C-2, Sector-1, Noida, Uttar Pradesh - 201301
               </Link>
             </div>
@@ -97,7 +97,7 @@ const Footer = () => {
               </span>
             </div>
             <div className="flex flex-col capitalize text-[14px] font-light gap-1">
-              <Link href="/" className="transition-all duration-300 hover:underline">
+              <Link href="https://maps.app.goo.gl/qWSwV4SbAwLGiN2P6" className="transition-all duration-300 hover:underline">
                 LVS Arcade, 71, Hitech, 6th floor ,<br />
                 Madhapur Road, Jubilee Enclave,<br />
                 HITEC City, Hyderabad

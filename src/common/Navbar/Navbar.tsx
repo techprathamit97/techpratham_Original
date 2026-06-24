@@ -58,7 +58,21 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
   const [navOpen, setNavOpen] = useState<boolean>(false);
   const [searchActive, setSearchActive] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const { authenticated, isAdmin, loading, userData } = useContext(UserContext) as UserContextType;
+
+  // Handle case when UserContext is not available (e.g., in App Router pages)
+  let authenticated = false;
+  let isAdmin = false;
+  let loading = false;
+  let userData = null;
+
+  try {
+    const context = useContext(UserContext) as UserContextType | undefined;
+    if (context) {
+      ({ authenticated, isAdmin, loading, userData } = context);
+    }
+  } catch (e) {
+    // UserContext not available, use defaults
+  }
 
   // Data states - using same approach as CoursesHome
   const [coursesByCategory, setCoursesByCategory] = useState<NavbarCategory[]>([]);

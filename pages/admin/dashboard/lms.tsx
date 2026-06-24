@@ -262,13 +262,13 @@ const LmsDashboard = () => {
                               Manage Structure
                             </Button>
                           </Link>
-                          <Button
+                          {/* <Button
                             variant="manual"
                             className="px-3"
                             onClick={() => deleteLmsContent(course.lmsId)}
                           >
                             <TrashIcon className="w-5 h-5" />
-                          </Button>
+                          </Button> */}
                         </div>
                       </div>
                     </div>

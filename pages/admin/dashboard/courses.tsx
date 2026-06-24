@@ -258,7 +258,7 @@ const courses = () => {
                         </Link>
                         <Dialog>
                           <DialogTrigger asChild>
-                            <Button
+                            {/* <Button
                               variant='manual'
                               disabled={isDeleting && deletingCourseId === course._id}
                             >
@@ -267,7 +267,7 @@ const courses = () => {
                               ) : (
                                 <TrashIcon className='w-5 h-5' />
                               )}
-                            </Button>
+                            </Button> */}
                           </DialogTrigger>
                           <DialogContent className='bg-white'>
                             <DialogHeader>
