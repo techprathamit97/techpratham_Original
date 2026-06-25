@@ -7,7 +7,7 @@ import Logo from '../Navbar/logo'
 import SeoDropdown from "./SeoDropdown";
 const Footer = () => {
   return (
-    <div className="w-full h-auto flex flex-col items-center justify-center bg-[#212529] text-gray-300">
+    <div className="w-full h-auto flex flex-col items-center justify-center bg-black text-gray-300">
       <div className="md:w-11/12 w-11/12 flex flex-col py-3 gap-5">
 
         {/* Top part (your existing) */}

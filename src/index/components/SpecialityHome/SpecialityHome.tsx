@@ -225,23 +225,3 @@ const StaticChevronSteps = () => {
 
 export default StaticChevronSteps;
 
-// "use client";
-
-// import React from "react";
-// import Image from "next/image";
-
-// const StaticChevronSteps = () => {
-//   return (
-//     <div className="relative max-w-7xl mx-auto w-full h-[40vh] md:h-[90vh]">
-//       <Image
-//         src="/home/banner/placementprocess.png"
-//         alt="Placement Process"
-//         fill
-//         className="object-fill"
-//         priority
-//       />
-//     </div>
-//   );
-// };
-
-// export default StaticChevronSteps;

@@ -21,7 +21,7 @@ const STATIC_CERTIFICATE = {
       industry standards and enhances your professional credibility.
     </p>
   `,
-  image: "/course/certificate/certificate_no_name.webp",
+  image: "/course/certificate/certificate_course.webp",
 };
 
 const FaqSection = ({ id, course }: Props) => {
@@ -165,8 +165,8 @@ const FaqSection = ({ id, course }: Props) => {
           <div
             className={`text-transparent bg-gradient-to-b from-[#ff0000] to-[#1f1e1f] bg-clip-text ${
               isMobile
-                ? "text-lg sm:text-lg whitespace-nowrap overflow-hidden text-ellipsis"
-                : "text-lg md:text-2xl lg:text-2xl uppercase whitespace-nowrap"
+                ? "text-lg sm:text-lg  overflow-hidden text-ellipsis"
+                : "text-lg md:text-xl lg:text-xl uppercase whitespace-nowrap"
             } font-bold tracking-wide drop-shadow-sm`}
             style={{ fontFamily: "Noto Serif Ethiopic Condensed, serif" }}
           >

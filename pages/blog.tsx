@@ -148,7 +148,7 @@ export default function BlogsPage({
                   placeholder="Search articles..."
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
-                  className="pl-10 pr-4 py-3 w-full"
+                  className="pl-10 pr-4 py-3 w-full text-white"
                 />
               </div>
             </div>
@@ -267,7 +267,7 @@ export default function BlogsPage({
                             src={post.featuredImage.url}
                             alt={post.featuredImage.alt}
                             fill
-                            className="object-fill group-hover:scale-105 transition-transform duration-500"
+                            className="object-fill "
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 73vw"
                           />
 
@@ -285,11 +285,11 @@ export default function BlogsPage({
 
                             {/* Title and Description at Bottom */}
                             <div>
-                              <h3 className="text-xl md:text-2xl font-bold text-white mb-1 leading-tight group-hover:text-blue-200 transition-colors">
+                              <h3 className="text-lg md:text-[20px] font-bold text-white mb-1 leading-tight group-hover:text-blue-200 transition-colors">
                                 {post.title}
                               </h3>
 
-                              <p className="text-gray-200 text-sm mb-1 line-clamp-2 leading-relaxed">
+                              <p className="text-gray-200 text-xs mb-1 line-clamp-2 leading-relaxed">
                                 {post.excerpt}
                               </p>
 

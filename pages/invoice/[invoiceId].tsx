@@ -73,7 +73,7 @@ const InvoiceViewPage = () => {
     if (invoice && payment) {
       const payNum = parseInt(payment as string);
       setPaymentNumber(payNum);
-      
+
       // Calculate cumulative amount paid up to this payment
       if (invoice.installmentPayments && invoice.installmentPayments.length > 0) {
         const cumulative = invoice.installmentPayments
@@ -263,21 +263,19 @@ const InvoiceViewPage = () => {
             <div className="relative z-0">
 
               {/* Header Text Content - Normal Flow */}
-              <div className="flex justify-between items-start   px-8 pt-8 pb-6 text-white">
+              <div className="flex justify-between items-start   px-8 pt-5  pb-6 text-white">
 
                 {/* Left Side */}
-                <div className="w-64 pr-10 pt- flex items-start relative">
+                <div className="w-64 pr-10  flex items-start relative">
                   <Image
-                    src={'/navbar/logotechnolyfirst2.svg'}
+                    src={'/navbar/logo.svg'}
                     alt='Techpratham Logo'
                     width={60}
                     height={25}
                     className='w-full h-auto'
                   />
 
-                  <span className="absolute bottom-4 pl-2 left-1/4 text-[8px] text-white">
-                    Technology First
-                  </span>
+
                 </div>
 
                 {/* Center - Address with vertical line */}
@@ -289,7 +287,7 @@ const InvoiceViewPage = () => {
                   </div>
                   <div className="flex items-center">
                     <span className="mr-2">📞</span>
-                    <span>+91-8882178896</span>
+                    <span>+91-88821-78896</span>
                   </div>
                   <div className="flex items-center">
                     <span className="mr-2">✉️</span>
@@ -335,7 +333,7 @@ const InvoiceViewPage = () => {
                         <td className="border border-gray-400 pb-3  text-[10px] text-black" style={{ width: '33.33%' }}>
                           <span className="font-semibold">Fees Type :</span>{' '}
                           <span className="text-[10px]">
-                            {paymentNumber && invoice.feeType === 'Installments' 
+                            {paymentNumber && invoice.feeType === 'Installments'
                               ? `${paymentNumber}${paymentNumber === 1 ? 'st' : paymentNumber === 2 ? 'nd' : paymentNumber === 3 ? 'rd' : 'th'} Installment`
                               : invoice.feeType}
                           </span>
@@ -360,17 +358,17 @@ const InvoiceViewPage = () => {
                                 if (restAmount === 0) {
                                   return 'N.A';
                                 }
-                                
+
                                 // Get the next due date from the current payment record
                                 const currentPayment = invoice.installmentPayments[paymentNumber - 1];
                                 if (currentPayment && currentPayment.nextDueDate) {
                                   return formatDate(currentPayment.nextDueDate);
                                 }
-                                
+
                                 // Fallback to invoice dueDate
                                 return invoice.dueDate ? formatDate(invoice.dueDate) : 'N.A';
                               }
-                              
+
                               // Default view (not a specific payment)
                               return invoice.pendingAmount > 0 && invoice.dueDate ? formatDate(invoice.dueDate) : 'N.A';
                             })()}
@@ -462,9 +460,21 @@ const InvoiceViewPage = () => {
                   <div className="text-sm font-bold text-gray-800">Thank you!</div>
                   <div className="text-xs text-gray-600">for joining us</div>
                 </div>
-                <div className="mt-2">
-                  <div className="text-sm font-bold text-gray-800">Bharat Sahai</div>
-                  <div className="text-xs text-black">Authorised Signature</div>
+                <div className="mt-2 pt-2 ">
+
+                  <Image
+                    src="/navbar/signature.svg"
+                    alt="Bharat Sahai Signature"
+                    width={100}
+                    height={50}
+                    className="h-auto object-contain"
+                  />
+                  <div className="-mt-2 text-sm font-bold text-gray-800">
+                    Bharat Sahai
+                  </div>
+                  <div className="text-xs text-black">
+                    Authorised Signature
+                  </div>
                 </div>
                 {/* Thank You Message positioned over the bottom logo */}
 
