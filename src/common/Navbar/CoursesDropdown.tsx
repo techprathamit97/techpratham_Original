@@ -128,7 +128,9 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
         key="categories"
         className='w-64 bg-white border-r rounded-lg border-gray-200 flex flex-col'
       >
-
+<h3 className='font-bold text-sm rounded-t-lg text-gray-800 p-4 border-b border-gray-200 bg-blue-50'>
+             All Courses
+            </h3>
         <div className='flex-1 overflow-y-auto max-h-[460px] [&::-webkit-scrollbar]:hidden'>
           {isLoading ? (
             <div className='p-4 text-center'>
