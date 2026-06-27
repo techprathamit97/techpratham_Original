@@ -128,9 +128,9 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
         key="categories"
         className='w-64 bg-white border-r rounded-lg border-gray-200 flex flex-col'
       >
-<h3 className='font-bold text-sm rounded-t-lg text-gray-800 p-4 border-b border-gray-200 bg-blue-50'>
-             All Courses
-            </h3>
+        <h3 className='font-bold text-sm rounded-t-lg text-gray-800 p-4 border-b border-gray-200 bg-blue-50'>
+          All Courses
+        </h3>
         <div className='flex-1 overflow-y-auto max-h-[460px] [&::-webkit-scrollbar]:hidden'>
           {isLoading ? (
             <div className='p-4 text-center'>
@@ -148,7 +148,7 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
                 if (hiddenCategories.includes(category.name)) {
                   return false;
                 }
-                
+
                 // Only show categories that exist in the categories collection
                 const categoryData = categoriesData.find(cat => cat.name === category.name);
                 return categoryData && categoryData.slug; // Must have both category data and slug
@@ -157,43 +157,43 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
                 // Sort categories by position (lower position = shown first)
                 const categoryDataA = categoriesData.find(cat => cat.name === a.name);
                 const categoryDataB = categoriesData.find(cat => cat.name === b.name);
-                
+
                 const positionA = categoryDataA?.position || 999;
                 const positionB = categoryDataB?.position || 999;
-                
+
                 return positionA - positionB;
               })
               .map((category) => {
-              const hasSubcategories = categoryHasSubcategories(category.name);
-              const coursesCount = category.courses.length;
-              const subcategoriesCount = getSubcategoriesForCategory(category.name).length;
+                const hasSubcategories = categoryHasSubcategories(category.name);
+                const coursesCount = category.courses.length;
+                const subcategoriesCount = getSubcategoriesForCategory(category.name).length;
 
-              // Find category data to get the database slug  
-              const categoryData = categoriesData.find(cat => cat.name === category.name);
-              const categorySlug = categoryData?.slug;
+                // Find category data to get the database slug  
+                const categoryData = categoriesData.find(cat => cat.name === category.name);
+                const categorySlug = categoryData?.slug;
 
-              return (
-                <Link
-                  key={category.name}
-                  href={`/courses/domain/${categorySlug}`}
-                  className={`w-full text-left p-2 border-b border-gray-100 hover:bg-gray-100 transition-colors block ${hoveredCategory === category.name
+                return (
+                  <Link
+                    key={category.name}
+                    href={`/courses/domain/${categorySlug}`}
+                    className={`w-full text-left p-2 border-b border-gray-100 hover:bg-gray-100 transition-colors block ${hoveredCategory === category.name
                       ? "bg-red-100 text-red-700 font-semibold border-l-4"
                       : "text-gray-800"
-                    }`}
-                  onMouseEnter={() => handleCategoryHover(category.name)}
-                  onClick={onCourseClick}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-sm">{category.name}</span>
-                    <div className="flex items-center gap-1">
-                      {(hasSubcategories || coursesCount > 1) && (
-                        <IoIosArrowForward className="text-gray-400 text-lg" />
-                      )}
+                      }`}
+                    onMouseEnter={() => handleCategoryHover(category.name)}
+                    onClick={onCourseClick}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-sm">{category.name}</span>
+                      <div className="flex items-center gap-1">
+                        {(hasSubcategories || coursesCount > 1) && (
+                          <IoIosArrowForward className="text-gray-400 text-lg" />
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              );
-            })
+                  </Link>
+                );
+              })
           )}
         </div>
       </div>
@@ -224,7 +224,7 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
                 return (
                   <Link
                     key={subcategory.name}
-                    href={`/courses/domain/${subcategorySlug}`}
+                    href={`/courses/${subcategorySlug}`}
                     className={`w-full text-left p-3 border-b border-gray-100 hover:bg-gray-100 transition-colors flex items-center justify-between ${hoveredPath.length > 0 && hoveredPath[0] === subcategory.name ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700"
                       }`}
                     onMouseEnter={() => handleSubcategoryHover(subcategory.name, 0)}
@@ -232,7 +232,7 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
                   >
                     <div className="flex-1">
                       <div className="font-medium text-sm">{subcategory.name}</div>
-                     
+
                     </div>
                     {(hasChildren || courseCount > 0) && (
                       <IoIosArrowForward className="text-gray-400 text-lg" />
@@ -271,7 +271,7 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
                     return (
                       <Link
                         key={child.name}
-                        href={`/courses/domain/${nestedSlug}`}
+                        href={`/courses/${nestedSlug}`}
                         className={`w-full text-left p-3 border-b border-gray-100 hover:bg-gray-100 transition-colors flex items-center justify-between ${hoveredPath.length > currentLevelIndex + 1 && hoveredPath[currentLevelIndex + 1] === child.name ? "bg-green-50 text-green-700 font-medium" : "text-gray-700"
                           }`}
                         onMouseEnter={() => handleSubcategoryHover(child.name, currentLevelIndex + 1)}
@@ -354,7 +354,7 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
                   ))
               ) : (
                 <div className='p-4 text-sm text-gray-500 text-center'>
-                  
+
                   <p className="text-xs mt-1">Add courses in admin panel</p>
                 </div>
               )}
