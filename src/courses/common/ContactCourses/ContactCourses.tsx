@@ -45,7 +45,7 @@ export default function AddressCards() {
     return (
         <>
         
-        <div className="w-full bg-[#212529] mx-auto pt-5 px-6">
+        <div className="w-full bg-black mx-auto pt-5 px-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {items.map((item, index) => (
                     <div

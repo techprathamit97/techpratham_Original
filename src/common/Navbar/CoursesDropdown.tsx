@@ -87,7 +87,7 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
 
   // Calculate width based on how many levels are showing
   const calculateWidth = () => {
-    if (!hoveredCategory) return '270px';
+    if (!hoveredCategory) return '300px';
 
     let columns = 2; // Category + first level
     if (hoveredPath.length > 0) {
@@ -173,25 +173,27 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
                 const categorySlug = categoryData?.slug;
 
                 return (
-                  <Link
+                  <button
                     key={category.name}
-                    href={`/courses/domain/${categorySlug}`}
-                    className={`w-full text-left p-2 border-b border-gray-100 hover:bg-gray-100 transition-colors block ${hoveredCategory === category.name
-                      ? "bg-red-100 text-red-700 font-semibold border-l-4"
-                      : "text-gray-800"
+                    onClick={() => {
+                      handleCategoryHover(category.name);
+                    }}
+                    className={`w-60 flex items-center justify-between px-2 py-2 m-2 rounded-xl transition-all duration-300
+    ${hoveredCategory === category.name
+                        ? "bg-[#CA8A04] text-white shadow-lg"
+                        : "bg-gradient-to-tl from-[#b73137] to-[#d72a33]  text-white hover:shadow-md"
                       }`}
-                    onMouseEnter={() => handleCategoryHover(category.name)}
-                    onClick={onCourseClick}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-sm">{category.name}</span>
-                      <div className="flex items-center gap-1">
-                        {(hasSubcategories || coursesCount > 1) && (
-                          <IoIosArrowForward className="text-gray-400 text-lg" />
-                        )}
-                      </div>
-                    </div>
-                  </Link>
+                    <span className="text-[14px] font-semibold tracking-tight">
+                      {category.name}
+                    </span>
+
+                    <IoIosArrowForward
+                      className={`text-xl transition-transform duration-300 ${hoveredCategory === category.name
+                         
+                        }`}
+                    />
+                  </button>
                 );
               })
           )}
@@ -345,7 +347,7 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
                     <Link
                       key={course.id}
                       href={`/courses/${course.link}`}
-                      className="block w-full text-left p-3 border-b border-gray-100 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                      className="block w-full text-left p-3 border-b hover:underline hover:decoration-red-600 underline-offset-4 border-gray-100  transition-colors"
                       onClick={onCourseClick}
                     >
                       <div className="font-medium text-sm line-clamp-2" dangerouslySetInnerHTML={{ __html: course.title }} />
