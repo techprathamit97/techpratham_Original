@@ -130,25 +130,35 @@ export default function BlogsPage({
 
       <div className="min-h-screen bg-gray-50">
         {/* Header Section */}
-        <div className="bg-red-700 border-b">
-          <div className="container mx-auto px-4 py-12">
+        <div
+          className="relative border-b bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: "url('/training/blog.jpeg')", // Replace with your image path
+          }}
+        >
+          {/* Dark Overlay */}
+          <div className="absolute inset-0 bg-black/20"></div>
+
+          <div className="relative container mx-auto px-4 py-20">
             <div className="text-center max-w-3xl mx-auto">
               <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
                 TechPratham Blog
               </h1>
-              <p className="text-xl text-white mb-8">
+
+              <p className="text-xl text-gray-200 mb-8">
                 Stay updated with the latest technology trends, tutorials, and industry insights
               </p>
 
               {/* Search Bar */}
               <div className="relative max-w-md mx-auto">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+
                 <Input
                   type="text"
                   placeholder="Search articles..."
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
-                  className="pl-10 pr-4 py-3 w-full text-white"
+                  className="pl-10 pr-4 py-3 w-full bg-white/90 backdrop-blur-sm border-white text-black placeholder:text-gray-500"
                 />
               </div>
             </div>

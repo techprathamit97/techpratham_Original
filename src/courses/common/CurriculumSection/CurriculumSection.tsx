@@ -3,8 +3,47 @@ import { CircleCheckBig } from "lucide-react";
 import { CaretUpIcon } from "@radix-ui/react-icons";
 import { Separator } from "@/components/ui/separator";
 import CourseCard from "./CourseCard";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useForm } from "react-hook-form";
+import PhoneInput from "@/components/common/PhoneInput/PhoneInput";
 
-const VISIBLE_COUNT = 6;
+// Courses that should show PDF in left side (CNA courses)
+const PDF_COURSES = [
+  "servicenow-admin-certification",
+  "servicenow-itsm-training",
+  "servicenow-training-in-india"
+];
+
+// PDF paths for courses - stored in /training folder
+const PDF_PATHS: Record<string, string> = {
+  "servicenow-admin-certification": "/training/TechPratham_ServiceNow.pdf",
+  "servicenow-itsm-training": "/training/TechPratham_ServiceNow.pdf",
+  "servicenow-training-in-india": "/training/TechPratham_ServiceNow_Admin_ITSM.pdf"
+};
+
+const getPdfUrl = (courseTitle: string): string => {
+  // Create slug from course title (same logic as shouldShowPdf)
+  const courseSlug = courseTitle?.toLowerCase().replace(/<[^>]*>/g, '').replace(/\s+/g, "-") || "";
+
+  // Match course slug to PDF path
+  for (const [key, path] of Object.entries(PDF_PATHS)) {
+    if (courseSlug.includes(key)) {
+      // #toolbar=0 disables the top toolbar
+      // #navpanes=0 disables the left-hand page thumbnails/bookmarks menu sidebar
+      return `${path}#toolbar=0&navpanes=0`;
+    }
+  }
+
+  // Default PDF
+  return `/training/TechPratham_ServiceNow.pdf#toolbar=0&navpanes=0`;
+};
 
 interface CurriculumItem {
   que: string;
@@ -27,6 +66,116 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
   const [showAllCurriculum, setShowAllCurriculum] = useState(false);
   // const [showAllRelated, setShowAllRelated] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
+
+  // PDF Download Form State
+  const [pdfDialogOpen, setPdfDialogOpen] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [isPhoneValid, setIsPhoneValid] = useState(false);
+  const [pdfSubmitting, setPdfSubmitting] = useState(false);
+  const [pdfSubmitSuccess, setPdfSubmitSuccess] = useState(false);
+  const [pdfSubmitError, setPdfSubmitError] = useState("");
+
+  const { register, handleSubmit: handlePdfSubmit, reset: resetPdfForm, setValue: setPdfValue, formState: { errors: pdfErrors } } = useForm({
+    defaultValues: {
+      fullName: "",
+      phone: "",
+      email: "",
+      course: course?.title ? course.title.replace(/<[^>]*>/g, "") : "",
+      formType: "course-pdf-download",
+      consent: true,
+    },
+  });
+
+  // Check if visitor came from Google Ads
+  const isGoogleAdsVisitor = () => {
+    if (typeof window === "undefined") return false;
+    const searchParams = new URLSearchParams(window.location.search);
+    return searchParams.has("gclid") || searchParams.get("utm_source") === "google";
+  };
+
+  const onPdfSubmit = async (data: any) => {
+    // Allow submission even if phone validation state is not set
+    // The PhoneInput component will handle validation
+    if (!phoneNumber || phoneNumber.length < 5) {
+      setPdfSubmitError("Please enter a valid phone number");
+      return;
+    }
+
+    try {
+      setPdfSubmitting(true);
+      setPdfSubmitError("");
+
+      const googleAdsVisitor = isGoogleAdsVisitor();
+      const source = googleAdsVisitor ? "google_ads" : "website_form";
+
+      console.log("Submitting PDF form with data:", { ...data, phone: phoneNumber, source });
+
+      const response = await fetch("/api/leads", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...data,
+          phone: phoneNumber,
+          source: source,
+        }),
+      });
+
+      if (response.ok) {
+        setPdfSubmitSuccess(true);
+        console.log("PDF download form submitted successfully:", data);
+
+        resetPdfForm();
+        setPhoneNumber("");
+        setIsPhoneValid(false);
+
+        // Google Ads conversion tracking
+        if (googleAdsVisitor && typeof window !== "undefined") {
+          if ((window as any).gtag) {
+            (window as any).gtag("event", "conversion", {
+              send_to: "AW-17462500412/K_E4CNSPy-0bELy44oZB",
+            });
+          } else {
+            (window as any).dataLayer = (window as any).dataLayer || [];
+            (window as any).dataLayer.push({
+              event: "google_ads_conversion",
+              conversion_id: "17462500412",
+              conversion_label: "K_E4CNSPy-0bELy44oZB",
+            });
+          }
+        }
+
+        // Close dialog and trigger download after success
+        setTimeout(() => {
+          // Open PDF in new tab for download
+          const pdfUrl = getPdfUrl(course?.title || "");
+          console.log("Opening PDF URL:", pdfUrl);
+          window.open(pdfUrl, '_blank');
+
+          setPdfDialogOpen(false);
+          setPdfSubmitSuccess(false);
+        }, 2000);
+
+      } else {
+        const errorData = await response.json();
+        console.error("Form submission failed:", errorData);
+        setPdfSubmitError(errorData.message || "Failed to submit form. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting PDF form:", error);
+      setPdfSubmitError("Network error. Please check your connection and try again.");
+    } finally {
+      setPdfSubmitting(false);
+    }
+  };
+
+  // Update course field when course prop changes
+  useEffect(() => {
+    if (course?.title) {
+      setPdfValue("course", course.title.replace(/<[^>]*>/g, ""));
+    }
+  }, [course?.title, setPdfValue]);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -54,6 +203,12 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
 
   const visibleCurriculum = curriculumData;
 
+  // Check if this course should show PDF
+  const courseSlug = course.title?.toLowerCase().replace(/\s+/g, "-") || "";
+  const shouldShowPdf = PDF_COURSES.some(
+    (pdfCourse) => courseSlug.includes(pdfCourse.toLowerCase().replace(/\s+/g, "-")) || pdfCourse.toLowerCase() === courseSlug
+  );
+
   return (
     <section id={id} className="w-full bg-white ">
       <div className="flex justify-center m-2 border-2">
@@ -64,39 +219,159 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
 
             <div className="text-center flex flex-col mt-3 items-left">
               <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#CD4647] to-[#7F3B40]">
-                {course.curriculumTitle || `${course.title} Course Curriculum`}
+                {shouldShowPdf ? "Course Curriculum" : (course.curriculumTitle || `${course.title} Course Curriculum`)}
               </h2>
             </div>
 
-            <div className="bg-[#f7f7f7] rounded-lg p-5 flex flex-col gap-4 max-h-[450px] overflow-y-auto [&::-webkit-scrollbar]:hidden">
-              {visibleCurriculum.map((item, index) => (
-                <div key={index} className="flex gap-4">
+            {/* CONDITIONAL RENDER: PDF for special courses, Accordion for others */}
+            {shouldShowPdf ? (
+              /* PDF VIEWER */
+              <div className="bg-[#f7f7f7] rounded-lg p-5 flex flex-col gap-4 h-[500px]">
+                <iframe
+                  src={getPdfUrl(course.title)}
+                  className="w-full h-full rounded-lg"
+                  title="Course Curriculum PDF"
+                />
+                <button
+                  type="button"
+                  className="mt-2 inline-flex items-center justify-center px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-900 transition-colors cursor-pointer"
+                  onClick={() => setPdfDialogOpen(true)}
+                >
+                  Download Curriculum PDF
+                </button>
 
-                  {/* Timeline */}
-                  <div className={`flex flex-col items-center ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-                    (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
-                    ? "hidden"
-                    : ""
-                    }`}>
-                    <div className="w-3 h-3 bg-red-800 rounded-full mt-6" />
-                    <Separator orientation="vertical" className="flex-1 bg-red-800" />
-                  </div>
+                {/* PDF Download Form Dialog */}
+                <Dialog open={pdfDialogOpen} onOpenChange={setPdfDialogOpen}>
+                  <DialogContent className="sm:max-w-[425px] max-w-[90vw] max-h-[90vh] overflow-y-auto bg-white">
+                    <DialogHeader className="pb-2">
+                      <DialogTitle className="text-xl font-bold text-center text-gray-800">
+                        Download Course Curriculum
+                      </DialogTitle>
+                    </DialogHeader>
 
-                  {/* Accordion */}
-                  <div
-                    {...(!(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-                      (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && {
-                      onClick: () => toggle(index)
-                    })}
-                    className={`w-full rounded-xl py-2 transition-colors duration-200 ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
+                    <form
+                      onSubmit={handlePdfSubmit(onPdfSubmit)}
+                      className="flex flex-col gap-3 mt-1"
+                    >
+                      {/* Success/Error Messages */}
+                      {pdfSubmitSuccess && (
+                        <div className="bg-green-100 border border-green-400 rounded-lg px-3 py-2 text-green-700 text-sm text-center">
+                          ✅ Form submitted successfully! Downloading PDF...
+                        </div>
+                      )}
+
+                      {pdfSubmitError && (
+                        <div className="bg-red-100 border border-red-400 rounded-lg px-3 py-2 text-red-700 text-sm text-center">
+                          ❌ {pdfSubmitError}
+                        </div>
+                      )}
+
+                      {/* Name Field */}
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm font-medium text-gray-700">Full Name <span className="text-red-500">*</span></label>
+                        <Input
+                          {...register("fullName", { required: "Full name is required" })}
+                          type="text"
+                          placeholder="Enter your full name"
+                          disabled={pdfSubmitting}
+                          className="w-full border-gray-300 focus:border-red-500 focus:ring-red-500"
+                        />
+                        {pdfErrors.fullName && (
+                          <span className="text-red-500 text-xs">{pdfErrors.fullName.message}</span>
+                        )}
+                      </div>
+
+                      {/* Phone Number Field */}
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm font-medium text-gray-700">Contact Number <span className="text-red-500">*</span></label>
+                        <PhoneInput
+                          value={phoneNumber}
+                          onChange={(phone) => {
+                            setPhoneNumber(phone);
+                            setPdfValue("phone", phone);
+                          }}
+                          onValidationChange={setIsPhoneValid}
+                          placeholder="Enter contact number"
+                          required
+                          size="md"
+                        />
+                      </div>
+
+                      {/* Email ID Field */}
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm font-medium text-gray-700">Email ID <span className="text-red-500">*</span></label>
+                        <Input
+                          {...register("email", {
+                            required: "Email is required",
+                            pattern: {
+                              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                              message: "Invalid email address",
+                            },
+                          })}
+                          type="email"
+                          placeholder="Enter your email ID"
+                          disabled={pdfSubmitting}
+                          className="w-full border-gray-300 focus:border-red-500 focus:ring-red-500"
+                        />
+                        {pdfErrors.email && (
+                          <span className="text-red-500 text-xs">{pdfErrors.email.message}</span>
+                        )}
+                      </div>
+
+                      {/* Course Autofill Field */}
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm font-medium text-gray-700">Course</label>
+                        <Input
+                          {...register("course")}
+                          type="text"
+                          disabled
+                          className="w-full bg-gray-100 cursor-not-allowed font-medium text-gray-600"
+                        />
+                      </div>
+
+                      {/* Submit Button */}
+                      <Button
+                        type="submit"
+                        disabled={pdfSubmitting}
+                        className="w-full mt-2 font-semibold bg-red-800 hover:bg-red-900 text-white"
+                      >
+                        {pdfSubmitting ? "Submitting..." : "Download PDF"}
+                      </Button>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            ) : (
+              /* OLD FORMAT - Accordion */
+              <div className="bg-[#f7f7f7] rounded-lg p-5 flex flex-col gap-4 max-h-[450px] overflow-y-auto [&::-webkit-scrollbar]:hidden">
+                {visibleCurriculum.map((item, index) => (
+                  <div key={index} className="flex gap-4">
+
+                    {/* Timeline */}
+                    <div className={`flex flex-col items-center ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
                       (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
-                      ? "bg-gradient-to-tl from-[#C6151D] to-[#600A0E] ml-7 text-white"
-                      : "bg-yellow-600 text-black hover:bg-red-800  cursor-pointer px-3"
-                      }`}
-                  >
-                    <div className={`flex items-center ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-                      (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
-                      ? "justify-between w-full"
+                      ? "hidden"
+                      : ""
+                      }`}>
+                      <div className="w-3 h-3 bg-red-800 rounded-full mt-6" />
+                      <Separator orientation="vertical" className="flex-1 bg-red-800" />
+                    </div>
+
+                    {/* Accordion */}
+                    <div
+                      {...(!(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
+                        (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && {
+                        onClick: () => toggle(index)
+                      })}
+                      className={`w-full rounded-xl py-2 transition-colors duration-200 ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
+                        (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
+                        ? "bg-gradient-to-tl from-[#C6151D] to-[#600A0E] ml-7 text-white"
+                        : "bg-yellow-600 text-black hover:bg-red-800  cursor-pointer px-3"
+                        }`}
+                    >
+                      <div className={`flex items-center ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
+                        (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
+                        ? "justify-between w-full"
                       : "px-3"
                       }`}>
                       {/* Left Arrows for Value Added Learning */}
@@ -164,11 +439,12 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
                       )}
                   </div>
                 </div>
-              ))}
+                ))}
 
               {/* SHOW MORE / LESS */}
-              
+
             </div>
+            )}
           </div>
 
           {/* RIGHT SIDE */}
