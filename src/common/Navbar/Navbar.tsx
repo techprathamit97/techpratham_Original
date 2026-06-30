@@ -617,7 +617,7 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
             </h3>
             {searchQuery && (
               <p className='text-sm text-white mt-1'>
-                Found {filteredCourses.length} course{filteredCourses.length !== 1 ? 's' : ''}
+                Found {filteredCourses.length} course.{filteredCourses.length !== 1 ? 's' : ''}
               </p>
             )}
           </div>
