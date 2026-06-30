@@ -99,7 +99,7 @@ export default function BlogsPage({
   return (
     <IndexController navbarData={navbarData}>
       <Head>
-        <title>Blog - TechPratham | Latest Tech Insights & Tutorials</title>
+        <title>Blog - TechPratham | Latest Tech Insights & Tutorials.</title>
         <meta name="description" content="Explore our comprehensive blog covering the latest in technology, programming tutorials, industry insights, and professional development tips." />
         <meta name="keywords" content="tech blog, programming tutorials, technology insights, software development, IT training" />
         <link rel="canonical" href="https://www.techpratham.com/blog" />
