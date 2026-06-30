@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     // ✅ 3️⃣ Fetch only required fields including priority
     const courses = await Course.find(
       {},
-      "_id title image alt category link trending priority createdAt"
+      "_id title image alt category link shortDesc level rating duration trending priority createdAt"
     ).lean();
 
     console.log('📊 Database Query Results:');

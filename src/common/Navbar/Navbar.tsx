@@ -659,10 +659,10 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
                               {course.level}
                             </span>
                           </div>
-                          <p className='text-xs text-white group-hover:text-green-300 line-clamp-2'>
-                            <div dangerouslySetInnerHTML={{ __html: course.shortDesc }} />
-
-                          </p>
+                          <div
+  className="text-xs text-white group-hover:text-green-300 line-clamp-2"
+  dangerouslySetInnerHTML={{ __html: course.shortDesc }}
+/>
                           <div className='flex items-center gap-4 text-xs text-white'>
                             <span className='flex items-center gap-1'>
                               ⭐ {course.rating}
