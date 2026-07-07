@@ -240,7 +240,7 @@ export default function CategoryPage({
                             {/* Content Below Image */}
                             <div className="p-6 bg-white">
                               {/* Title */}
-                              <h3 className="text-xl font-bold text-gray-900 mb-3 leading-tight">
+                              <h3 className="text-sm font-bold text-gray-900 mb-3 leading-tight">
                                 {post.title}
                               </h3>
 
@@ -282,7 +282,7 @@ export default function CategoryPage({
 
                               {/* Title and Description at Bottom */}
                               <div>
-                                <h3 className="text-xl md:text-2xl font-bold text-white mb-3 leading-tight group-hover:text-blue-200 transition-colors">
+                                <h3 className="text-lg md:text-[20px] font-bold text-white mb-3 leading-tight group-hover:text-blue-200 transition-colors">
                                   {post.title}
                                 </h3>
 

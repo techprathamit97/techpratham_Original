@@ -91,11 +91,5 @@ export const teams = [
         name: "Shiva Nayak Dheeravath",
         position: "IT Consultant",
        
-    },
-    {
-        image: "/about/teams/manisha.webp",
-        name: "Manisha Chauhan",
-        position: "Senior HR Executive",
-       
     }
 ];
