@@ -21,6 +21,7 @@ import { PortableText } from "@portabletext/react";
 import ReachForm from '@/components/common/ReachForm/ReachForm';
 import ToolTip from '@/components/common/ToolTip/ToolTip';
 import { notFound } from 'next/navigation';
+import LeadForm from '@/components/common/LeadForm/LeadForm';
 interface BlogPostWithStatus {
   _id: string;
   slug: string;
@@ -192,6 +193,15 @@ export default function BlogPostPage({ navbarData, post, relatedPosts, isPreview
       normal: ({ children }: any) => <p className="leading-relaxed my-4 text-gray-700">{children}</p>,
     },
   };
+
+  const [showLeadForm, setShowLeadForm] = useState(false);
+  useEffect(() => {
+    // Show popup after 10 seconds for all users
+    const timer = setTimeout(() => {
+      setShowLeadForm(true);
+    }, 10000); // 10 seconds
+    return () => clearTimeout(timer);
+  }, []);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -732,6 +742,13 @@ export default function BlogPostPage({ navbarData, post, relatedPosts, isPreview
      <ReachForm />
 
       <ToolTip />
+      {showLeadForm && (
+              <LeadForm 
+                course={{ title: '' }}
+                onClose={() => setShowLeadForm(false)}
+                onSuccess={() => setShowLeadForm(false)}
+              />
+            )}
     </IndexController>
   );
 } 
