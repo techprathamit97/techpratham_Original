@@ -5,7 +5,7 @@ import Image from 'next/image';
 /* ================= DATA ================= */
 
 export const training_data = [
-  { que: "About trainer", icons: "/course/icons/1.webp", ans: "Working professional who is carrying more then 10 years of industry experience.", videoUrl: "https://content.techpratham.com/study_tips.mp4" },
+  { que: "About trainer", icons: "/course/icons/1.webp", ans: "Working professional who is carrying more than 10 years of industry experience.", videoUrl: "https://content.techpratham.com/study_tips.mp4" },
   { que: "Decks & Updated Content", icons: "/course/icons/2.webp", ans: "Access to updated presentation decks shared during live training sessions.", videoUrl: "https://content.techpratham.com/study_tips.mp4" },
   { que: "e-Book ", icons: "/course/icons/3.webp", ans: "E-book provided by TechPratham. All rights reserved.", link: "/e-book/workday" },
   { que: "Assignments & MCQs ", icons: "/course/icons/4.webp", ans: "Module-wise assignments and MCQs provided for practice.", link: "/e-book/workday" },

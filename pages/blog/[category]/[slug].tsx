@@ -199,7 +199,7 @@ export default function BlogPostPage({ navbarData, post, relatedPosts, isPreview
     // Show popup after 10 seconds for all users
     const timer = setTimeout(() => {
       setShowLeadForm(true);
-    }, 10000); // 10 seconds
+    }, 8000); // 8 seconds
     return () => clearTimeout(timer);
   }, []);
 
