@@ -350,44 +350,7 @@ const HeroHome = () => {
       <div className="absolute inset-0 bg-black/40"></div>
 
       {/* Floating Icons - Hidden on Mobile */}
-      <div className="absolute inset-0 pointer-events-none hidden md:block z-30">
-        {icons.map((icon, index) => {
-          const positions = [
-            { top: "10%", left: "5%" },
-            { top: "15%", right: "8%" },
-            { top: "25%", left: "15%" },
-            { top: "30%", right: "20%" },
-            { top: "50%", left: "8%" },
-            { top: "55%", right: "12%" },
-            { top: "70%", left: "12%" },
-            { top: "80%", right: "5%" },
-            { top: "85%", left: "20%" },
-            { top: "65%", right: "25%" },
-          ];
-
-          return (
-            <Link
-              key={index}
-              href={icon.link}
-              className="absolute pointer-events-auto icon-bounce"
-              style={{
-                ...positions[index],
-                animationDelay: `${index * 0.5}s`,
-              }}
-            >
-              <div className="bg-white p-1.5 md:p-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-                <Image
-                  src={`/${icon.img}`}
-                  alt={`Icon ${index + 1}`}
-                  width={40}
-                  height={40}
-                  className="w-12 h-6 md:w-12 md:h-8 object-contain"
-                />
-              </div>
-            </Link>
-          );
-        })}
-      </div>
+     
 
       {/* Content */}
       <div className="absolute  left-0 w-full z-10 px-4 text-center">
@@ -404,7 +367,7 @@ const HeroHome = () => {
               placeholder="Search courses..."
               value={searchQuery}
               onChange={handleSearchChange}
-              className="w-full md:px-6 px-3 md:py-3 py-1 pr-16 rounded-full text-black text-base outline-none shadow-lg"
+              className="w-full md:px-6 px-3 md:py-2 py-1 pr-16 rounded-full text-black text-base outline-none shadow-lg"
             />
             <button
               onClick={handleSearchButtonClick}
@@ -453,7 +416,7 @@ const HeroHome = () => {
         {/* Enroll Button */}
         <button
           onClick={() => setShowLeadForm(true)}
-          className="hidden md:inline-block bg-gradient-to-tl from-[#C6151D] to-[#600A0E] px-8 md:py-3 py-2 rounded-full font-semibold text-lg transition shadow-lg hover:shadow-xl"
+          className="hidden md:inline-block bg-gradient-to-tl from-[#C6151D] to-[#600A0E] px-8 md:py-2 py-2 rounded-full font-semibold text-lg transition shadow-lg hover:shadow-xl"
         >
           Enroll Now!
         </button>

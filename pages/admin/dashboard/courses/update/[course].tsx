@@ -493,6 +493,62 @@ const UpdateCoursePage = () => {
     }
   }, [certImage]);
 
+  // Fix category selection after both course data and categories are loaded
+  useEffect(() => {
+    if (!loading && categories.length > 0 && flattenedSubcategories.length > 0) {
+      const courseData = form.getValues();
+      const courseCategoryId = courseData.categoryId;
+      const courseSubcategoryPath = courseData.subcategoryPath;
+      
+      console.log('Fixing category selection for:', { courseCategoryId, courseSubcategoryPath });
+      console.log('Available flattened categories:', flattenedSubcategories.map(c => ({ id: c.id, name: c.name, path: c.path })));
+      
+      if (courseCategoryId) {
+        // Check if current value exists in dropdown options
+        const currentValueExists = flattenedSubcategories.some(item => item.id === courseCategoryId);
+        
+        if (currentValueExists) {
+          console.log('Current categoryId value is valid:', courseCategoryId);
+          return; // No need to fix if current value is valid
+        }
+        
+        // Find the correct dropdown value
+        let correctDropdownValue = null;
+        
+        if (courseSubcategoryPath) {
+          // For subcategories, find the flattened item that matches
+          const subcategoryItem = flattenedSubcategories.find(item => {
+            const [itemCategoryId, itemPath] = item.id.split(':');
+            return itemCategoryId === courseCategoryId && itemPath === courseSubcategoryPath;
+          });
+          
+          if (subcategoryItem) {
+            correctDropdownValue = subcategoryItem.id;
+            console.log('Found matching subcategory item:', correctDropdownValue);
+          }
+        } else {
+          // For main categories, find by categoryId
+          const mainCategoryItem = flattenedSubcategories.find(item => 
+            item.id === courseCategoryId && item.path === ''
+          );
+          
+          if (mainCategoryItem) {
+            correctDropdownValue = mainCategoryItem.id;
+            console.log('Found matching main category item:', correctDropdownValue);
+          }
+        }
+        
+        // Update the form value to match dropdown options
+        if (correctDropdownValue) {
+          console.log('Updating categoryId from', courseCategoryId, 'to', correctDropdownValue);
+          form.setValue('categoryId', correctDropdownValue);
+        } else {
+          console.warn('Could not find matching category in dropdown options');
+        }
+      }
+    }
+  }, [loading, categories, flattenedSubcategories, form]);
+
   const fetchCategories = async () => {
     try {
       setIsFetchingCategories(true);
@@ -536,8 +592,8 @@ const UpdateCoursePage = () => {
             const indent = '  '.repeat(depth + 1);
             const icon = depth === 0 ? '📂' : '📄';
 
-            // Use unique ID: categoryId + path + subcategory name to ensure uniqueness
-            const uniqueId = `${category._id}:${currentPath}:${sub.name}`;
+            // Use unique ID: categoryId:path format for subcategories
+            const uniqueId = `${category._id}:${currentPath}`;
 
             if (!uniqueIds.has(uniqueId)) {
               uniqueIds.add(uniqueId);
@@ -570,25 +626,41 @@ const UpdateCoursePage = () => {
   };
 
   const handleCategoryChange = (value: string) => {
+    console.log('Category change selected value:', value);
     const selected = flattenedSubcategories.find(item => item.id === value);
-    if (!selected) return;
+    console.log('Selected category item:', selected);
+    
+    if (!selected) {
+      console.warn('No category found for value:', value);
+      return;
+    }
 
     if (selected.path === '') {
       // Main category selected
+      console.log('Main category selected:', selected.name);
       form.setValue('category', selected.name);
       form.setValue('categoryId', selected.id);
       form.setValue('subcategoryPath', '');
       form.setValue('subcategoryName', '');
     } else {
       // Subcategory selected
+      console.log('Subcategory selected:', selected.name, 'path:', selected.path);
       const [categoryId] = selected.id.split(':');
       const category = categories.find(cat => cat._id === categoryId);
+      console.log('Parent category found:', category?.name);
 
       form.setValue('category', category?.name || '');
       form.setValue('categoryId', categoryId);
       form.setValue('subcategoryPath', selected.path);
       form.setValue('subcategoryName', selected.name);
     }
+    
+    console.log('Form values after change:', {
+      category: form.getValues('category'),
+      categoryId: form.getValues('categoryId'),
+      subcategoryPath: form.getValues('subcategoryPath'),
+      subcategoryName: form.getValues('subcategoryName')
+    });
   };
 
   const getProfileImageUrl = () => {
@@ -788,16 +860,35 @@ const UpdateCoursePage = () => {
   setIsSubmitting(true);
 
   try {
+    // Process category data correctly for API
+    const processedData = { ...data };
+    
+    // Handle category data - extract the actual categoryId from dropdown selection
+    if (processedData.categoryId) {
+      if (processedData.subcategoryPath) {
+        // For subcategories, extract categoryId from composite value
+        const [actualCategoryId] = processedData.categoryId.split(':');
+        processedData.categoryId = actualCategoryId;
+      }
+      // For main categories, categoryId is already correct
+    }
+    
     // ✅ Clear ONLY objective field before update
     const updatedData = {
-      ...data,
-      project_data: data.project_data?.map((project) => ({
+      ...processedData,
+      project_data: processedData.project_data?.map((project) => ({
         ...project,
         objective: "", // or null if backend allows
       })),
     };
 
     console.log("Updating form data:", updatedData);
+    console.log("Category data being sent:", {
+      categoryId: updatedData.categoryId,
+      subcategoryPath: updatedData.subcategoryPath,
+      subcategoryName: updatedData.subcategoryName,
+      category: updatedData.category
+    });
 
     const response = await fetch(`/api/course/update?link=${courseUrl}`, {
       method: "PUT",
@@ -924,7 +1015,16 @@ const UpdateCoursePage = () => {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Category / Subcategory <span className='text-red-500'>*</span></FormLabel>
-                                <Select onValueChange={handleCategoryChange} value={form.watch('categoryId')}>
+                                <Select 
+                                  onValueChange={handleCategoryChange} 
+                                  value={form.watch('categoryId')}
+                                  onOpenChange={(open) => {
+                                    if (open) {
+                                      console.log('Dropdown opened. Current value:', form.watch('categoryId'));
+                                      console.log('Available options:', flattenedSubcategories.map(c => ({ id: c.id, name: c.displayName })));
+                                    }
+                                  }}
+                                >
                                   <FormControl>
                                     <SelectTrigger>
                                       <SelectValue placeholder={

@@ -190,7 +190,7 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
 
                     <IoIosArrowForward
                       className={`text-xl transition-transform duration-300 ${hoveredCategory === category.name
-                         
+
                         }`}
                     />
                   </button>
