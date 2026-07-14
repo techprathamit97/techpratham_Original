@@ -27,20 +27,10 @@ interface CoursesHomeProps {
   initialGroupedCourses?: CourseCategory[];
 }
 
-// Helper function to sort courses by priority (lower number = higher priority)
+// Helper function to sort courses by priority (same as navbar logic)
 const sortCoursesByPriority = (courses: Course[]): Course[] => {
-  return courses.sort((a, b) => {
-    const priorityA = a.priority ?? 999; // Use nullish coalescing - if priority is null/undefined, use 999
-    const priorityB = b.priority ?? 999;
-    
-    // Sort by priority ASCENDING (lower numbers first: 0, 0, 1, 1, 2, 3, 3, 4, 5, 7, 7, 7, 8...)
-    if (priorityA !== priorityB) {
-      return priorityA - priorityB;
-    }
-    
-    // If priorities are equal, sort by title alphabetically as secondary sort
-    return (a.title || '').localeCompare(b.title || '');
-  });
+  // DON'T SORT - use the order as it comes from the API (same as navbar)
+  return courses;
 };
 
 export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeProps) {
