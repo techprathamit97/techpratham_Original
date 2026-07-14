@@ -67,16 +67,26 @@ const BlogsHome = () => {
   );
 
   return (
-    <div className='w-full h-auto flex flex-col items-center justify-center py-3 gap-10 bg-black text-white'>
+    <div className='w-full h-auto flex flex-col items-center justify-center   bg-white text-black'>
 
       {/* Heading */}
-      <div className='md:w-10/12 w-11/12 h-auto flex flex-col items-center text-center'>
-        <div className="md:text-3xl text-2xl md:font-semibold font-medium capitalize">
-          Read Our{' '}
-          <span className='bg-gradient-to-tr from-[#FC7A35] to-[#f8da52] text-transparent bg-clip-text'>
-            Latest Blogs
-          </span>
-        </div>
+      <div className="text-center py-2 pb-4 ">
+        <h2 className="text-[#7f1d1d] md:text-3xl text-2xl font-bold">
+           Read Our Latest Blogs  
+        </h2>
+
+        <svg
+          className="mx-auto"
+          width="340"
+          height="6"
+          viewBox="0 0 340 6"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0 3 Q170 0 340 3 Q170 6 0 3 Z"
+            fill="#7f1d1d"
+          />
+        </svg>
       </div>
 
       {/* Swiper Section — shared for both mobile and desktop */}
@@ -155,11 +165,11 @@ const BlogsHome = () => {
                         src={post.coverImage}
                         alt={post.title}
                         fill
-                        className="object-cover "
+                        className="object-fill "
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gray-800" />
+                      <div className="w-full h-full bg-black" />
                     )}
 
                     {/* Gradient Overlay */}
@@ -177,7 +187,7 @@ const BlogsHome = () => {
 
                       {/* Bottom Content */}
                       <div className="mt-auto">
-                        <h3 className="text-xl font-bold text-white mb-1 leading-tight group-hover:text-blue-200 transition-colors">
+                        <h3 className="text-xl font-bold text-white mb-1 leading-tight group-hover:text-blue-200 transition-colors line-clamp-3">
                           {post.title}
                         </h3>
                         <p className="text-gray-200 text-xs mb-1 line-clamp-2 leading-relaxed">

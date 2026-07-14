@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArchiveIcon, AvatarIcon, DashboardIcon, ExitIcon, LaptopIcon, LightningBoltIcon } from '@radix-ui/react-icons';
 import { signOut } from 'next-auth/react';
 import { UserContext } from '@/context/userContext';
-import { BellIcon, CircleCheckBigIcon, BookOpen, PenTool, ImageIcon } from 'lucide-react';
+import { BellIcon, CircleCheckBigIcon, BookOpen, PenTool, ImageIcon, MessageSquare } from 'lucide-react';
 import { TbArticle } from 'react-icons/tb';
 
 const AdminSidebar = () => {
@@ -113,6 +113,11 @@ const AdminSidebar = () => {
                     <Link href='/admin/dashboard/review-images' className={`text-[#606060] flex flex-row gap-3 items-center rounded-tr rounded-br justify-start text-lg py-1 px-3 cursor-pointer transition-all duration-200 ${currentTab === 'review-images' && 'bg-[#600A0E] hover:bg-[#C6151D] text-white border-l-2 border-l-[#c1c1c1]'}`}>
                         <ImageIcon className='w-6 h-6' />
                         <div>Review Images</div>
+                    </Link>
+
+                    <Link href='/admin/dashboard/reviews' className={`text-[#606060] flex flex-row gap-3 items-center rounded-tr rounded-br justify-start text-lg py-1 px-3 cursor-pointer transition-all duration-200 ${currentTab === 'reviews' && 'bg-[#600A0E] hover:bg-[#C6151D] text-white border-l-2 border-l-[#c1c1c1]'}`}>
+                        <MessageSquare className='w-6 h-6' />
+                        <div>Reviews</div>
                     </Link>
                 </div>
             </div>

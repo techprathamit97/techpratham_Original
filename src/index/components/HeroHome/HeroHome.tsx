@@ -334,14 +334,14 @@ const HeroHome = () => {
   };
 
   return (
-    <div className="relative w-full h-[250px] md:h-[65vh] flex items-center justify-center overflow-hidden text-white">
+    <div className="relative w-full h-[260px] md:h-[68vh] flex items-center justify-center overflow-hidden text-white">
       {/* Background Image */}
       <div className="absolute inset-0 w-full h-full">
         <Image
-          src="/home/hero/heroStudent.webp"
+          src="/home/hero/herimaget.jpeg"
           alt="Hero Background"
           fill
-          className="md:object-cover object-cover "
+          className="md:object-cover object-fill "
           priority
         />
       </div>
@@ -353,13 +353,13 @@ const HeroHome = () => {
      
 
       {/* Content */}
-      <div className="absolute  left-0 w-full z-10 px-4 text-center">
+      <div className="absolute  left-0 w-full z-10 px-4 text-center mt-16 md:mt-32">
         <h1 className="text-xl md:text-5xl font-bold mb-4">
           Build Better <span className="text-yellow-400">Skills</span>
         </h1>
 
         {/* Search Bar with Dropdown */}
-        <div ref={searchContainerRef} className="relative w-[250px] md:w-[450px] md:max-w-xl mx-auto mb-6">
+        <div ref={searchContainerRef} className="relative w-[260px] md:w-[450px] md:max-w-xl mx-auto mb-6">
           <div className="relative flex items-center">
             <input
               ref={inputRef}
@@ -414,12 +414,12 @@ const HeroHome = () => {
         </div>
 
         {/* Enroll Button */}
-        <button
+        {/* <button
           onClick={() => setShowLeadForm(true)}
           className="hidden md:inline-block bg-gradient-to-tl from-[#C6151D] to-[#600A0E] px-8 md:py-2 py-2 rounded-full font-semibold text-lg transition shadow-lg hover:shadow-xl"
         >
           Enroll Now!
-        </button>
+        </button> */}
 
         {/* Trust Badge */}
         <div className="mt-6 flex items-center justify-center gap-2 text-sm">

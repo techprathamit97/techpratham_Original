@@ -9,10 +9,10 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { name, email, rating, review, profileImage, profileImageKey, course, designation, company } = body;
 
-    // Validation
-    if (!name || !email || !rating || !review) {
+    // Validation - make email optional
+    if (!name || !rating || !review) {
       return NextResponse.json(
-        { error: 'Name, email, rating, and review are required' },
+        { error: 'Name, rating, and review are required' },
         { status: 400 }
       );
     }
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     // Create review
     const newReview = await Review.create({
       name,
-      email,
+      email: email || null,
       rating,
       review,
       profileImage: profileImage || null,

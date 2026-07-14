@@ -8,13 +8,6 @@ const ReviewSchema = new mongoose.Schema(
       trim: true,
       maxlength: [100, 'Name cannot exceed 100 characters']
     },
-    email: {
-      type: String,
-      required: [true, 'Email is required'],
-      trim: true,
-      lowercase: true,
-      match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email']
-    },
     rating: {
       type: Number,
       required: [true, 'Rating is required'],
@@ -28,6 +21,10 @@ const ReviewSchema = new mongoose.Schema(
       minlength: [10, 'Review must be at least 10 characters'],
       maxlength: [1000, 'Review cannot exceed 1000 characters']
     },
+    email: {
+      type: String,
+      default: null
+    },
     profileImage: {
       type: String,
       default: null
@@ -36,22 +33,10 @@ const ReviewSchema = new mongoose.Schema(
       type: String,
       default: null
     },
-    course: {
-      type: String,
-      trim: true,
-      default: null
-    },
-    designation: {
-      type: String,
-      trim: true,
-      maxlength: [100, 'Designation cannot exceed 100 characters'],
-      default: null
-    },
-    company: {
-      type: String,
-      trim: true,
-      maxlength: [100, 'Company cannot exceed 100 characters'],
-      default: null
+    publishDate: {
+      type: Date,
+      required: [true, 'Publish date is required'],
+      default: Date.now
     },
     isApproved: {
       type: Boolean,
@@ -74,6 +59,7 @@ const ReviewSchema = new mongoose.Schema(
 // Index for faster queries
 ReviewSchema.index({ isApproved: 1, isPublished: 1 });
 ReviewSchema.index({ rating: -1 });
+ReviewSchema.index({ publishDate: -1 });
 ReviewSchema.index({ createdAt: -1 });
 
 export default mongoose.models.Review || mongoose.model('Review', ReviewSchema);

@@ -17,6 +17,14 @@ body {
 @tailwind components;
 @tailwind utilities;
 
+/* Line clamp utilities */
+.line-clamp-5 {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

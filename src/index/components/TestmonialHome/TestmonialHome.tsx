@@ -1,4 +1,4 @@
-import React ,{useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './testmonial.css';
 
 // Import Swiper React components
@@ -11,32 +11,91 @@ import 'swiper/css/pagination';
 // import required modules
 import { Autoplay } from 'swiper/modules';
 import { Clock } from 'lucide-react';
-const ReadMoreText = ({ text, limit = 40 }: { text: string; limit?: number }) => {
+const ReadMoreText = ({ text }: { text: string }) => {
   const [expanded, setExpanded] = useState(false);
-
-  const words = text.split(" ");
-  const isLong = words.length > limit;
-  const shortText = words.slice(0, limit).join(" ");
+  
+  // Estimate approximately 8-10 words per line for 5 lines (40-50 words)
+  const wordLimit = 25; 
+  const words = text.split(' ');
+  const isLong = words.length > wordLimit;
+  const shortText = isLong ? words.slice(0, wordLimit).join(' ') + '...' : text;
 
   return (
     <div className="text-gray-700 leading-relaxed text-xs text-left relative z-10 font-medium">
-      "{expanded ? text : shortText}"
+      <div className="mb-1">
+        "{expanded ? text : shortText}"
+      </div>
       {isLong && (
-        <span
+        <button
           onClick={() => setExpanded(!expanded)}
-          className="ml-1 text-red-700 cursor-pointer font-semibold hover:underline"
+          className="text-red-700 cursor-pointer font-semibold hover:underline focus:outline-none"
         >
-          {expanded ? " Show less" : "Show more"}
-        </span>
+          {expanded ? "Show less" : "Show more"}
+        </button>
       )}
     </div>
   );
 };
 const TestmonialHome = () => {
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchReviews();
+  }, []);
+
+  const fetchReviews = async () => {
+    try {
+      const response = await fetch('/api/review?published=true&limit=20');
+      const data = await response.json();
+      
+      if (response.ok && data.reviews && data.reviews.length > 0) {
+        setReviews(data.reviews);
+      } else {
+        // Fallback to static data if no backend data
+        setReviews(staticTestimonialsData);
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      // Fallback to static data if API fails
+      setReviews(staticTestimonialsData);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const renderStars = (rating: any) => {
     return "★ ".repeat(rating);
   };
+
+  const getInitials = (name: string) => {
+    return name.charAt(0).toUpperCase();
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Recently';
+    
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return '1 day ago';
+    if (diffDays < 30) return `${diffDays} days ago`;
+    if (diffDays < 60) return '1 month ago';
+    return `${Math.floor(diffDays / 30)} months ago`;
+  };
+
+  if (loading) {
+    return (
+      <div className='w-full h-auto flex flex-col items-center justify-center py-5 gap-10 bg-[#f7f7f7] text-black overflow-hidden'>
+        <div className="flex justify-center py-8">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className='w-full h-auto flex flex-col items-center justify-center py-5 gap-10 bg-[#f7f7f7] text-black overflow-hidden'>
@@ -67,25 +126,44 @@ const TestmonialHome = () => {
           modules={[Autoplay]}
           className="mySwiper testimonialStyle"
         >
-          {testimonialsData.map((testimonial) => (
-            <SwiperSlide key={testimonial.id} className="group w-auto h-auto flex flex-col gap-4 bg-white rounded-2xl p-6 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-2 hover:scale-105 border border-gray-100 relative overflow-hidden cursor-pointer">
+          {reviews.map((testimonial, index) => (
+            <SwiperSlide key={testimonial._id || testimonial.id || index} className="group w-auto h-auto flex flex-col gap-4 bg-white rounded-2xl p-6 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-2 hover:scale-105 border border-gray-100 relative overflow-hidden cursor-pointer">
               {/* Gradient Background Effect */}
               <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-purple-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
               {/* Header Section */}
               <div className="w-full flex flex-row items-center justify-start gap-3 relative z-10">
-                <div className={`w-12 h-12 bg-gradient-to-tl from-[#C6151D] to-[#600A0E] rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}>
-                  {testimonial.avatar}
+                <div className={`w-12 h-12 bg-gradient-to-tl from-[#C6151D] to-[#600A0E] rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 overflow-hidden`}>
+                  {testimonial.profileImage ? (
+                    <img
+                      src={testimonial.profileImage}
+                      alt={testimonial.name}
+                      className="w-full h-full rounded-full object-cover"
+                      onError={(e) => {
+                        // Fallback to initials if image fails to load
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const fallback = target.nextElementSibling as HTMLElement | null;
+                        if (fallback) {
+                          fallback.style.display = 'flex';
+                        }
+                      }}
+                    />
+                  ) : null}
+                  <div 
+                    className="w-full h-full flex items-center justify-center"
+                    style={{ display: testimonial.profileImage ? 'none' : 'flex' }}
+                  >
+                    {testimonial.avatar || getInitials(testimonial.name)}
+                  </div>
                 </div>
                 <div className="flex flex-col text-left flex-1">
                   <div className="font-bold text-[#600A0E] text-lg group-hover:text-[#600A0E] transition-colors duration-300">{testimonial.name}</div>
                   <div className="text-green-500 text-sm flex items-center justify-start gap-1">
                     <Clock className='w-4 h-4' />
-                    {testimonial.date}
+                    {testimonial.publishDate ? formatDate(testimonial.publishDate) : (testimonial.createdAt ? formatDate(testimonial.createdAt) : testimonial.date)}
                   </div>
                 </div>
-                {/* Verified Badge */}
-               
               </div>
 
               {/* Rating Section */}
@@ -107,7 +185,7 @@ const TestmonialHome = () => {
               </div>
 
               {/* Testimonial Text */}
-              <ReadMoreText text={testimonial.testimonial} />
+              <ReadMoreText text={testimonial.review || testimonial.testimonial} />
 
               {/* Bottom Accent Line */}
               <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-tl from-[#C6151D] to-[#600A0E] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
@@ -121,7 +199,7 @@ const TestmonialHome = () => {
 
 export default TestmonialHome
 
-const testimonialsData = [
+const staticTestimonialsData = [
   {
     id: 1,
     name: "Khyati Sharma",
