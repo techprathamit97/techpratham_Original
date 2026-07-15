@@ -86,6 +86,11 @@ const nextConfig = {
         permanent: true,         // 301 redirect
       },
       {
+        source: '/courses/best-servicenow-training-in-bangalore', // replace with your dead URL path
+        destination: '/courses/servicenow-training-in-bangalore',        // home page
+        permanent: true,         // 301 redirect
+      },
+      {
         source: '/courses/workday-time-tracking',
         destination: '/courses/workday-time-tracking-and-absence-management-training',
         permanent: true,
@@ -150,15 +155,8 @@ const nextConfig = {
         destination: '/courses/workday-payroll-training',        // home page
         permanent: true,         // 301 redirect
       },
-      {
-        source: '/blog/:slug((?!sanity-blogs)[^/]+)',
-
-        destination: '/blog/general-blogs/:slug',
-
-        permanent: true,
-
-      },
-      {
+      
+    {
         source: '/courses/microsoft-dynamics-365-finance-and-operations-apps-solution-architect-expert', // replace with your dead URL path
         destination: '/courses/ms-dynamics-365-fo-solution-architect-expert',        // home page
         permanent: true,         // 301 redirect

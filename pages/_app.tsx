@@ -23,6 +23,32 @@ function MyApp({ Component, pageProps }: AppProps) {
         })(window, document, "clarity", "script", "u2rxsd55s3");
       `}
     </Script>
+    {/* Facebook Pixel */}
+<Script
+  id="facebook-pixel"
+  strategy="afterInteractive"
+>
+  {`
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;
+    n.push=n;
+    n.loaded=!0;
+    n.version='2.0';
+    n.queue=[];
+    t=b.createElement(e);
+    t.async=!0;
+    t.src=v;
+    s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s);
+    }(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+
+    fbq('init', '4625299514420327');
+    fbq('track', 'PageView');
+  `}
+</Script>
       {/* GTM HEAD SCRIPT */}
       <Script id="gtm-head" strategy="beforeInteractive">
         {`
@@ -49,6 +75,15 @@ function MyApp({ Component, pageProps }: AppProps) {
           style={{ display: "none", visibility: "hidden" }}
         ></iframe>
       </noscript>
+      <noscript>
+  <img
+    height="1"
+    width="1"
+    style={{ display: "none" }}
+    src="https://www.facebook.com/tr?id=4625299514420327&ev=PageView&noscript=1"
+    alt=""
+  />
+</noscript>
     </>
   );
 }
