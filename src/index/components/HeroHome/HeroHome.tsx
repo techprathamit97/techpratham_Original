@@ -338,10 +338,17 @@ const HeroHome = () => {
       {/* Background Image */}
       <div className="absolute inset-0 w-full h-full">
         <Image
-          src="/home/hero/herimaget.jpeg"
-          alt="Hero Background"
+          src="/home/hero/heroformobile.jpeg"
+          alt="Hero Background Mobile"
           fill
-          className="md:object-cover object-fill "
+          className="block md:hidden object-cover"
+          priority
+        />
+        <Image
+          src="/home/hero/herimaget.jpeg"
+          alt="Hero Background Desktop"
+          fill
+          className="hidden md:block object-cover"
           priority
         />
       </div>
