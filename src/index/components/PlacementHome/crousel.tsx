@@ -36,6 +36,12 @@ export default function ThreeDCarousel() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
+  // Start autoplay immediately when swiper is ready
+  useEffect(() => {
+    if (swiperRef.current?.autoplay) {
+      swiperRef.current.autoplay.start();
+    }
+  }, []);
 
   // Fetch review images from backend
   useEffect(() => {
@@ -104,16 +110,22 @@ const middleIndex = Math.floor(imagesToDisplay.length / 2);
       </div>
         
      <Swiper
-  onSwiper={(swiper) => (swiperRef.current = swiper)}
+  onSwiper={(swiper) => {
+    swiperRef.current = swiper;
+    // Start autoplay immediately on load
+    swiper.autoplay.start();
+  }}
   effect="coverflow"
   grabCursor={true}
   centeredSlides={true}
   slidesPerView="auto"
-  initialSlide={middleIndex}   // ✅ ADD THIS - starts at center
-  loop={true}                  // ✅ Always true, not conditional
+  initialSlide={middleIndex}
+  loop={true}
   autoplay={{
     delay: 1500,
     disableOnInteraction: false,
+    stopOnLastSlide: false,
+    waitForTransition: false,
     reverseDirection: true,
   }}
   coverflowEffect={{

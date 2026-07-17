@@ -14,7 +14,10 @@ export async function GET() {
     return NextResponse.json(reviewImages, { status: 200 });
   } catch (error: any) {
     console.error('Review Images fetch error:', error.message);
-    return NextResponse.json({ message: error.message }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to fetch review images',
+      message: error.message 
+    }, { status: 500 });
   }
 }
 
@@ -25,12 +28,41 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
+    // Validate required fields
+    if (!body.imageUrl) {
+      return NextResponse.json({ error: 'Image URL is required' }, { status: 400 });
+    }
+
+    if (!body.altText) {
+      return NextResponse.json({ error: 'Alt text is required' }, { status: 400 });
+    }
+
     const newReviewImage = await ReviewImage.create(body);
 
     return NextResponse.json(newReviewImage, { status: 201 });
   } catch (error: any) {
     console.error('Review Image creation error:', error.message);
-    return NextResponse.json({ message: error.message }, { status: 500 });
+    
+    // Handle mongoose validation errors
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map((err: any) => err.message);
+      return NextResponse.json({ 
+        error: 'Validation failed', 
+        details: validationErrors 
+      }, { status: 400 });
+    }
+
+    // Handle duplicate key errors
+    if (error.code === 11000) {
+      return NextResponse.json({ 
+        error: 'Duplicate entry found' 
+      }, { status: 409 });
+    }
+
+    return NextResponse.json({ 
+      error: 'Failed to create review image',
+      message: error.message 
+    }, { status: 500 });
   }
 }
 
@@ -43,7 +75,16 @@ export async function PUT(request: NextRequest) {
     const { _id, ...updateData } = body;
 
     if (!_id) {
-      return NextResponse.json({ message: 'Review Image ID is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Review Image ID is required' }, { status: 400 });
+    }
+
+    // Validate required fields
+    if (updateData.imageUrl !== undefined && !updateData.imageUrl) {
+      return NextResponse.json({ error: 'Image URL cannot be empty' }, { status: 400 });
+    }
+
+    if (updateData.altText !== undefined && !updateData.altText) {
+      return NextResponse.json({ error: 'Alt text cannot be empty' }, { status: 400 });
     }
 
     const updatedReviewImage = await ReviewImage.findByIdAndUpdate(
@@ -53,13 +94,26 @@ export async function PUT(request: NextRequest) {
     );
 
     if (!updatedReviewImage) {
-      return NextResponse.json({ message: 'Review Image not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Review Image not found' }, { status: 404 });
     }
 
     return NextResponse.json(updatedReviewImage, { status: 200 });
   } catch (error: any) {
     console.error('Review Image update error:', error.message);
-    return NextResponse.json({ message: error.message }, { status: 500 });
+    
+    // Handle mongoose validation errors
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map((err: any) => err.message);
+      return NextResponse.json({ 
+        error: 'Validation failed', 
+        details: validationErrors 
+      }, { status: 400 });
+    }
+
+    return NextResponse.json({ 
+      error: 'Failed to update review image',
+      message: error.message 
+    }, { status: 500 });
   }
 }
 
@@ -72,26 +126,26 @@ export async function DELETE(request: NextRequest) {
     const id = searchParams.get('id');
 
     if (!id) {
-      return NextResponse.json({ message: 'Review Image ID is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Review Image ID is required' }, { status: 400 });
     }
 
     const reviewImage = await ReviewImage.findById(id);
 
     if (!reviewImage) {
-      return NextResponse.json({ message: 'Review Image not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Review Image not found' }, { status: 404 });
     }
 
-    // Delete from S3 if fileKey exists
+    // Delete from filesystem if fileKey exists
     if (reviewImage.fileKey) {
       try {
-        await fetch('/api/review-images/upload', {
+        await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/review-images/upload`, {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ fileKey: reviewImage.fileKey })
         });
-      } catch (s3Error) {
-        console.warn('Failed to delete S3 file:', s3Error);
-        // Continue with database deletion even if S3 deletion fails
+      } catch (fileError) {
+        console.warn('Failed to delete file:', fileError);
+        // Continue with database deletion even if file deletion fails
       }
     }
 
@@ -101,6 +155,9 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ message: 'Review Image deleted successfully' }, { status: 200 });
   } catch (error: any) {
     console.error('Review Image deletion error:', error.message);
-    return NextResponse.json({ message: error.message }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to delete review image',
+      message: error.message 
+    }, { status: 500 });
   }
 }
