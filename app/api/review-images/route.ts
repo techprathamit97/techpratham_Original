@@ -5,15 +5,20 @@ import ReviewImage from '@/models/ReviewImage';
 // GET - Fetch all review images
 export async function GET() {
   try {
+    console.log('📡 Review-images API: GET request received');
     await connectMongo();
+    console.log('📡 Review-images API: Database connected');
 
     const reviewImages = await ReviewImage.find({})
       .sort({ displayOrder: 1, createdAt: -1 })
       .lean();
 
+    console.log('📡 Review-images API: Found', reviewImages.length, 'review images');
+    console.log('📡 Review-images API: Sample data:', reviewImages[0] || 'No data');
+
     return NextResponse.json(reviewImages, { status: 200 });
   } catch (error: any) {
-    console.error('Review Images fetch error:', error.message);
+    console.error('❌ Review Images fetch error:', error.message);
     return NextResponse.json({ 
       error: 'Failed to fetch review images',
       message: error.message 
