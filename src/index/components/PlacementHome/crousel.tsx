@@ -48,31 +48,19 @@ export default function ThreeDCarousel() {
     const fetchReviewImages = async () => {
       try {
         setLoading(true);
-        console.log('Fetching review images from /api/review-images...');
         const response = await fetch('/api/review-images');
         
-        console.log('Response status:', response.status);
-        console.log('Response ok:', response.ok);
-        
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error('API error response:', errorText);
-          throw new Error(`Failed to fetch review images: ${response.status}`);
+          throw new Error('Failed to fetch review images');
         }
 
         const data = await response.json();
-        console.log('API response data:', data);
-        console.log('Data type:', typeof data);
-        console.log('Is array:', Array.isArray(data));
-        console.log('Data length:', data?.length);
         
         if (data && Array.isArray(data) && data.length > 0) {
-          console.log('Using backend review images:', data.length, 'images');
           setReviewImages(data);
           setError(false);
         } else {
           // No images in backend, use fallback
-          console.log('No review images found, using fallback images');
           setError(true);
         }
       } catch (err) {
@@ -119,7 +107,6 @@ const middleIndex = Math.floor(imagesToDisplay.length / 2);
         {loading && (
           <p className="text-gray-400 text-sm">Loading reviews...</p>
         )}
-        
       </div>
         
      <Swiper

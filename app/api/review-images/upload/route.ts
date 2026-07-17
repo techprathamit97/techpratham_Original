@@ -1,23 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
-import { existsSync, mkdirSync } from 'fs';
+import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
 
-// POST - Upload review image file
+export const runtime = "nodejs";
+
+// Initialize S3 client
+const s3Client = new S3Client({
+  region: process.env.REGION!,
+  credentials: {
+    accessKeyId: process.env.S3_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
+  },
+});
+
+// POST - Upload review image
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
     if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      return NextResponse.json({ message: 'No file provided' }, { status: 400 });
     }
 
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: 'Invalid file type. Only JPEG, PNG, and WebP are allowed.' },
+        { message: 'Invalid file type. Only JPEG, PNG, and WebP are allowed.' },
         { status: 400 }
       );
     }
@@ -26,33 +36,33 @@ export async function POST(request: NextRequest) {
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: 'File size too large. Maximum size is 5MB.' },
+        { message: 'File size too large. Maximum size is 5MB.' },
         { status: 400 }
       );
     }
 
-    // Create upload directory if it doesn't exist
-    const uploadDir = join(process.cwd(), 'public', 'uploads', 'review-images');
-    if (!existsSync(uploadDir)) {
-      mkdirSync(uploadDir, { recursive: true });
-    }
-
-    // Generate unique filename
+    // Create buffer and file key
+    const buffer = Buffer.from(await file.arrayBuffer());
     const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 15);
-    const fileExtension = file.name.split('.').pop();
-    const fileName = `review-image-${timestamp}-${randomString}.${fileExtension}`;
-    const filePath = join(uploadDir, fileName);
+    const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const fileKey = `review-images/${timestamp}-${sanitizedFileName}`;
 
-    // Convert file to buffer and save
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    await writeFile(filePath, buffer);
+    // Upload using the same method as existing upload-image API
+    const parallelUploads3 = new Upload({
+      client: s3Client,
+      params: {
+        Bucket: process.env.BUCKET_NAME!,
+        Key: fileKey,
+        Body: buffer,
+        ContentType: file.type,
+      },
+    });
 
-    // Return the public URL and file key
-    const publicUrl = `/uploads/review-images/${fileName}`;
-    const fileKey = `review-images/${fileName}`;
-    
+    await parallelUploads3.done();
+
+    // Construct the public URL
+    const publicUrl = `https://${process.env.BUCKET_NAME}.s3.${process.env.REGION}.amazonaws.com/${fileKey}`;
+
     return NextResponse.json({
       url: publicUrl,
       fileKey: fileKey,
@@ -60,43 +70,36 @@ export async function POST(request: NextRequest) {
     }, { status: 200 });
 
   } catch (error: any) {
-    console.error('Upload error:', error);
+    console.error('S3 upload error:', error);
     return NextResponse.json(
-      { error: 'Failed to upload file' },
+      { message: 'Failed to upload file to S3', error: error.message },
       { status: 500 }
     );
   }
 }
 
-// DELETE - Delete file from filesystem
+// DELETE - Delete file from S3
 export async function DELETE(request: NextRequest) {
   try {
     const { fileKey } = await request.json();
 
     if (!fileKey) {
-      return NextResponse.json({ error: 'File key is required' }, { status: 400 });
+      return NextResponse.json({ message: 'File key is required' }, { status: 400 });
     }
 
-    // Construct file path from fileKey
-    const filePath = join(process.cwd(), 'public', 'uploads', fileKey);
+    const deleteCommand = new DeleteObjectCommand({
+      Bucket: process.env.BUCKET_NAME!,
+      Key: fileKey,
+    });
 
-    // Check if file exists and delete it
-    const fs = require('fs').promises;
-    try {
-      await fs.access(filePath);
-      await fs.unlink(filePath);
-      console.log('File deleted successfully:', fileKey);
-    } catch (error) {
-      console.warn('File not found or already deleted:', fileKey);
-      // Don't throw error if file doesn't exist
-    }
+    await s3Client.send(deleteCommand);
 
     return NextResponse.json({ message: 'File deleted successfully' }, { status: 200 });
 
   } catch (error: any) {
-    console.error('Delete error:', error);
+    console.error('S3 delete error:', error);
     return NextResponse.json(
-      { error: 'Failed to delete file' },
+      { message: 'Failed to delete file from S3', error: error.message },
       { status: 500 }
     );
   }

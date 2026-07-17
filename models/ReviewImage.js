@@ -20,8 +20,8 @@ const reviewImageSchema = new mongoose.Schema(
     // S3 file management
     fileKey: { 
       type: String,
-      required: false, // Made optional for manual URL entries
-      trim: true
+      trim: true,
+      default: null
     }
   },
   {
