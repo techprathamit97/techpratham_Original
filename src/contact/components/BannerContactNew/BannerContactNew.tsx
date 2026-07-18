@@ -7,13 +7,13 @@ import React from 'react';
 const BannerContactNew = () => {
     const socialLinks = [
         { name: 'Facebook', icon: '/support/socials/facebook.svg', url: 'https://www.facebook.com/profile.php?id=61573041693401', color: 'hover:bg-blue-50' },
-        { name: 'Instagram', icon: '/support/socials/instagram.svg', url: 'https://www.instagram.com/techprathamofficial/', color: 'hover:bg-pink-50' },
+        { name: 'Instagram', icon: '/support/socials/instagram.svg', url: 'https://www.instagram.com/techprathamofficials/', color: 'hover:bg-pink-50' },
         { name: 'LinkedIn', icon: '/support/socials/linkedin.svg', url: 'https://www.linkedin.com/company/techpratham/', color: 'hover:bg-blue-50' },
         { name: 'Google', icon: '/support/socials/google.svg', url: 'https://share.google/53IFpTK4qCyDXY8y7', color: 'hover:bg-red-50' },
         { name: 'WhatsApp', icon: '/support/socials/whatsapp.svg', url: 'https://wa.me/+918882178896', color: 'hover:bg-green-50' },
-        { name: 'Pinterest', icon: '/support/socials/pinterest.svg', url: '#', color: 'hover:bg-red-50' },
-        { name: 'YouTube', icon: '/support/socials/youtube.svg', url: 'https://www.youtube.com/@TechPratham_official', color: 'hover:bg-red-50' },
-        { name: 'X', icon: '/support/socials/x.svg', url: '#', color: 'hover:bg-gray-50' }
+        { name: 'Pinterest', icon: '/support/socials/pinterest.svg', url: 'https://in.pinterest.com/techprathamofficial/', color: 'hover:bg-red-50' },
+        { name: 'YouTube', icon: '/support/socials/youtube.svg', url: 'https://youtube.com/@techprathamofficial-y1?si=GY3lUXPZWK6_LW18', color: 'hover:bg-red-50' },
+        { name: 'X', icon: '/support/socials/x.svg', url: 'https://x.com/home', color: 'hover:bg-gray-50' }
     ];
 
     return (
