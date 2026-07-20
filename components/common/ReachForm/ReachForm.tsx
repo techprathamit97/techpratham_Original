@@ -4,6 +4,7 @@ import { ChevronDownIcon } from '@radix-ui/react-icons';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import PhoneInput from '../PhoneInput/PhoneInput';
+import { getLeadSource, isGoogleAdsVisitor } from '@/lib/leadSourceDetection';
 
 const ReachForm = () => {
     const [isOpen, setIsOpen] = useState(true);
@@ -12,14 +13,6 @@ const ReachForm = () => {
     const { register, handleSubmit, reset, setValue } = useForm();
     const [submitting, setSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState(false);
-
-    // Check if visitor came from Google Ads
-    const isGoogleAdsVisitor = () => {
-        if (typeof window === 'undefined') return false;
-        const searchParams = new URLSearchParams(window.location.search);
-        // Check for GCLID (Google Click ID) or utm_source=google
-        return searchParams.has('gclid') || searchParams.get('utm_source') === 'google';
-    };
 
     const onSubmit = async (data: any) => {
         // Prevent submission if phone is invalid
@@ -30,9 +23,8 @@ const ReachForm = () => {
         try {
             setSubmitting(true);
 
-            // Determine source based on GCLID/UTM parameters
-            const googleAdsVisitor = isGoogleAdsVisitor();
-            const source = googleAdsVisitor ? 'google_ads' : 'website_form';
+            // Determine source based on URL parameters
+            const source = getLeadSource();
 
             const response = await fetch('/api/leads', {
                 method: 'POST',
@@ -54,7 +46,7 @@ const ReachForm = () => {
                 setIsPhoneValid(false);
 
                 // ✅ Only send Google Ads conversion if visitor came from Google Ads
-                if (googleAdsVisitor && typeof window !== "undefined") {
+                if (isGoogleAdsVisitor() && typeof window !== "undefined") {
                     // Use gtag if available (recommended)
                     if ((window as any).gtag) {
                         (window as any).gtag("event", "conversion", {
@@ -70,6 +62,11 @@ const ReachForm = () => {
                         });
                     }
                 }
+                
+                // TODO: Add Facebook/Instagram conversion tracking here if needed
+                // if (leadSource === 'facebook_ads' || leadSource === 'instagram_ads') {
+                //     // Facebook Pixel conversion tracking
+                // }
             } else {
                 console.error('Failed to submit form');
             }

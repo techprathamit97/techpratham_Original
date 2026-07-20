@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import PhoneInput from "@/components/common/PhoneInput/PhoneInput";
+import { getLeadSource, isGoogleAdsVisitor } from '@/lib/leadSourceDetection';
 
 // Courses that should show PDF in left side (CNA courses)
 const PDF_COURSES = [
@@ -86,13 +87,6 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
     },
   });
 
-  // Check if visitor came from Google Ads
-  const isGoogleAdsVisitor = () => {
-    if (typeof window === "undefined") return false;
-    const searchParams = new URLSearchParams(window.location.search);
-    return searchParams.has("gclid") || searchParams.get("utm_source") === "google";
-  };
-
   const onPdfSubmit = async (data: any) => {
     // Allow submission even if phone validation state is not set
     // The PhoneInput component will handle validation
@@ -105,8 +99,7 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
       setPdfSubmitting(true);
       setPdfSubmitError("");
 
-      const googleAdsVisitor = isGoogleAdsVisitor();
-      const source = googleAdsVisitor ? "google_ads" : "website_form";
+      const source = getLeadSource();
 
       console.log("Submitting PDF form with data:", { ...data, phone: phoneNumber, source });
 
@@ -130,8 +123,8 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
         setPhoneNumber("");
         setIsPhoneValid(false);
 
-        // Google Ads conversion tracking
-        if (googleAdsVisitor && typeof window !== "undefined") {
+        // Google Ads conversion tracking - only for Google Ads traffic
+        if (isGoogleAdsVisitor() && typeof window !== "undefined") {
           if ((window as any).gtag) {
             (window as any).gtag("event", "conversion", {
               send_to: "AW-17462500412/K_E4CNSPy-0bELy44oZB",
@@ -145,6 +138,11 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
             });
           }
         }
+        
+        // TODO: Add Facebook/Instagram conversion tracking here if needed
+        // if (leadSource === 'facebook_ads' || leadSource === 'instagram_ads') {
+        //     // Facebook Pixel conversion tracking
+        // }
 
         // Close dialog and trigger download after success
         setTimeout(() => {

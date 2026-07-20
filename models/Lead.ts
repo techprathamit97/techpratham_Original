@@ -15,7 +15,7 @@ const LeadSchema = new Schema(
 
     source: {
       type: String,
-      enum: ['google_ads', 'website_form', 'other'],
+      enum: ['google_ads', 'facebook_ads', 'instagram_ads', 'website_form', 'other'],
       default: 'website_form'
     },
 

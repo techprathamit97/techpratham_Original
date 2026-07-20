@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { categoryPrice } from "@/components/assets/categoryPrice";
 import { useForm } from 'react-hook-form';
+import { getLeadSource, isGoogleAdsVisitor } from '@/lib/leadSourceDetection';
 import PhoneInput from '@/components/common/PhoneInput/PhoneInput';
 
 import './header.css';
@@ -117,13 +118,6 @@ const HeaderSection = ({ course }: any) => {
         setValue(name as any, value);
     };
 
-    // Check if visitor came from Google Ads (same logic as LeadForm)
-    const isGoogleAdsVisitor = () => {
-        if (typeof window === 'undefined') return false;
-        const searchParams = new URLSearchParams(window.location.search);
-        return searchParams.has('gclid') || searchParams.get('utm_source') === 'google';
-    };
-
     const onSubmit = async (data: any) => {
         // Prevent submission if phone is invalid
         if (!isPhoneValid) {
@@ -135,9 +129,8 @@ const HeaderSection = ({ course }: any) => {
             setSubmitting(true);
             setSubmitError('');
 
-            // Determine source based on GCLID/UTM parameters (same as LeadForm)
-            const googleAdsVisitor = isGoogleAdsVisitor();
-            const source = googleAdsVisitor ? 'google_ads' : 'website_form';
+            // Determine source based on URL parameters
+            const source = getLeadSource();
 
             const response = await fetch('/api/leads', {
                 method: 'POST',
@@ -160,8 +153,8 @@ const HeaderSection = ({ course }: any) => {
                 setPhoneNumber('');
                 setIsPhoneValid(false);
                 
-                // ✅ Google Ads conversion tracking (same as LeadForm)
-                if (googleAdsVisitor && typeof window !== "undefined") {
+                // ✅ Google Ads conversion tracking - only for Google Ads traffic
+                if (isGoogleAdsVisitor() && typeof window !== "undefined") {
                     if ((window as any).gtag) {
                         (window as any).gtag("event", "conversion", {
                             send_to: "AW-17462500412/K_E4CNSPy-0bELy44oZB",
@@ -175,6 +168,11 @@ const HeaderSection = ({ course }: any) => {
                         });
                     }
                 }
+                
+                // TODO: Add Facebook/Instagram conversion tracking here if needed
+                // if (leadSource === 'facebook_ads' || leadSource === 'instagram_ads') {
+                //     // Facebook Pixel conversion tracking
+                // }
 
                 // Hide success message after 3 seconds
                 setTimeout(() => {

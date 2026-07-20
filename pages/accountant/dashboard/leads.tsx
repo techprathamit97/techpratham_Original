@@ -37,7 +37,7 @@ interface Lead {
   course: string;
   message: string;
   formType: string;
-  source?: string; // 'google_ads', 'website_form', 'other'
+  source?: string; // 'google_ads', 'facebook_ads', 'instagram_ads', 'website_form', 'other'
   ipAddress: string;
   status?: 'reached' | 'unreached';
   metadata: {
@@ -81,6 +81,10 @@ const LeadsManagement = () => {
     
     if (source === 'google_ads') {
       return <Badge className="bg-blue-600/10 text-blue-600 border-blue-600/20">Google Ads</Badge>;
+    } else if (source === 'facebook_ads') {
+      return <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">Facebook Ads</Badge>;
+    } else if (source === 'instagram_ads') {
+      return <Badge className="bg-pink-600/10 text-pink-600 border-pink-600/20">Instagram Ads</Badge>;
     } else if (source === 'website_form') {
       return <Badge className="bg-green-600/10 text-green-600 border-green-600/20">Website Form</Badge>;
     } else {
