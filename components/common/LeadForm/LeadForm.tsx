@@ -7,6 +7,7 @@ import Image from 'next/image';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import PhoneInput from '../PhoneInput/PhoneInput';
+import { getLeadSource, isGoogleAdsVisitor } from '@/lib/leadSourceDetection';
 
 interface LeadFormProps {
     course: {
@@ -35,14 +36,6 @@ const LeadForm: React.FC<LeadFormProps> = ({ course, onClose, onSuccess }) => {
     const [submitting, setSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState(false);
 
-    // Check if visitor came from Google Ads
-    const isGoogleAdsVisitor = () => {
-        if (typeof window === 'undefined') return false;
-        const searchParams = new URLSearchParams(window.location.search);
-        // Check for GCLID (Google Click ID) or utm_source=google
-        return searchParams.has('gclid') || searchParams.get('utm_source') === 'google';
-    };
-
     const onSubmit = async (data: any) => {
         // Prevent submission if phone is invalid
         if (!isPhoneValid) {
@@ -52,9 +45,8 @@ const LeadForm: React.FC<LeadFormProps> = ({ course, onClose, onSuccess }) => {
         try {
             setSubmitting(true);
 
-            // Determine source based on GCLID/UTM parameters
-            const googleAdsVisitor = isGoogleAdsVisitor();
-            const source = googleAdsVisitor ? 'google_ads' : 'website_form';
+            // Determine source based on URL parameters
+            const source = getLeadSource();
 
             const response = await fetch('/api/leads', {
                 method: 'POST',
@@ -76,7 +68,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ course, onClose, onSuccess }) => {
                 setIsPhoneValid(false);
                 
                 // ✅ Only send Google Ads conversion if visitor came from Google Ads
-                if (googleAdsVisitor && typeof window !== "undefined") {
+                if (isGoogleAdsVisitor() && typeof window !== "undefined") {
                     // Use gtag if available (recommended)
                     if ((window as any).gtag) {
                         (window as any).gtag("event", "conversion", {
@@ -92,6 +84,11 @@ const LeadForm: React.FC<LeadFormProps> = ({ course, onClose, onSuccess }) => {
                         });
                     }
                 }
+                
+                // TODO: Add Facebook/Instagram conversion tracking here if needed
+                // if (leadSource === 'facebook_ads' || leadSource === 'instagram_ads') {
+                //     // Facebook Pixel conversion tracking
+                // }
 
                 setTimeout(() => {
                     onSuccess();

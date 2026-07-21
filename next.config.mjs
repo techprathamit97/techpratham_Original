@@ -85,6 +85,16 @@ const nextConfig = {
         destination: '/courses/sap-training-in-hyderabad',        // home page
         permanent: true,         // 301 redirect
       },
+       {
+        source: '/courses/software-testing-course-in-pune-with-placement-assistance', // replace with your dead URL path
+        destination: '/courses/software-testing-training-in-pune',        // home page
+        permanent: true,         // 301 redirect
+      },
+       {
+        source: '/courses/enrollment/servicenow-online-training-in-hyderabad', // replace with your dead URL path
+        destination: '/courses/enrollment/servicenow-training-in-hyderabad',        // home page
+        permanent: true,         // 301 redirect
+      },
       {
         source: '/courses/best-servicenow-training-in-bangalore', // replace with your dead URL path
         destination: '/courses/servicenow-training-in-bangalore',        // home page

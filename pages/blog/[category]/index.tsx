@@ -362,7 +362,7 @@ export default function CategoryPage({
         </div>
 
       </IndexController>
-      <ReachForm />
+     
 
       <ToolTip />
     </>

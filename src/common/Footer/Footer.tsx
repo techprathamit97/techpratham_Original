@@ -100,7 +100,7 @@ const Footer = () => {
               <Link href="https://maps.app.goo.gl/qWSwV4SbAwLGiN2P6" className="transition-all duration-300 hover:underline">
                 LVS Arcade, 71, Hitech, 6th floor ,<br />
                 Madhapur Road, Jubilee Enclave,<br />
-                HITEC City, Hyderabad
+                HITEC City, Hyderabad - 500081
               </Link>
             </div>
           </div>
