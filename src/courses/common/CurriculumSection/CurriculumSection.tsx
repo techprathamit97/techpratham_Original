@@ -19,14 +19,16 @@ import { getLeadSource, isGoogleAdsVisitor } from '@/lib/leadSourceDetection';
 const PDF_COURSES = [
   "servicenow-admin-certification",
   "servicenow-itsm-training",
-  "servicenow-training-in-india"
+  "servicenow-training-in-india",
+  "salesforce-devops-engineering"
 ];
 
 // PDF paths for courses - stored in /training folder
 const PDF_PATHS: Record<string, string> = {
   "servicenow-admin-certification": "/training/TechPratham_ServiceNow.pdf",
   "servicenow-itsm-training": "/training/TechPratham_ServiceNow.pdf",
-  "servicenow-training-in-india": "/training/TechPratham_ServiceNow_Admin_ITSM.pdf"
+  "servicenow-training-in-india": "/training/TechPratham_ServiceNow_Admin_ITSM.pdf",
+  "salesforce-devops-engineering": "/training/salesforce-devOps-engineering.pdf"
 };
 
 const getPdfUrl = (courseTitle: string): string => {
