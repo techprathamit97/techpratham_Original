@@ -13,6 +13,7 @@ import HeroSectionEditor from "@/components/lms/HeroSectionEditor";
 import TableWithHeader from "@/components/lms/TableWithHeader";
 import DraggableTable from "@/components/lms/table";
 import ImageSection from "@/components/lms/ImageSection";
+import PDFSection from "@/components/lms/PDFSection";
 import CustomText from "@/components/lms/CustomText";
 import VideoSection from "@/components/lms/VideoSection";
 import IconTextSection from "@/components/lms/IconSection";
@@ -178,23 +179,51 @@ export const puckConfig = {
 RichTextEditor: {
   label: "Rich Text Editor",
   render: (props) => {
+    const displayTextAlign = props.textAlign || 'left';
+    const displayMargin = props.margin || '0';
+    const displayPadding = props.padding || '0';
+
     return (
-      <div 
-        className="rich-text-display"
-        style={{ 
-          direction: 'ltr !important', 
-          textAlign: 'left !important',
-          unicodeBidi: 'normal !important',
-          writingMode: 'horizontal-tb !important',
-          textOrientation: 'mixed !important',
-          fontFamily: 'inherit',
-          transform: 'none !important',
-          filter: 'none !important'
-        }}
-        dir="ltr"
-        lang="en"
-        dangerouslySetInnerHTML={{ __html: props.content || '<p style="direction: ltr; text-align: left;">Enter content in the sidebar →</p>' }}
-      />
+      <div dir="ltr" lang="en" style={{ direction: 'ltr', textAlign: displayTextAlign }}>
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            .rich-text-display h1 {
+              font-size: 2em !important;
+              font-weight: 700 !important;
+              margin: 0.67em 0 !important;
+            }
+            .rich-text-display h2 {
+              font-size: 1.5em !important;
+              font-weight: 700 !important;
+              margin: 0.75em 0 !important;
+            }
+            .rich-text-display h3 {
+              font-size: 1.17em !important;
+              font-weight: 700 !important;
+              margin: 0.83em 0 !important;
+            }
+          `
+        }} />
+        <div 
+          className="rich-text-display"
+          style={{ 
+            direction: 'ltr !important', 
+            textAlign: `${displayTextAlign} !important`,
+            unicodeBidi: 'normal !important',
+            writingMode: 'horizontal-tb !important',
+            textOrientation: 'mixed !important',
+            fontFamily: 'inherit',
+            transform: 'none !important',
+            filter: 'none !important',
+            margin: displayMargin,
+            padding: displayPadding,
+            textJustify: displayTextAlign === 'justify' ? 'inter-word' : undefined
+          }}
+          dir="ltr"
+          lang="en"
+          dangerouslySetInnerHTML={{ __html: props.content || '<p style="direction: ltr; text-align: left;">Enter content in the sidebar →</p>' }}
+        />
+      </div>
     );
   },
   fields: {
@@ -332,8 +361,37 @@ RichTextEditor: {
         };
 
         const applyHeading = (tag) => {
-          execCommand('formatBlock', tag);
+          const formatTag = tag.startsWith('<') ? tag : `<${tag}>`;
+          execCommand('formatBlock', formatTag);
           setShowHeadingMenu(false);
+        };
+
+        const applyAlignment = (alignment) => {
+          switch (alignment) {
+            case 'left':
+              execCommand('justifyLeft');
+              break;
+            case 'center':
+              execCommand('justifyCenter');
+              break;
+            case 'right':
+              execCommand('justifyRight');
+              break;
+            case 'justify':
+              execCommand('justifyFull');
+              break;
+            default:
+              break;
+          }
+        };
+
+        const buttonStyle = {
+          padding: '4px 8px',
+          border: '1px solid #d1d5db',
+          borderRadius: '4px',
+          backgroundColor: '#fff',
+          cursor: 'pointer',
+          fontSize: '12px'
         };
 
         const handleKeyDown = (e) => {
@@ -351,24 +409,34 @@ RichTextEditor: {
 
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {/* CSS for proper link styling */}
+            {/* CSS for proper link and heading styling */}
             <style dangerouslySetInnerHTML={{
               __html: `
-                .rich-text-editor a {
+                .rich-text-editor a, .rich-text-display a {
                   color: #2563eb !important;
                   text-decoration: underline !important;
                   cursor: pointer !important;
                 }
-                .rich-text-editor a:hover {
+                .rich-text-editor a:hover, .rich-text-display a:hover {
                   color: #1d4ed8 !important;
                 }
-                .rich-text-display a {
-                  color: #2563eb !important;
-                  text-decoration: underline !important;
-                  cursor: pointer !important;
+                .rich-text-editor h1,
+                .rich-text-display h1 {
+                  font-size: 2em !important;
+                  font-weight: 700 !important;
+                  margin: 0.67em 0 !important;
                 }
-                .rich-text-display a:hover {
-                  color: #1d4ed8 !important;
+                .rich-text-editor h2,
+                .rich-text-display h2 {
+                  font-size: 1.5em !important;
+                  font-weight: 700 !important;
+                  margin: 0.75em 0 !important;
+                }
+                .rich-text-editor h3,
+                .rich-text-display h3 {
+                  font-size: 1.17em !important;
+                  font-weight: 700 !important;
+                  margin: 0.83em 0 !important;
                 }
               `
             }} />
@@ -488,6 +556,42 @@ RichTextEditor: {
                     </button>
                   </div>
                 )}
+              </div>
+
+              {/* Alignment Buttons */}
+              <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                <button
+                  type="button"
+                  onClick={() => applyAlignment('left')}
+                  style={buttonStyle}
+                  onMouseDown={(e) => e.preventDefault()}
+                >
+                  L
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyAlignment('center')}
+                  style={buttonStyle}
+                  onMouseDown={(e) => e.preventDefault()}
+                >
+                  C
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyAlignment('right')}
+                  style={buttonStyle}
+                  onMouseDown={(e) => e.preventDefault()}
+                >
+                  R
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyAlignment('justify')}
+                  style={buttonStyle}
+                  onMouseDown={(e) => e.preventDefault()}
+                >
+                  J
+                </button>
               </div>
 
               {/* Font Size Dropdown */}
@@ -752,10 +856,13 @@ RichTextEditor: {
                 lineHeight: '1.5',
                 outline: 'none',
                 direction: 'ltr',
-                textAlign: 'left',
+                textAlign: props.textAlign || 'left',
                 unicodeBidi: 'normal',
                 writingMode: 'horizontal-tb',
-                fontFamily: 'inherit'
+                fontFamily: 'inherit',
+                margin: props.margin || '0',
+                padding: props.padding || '0',
+                textJustify: props.textAlign === 'justify' ? 'inter-word' : undefined
               }}
               suppressContentEditableWarning={true}
               dir="ltr"
@@ -773,6 +880,27 @@ RichTextEditor: {
       type: "text",
       label: "Placeholder Text",
       defaultValue: "Enter your content...",
+    },
+    textAlign: {
+      type: "select",
+      label: "Text Alignment",
+      defaultValue: "left",
+      options: [
+        { label: "Left", value: "left" },
+        { label: "Center", value: "center" },
+        { label: "Right", value: "right" },
+        { label: "Justify", value: "justify" },
+      ],
+    },
+    margin: {
+      type: "text",
+      label: "Margin",
+      defaultValue: "0px",
+    },
+    padding: {
+      type: "text",
+      label: "Padding",
+      defaultValue: "0px",
     },
   },
 },
@@ -1327,6 +1455,192 @@ col3BorderColor: {
     borderRadius: {
       type: "text",
       label: "Border Radius (e.g. 16px)"
+    }
+  }
+},
+
+PDFSection: {
+  label: "PDF Document",
+  render: (props) => (
+    <div className="w-screen md:w-[75vw] mx-auto">
+  <PDFSection {...props} />
+</div>
+  ),
+  fields: {
+    pdfUrl: {
+      type: "custom",
+      label: "PDF File",
+      render: ({ value, onChange }) => {
+        return (
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {/* File Input for Uploading PDF */}
+            <input
+              type="file"
+              accept="application/pdf,.pdf"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+
+                // Check if file is PDF
+                if (file.type !== "application/pdf") {
+                  alert("Please select a PDF file only.");
+                  return;
+                }
+
+                // Delete old PDF from AWS before uploading new one
+                if (value) {
+                  try {
+                    const oldFileKey = value.split(".com/")[1];
+                    if (oldFileKey) {
+                      await fetch("/api/upload-image", {
+                        method: "DELETE",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ fileKey: oldFileKey }),
+                      });
+                      console.log("Old PDF deleted from AWS");
+                    }
+                  } catch (err) {
+                    console.warn("Failed to delete old PDF:", err);
+                    // Continue with upload even if delete fails
+                  }
+                }
+
+                // Upload new PDF using the same upload-image API
+                const formData = new FormData();
+                formData.append("file", file);
+
+                try {
+                  const res = await fetch("/api/upload-image", {
+                    method: "POST",
+                    body: formData
+                  });
+
+                  const data = await res.json();
+                  if (data.url) {
+                    onChange(data.url);
+                    alert("PDF uploaded successfully!");
+                  } else {
+                    alert("Failed to upload PDF");
+                  }
+                } catch (err) {
+                  console.error("Upload failed:", err);
+                  alert("Upload failed. Please try again.");
+                }
+              }}
+              style={{ marginBottom: "8px" }}
+            />
+
+            {/* Current PDF Info */}
+            {value && (
+              <div style={{ 
+                padding: "8px", 
+                backgroundColor: "#f0f8ff", 
+                borderRadius: "4px",
+                fontSize: "12px"
+              }}>
+                <strong>Current PDF:</strong> {value.split('/').pop()}
+              </div>
+            )}
+
+            {/* Delete Button - Only shows if a PDF exists */}
+            {value && (
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!confirm("Are you sure you want to delete this PDF?")) return;
+
+                  // Extract the file key from the URL
+                  const fileKey = value.split(".com/")[1];
+
+                  try {
+                    const res = await fetch("/api/upload-image", {
+                      method: "DELETE",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ fileKey }),
+                    });
+
+                    if (res.ok) {
+                      onChange(""); // Clear the PDF from Puck state
+                      alert("PDF deleted successfully from AWS");
+                    } else {
+                      const errorData = await res.json();
+                      alert(`Delete failed: ${errorData.error}`);
+                    }
+                  } catch (err) {
+                    console.error("Delete request failed", err);
+                    alert("Failed to delete PDF");
+                  }
+                }}
+                style={{
+                  padding: "6px 12px",
+                  backgroundColor: "#ff4d4f",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  fontSize: "12px",
+                  width: "fit-content"
+                }}
+              >
+                Delete Current PDF
+              </button>
+            )}
+
+            <div style={{ fontSize: "11px", color: "#666", marginTop: "4px" }}>
+              Supported format: PDF files only. Uses the same AWS storage as images.
+            </div>
+          </div>
+        );
+      }
+    },
+
+    title: {
+      type: "text",
+      label: "PDF Title",
+      defaultValue: "Document"
+    },
+
+    width: {
+      type: "select",
+      label: "Width",
+      defaultValue: "fullscreen",
+      options: [
+        { label: "Full Screen", value: "fullscreen" },
+        { label: "Container Width", value: "container" },
+        { label: "Custom", value: "custom" }
+      ]
+    },
+
+    customWidth: {
+      type: "text",
+      label: "Custom Width (e.g. 800px, 90%)",
+      defaultValue: "100%"
+    },
+
+    height: {
+      type: "text",
+      label: "Height (e.g. 600px)",
+      defaultValue: "600px"
+    },
+
+    displayType: {
+      type: "select",
+      label: "Display Type",
+      defaultValue: "embed",
+      options: [
+        { label: "Embed Viewer", value: "embed" },
+        { label: "Download Link", value: "link" }
+      ]
+    },
+
+    downloadEnabled: {
+      type: "select",
+      label: "Enable Download Button",
+      defaultValue: "true",
+      options: [
+        { label: "Yes", value: "true" },
+        { label: "No", value: "false" }
+      ]
     }
   }
 },

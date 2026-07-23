@@ -31,6 +31,7 @@ interface CustomerDetails {
   name: string;
   email: string;
   phone: string;
+  location: string;
   studentId: string;
 }
 
@@ -48,6 +49,7 @@ const CreateManualInvoice = () => {
     name: '',
     email: '',
     phone: '',
+    location: '',
     studentId: ''
   });
 
@@ -162,6 +164,7 @@ const CreateManualInvoice = () => {
           name: invoice.customerDetails.name || '',
           email: invoice.customerDetails.email || '',
           phone: invoice.customerDetails.phone || '',
+          location: invoice.customerDetails.location || '',
           studentId: invoice.customerDetails.studentId || ''
         });
         
@@ -296,6 +299,7 @@ const CreateManualInvoice = () => {
     if (!customerDetails.name.trim()) newErrors.push('Customer name is required');
     if (!customerDetails.email.trim()) newErrors.push('Customer email is required');
     if (!customerDetails.phone.trim()) newErrors.push('Customer phone is required');
+    if (!customerDetails.location.trim()) newErrors.push('Customer location is required');
     if (!customerDetails.studentId.trim()) newErrors.push('Student ID is required');
 
     // Course validation
@@ -517,6 +521,16 @@ const CreateManualInvoice = () => {
                           onChange={(e) => setCustomerDetails(prev => ({ ...prev, phone: e.target.value }))}
                           className="bg-zinc-800 border-zinc-700 text-white"
                           placeholder="+91 9876543210"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-white">Location *</Label>
+                        <Input
+                          value={customerDetails.location}
+                          onChange={(e) => setCustomerDetails(prev => ({ ...prev, location: e.target.value }))}
+                          className="bg-zinc-800 border-zinc-700 text-white"
+                          placeholder="Enter customer location"
                           required
                         />
                       </div>

@@ -47,6 +47,7 @@ interface Invoice {
     name: string;
     email: string;
     phone: string;
+    location: string;
     studentId: string;
   };
   courseDetails: {
@@ -1008,8 +1009,9 @@ const InvoicesDashboard = () => {
                                     ID: {invoice.customerDetails.studentId}
                                   </div>
                                   <div className="text-zinc-500 text-xs">
-                                    {invoice.isManual ? '📝 Manual' : '🎓 Enrolled'}
+                                    {invoice.customerDetails.location || ' '}
                                   </div>
+                                  
                                 </td>
                                 <td className="p-3">
                                   <div className="text-white text-sm">{invoice.customerDetails.phone || 'N/A'}</div>

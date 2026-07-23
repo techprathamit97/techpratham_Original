@@ -51,6 +51,7 @@ interface Invoice {
     name: string;
     email: string;
     phone: string;
+    location: string;
     studentId: string;
   };
   courseDetails: {
@@ -503,7 +504,8 @@ const InvoicesDashboard = () => {
           email: selectedInvoiceForLMS.customerDetails.email,
           password: lmsPassword,
           name: selectedInvoiceForLMS.customerDetails.name,
-          phone: selectedInvoiceForLMS.customerDetails.phone
+          phone: selectedInvoiceForLMS.customerDetails.phone,
+          location: selectedInvoiceForLMS.customerDetails.location
         })
       });
 
@@ -751,8 +753,9 @@ const InvoicesDashboard = () => {
                                 ID: {invoice.customerDetails.studentId}
                               </div>
                               <div className="text-zinc-500 text-xs">
-                                {invoice.isManual ? '📝 Manual' : '🎓 Enrolled'}
+                                {invoice.customerDetails.location || ' '}
                               </div>
+                             
                             </td>
                             <td className="p-3">
                               <div className="text-white text-sm">{invoice.customerDetails.phone || 'N/A'}</div>

@@ -96,6 +96,7 @@ export async function POST(req: Request) {
         name: customerDetails.name || 'Unknown',
         email: customerDetails.email || '',
         phone: customerDetails.phone || '',
+        location: customerDetails.location || '',
         studentId: studentId
       },
       

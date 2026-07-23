@@ -32,6 +32,7 @@ interface CustomerDetails {
   name: string;
   email: string;
   phone: string;
+  location: string;
   studentId: string;
 }
 
@@ -49,6 +50,7 @@ const CreateManualInvoice = () => {
     name: '',
     email: '',
     phone: '',
+    location: '',
     studentId: ''
   });
 
@@ -67,7 +69,7 @@ const CreateManualInvoice = () => {
 
   // Sales Person
   const [salesPerson, setSalesPerson] = useState('none');
-  const [salesPersons, setSalesPersons] = useState<Array<{_id: string, name: string}>>([]);
+  const [salesPersons, setSalesPersons] = useState<Array<{ _id: string, name: string }>>([]);
   const [isLoadingSalesPersons, setIsLoadingSalesPersons] = useState(false);
 
   // Payment Screenshot
@@ -89,14 +91,14 @@ const CreateManualInvoice = () => {
   React.useEffect(() => {
     if (authenticated) {
       setCurrentTab("invoices");
-      
+
       // Fetch sales persons for sales person dropdown
       fetchSalesPersons();
-      
+
       // Check if we're in edit mode
       const urlParams = new URLSearchParams(window.location.search);
       const editId = urlParams.get('edit');
-      
+
       if (editId) {
         setIsEditing(true);
         setEditInvoiceId(editId);
@@ -104,17 +106,18 @@ const CreateManualInvoice = () => {
       } else {
         // Auto-generate student ID for new invoices
         generateStudentId();
-        
+
         // Pre-fill form from URL parameters for new invoices
         if (urlParams.get('customerName')) {
           setCustomerDetails(prev => ({
             ...prev,
             name: urlParams.get('customerName') || '',
             email: urlParams.get('customerEmail') || '',
-            phone: urlParams.get('customerPhone') || ''
+            phone: urlParams.get('customerPhone') || '',
+            location: urlParams.get('customerLocation') || ''
           }));
         }
-        
+
         if (urlParams.get('courseTitle')) {
           setCourseDetails(prev => ({
             ...prev,
@@ -153,43 +156,44 @@ const CreateManualInvoice = () => {
       console.log('Fetching invoice for edit:', invoiceId);
       const res = await fetch(`/api/invoice/fetch?invoiceId=${invoiceId}`);
       const data = await res.json();
-      
+
       if (data.success && data.invoice) {
         const invoice = data.invoice;
         console.log('Invoice data received:', invoice);
-        
+
         // Pre-fill customer details
         setCustomerDetails({
           name: invoice.customerDetails.name || '',
           email: invoice.customerDetails.email || '',
           phone: invoice.customerDetails.phone || '',
+          location: invoice.customerDetails.location || '',
           studentId: invoice.customerDetails.studentId || ''
         });
-        
+
         // Pre-fill course details
         setCourseDetails({
           title: invoice.courseDetails.title || '',
           price: invoice.totalAmount || 0
         });
-        
+
         // Pre-fill payment details
         setFeeType(invoice.feeType || 'Full Payment');
         setPaymentMode(invoice.paymentMode || 'online');
         setPaidAmount(invoice.paidAmount || 0);
-        
+
         // Pre-fill dates
         if (invoice.paidDate) {
           const paidDateStr = new Date(invoice.paidDate).toISOString().split('T')[0];
           setPaidDate(paidDateStr);
           console.log('Set paid date:', paidDateStr);
         }
-        
+
         if (invoice.dueDate) {
           const dueDateStr = new Date(invoice.dueDate).toISOString().split('T')[0];
           setNextPaymentDate(dueDateStr);
           console.log('Set due date:', dueDateStr);
         }
-        
+
         // Pre-fill installment dates if they exist
         if (invoice.installmentDates && invoice.installmentDates.length > 0) {
           const installments = invoice.installmentDates.map((installment: any) => ({
@@ -205,14 +209,14 @@ const CreateManualInvoice = () => {
         if (invoice.paymentScreenshot) {
           setScreenshotPreview(invoice.paymentScreenshot);
         }
-        
+
         // Load sales person if exists
         if (invoice.salesPerson) {
           setSalesPerson(invoice.salesPerson);
         } else {
           setSalesPerson('none');
         }
-        
+
         toast.success('Invoice data loaded successfully');
       } else {
         throw new Error(data.error || 'Invoice not found');
@@ -234,15 +238,15 @@ const CreateManualInvoice = () => {
         toast.error('Please select an image file');
         return;
       }
-      
+
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         toast.error('File size must be less than 5MB');
         return;
       }
-      
+
       setPaymentScreenshot(file);
-      
+
       // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -267,7 +271,7 @@ const CreateManualInvoice = () => {
 
   const handleFeeTypeChange = (newFeeType: string) => {
     setFeeType(newFeeType);
-    
+
     if (newFeeType === 'Full Payment') {
       // For full payment, automatically set paid amount to course price
       setPaidAmount(courseDetails.price);
@@ -297,6 +301,7 @@ const CreateManualInvoice = () => {
     if (!customerDetails.name.trim()) newErrors.push('Customer name is required');
     if (!customerDetails.email.trim()) newErrors.push('Customer email is required');
     if (!customerDetails.phone.trim()) newErrors.push('Customer phone is required');
+    if (!customerDetails.location.trim()) newErrors.push('Customer location is required');
     if (!customerDetails.studentId.trim()) newErrors.push('Student ID is required');
 
     // Course validation
@@ -328,7 +333,7 @@ const CreateManualInvoice = () => {
       // For installments, validate partial payment
       if (paidAmount <= 0) newErrors.push('First installment amount must be greater than 0');
       if (paidAmount >= courseDetails.price) newErrors.push('First installment cannot be equal to or greater than total price');
-      
+
       // Validate next payment due date for installments with pending amount
       if (calculateRemainingAmount() > 0 && !nextPaymentDate) {
         newErrors.push('Next payment due date is required for installment payments');
@@ -342,16 +347,16 @@ const CreateManualInvoice = () => {
   const uploadScreenshot = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('screenshot', file);
-    
+
     const res = await fetch('/api/upload-payment-screenshot', {
       method: 'POST',
       body: formData
     });
-    
+
     if (!res.ok) {
       throw new Error('Failed to upload screenshot');
     }
-    
+
     const data = await res.json();
     return data.url;
   };
@@ -365,7 +370,7 @@ const CreateManualInvoice = () => {
     setIsCreating(true);
     try {
       let screenshotUrl = screenshotPreview;
-      
+
       // Upload screenshot if a new file is selected
       if (paymentScreenshot) {
         console.log('Uploading screenshot file:', paymentScreenshot.name);
@@ -402,7 +407,7 @@ const CreateManualInvoice = () => {
       });
 
       let res, data;
-      
+
       if (isEditing && editInvoiceId) {
         // Update existing invoice
         res = await fetch('/api/invoice/manage', {
@@ -464,8 +469,8 @@ const CreateManualInvoice = () => {
       ) : (!authenticated || !isAdmin) ? (
         <SignOut />
       ) : (!checkAccountantAccess()) ? (
-        <UnauthorizedAccess 
-          requiredRole="Accountant" 
+        <UnauthorizedAccess
+          requiredRole="Accountant"
           message="You need accountant privileges to access invoice creation."
           redirectPath="/admin/dashboard"
         />
@@ -523,6 +528,16 @@ const CreateManualInvoice = () => {
                         onChange={(e) => setCustomerDetails(prev => ({ ...prev, phone: e.target.value }))}
                         className="bg-zinc-800 border-zinc-700 text-white"
                         placeholder="+91 9876543210"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-white">Location *</Label>
+                      <Input
+                        value={customerDetails.location}
+                        onChange={(e) => setCustomerDetails(prev => ({ ...prev, location: e.target.value }))}
+                        className="bg-zinc-800 border-zinc-700 text-white"
+                        placeholder="Enter customer location"
                         required
                       />
                     </div>
@@ -598,7 +613,7 @@ const CreateManualInvoice = () => {
                 {/* Payment Configuration */}
                 <div className="bg-zinc-900 rounded-lg p-6 mb-6">
                   <h3 className="text-lg font-semibold text-white mb-4">Payment Configuration</h3>
-                  
+
                   <div className="grid grid-cols-3 gap-4 mb-6">
                     <div>
                       <Label className="text-white">Payment Mode *</Label>
@@ -644,11 +659,10 @@ const CreateManualInvoice = () => {
                           setPaidAmount(amount);
                           // No need to recalculate for installments
                         }}
-                        className={`bg-zinc-800 border-zinc-700 text-white ${
-                          feeType === 'Full Payment' && paidAmount !== courseDetails.price && paidAmount > 0
+                        className={`bg-zinc-800 border-zinc-700 text-white ${feeType === 'Full Payment' && paidAmount !== courseDetails.price && paidAmount > 0
                             ? 'border-red-500 focus:border-red-500'
                             : ''
-                        }`}
+                          }`}
                         placeholder="0.00"
                         required
                       />
@@ -752,11 +766,10 @@ const CreateManualInvoice = () => {
                       <Label className="text-xs text-zinc-400">
                         {feeType === 'Installments' ? '1st Installment' : 'Amount Paid Today'}
                       </Label>
-                      <div className={`text-lg font-bold ${
-                        feeType === 'Full Payment' && paidAmount !== courseDetails.price && paidAmount > 0
+                      <div className={`text-lg font-bold ${feeType === 'Full Payment' && paidAmount !== courseDetails.price && paidAmount > 0
                           ? 'text-red-400'
                           : 'text-green-400'
-                      }`}>
+                        }`}>
                         ₹{paidAmount.toLocaleString('en-IN')}
                       </div>
                       {feeType === 'Full Payment' && (
@@ -797,12 +810,12 @@ const CreateManualInvoice = () => {
                     variant="manual"
                     className="flex-1 max-w-xs"
                   >
-                    {isCreating 
-                      ? (isEditing ? 'Updating Invoice...' : 'Creating Invoice...') 
+                    {isCreating
+                      ? (isEditing ? 'Updating Invoice...' : 'Creating Invoice...')
                       : (isEditing ? 'Update Invoice' : 'Create Invoice')
                     }
                   </Button>
-                  
+
                   <Link href="/admin/dashboard/invoices">
                     <Button variant="outline" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
                       Cancel
