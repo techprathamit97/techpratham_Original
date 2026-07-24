@@ -230,7 +230,7 @@ RichTextEditor: {
     content: {
       type: "custom",
       label: "Rich Text Content",
-      render: ({ value, onChange }) => {
+      render: ({ value, onChange, ...props }) => {
         const [linkUrl, setLinkUrl] = React.useState('');
         const [showLinkDialog, setShowLinkDialog] = React.useState(false);
         const [showColorPicker, setShowColorPicker] = React.useState(false);
@@ -239,6 +239,9 @@ RichTextEditor: {
         const [savedSelection, setSavedSelection] = React.useState(null);
         const [selectedText, setSelectedText] = React.useState('');
         const editorRef = React.useRef(null);
+        const displayTextAlign = props?.textAlign || 'left';
+        const displayMargin = props?.margin || '0';
+        const displayPadding = props?.padding || '0';
 
         const colors = [
           '#000000', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', 
@@ -856,13 +859,13 @@ RichTextEditor: {
                 lineHeight: '1.5',
                 outline: 'none',
                 direction: 'ltr',
-                textAlign: props.textAlign || 'left',
+                textAlign: displayTextAlign,
                 unicodeBidi: 'normal',
                 writingMode: 'horizontal-tb',
                 fontFamily: 'inherit',
-                margin: props.margin || '0',
-                padding: props.padding || '0',
-                textJustify: props.textAlign === 'justify' ? 'inter-word' : undefined
+                margin: displayMargin,
+                padding: displayPadding,
+                textJustify: displayTextAlign === 'justify' ? 'inter-word' : undefined
               }}
               suppressContentEditableWarning={true}
               dir="ltr"
