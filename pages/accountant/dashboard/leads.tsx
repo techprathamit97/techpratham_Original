@@ -458,17 +458,7 @@ const LeadsManagement = () => {
                     <table className="w-full min-w-[1200px]">
                       <thead className="bg-zinc-800">
                         <tr>
-                          <th className="text-left p-4 text-white font-medium min-w-[120px]">Name</th>
-                          <th className="text-left p-4 text-white font-medium min-w-[200px]">Email</th>
-                          <th className="text-left p-4 text-white font-medium min-w-[120px]">Phone</th>
-                          <th className="text-left p-4 text-white font-medium min-w-[200px]">Course</th>
-                          <th className="text-left p-4 text-white font-medium min-w-[200px]">Message</th>
-                          <th className="text-left p-4 text-white font-medium min-w-[120px]">Form Type</th>
-                          <th className="text-left p-4 text-white font-medium min-w-[120px]">Source</th>
-                          <th className="text-left p-4 text-white font-medium min-w-[100px]">Status</th>
-                          <th className="text-left p-4 text-white font-medium min-w-[150px]">IP Address</th>
-                          <th className="text-left p-4 text-white font-medium min-w-[100px]">Country</th>
-                          <th 
+                           <th 
                             className="text-left p-4 text-white font-medium min-w-[150px] cursor-pointer hover:bg-zinc-700 transition-colors"
                             onClick={() => setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')}
                             title="Click to sort by date"
@@ -480,12 +470,49 @@ const LeadsManagement = () => {
                               </span>
                             </div>
                           </th>
+                          <th className="text-left p-4 text-white font-medium min-w-[120px]">Name</th>
+                          <th className="text-left p-4 text-white font-medium min-w-[200px]">Email</th>
+                          <th className="text-left p-4 text-white font-medium min-w-[120px]">Phone</th>
+                          <th className="text-left p-4 text-white font-medium min-w-[200px]">Course</th>
+                          <th className="text-left p-4 text-white font-medium min-w-[200px]">Message</th>
+                          <th className="text-left p-4 text-white font-medium min-w-[120px]">Form Type</th>
+                          <th className="text-left p-4 text-white font-medium min-w-[120px]">Source</th>
+                          <th className="text-left p-4 text-white font-medium min-w-[100px]">Status</th>
+                          <th className="text-left p-4 text-white font-medium min-w-[150px]">IP Address</th>
+                          <th className="text-left p-4 text-white font-medium min-w-[100px]">Country</th>
+                         
                           <th className="text-left p-4 text-white font-medium min-w-[200px]">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         {leads.map((lead) => (
                           <tr key={lead._id} className="border-b border-zinc-800 hover:bg-zinc-800/50">
+                             <td className="p-4 text-zinc-400 text-sm min-w-[150px]">
+                              <div className="flex flex-col">
+                                <div className="text-white text-sm font-medium">
+                                  {new Date(lead.createdAt).toLocaleDateString('en-IN', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric'
+                                  })}
+                                </div>
+                                <div className="text-zinc-500 text-xs">
+                                  {new Date(lead.createdAt).toLocaleTimeString('en-IN', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: true
+                                  })}
+                                </div>
+                                {(() => {
+                                  const relativeTime = getRelativeTime(lead.createdAt);
+                                  return relativeTime ? (
+                                    <div className="text-blue-400 text-xs font-medium">
+                                      {relativeTime}
+                                    </div>
+                                  ) : null;
+                                })()}
+                              </div>
+                            </td>
                             <td className="p-4 min-w-[120px]">
                               <div className="text-white font-medium truncate">{lead.fullName || '-'}</div>
                             </td>
@@ -536,32 +563,7 @@ const LeadsManagement = () => {
                             <td className="p-4 min-w-[100px]">
                               <div className="text-white truncate">{lead.metadata?.country || '-'}</div>
                             </td>
-                            <td className="p-4 text-zinc-400 text-sm min-w-[150px]">
-                              <div className="flex flex-col">
-                                <div className="text-white text-sm font-medium">
-                                  {new Date(lead.createdAt).toLocaleDateString('en-IN', {
-                                    day: '2-digit',
-                                    month: 'short',
-                                    year: 'numeric'
-                                  })}
-                                </div>
-                                <div className="text-zinc-500 text-xs">
-                                  {new Date(lead.createdAt).toLocaleTimeString('en-IN', {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: true
-                                  })}
-                                </div>
-                                {(() => {
-                                  const relativeTime = getRelativeTime(lead.createdAt);
-                                  return relativeTime ? (
-                                    <div className="text-blue-400 text-xs font-medium">
-                                      {relativeTime}
-                                    </div>
-                                  ) : null;
-                                })()}
-                              </div>
-                            </td>
+                           
                             <td className="p-4 min-w-[200px]">
                               <div className="flex gap-1 flex-wrap">
                                 <Button
