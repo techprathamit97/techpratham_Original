@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     console.log("Payment Form Submitted From IP:", realIp);
 
     await resend.emails.send({
-      from: "TechPratham <onboarding@resend.dev>",
+      from: "TechPratham <noreply@techpratham.com>",
       to: [admin],
       subject: `New Contact Inquiry - TechPratham`,
       html: `

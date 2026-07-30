@@ -21,7 +21,7 @@ export async function sendLeadEmail(data: any) {
 
   // Single consistent template for ALL forms to avoid spam detection
   await resend.emails.send({
-    from: "TechPratham <onboarding@resend.dev>",
+    from: "TechPratham <noreply@techpratham.com>",
     to: [admin],
     subject: `${formLabel} - New Contact Inquiry - TechPratham`,
     html: `

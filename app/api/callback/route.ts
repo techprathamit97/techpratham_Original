@@ -54,7 +54,7 @@ const emailHtml = `
 
     // ✅ Send Email
     await resend.emails.send({
-      from: "TechPratham <onboarding@resend.dev>",
+      from: "TechPratham <noreply@techpratham.com>",
       to: [admin],
       subject: "📞 New Callback Request - TechPratham",
       html: emailHtml,

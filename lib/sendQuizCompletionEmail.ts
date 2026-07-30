@@ -15,7 +15,7 @@ export async function sendQuizCompletionEmail(data: any) {
   } = data;
 
   await resend.emails.send({
-    from: "TechPratham <onboarding@resend.dev>",
+    from: "TechPratham <noreply@techpratham.com>",
     to: [admin],
     subject: `🎯 Quiz Completed: ${quizTitle} - ${passed ? 'PASSED' : 'FAILED'} - TechPratham`,
     html: `
