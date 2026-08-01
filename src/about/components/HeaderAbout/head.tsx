@@ -1,103 +1,3 @@
-// import Image from "next/image";
-// import D3Image from '../threeDmoveIcon'
-
-
-// export default function AboutHeader() {
-//   return (
-//     <div className="relative w-full md:h-[400px] h-[250px] overflow-hidden">
-
-//       {/* ===== Background ===== */}
-//       <div
-//         className="
-//           absolute inset-0 
-
-//           bg-[url('/about/aboutbg.webp')]
-//           bg-cover bg-center
-//         "
-//       />
-
-//       {/* Overlay (all screens) */}
-//       <div className="absolute inset-0 bg-gradient-to-l from-black/80 via-black/60 to-transparent z-0" />
-
-//       {/* ===== DESKTOP VIEW ===== */}
-
-//       {/* Director Image - LEFT */}
-//       <div className="absolute left-0 bottom-0 hidden md:block z-5">
-//         <div
-//           className="relative md:w-[80vh] md:h-[60vh]"
-//           style={{
-//             opacity: 0,
-//             animation: "slideFromBottom 1s ease-out 0.5s forwards",
-//           }}
-//         >
-//           <Image
-//             src="/about/Sirab.webp"
-//             alt="Director"
-//             fill
-//             className="object-contain"
-//           />
-//         </div>
-//       </div>
-
-//       {/* D3 Image - RIGHT */}
-//       <div className="absolute right-20 top-1/2 -translate-y-1/2  z-5">
-//         <D3Image />
-//       </div>
-
-//       {/* Heading (Desktop Center) */}
-//       <h1
-//         className="
-//           absolute hidden md:flex
-//           top-1/2 left-1/2 
-//           -translate-x-1/2 -translate-y-1/2
-//           text-white text-6xl font-extrabold
-//           drop-shadow-lg z-10
-//         "
-//         style={{ fontFamily: "Abril Fatface, cursive" }}
-//       >
-//         ABOUT US
-//       </h1>
-
-//       {/* ===== MOBILE VIEW ===== */}
-
-
-
-//       {/* Director Image - FRONT (Mobile) */}
-//       <div className="absolute md:hidden right-0 bottom-0 z-10">
-//         <div className="relative w-64 h-52">
-//           <Image
-//             src="/about/Sirab.webp"
-//             alt="Director"
-//             fill
-//             className="object-contain"
-//           />
-//         </div>
-//       </div>
-
-//       {/* Mobile Heading */}
-//       <h1
-//         className="
-//           absolute hidden md:hidden
-//           top-6 left-1/2 -translate-x-1/2
-//           text-white text-3xl font-extrabold
-//           z-10
-//         "
-//         style={{ fontFamily: "Abril Fatface, cursive" }}
-//       >
-//         ABOUT US
-//       </h1>
-
-//       {/* Font */}
-//       <link
-//         href="https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap"
-//         rel="stylesheet"
-//       />
-//     </div>
-//   );
-// }
-
-
-
 import HeroSection from './hero-section-9'; // Adjust the import path as needed
 import { Users, Briefcase, Link as LinkIcon } from 'lucide-react';
 
@@ -141,8 +41,7 @@ const HeroSectionDemo = () => {
     ],
     images: [
       '/about/Sirab.webp',
-      '/about/teams/teams.jpeg',
-      '/about/teams/teams.jpeg',
+      
     ],
   };
 

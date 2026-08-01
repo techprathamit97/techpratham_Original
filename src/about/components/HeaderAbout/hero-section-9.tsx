@@ -1,12 +1,26 @@
 
 
-import { motion,Variants } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { Button, type ButtonProps } from '@/components/ui/button'; // Assuming Button is in your components folder
 import { cn } from '@/lib/utils'; // Your utility for class names
 import React from 'react';
 import Image from 'next/image';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { EffectCoverflow, Autoplay } from 'swiper/modules';
+
+import 'swiper/css';
+import 'swiper/css/effect-coverflow';
 // import { motion, Variants } from "framer-motion";
 // Define the props for reusability
+const fallbackImages = [
+  // '/about/teams/office0.jpeg',
+  '/about/teams/office1.webp',
+  '/about/teams/office2.webp',
+  '/about/teams/office3.webp',
+  '/about/teams/office4.webp',
+  '/about/teams/office5.webp',
+];
+
 interface StatProps {
   value: string;
   label: string;
@@ -80,21 +94,53 @@ const floatingVariants: Variants = {
 
 
 const HeroSection = ({ title, subtitle, actions, stats, images, className }: HeroSectionProps) => {
+  const baseImages = [...fallbackImages];
+  const carouselImages = [...baseImages];
+
+  while (carouselImages.length < 15) {
+    carouselImages.push(...baseImages);
+  }
+
+  const displayImages = carouselImages.slice(0, 15);
+
   return (
-<section className={cn("relative w-full overflow-hidden", className)}>
+    <section className={cn("relative w-full overflow-hidden", className)}>
 
-  {/* ✅ Background Image */}
-  <div
-    className="absolute inset-0 z-0
-               bg-[url('/about/teambg-2.jpeg')]
-               bg-cover bg-center"
-  />
+      {/* ✅ Background Carousel */}
+      <div className="absolute inset-0 z-0">
+        <Swiper
+          modules={[EffectCoverflow, Autoplay]}
+          effect="coverflow"
+          grabCursor
+          centeredSlides
+          slidesPerView={1}
+          loop
+          autoplay={{ delay: 2500, disableOnInteraction: false }}
+          coverflowEffect={{ rotate: 0, stretch: 0, depth: 200, modifier: 2.5, slideShadows: false }}
+          className="h-full w-full"
+        >
+          {displayImages.map((img, index) => (
+            <SwiperSlide key={`${img}-${index}`} className="h-full w-full">
+              <div className="relative h-full w-full">
+                <Image
+                  src={img}
+                  alt={`Hero background ${index + 1}`}
+                  fill
+                  priority={index === 0}
+                  className="object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-black/35" />
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
 
-  {/* ✅ Overlay (optional but recommended) */}
-  <div className="absolute inset-0 bg-red-900/80 z-5" />
+      {/* ✅ Overlay (optional but recommended) */}
+      {/* <div className="absolute inset-0 bg-red-900/80 z-5" /> */}
 
-  {/* ✅ Main Content */}
-  <div className="relative  container mx-auto grid grid-cols-1 items-center lg:grid-cols-2 lg:gap-2 z-10">
+      {/* ✅ Main Content */}
+      <div className="relative md:h-[500px] h-[250px]  container mx-auto grid grid-cols-1 items-center lg:grid-cols-2 lg:gap-2 z-10">
 
         {/* Left Column: Text Content */}
         <motion.div
@@ -104,7 +150,7 @@ const HeroSection = ({ title, subtitle, actions, stats, images, className }: Her
           animate="visible"
         >
           <motion.h1
-            className="text-3xl pl-5 md:mt-52 bottom-0  font-bold bg-gray-300 bg-clip-text text-transparent sm:text-5xl"
+            className="text-3xl pl-5 md:mt-80 mt-24 bottom-0  font-bold bg-gray-300 bg-clip-text text-transparent sm:text-5xl"
             variants={itemVariants}
           >
             {title}
@@ -112,97 +158,12 @@ const HeroSection = ({ title, subtitle, actions, stats, images, className }: Her
           <motion.p className="mt-2  pl-5 max-w-md   text-lg text-yellow-500 dark:text-gray-300" variants={itemVariants}>
             {subtitle}
           </motion.p>
-          {/* <motion.div className="mt-4 flex flex-wrap justify-center gap-4 lg:justify-start" variants={itemVariants}>
-            {actions.map((action, index) => (
-              <Button key={index} onClick={action.onClick} variant={action.variant} size="lg" className={action.className}>
-                {action.text}
-              </Button>
-            ))}
-          </motion.div>
-          <motion.div className="mt-4 flex flex-wrap justify-center gap-8 lg:justify-start" variants={itemVariants}>
-            {stats.map((stat, index) => (
-              <div key={index} className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">{stat.icon}</div>
-                <div>
-                  <p className="text-xl text-gray-200 font-bold text-foreground">{stat.value}</p>
-                  <p className="text-sm text-gray-400 ">{stat.label}</p>
-                </div>
-              </div>
-            ))}
-          </motion.div> */}
+         
         </motion.div>
 
-        {/* Right Column: Image Collage */}
-        <motion.div
-          className="relative h-[330px] w-full sm:h-[390px]"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {/* Decorative Shapes */}
-          <motion.div
-            className="absolute top-32 left-2/4 h-16 w-16 rounded-full bg-blue-200/20 dark:bg-blue-800/20 z-6"
-            variants={floatingVariants}
-            animate="animate"
-          /> 
-            <motion.div
-            className="absolute top-32 left-1/3 h-10 w-10 rounded-full bg-blue-200/50 dark:bg-blue-800/30 z-6"
-            variants={floatingVariants}
-            animate="animate"
-          />
-            <motion.div
-            className="absolute bottom-20 right-0 h-8 w-8 rounded-full bg-blue-200/50 dark:bg-blue-800/30 z-6"
-            variants={floatingVariants}
-            animate="animate"
-          />
-          <motion.div
-            className="absolute top-10 right-5 h-16 w-16 rounded-full bg-blue-200/50 dark:bg-blue-800/30 z-6"
-            variants={floatingVariants}
-            animate="animate"
-          />
-            <motion.div
-            className="absolute -top-0 left-1/4 h-16 w-16 rounded-full bg-yellow-200/50 dark:bg-yellow-800/30 z-10"
-            variants={floatingVariants}
-            animate="animate"
-          />
-           <motion.div
-            className="absolute bottom-0 left-1/4  h-16 w-16 rounded-full bg-blue-200/50 dark:bg-blue-800/30 z-2"
-            variants={floatingVariants}
-            animate="animate"
-          />
-        
-
-          {/* Images */}
-          <motion.div
-  className="absolute right-0 bottom-0 h-80 w-80 rounded-2xl mr-5 sm:h-[340px] sm:w-[400px]"
-  style={{ transformOrigin: 'bottom center' }}
-  variants={imageVariants}
->
-  <Image
-    src={images[0]}
-    alt="Student learning"
-    width={400}
-    height={340}
-    className="h-full w-full rounded-xl object-contain object-bottom"
-  />
-</motion.div>
-          {/* <motion.div
-            className="absolute right-0  bottom-1 h-40 w-40 rounded-2xl bg-muted p-2 shadow-lg sm:h-56 sm:w-56"
-            style={{ transformOrigin: 'left center' }}
-            variants={imageVariants}
-          >
-            <img src={images[1]} alt="Tutor assisting" className="h-full w-full rounded-xl object-cover" />
-          </motion.div> */}
-          {/* <motion.div
-            className="absolute bottom-0 left-0 h-32 w-32 rounded-2xl   shadow-lg  sm:h-72 sm:w-72"
-            style={{ transformOrigin: 'top right' }}
-            variants={imageVariants}
-          >
-            <img src={images[2]} alt="Collaborative discussion" className="h-full w-full rounded-[160px]  object-cover" />
-          </motion.div> */}
-        </motion.div>
+    
       </div>
-      
+
     </section>
   );
 };

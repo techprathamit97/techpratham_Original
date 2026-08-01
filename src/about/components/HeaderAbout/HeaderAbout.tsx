@@ -44,7 +44,7 @@ const HeaderAbout = () => {
             <div className="max-w-6xl grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-10 text-base md:py-16 py-10">
                 <div className="w-full flex justify-center  order-2 md:order-1">
                     <Image
-                        src="/about/teams/teams.jpeg"
+                        src="/about/teams/recption.jpeg"
                         alt="Mission Image"
                         width={600}
                         height={300}
