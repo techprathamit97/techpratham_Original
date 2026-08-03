@@ -155,7 +155,7 @@ const HeroHome = () => {
   };
 
   return (
-    <section className="relative w-full overflow-hidden">
+    <section className="relative w-full ">
       {/* ✅ Background Carousel */}
       <div className="absolute inset-0 z-0">
         <Swiper
@@ -193,7 +193,7 @@ const HeroHome = () => {
       </div>
 
       {/* ✅ Main Content */}
-      <div className="relative min-h-[260px] md:min-h-[460px] container mx-auto flex items-end justify-center z-10 pb-8 md:pb-14">
+      <div className="relative min-h-[260px] md:min-h-[70vh] container mx-auto flex items-end justify-center z-10 pb-8 md:pb-14">
         {/* Content: Text & Search */}
         <motion.div
           className="flex flex-col items-center justify-center text-center w-full"
@@ -212,7 +212,7 @@ const HeroHome = () => {
           {/* Search Bar with Dropdown */}
           <motion.div 
             ref={searchContainerRef} 
-            className="relative w-[240px] md:w-[450px] md:max-w-xl mx-auto "
+            className="relative w-[240px] md:w-[65vh] md:max-w-xl mx-auto "
             variants={searchVariants}
           >
             <div className="relative flex items-center">
