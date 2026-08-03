@@ -193,7 +193,6 @@ const staticPages = [
   { loc: `${siteUrl}/corporate-training`, priority: "0.80" },
   { loc: `${siteUrl}/about-us`, priority: "0.80" },
   { loc: `${siteUrl}/job-openings`, priority: "0.80" },
-  { loc: `${siteUrl}/reviews`, priority: "0.80" },
   { loc: `${siteUrl}/blog`, priority: "0.80" },
   { loc: `${siteUrl}/payment`, priority: "0.80" },
   { loc: `${siteUrl}/contact-us`, priority: "0.80" },
