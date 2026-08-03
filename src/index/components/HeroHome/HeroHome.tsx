@@ -245,7 +245,7 @@ const HeroHome = () => {
                     Searching...
                   </div>
                 ) : searchResults.length === 0 ? (
-                  <div className="p-4 text-center text-gray-500">
+                  <div className="p-3 text-center text-gray-500">
                     No courses found
                   </div>
                 ) : (
