@@ -14,9 +14,9 @@ import 'swiper/css/effect-coverflow';
 // Define the props for reusability
 const fallbackImages = [
   // '/about/teams/office0.jpeg',
+  '/about/teams/office3.webp',
   '/about/teams/office1.webp',
   '/about/teams/office2.webp',
-  '/about/teams/office3.webp',
   '/about/teams/office4.webp',
   '/about/teams/office5.webp',
 ];
