@@ -20,7 +20,7 @@ interface SearchResult {
 
 // Background images for carousel
 const fallbackImages = [
-  '/home/hero/mainoffice.webp',
+  '/home/hero/mainoffice3.webp',
   '/home/hero/mainoffice2.webp',
   '/home/hero/mainoffice1.webp',
   // '/home/hero/mainoffice3.webp',
