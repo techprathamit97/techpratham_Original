@@ -6,8 +6,6 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import LeadForm from "@/components/common/LeadForm/LeadForm";
 import { motion, Variants } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { EffectCoverflow, Autoplay } from 'swiper/modules';
 import 'swiper/css';
@@ -69,13 +67,10 @@ const HeroHome = () => {
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Prepare carousel images
-  const baseImages = [...fallbackImages];
-  const carouselImages = [...baseImages];
-  while (carouselImages.length < 15) {
-    carouselImages.push(...baseImages);
-  }
-  const displayImages = carouselImages.slice(0, 15);
+  // ✅ Optimize carousel images for better LCP - Only use 3 images for faster loading
+  const baseImages = [...fallbackImages]; // Keep original 3 images
+  const carouselImages = [...baseImages, ...baseImages]; // Duplicate for smooth looping
+  const displayImages = carouselImages.slice(0, 6); // Reduced from 15 to 6 for better performance
 
   // Ensure component is mounted (client-side only)
   useEffect(() => {
@@ -152,7 +147,7 @@ const HeroHome = () => {
 
   return (
     <section className="relative w-full ">
-      {/* ✅ Background Carousel */}
+      {/* ✅ LCP Optimized Background Carousel */}
       <div className="absolute inset-0 z-0">
         <Swiper
           modules={[EffectCoverflow, Autoplay]}
@@ -178,8 +173,12 @@ const HeroHome = () => {
                   src={img}
                   alt={`Hero background ${index + 1}`}
                   fill
-                  priority={index === 0}
+                  priority={index === 0} // ✅ Only first image should be priority for true LCP optimization
+                  fetchPriority={index === 0 ? "high" : "auto"} // ✅ High priority only for LCP image
+                  loading={index === 0 ? "eager" : "lazy"} // ✅ LCP eager, others lazy for performance
                   className="object-cover object-center"
+                  sizes="100vw" // ✅ Explicit sizes for proper responsive loading
+                  quality={index === 0 ? 90 : 75} // ✅ Higher quality for LCP, compressed for others
                 />
                 <div className="absolute inset-0 bg-black/40" />
               </div>

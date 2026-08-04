@@ -1,16 +1,4 @@
-// import Image from 'next/image'
-// import React from 'react'
 
-// const PlacementHome = () => {
-//   return (
-//     <div className='w-full h-auto flex flex-col gap-10 items-center justify-center py-20 bg-white text-black'>
-//       <div className="w-11/12 md:text-3xl text-2xl md:font-semibold font-medium text-black capitalize text-center cursor-pointer transition-all duration-500 ease-in-out hover:scale-110 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-br hover:from-[#1a0a0a] hover:to-[#a3262c]">Student Placement Process</div>
-//       <Image src='/home/placement-process.svg' alt='' width={800} height={400} className='w-11/12 h-auto object-contain' />
-//     </div>
-//   )
-// }
-
-// export default PlacementHome
 
 'use client';
 
@@ -19,18 +7,12 @@ import Image from 'next/image';
 import Crousel from './crousel'
 import {   FileText,  Users, BookOpen, MessageCircle } from 'lucide-react';
 
-// ====================================================================
-// 1. CAROUSEL COMPONENT (Adapted from your provided code)
-// ====================================================================
 
 interface Props {
   id?: string;
 //   course?: any;
 }
 
-// ====================================================================
-// 2. SIDE PANELS & LAYOUT WRAPPER (To replicate the full page image)
-// ====================================================================
 
 const LeftPanel = () => (
     <div className="w-full max-w-sm space-y-3 px-2">
@@ -43,7 +25,7 @@ const LeftPanel = () => (
                 <div className="flex items-center">
   <div className="w-10 h-10 mr-2 relative">
     <Image
-      src="/about/icons/1.svg"
+      src="/about/icons/i1.webp"
       alt="Commitment Icon"
       fill
       className="object-contain"
@@ -64,7 +46,7 @@ const LeftPanel = () => (
             <div className="flex items-center">
   <div className="w-10 h-10 mr-2 relative">
     <Image
-      src="/about/icons/2.svg"
+      src="/about/icons/i2.webp"
       alt="Commitment Icon"
       fill
       className="object-contain"
@@ -83,7 +65,7 @@ const LeftPanel = () => (
                 <div className="flex items-center">
   <div className="w-10 h-10 mr-2 relative">
     <Image
-      src="/about/icons/3.svg"
+      src="/about/icons/i3.webp"
       alt="Commitment Icon"
       fill
       className="object-contain"

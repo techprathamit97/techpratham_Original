@@ -148,6 +148,30 @@ const IndexPage: NextPage<IndexPageProps> = ({ trendingCourses, groupedCourses, 
         <Head>
           <link rel="canonical" href="https://www.techpratham.com/" />
           <link rel="icon" href="/favicon.ico" type="image/ico" sizes="70x70" />
+          
+          {/* ✅ LCP Image Preloads - Critical for Core Web Vitals */}
+          <link 
+            rel="preload" 
+            as="image" 
+            href="/home/hero/mainoffice3.webp"
+            fetchPriority="high"
+          />
+          <link 
+            rel="preload" 
+            as="image" 
+            href="/home/hero/mainoffice2.webp"
+            fetchPriority="high"
+          />
+          <link 
+            rel="preload" 
+            as="image" 
+            href="/home/hero/mainoffice1.webp"
+          />
+          
+          {/* ✅ Preload critical CSS to prevent layout shift */}
+          <link rel="preload" as="style" href="/_next/static/css/swiper.css" />
+          <link rel="preload" as="style" href="/_next/static/css/swiper-coverflow.css" />
+          
           <title>India's No.1 Best IT Training Institute | Corporate Learning</title>
           <meta name="description" content="Corporate Learning is the best IT Training Institute in India for Industrial Training, provide training in 180+ courses as IT, Software, SAP, Data science & AWS." />
           <meta name="keywords" content="India's No.1 IT Training Institute,IT training institute in delhi with placement, IT training institute near me, IT training institute in india, best IT training institute in delhi, IT training institute in ghaziabad, IT training institute in noida, IT training institute in gurgaon, Professional courses training online, Professional courses training near me, professional development training courses, IT training institute India" />

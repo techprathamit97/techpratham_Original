@@ -40,6 +40,11 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
   const [selectedCategoryIdx, setSelectedCategoryIdx] = useState<number | null>(null);
   const [visibleLimit, setVisibleLimit] = useState(4);
   const [showAllCategories, setShowAllCategories] = useState(false);
+  
+  // Initialize with server-side data to prevent layout shift
+  const [coursesByCategory, setCoursesByCategory] = useState<CourseCategory[]>(
+    () => initialGroupedCourses || []
+  );
 
   // Function to process categories - create "Trending Courses" from trending courses
   const processCategories = (courses: CourseCategory[]): CourseCategory[] => {
@@ -192,11 +197,6 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
     return sortedResult;
   };
 
-  const [coursesByCategory, setCoursesByCategory] = useState<CourseCategory[]>(() => {
-    // If we have initial data but no categories data yet, return initial data temporarily
-    return initialGroupedCourses;
-  });
-
   // ✅ FETCH GROUPED API (Only if no initial data)
   useEffect(() => {
     if (initialGroupedCourses.length > 0) {
@@ -261,26 +261,21 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
     }
   }, [initialGroupedCourses, categoriesData.length]);
   
-  // ✅ AUTO SELECT "Trending Courses" CATEGORY - with delay to ensure filtering is complete
+  // ✅ AUTO SELECT "Trending Courses" CATEGORY - Immediate selection to prevent layout shift
   useEffect(() => {
     if (coursesByCategory.length) {
-      // Small delay to ensure filtering is complete
-      const timer = setTimeout(() => {
-        // Debug: Log all category names with course counts
-        console.log('📂 Available categories for selection:', coursesByCategory.map(c => `${c.name} (${c.courses.length} courses)`));
+      // Debug: Log all category names with course counts
+      console.log('📂 Available categories for selection:', coursesByCategory.map(c => `${c.name} (${c.courses.length} courses)`));
 
-        // Find "Trending Courses" category (should be first after processing)
-        const trainingIdx = coursesByCategory.findIndex(
-          cat => cat.name.toLowerCase() === 'Trending courses'
-        );
+      // Find "Trending Courses" category (should be first after processing)
+      const trainingIdx = coursesByCategory.findIndex(
+        cat => cat.name.toLowerCase() === 'trending courses'
+      );
 
-        console.log('🎯 Auto-selecting category:', trainingIdx !== -1 ? `Trending Courses (index ${trainingIdx})` : `First category (index 0): ${coursesByCategory[0]?.name || 'none'}`);
+      console.log('🎯 Auto-selecting category:', trainingIdx !== -1 ? `Trending Courses (index ${trainingIdx})` : `First category (index 0): ${coursesByCategory[0]?.name || 'none'}`);
 
-        // Select Trending Courses if found, otherwise first category
-        setSelectedCategoryIdx(trainingIdx !== -1 ? trainingIdx : 0);
-      }, 100);
-
-      return () => clearTimeout(timer);
+      // Select Trending Courses if found, otherwise first category - immediate to prevent layout shift
+      setSelectedCategoryIdx(trainingIdx !== -1 ? trainingIdx : 0);
     }
   }, [coursesByCategory]);
 
@@ -311,49 +306,97 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
       ? coursesByCategory[selectedCategoryIdx]
       : null;
 
-  // 🔹 COURSE CARD
+  // 🔹 COURSE CARD - Optimized for CLS
   const CourseCard = ({ course }: { course: Course }) => {
-    // ✅ FIX: Memoize random values so they don't change on every render
-    const rating = useMemo(() => Number((Math.random() * (5 - 4.6) + 4.6).toFixed(1)), [course._id || course.id]);
-    const ratingCount = useMemo(() => Math.floor(Math.random() * (7000 - 6000 + 1)) + 6000, [course._id || course.id]);
+    // ✅ FIX: Use consistent hash-based values to prevent re-renders causing layout shift
+    const courseId = course._id || course.id || course.title;
+    const rating = useMemo(() => {
+      // Create a simple hash from course ID for consistent rating
+      let hash = 0;
+      for (let i = 0; i < courseId.length; i++) {
+        const char = courseId.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32-bit integer
+      }
+      const normalizedHash = Math.abs(hash) / Math.pow(2, 31);
+      return Number((normalizedHash * (5 - 4.6) + 4.6).toFixed(1));
+    }, [courseId]);
+
+    const ratingCount = useMemo(() => {
+      // Create another hash for rating count
+      let hash = 0;
+      for (let i = 0; i < courseId.length; i++) {
+        const char = courseId.charCodeAt(i);
+        hash = ((hash << 3) - hash) + char;
+        hash = hash & hash;
+      }
+      return Math.abs(hash % 1000) + 6000; // 6000-7000 range
+    }, [courseId]);
 
     return (
       <Link
         href={`/courses/${course.link}`}
-        className="group block min-w-[280px] sm:min-w-0 w-full h-full rounded-xl shadow-lg overflow-hidden border border-gray-200 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl relative bg-white flex flex-col"
+        className="group block min-w-[280px] sm:min-w-0 w-full rounded-xl shadow-lg overflow-hidden border border-gray-200 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl relative bg-white flex flex-col"
+        style={{ height: '320px' }} // Fixed height to prevent layout shift
       >
-        <div className="relative bg-gray-500 h-36 w-full overflow-hidden">
+        {/* Fixed aspect ratio image container */}
+        <div className="relative bg-gray-500 w-full overflow-hidden" style={{ height: '144px' }}>
           {course.image && (
             <Image
               src={course.image}
-              alt={course.alt ?? ""}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
+              alt={course.alt ?? course.title}
+              width={320}
+              height={144}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              style={{ aspectRatio: '20/9' }}
+              priority={false}
+              loading="lazy"
             />
           )}
           <div className="absolute bottom-0 right-0 flex items-center gap-1 bg-[#f7f7f7] px-1 py-1 rounded-tl-xl z-10">
-            <Image src="/home/hero/logo/microsoft.svg" width={40} height={24} alt="Microsoft" />
-            <Image src="/home/hero/logo/ibm.svg" width={22} height={24} alt="IBM" />
-            <Image src="/home/hero/logo/iso.png" width={22} height={24} alt="ISO" />
+            <Image 
+              src="/home/hero/logo/microsoft.svg" 
+              width={40} 
+              height={24} 
+              alt="Microsoft"
+              style={{ width: '40px', height: '24px' }}
+            />
+            <Image 
+              src="/home/hero/logo/ibm.svg" 
+              width={22} 
+              height={24} 
+              alt="IBM"
+              style={{ width: '22px', height: '24px' }}
+            />
+            <Image 
+              src="/home/hero/logo/iso.png" 
+              width={22} 
+              height={24} 
+              alt="ISO"
+              style={{ width: '22px', height: '24px' }}
+            />
           </div>
         </div>
 
-        <div className="p-4 flex flex-col flex-grow">
-          <div className="min-h-[40px]">
+        <div className="p-4 flex flex-col flex-grow" style={{ minHeight: '176px' }}>
+          {/* Fixed height title container */}
+          <div style={{ minHeight: '40px', maxHeight: '60px' }}>
             <span
-              className="text-sm font-bold text-gray-900 leading-tight group-hover:text-[#C6151D] transition-colors"
+              className="text-sm font-bold text-gray-900 leading-tight group-hover:text-[#C6151D] transition-colors line-clamp-3"
               dangerouslySetInnerHTML={{ __html: course.title }}
             />
           </div>
 
-          <div className="flex items-center gap-1 text-yellow-400 my-2">
+          {/* Fixed height rating section */}
+          <div className="flex items-center gap-1 text-yellow-400" style={{ height: '24px', marginTop: '8px', marginBottom: '8px' }}>
             <span className="text-sm">★ ★ ★ ★</span>
             <span className="text-xs text-blue-500 font-medium">
               {rating} ({ratingCount})
             </span>
           </div>
 
-          <div className="border-t pt-4 mt-auto">
+          {/* Fixed height button container */}
+          <div className="border-t pt-4 mt-auto" style={{ minHeight: '56px' }}>
             <div className="w-full py-2 rounded-md text-center text-xs font-semibold bg-gradient-to-tl from-[#C6151D] to-[#600A0E] text-white">
               View Program
             </div>
@@ -366,14 +409,18 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
   return (
     <section ref={sectionRef} id="courses" className="w-full bg-[#f3f9ff] py-5">
       <div className="max-w-6xl mx-auto px-4">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 md:mb-4 text-center md:text-left">
-          Explore Our All Courses
-        </h2>
+        {/* Pre-allocate space for title to prevent shift */}
+        <div style={{ minHeight: '60px' }} className="flex items-center justify-center md:justify-start mb-6 md:mb-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 text-center md:text-left">
+            Explore Our All Courses
+          </h2>
+        </div>
 
         <div className="flex flex-col md:flex-row gap-8">
           {/* SIDEBAR - SCROLLABLE FOR DESKTOP, SHOW MORE/LESS FOR MOBILE */}
           <aside className="w-full md:w-1/4 flex flex-col gap-3">
             {loading ? (
+              // Loading skeleton with fixed dimensions
               <div className="flex flex-col gap-3">
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="h-10 bg-gray-200 rounded-lg animate-pulse"></div>
@@ -418,6 +465,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
                             ? "bg-gradient-to-tl from-[#C6151D] to-[#600A0E] text-white"
                             : "bg-white text-gray-700 hover:bg-yellow-500"
                           }`}
+                        style={{ minHeight: '40px' }} // Fixed button height
                       >
                         {cat.name}
                       </button>
@@ -438,6 +486,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
                             ? "bg-gradient-to-tl from-[#C6151D] to-[#600A0E] text-white"
                             : "bg-white text-gray-700 hover:bg-yellow-500"
                           }`}
+                        style={{ minHeight: '40px' }} // Fixed button height
                       >
                         {cat.name}
                         <ChevronDownIcon
@@ -500,12 +549,30 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
             )}
           </aside>
 
-          {/* DESKTOP GRID */}
-          <main className="hidden md:block w-3/4">
+          {/* DESKTOP GRID - Pre-allocate space */}
+          <main className="hidden md:block w-3/4" style={{ minHeight: '400px' }}>
             {loading ? (
+              // Loading skeleton with fixed dimensions matching actual content
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                 {[...Array(4)].map((_, i) => (
-                  <div key={i} className="h-64 bg-gray-200 rounded-xl animate-pulse"></div>
+                  <div key={i} className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden" style={{ height: '320px' }}>
+                    {/* Image skeleton */}
+                    <div className="w-full bg-gray-200 animate-pulse" style={{ height: '144px' }}></div>
+                    {/* Content skeleton */}
+                    <div className="p-4 space-y-3">
+                      {/* Title skeleton */}
+                      <div className="space-y-2">
+                        <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
+                        <div className="h-3 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                      </div>
+                      {/* Rating skeleton */}
+                      <div className="h-6 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+                      {/* Button skeleton */}
+                      <div className="border-t pt-4 mt-auto">
+                        <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             ) : currentCategory ? (
@@ -541,7 +608,16 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
                   </div>
                 )}
               </>
-            ) : null}
+            ) : (
+              // Placeholder when no category selected - prevents layout shift
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="h-80 bg-gray-100 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center">
+                    <span className="text-gray-500">Select a category</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </main>
         </div>
       </div>
