@@ -6,6 +6,7 @@ import type { NextPage, GetServerSideProps } from 'next';
 import Script from 'next/script';
 import { getNavbarData, NavbarData } from '@/utils/navbarData';
 import LeadForm from '@/components/common/LeadForm/LeadForm';
+import Navbard from '@/src/common/Navbar/Navbard';
 
 interface Course {
   _id?: string;
@@ -164,15 +165,9 @@ const IndexPage: NextPage<IndexPageProps> = ({ trendingCourses, groupedCourses, 
           <meta name="twitter:title" content="India's No.1 Best IT Training Institute in India | Corporate Learning" />
           <meta name="twitter:description" content="Corporate Learning is the best IT Training Institute in India for Industrial Training, provide training in 180+ courses as IT, Software, SAP, Data science & AWS." />
           <meta name="twitter:image" content="https://www.techpratham.com/og.jpg" />
-          <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-            integrity="sha512-4oV0X7Vr5tKSGhzu8HngZ6NAfnPquKyV3GLfegHMCU+O7mRqaQE8nIYkAs6z0wZmvP0jJR30B2lV0QbnZSCz4g=="
-            crossOrigin="anonymous"
-            referrerPolicy="no-referrer"
-          />
+          
         </Head>
-
+{/* <Navbard/> */}
         <IndexView 
           initialTrendingCourses={trendingCourses}
           initialGroupedCourses={groupedCourses}

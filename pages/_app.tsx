@@ -6,10 +6,26 @@ import '../app/globals.css';
 import { SessionProvider } from 'next-auth/react';
 import { UserProvider } from '@/context/userContext';
 import Script from "next/script";
+import { Maitree, Montserrat } from "next/font/google";
+
+
+const maitree = Maitree({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-maitree",
+  display: "swap",
+});
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-montserrat",
+  display: "swap",
+});
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <>
+   <div className={`${maitree.variable} ${montserrat.variable}`}>
       {/* Microsoft Clarity */}
       <Script
         id="microsoft-clarity"
@@ -84,7 +100,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           alt=""
         />
       </noscript>
-    </>
+  </div>
   );
 }
 

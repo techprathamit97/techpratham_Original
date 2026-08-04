@@ -23,11 +23,7 @@ const fallbackImages = [
   '/home/hero/mainoffice3.webp',
   '/home/hero/mainoffice2.webp',
   '/home/hero/mainoffice1.webp',
-  // '/home/hero/mainoffice3.webp',
-  // '/home/hero/mainoffice4.webp',
-  // '/home/hero/mainoffice5.webp',
-  
-];
+ ];
 
 // Animation variants for Framer Motion
 const containerVariants: Variants = {
