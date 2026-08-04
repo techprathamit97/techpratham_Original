@@ -201,7 +201,7 @@ const HeroHome = () => {
             className="text-3xl md:text-5xl font-bold text-white mb-4"
             variants={itemVariants}
           >
-            Build Better <span className="text-yellow-400">Skills</span>
+            Build Better <span className="text-yellow-400">Skills.</span>
           </motion.h1>
 
           {/* Search Bar with Dropdown */}
