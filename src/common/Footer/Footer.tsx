@@ -87,8 +87,8 @@ const Footer = () => {
               </span>
             </div>
             <div className="flex flex-col capitalize text-[14px] font-light gap-1">
-              <Link href="https://maps.app.goo.gl/25dxU54X7i6CDC2aA" className="transition-all duration-300 hover:underline">
-                C-2, Sector-1, Noida, Uttar Pradesh - 201301
+              <Link href="" className="transition-all duration-300 hover:underline">
+                B-24, Sector-1, Noida, Uttar Pradesh - 201301
               </Link>
             </div>
             <div className="text-base uppercase font-normal inline-block">

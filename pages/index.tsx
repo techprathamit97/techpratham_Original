@@ -149,28 +149,20 @@ const IndexPage: NextPage<IndexPageProps> = ({ trendingCourses, groupedCourses, 
           <link rel="canonical" href="https://www.techpratham.com/" />
           <link rel="icon" href="/favicon.ico" type="image/ico" sizes="70x70" />
           
-          {/* ✅ LCP Image Preloads - Critical for Core Web Vitals */}
+          {/* ✅ LCP Image Preloads with proper Next.js srcset - Critical for Core Web Vitals */}
           <link 
             rel="preload" 
             as="image" 
-            href="/home/hero/mainoffice3.webp"
+            href="/_next/image?url=%2Fhome%2Fhero%2Fmainoffice3.webp&w=1920&q=90"
             fetchPriority="high"
           />
           <link 
             rel="preload" 
             as="image" 
-            href="/home/hero/mainoffice2.webp"
+            imageSrcSet="/_next/image?url=%2Fhome%2Fhero%2Fmainoffice3.webp&w=640&q=90 640w, /_next/image?url=%2Fhome%2Fhero%2Fmainoffice3.webp&w=750&q=90 750w, /_next/image?url=%2Fhome%2Fhero%2Fmainoffice3.webp&w=828&q=90 828w, /_next/image?url=%2Fhome%2Fhero%2Fmainoffice3.webp&w=1080&q=90 1080w, /_next/image?url=%2Fhome%2Fhero%2Fmainoffice3.webp&w=1200&q=90 1200w, /_next/image?url=%2Fhome%2Fhero%2Fmainoffice3.webp&w=1920&q=90 1920w, /_next/image?url=%2Fhome%2Fhero%2Fmainoffice3.webp&w=2048&q=90 2048w"
+            imageSizes="100vw"
             fetchPriority="high"
           />
-          <link 
-            rel="preload" 
-            as="image" 
-            href="/home/hero/mainoffice1.webp"
-          />
-          
-          {/* ✅ Preload critical CSS to prevent layout shift */}
-          <link rel="preload" as="style" href="/_next/static/css/swiper.css" />
-          <link rel="preload" as="style" href="/_next/static/css/swiper-coverflow.css" />
           
           <title>India's No.1 Best IT Training Institute | Corporate Learning</title>
           <meta name="description" content="Corporate Learning is the best IT Training Institute in India for Industrial Training, provide training in 180+ courses as IT, Software, SAP, Data science & AWS." />
