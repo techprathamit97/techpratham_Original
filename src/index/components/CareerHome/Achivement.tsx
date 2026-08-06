@@ -48,7 +48,7 @@ useEffect(() => {
   }, [digit, index, start]);
 
   return (
-    <div className="overflow-hidden" style={{ height: HEIGHT, width: 35 }}>
+    <div className="overflow-hidden" style={{ height: HEIGHT, }}>
       <div
         style={{
           transform: `translateY(-${pos * HEIGHT}px)`,
@@ -59,7 +59,7 @@ useEffect(() => {
           <div
             key={i}
             style={{ height: HEIGHT }}
-            className="flex items-center justify-center text-3xl font-fjalla md:text-5xl font-extrabold text-white"
+            className="flex items-center justify-center text-2xl font-fjalla md:text-5xl font-extrabold text-white"
           >
             {i % 10}
           </div>
@@ -174,7 +174,7 @@ export default function TrainingRecruitmentStats() {
   }}
 >
   {/* Overlay */}
-  <div className="absolute inset-0 bg-black/60"></div>
+  <div className="absolute inset-0 bg-black/40"></div>
 
   {/* Content */}
   <div className="relative z-10 mx-auto grid w-full grid-cols-3 gap-1 text-white md:gap-8">

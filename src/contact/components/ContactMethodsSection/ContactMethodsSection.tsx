@@ -35,22 +35,22 @@ const ContactMethodsSection = () => {
     ];
 
     return (
-        <div className='w-full bg-slate-100 h-auto flex flex-col items-center justify-center py-16 '>
+        <div className='w-full bg-slate-100 h-auto flex flex-col items-center justify-center py-3 '>
             <div className='md:w-10/12 w-11/12 h-auto flex flex-col items-center justify-center gap-8'>
                 <div className='text-center'>
                     <h2 className='text-3xl md:text-4xl font-bold text-[#7f1d1d]'>Get In Touch</h2>
-                     <svg
-          className="mx-auto"
-          width="340"
-          height="6"
-          viewBox="0 0 340 6"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0 3 Q170 0 340 3 Q170 6 0 3 Z"
-            fill="#7f1d1d"
-          />
-        </svg>
+                    <svg
+                        className="mx-auto"
+                        width="340"
+                        height="6"
+                        viewBox="0 0 340 6"
+                        preserveAspectRatio="none"
+                    >
+                        <path
+                            d="M0 3 Q170 0 340 3 Q170 6 0 3 Z"
+                            fill="#7f1d1d"
+                        />
+                    </svg>
                     <p className='text-gray-600 text-lg'>Choose your preferred way to connect with us</p>
                 </div>
 
@@ -63,12 +63,12 @@ const ContactMethodsSection = () => {
                             className='group relative overflow-hidden rounded-2xl bg-white border border-gray-200 p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2'
                         >
                             <div className={`absolute inset-0 bg-gradient-to-br ${method.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
-                            
+
                             <div className='relative z-10 flex flex-col items-center text-center gap-4'>
                                 <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${method.color} flex items-center justify-center text-white transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg`}>
                                     {method.icon}
                                 </div>
-                                
+
                                 <div>
                                     <h3 className='text-xl font-bold text-gray-900 mb-1'>{method.title}</h3>
                                     <p className='text-sm text-gray-600 mb-3'>{method.description}</p>
