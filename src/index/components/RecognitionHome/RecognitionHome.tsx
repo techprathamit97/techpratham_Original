@@ -45,9 +45,9 @@ const RecognitionHome = () => {
 
 
   return (
-    <div className="max-w-7xl h-auto flex flex-col items-center justify-center  gap-3 bg-white text-black">
+    <div className="w-full h-auto flex flex-col items-center justify-center  gap-3 bg-[#F5F4F7] text-black">
 
-      <div className="w-full m-2 border-2 px-1 md:px-20 py-7  h-auto flex flex-col md:flex-row md:gap-10">
+      <div className="w-full px-1 md:px-20 py-7  h-auto flex flex-col md:flex-row md:gap-10">
 
         <div className="w-full md:w-1/2 flex flex-col gap-2">
 <div className='pb-2'>
@@ -107,7 +107,7 @@ const RecognitionHome = () => {
                     />
                   </div>
 
-                  <div className="p-2 bg-gray-50 rounded-md">
+                  <div className="p-2 rounded-md">
                     <p className="text-sm text-gray-700">
                       <strong>Description:</strong> {cert.desc}
                     </p>
@@ -139,7 +139,7 @@ const RecognitionHome = () => {
           </div>
 
           {/* DESCRIPTION */}
-         <div className="bg-gray-50 rounded-md max-w-2xl p-3 mx-auto">
+         <div className=" rounded-md max-w-2xl p-3 mx-auto">
   <p className="text-sm text-gray-700 text-center">
     <strong>Description:</strong> {selectedCert.desc}
   </p>

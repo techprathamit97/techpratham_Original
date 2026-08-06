@@ -21,7 +21,7 @@ const AddressContactNew = () => {
         },
         {
             title: "Noida Office",
-            address: "C-2, Sector-1, Noida, Uttar Pradesh - 201301",
+            address: "B-24, Sector-1, Noida, Uttar Pradesh - 201301",
             phones: [
                 { country: "India", flag: "/course/icons/indian.jpg", number: "+91-8882178896" }
             ],

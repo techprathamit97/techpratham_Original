@@ -19,7 +19,7 @@ const items = [
     },
     {
         title: "Noida Office",
-        address: "C-2, Sector-1, Noida, Uttar Pradesh - 201301",
+        address: "B-24, Sector-1, Noida, Uttar Pradesh - 201301",
         phone: "+91-8882178896",
         imgIn: "/course/icons/indian.jpg",
         imgUs: "/course/icons/uslogo.png",
@@ -31,7 +31,7 @@ const items = [
     {
         title: "Hyderabad Office",
         address: "LVS Arcade, 6th Floor, Hitech City, Hyderabad",
-        phone: "+91-8383058741",
+        phone: "+91-8882178896",
         imgIn: "/course/icons/indian.jpg",
         imgUs: "/course/icons/uslogo.png",
         phoneUs: "+1 (343) 477-0926",

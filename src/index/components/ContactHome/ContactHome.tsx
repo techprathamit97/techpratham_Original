@@ -174,7 +174,7 @@ export default function ContactLayout() {
           {/* NOIDA */}
           <LocationCard
             title="Noida Office"
-            address="C-2, Sector-1, Noida, Uttar Pradesh - 201301"
+            address="B-24, Sector-1, Noida, Uttar Pradesh - 201301"
             phone="+91-8882178896"
           />
 
@@ -184,7 +184,7 @@ export default function ContactLayout() {
             address="LVS Arcade, 71, Hitech, 6th floor ,
 Madhapur Road, Jubilee Enclave,
 HITEC City, Hyderabad"
-            phone="+91-8383058741"
+            phone="+91-8882178896"
           />
         </div>
 

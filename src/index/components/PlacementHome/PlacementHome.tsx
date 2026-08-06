@@ -136,12 +136,13 @@ export default function FullPageCarouselLayout({ id }: Props): JSX.Element {
             className="relative md:max-h-[500px] w-full md:bg-cover  bg-contain bg-center overflow-hidden" 
             // Placeholder for the repeating logo background style
             style={{ 
-                backgroundImage: `url('/about/placement_home_bg.webp')`, 
-                // backgroundSize: 'cover' 
+                backgroundImage: `url('/home/hero/mainoffice1.webp')`, 
+                // backgroundSize: 'cover'
+                backgroundAttachment: "fixed", 
             }}
         >
             {/* <div className="absolute inset-0 bg-black/70  z-0"></div>  */}
-            <div className="absolute inset-0 z-0 bg-red-900/40"></div>
+           <div className="absolute inset-0 bg-black/40"></div>
 {/* <div className="absolute inset-0 z-10 bg-black/70"></div> */}
 
             <div className="relative z-10 border-2 p-1   m-2 flex flex-col items-center justify-start ">

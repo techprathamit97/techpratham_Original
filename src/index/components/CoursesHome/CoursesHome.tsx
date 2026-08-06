@@ -340,7 +340,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
         style={{ height: '320px' }} // Fixed height to prevent layout shift
       >
         {/* Fixed aspect ratio image container */}
-        <div className="relative bg-gray-500 w-full overflow-hidden" style={{ height: '144px' }}>
+        <div className="relative bg-white w-full overflow-hidden" style={{ height: '144px' }}>
           {course.image && (
             <Image
               src={course.image}
@@ -353,7 +353,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
               loading="lazy"
             />
           )}
-          <div className="absolute bottom-0 right-0 flex items-center gap-1 bg-[#f7f7f7] px-1 py-1 rounded-tl-xl z-10">
+          <div className="absolute bottom-0 right-0 flex items-center gap-1 bg-white px-1 py-1 rounded-tl-xl z-10">
             <Image 
               src="/home/hero/logo/microsoft.svg" 
               width={40} 
@@ -407,7 +407,8 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
   };
 
   return (
-    <section ref={sectionRef} id="courses" className="w-full bg-[#f3f9ff] py-5">
+    <section ref={sectionRef} id="courses" className="w-full  p-2 bg-white py-3">
+      <div className=" p-1">
       <div className="max-w-6xl mx-auto px-4">
         {/* Pre-allocate space for title to prevent shift */}
         <div style={{ minHeight: '60px' }} className="flex items-center justify-center md:justify-start mb-6 md:mb-4">
@@ -421,7 +422,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
           <aside className="w-full md:w-1/4 flex flex-col gap-3">
             {loading ? (
               // Loading skeleton with fixed dimensions
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="h-10 bg-gray-200 rounded-lg animate-pulse"></div>
                 ))}
@@ -430,7 +431,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
               <>
                 {/* DESKTOP - SCROLLABLE */}
                 <div 
-                  className="hidden md:flex flex-col gap-3 max-h-[400px] overflow-y-auto pr-2" 
+                  className="hidden md:flex flex-col gap-2 max-h-[400px] overflow-y-auto pr-2" 
                   style={{ scrollbarWidth: 'thin', scrollbarColor: '#C6151D #f3f9ff' }}
                 >
                   <style jsx>{`
@@ -460,12 +461,12 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
                             setVisibleLimit(4);
                           }
                         }}
-                        className={`flex items-center justify-between px-5 py-2 rounded-lg w-full border transition-all
+                        className={`flex items-center justify-between px-5 py-1 rounded-lg w-full border transition-all
                           ${selectedCategoryIdx === idx
                             ? "bg-gradient-to-tl from-[#C6151D] to-[#600A0E] text-white"
                             : "bg-white text-gray-700 hover:bg-yellow-500"
                           }`}
-                        style={{ minHeight: '40px' }} // Fixed button height
+                        style={{ minHeight: '20px' }} // Fixed button height
                       >
                         {cat.name}
                       </button>
@@ -620,6 +621,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
             )}
           </main>
         </div>
+      </div>
       </div>
     </section>
   );

@@ -64,7 +64,7 @@ export default function ReviewCards() {
 
   return (
     <>
-      <section className="w-full bg-[#f7f7f7] py-10">
+      <section className="w-full bg-[#fdfbfb] py-10">
         
         {/* Heading */}
         <div className="text-center mb-12">

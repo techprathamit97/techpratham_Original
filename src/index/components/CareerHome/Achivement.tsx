@@ -48,7 +48,7 @@ useEffect(() => {
   }, [digit, index, start]);
 
   return (
-    <div className="overflow-hidden" style={{ height: HEIGHT, width: 25 }}>
+    <div className="overflow-hidden" style={{ height: HEIGHT, width: 35 }}>
       <div
         style={{
           transform: `translateY(-${pos * HEIGHT}px)`,
@@ -59,7 +59,7 @@ useEffect(() => {
           <div
             key={i}
             style={{ height: HEIGHT }}
-            className="flex items-center justify-center text-3xl font-fjalla md:text-5xl font-extrabold text-red-700"
+            className="flex items-center justify-center text-3xl font-fjalla md:text-5xl font-extrabold text-white"
           >
             {i % 10}
           </div>
@@ -94,7 +94,7 @@ function Odometer({
           start={start}
         />
       ))}
-      <span className="text-2xl md:text-5xl  font-extrabold text-red-700 ml-1">
+      <span className="text-2xl md:text-5xl  font-extrabold text-white ml-1">
         {suffix}
       </span>
     </div>
@@ -140,18 +140,23 @@ const StatCounter: React.FC<StatProps> = ({
   }, []);
 
   return (
-    <div
-      ref={ref}
-      className="text-center p-1 md:p-3 bg-white rounded-xl  transition-all duration-500 hover:scale-[1.02]"
-    >
-      {/* <div className="flex justify-center md:mb-3">{icon}</div> */}
+   <div
+  ref={ref}
+  className="relative overflow-hidden rounded-xl bg-cover bg-center bg-no-repeat transition-all duration-500 hover:scale-[1.02]"
+ 
+>
+  {/* Overlay */}
+  {/* <div className="absolute inset-0 bg-black/60"></div> */}
 
-      <Odometer value={end} suffix={suffix} start={start} />
-      <p className="md:text-sm text-xs uppercase font-bold text-gray-800 md:mb-2">
-        {text}
-      </p>
+  {/* Content */}
+  <div className="relative z-10 p-1 md:p-3 text-center">
+    <Odometer value={end} suffix={suffix} start={start} />
 
-    </div>
+    <p className="md:text-sm text-xs uppercase font-bold text-white md:mb-2">
+      {text}
+    </p>
+  </div>
+</div>
   );
 };
 
@@ -162,31 +167,35 @@ const StatCounter: React.FC<StatProps> = ({
 export default function TrainingRecruitmentStats() {
   return (
     <div
-      className="py-10 md:px-4 bg-gradient-to-tl from-yellow-600 to-[#600A0E] px-2 w-full relative overflow-hidden"
-      
-    >
-      <div className="max-w-5xl mx-auto grid grid-cols-3 md:grid-cols-3 md:gap-8 gap-1 relative z-10 text-white">
-        <StatCounter
-          end={94567}
-          text="Happy Learners"
-          suffix="+"
+  className="relative w-full overflow-hidden bg-[#fdfbfb] px-2 py-10 md:px-4"
+  style={{
+    backgroundImage: "url('/home/hero/mainoffice3.webp')",
+    backgroundAttachment: "fixed",
+  }}
+>
+  {/* Overlay */}
+  <div className="absolute inset-0 bg-black/60"></div>
 
-        />
+  {/* Content */}
+  <div className="relative z-10 mx-auto grid w-full grid-cols-3 gap-1 text-white md:gap-8">
+    <StatCounter
+      end={94567}
+      text="Happy Learners"
+      suffix="+"
+    />
 
-        <StatCounter
-          end={329}
-          text="Courses"
-          suffix="+"
+    <StatCounter
+      end={329}
+      text="Courses"
+      suffix="+"
+    />
 
-        />
-
-        <StatCounter
-          end={150}
-          text="Corporate Partners"
-          suffix="+"
-
-        />
-      </div>
-    </div>
+    <StatCounter
+      end={150}
+      text="Corporate Partners"
+      suffix="+"
+    />
+  </div>
+</div>
   );
 }
