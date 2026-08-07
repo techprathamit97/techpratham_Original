@@ -272,17 +272,15 @@ export default function CategoryPage({
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
                             {/* Content Overlay */}
-                            <div className="absolute inset-0 flex flex-col justify-between p-6">
+                            <div className="absolute inset-0 flex flex-col justify-between p-3">
                               {/* Category Badge at Top */}
                               <div className="flex justify-start">
-                                <Badge className="bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30">
-                                  {post.category}
-                                </Badge>
+                                
                               </div>
 
                               {/* Title and Description at Bottom */}
                               <div>
-                                <h3 className="text-lg md:text-[20px] font-bold text-white mb-3 leading-tight group-hover:text-blue-200 transition-colors">
+                                <h3 className="text-lg md:text-[18px] font-bold text-white mb-3 leading-tight group-hover:text-blue-200 transition-colors">
                                   {post.title}
                                 </h3>
 

@@ -295,7 +295,7 @@ export default function BlogsPage({
 
                             {/* Title and Description at Bottom */}
                             <div>
-                              <h3 className="text-lg md:text-[20px] font-bold text-white mb-1 leading-tight group-hover:text-blue-200 transition-colors">
+                              <h3 className="text-lg md:text-[19px] font-bold text-white mb-1 leading-tight group-hover:text-blue-200 transition-colors">
                                 {post.title}
                               </h3>
 

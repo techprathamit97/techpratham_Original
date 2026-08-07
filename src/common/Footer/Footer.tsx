@@ -69,17 +69,9 @@ const Footer = () => {
         {/* Middle part (offices + links) */}
         <div className="w-full flex flex-row flex-wrap gap-10 items-start justify-between">
           <div className="flex flex-col gap-1">
-            {/* <div className="text-base uppercase font-normal bg-gradient-to-tr from-[#FC7A35] to-[#f8da52] text-transparent bg-clip-text">Registered Office:</div> */}
-            <div className="text-base uppercase font-normal inline-block">
-              <span className="bg-gradient-to-tr from-[#FC7A35] to-[#f8da52] text-transparent bg-clip-text border-b-2 border-orange-400">
-                Registered Office:
-              </span>
-            </div>
-            <div className="flex flex-col capitalize text-[14px] font-light gap-1">
-              <Link href="https://maps.app.goo.gl/25dxU54X7i6CDC2aA" className="transition-all duration-300 hover:underline">
-                G-31, 1st Floor Sector-3, Noida 201301
-              </Link>
-            </div>
+           
+           
+            
             {/* <div className="text-base uppercase font-normal bg-gradient-to-tr from-[#FC7A35] to-[#f8da52] text-transparent bg-clip-text">Noida Office:</div> */}
             <div className="text-base uppercase font-normal inline-block">
               <span className="bg-gradient-to-tr from-[#FC7A35] to-[#f8da52] text-transparent bg-clip-text border-b-2 border-orange-400">

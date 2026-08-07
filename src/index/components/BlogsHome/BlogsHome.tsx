@@ -179,11 +179,7 @@ const BlogsHome = () => {
                     <div className="absolute inset-0 flex flex-col p-3">
 
                       {/* Category Badge */}
-                      <div className="flex justify-end">
-                        <Badge className="bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30">
-                          {post.category || 'Blog'}
-                        </Badge>
-                      </div>
+                      
 
                       {/* Bottom Content */}
                       <div className="mt-auto">

@@ -9,16 +9,7 @@ import { PinTopIcon } from '@radix-ui/react-icons';
 
 const AddressContactNew = () => {
     const offices = [
-        {
-            title: "Registered Office",
-            address: "G-31, 1st Floor Sector-3, Noida 201301",
-            phones: [
-                { country: "India", flag: "/course/icons/indian.jpg", number: "+91-8882178896" },
-                { country: "US", flag: "/course/icons/uslogo.png", number: "+1 (343) 477-0926" }
-            ],
-            email: "info@techpratham.com",
-            gradient: "from-red-500 via-orange-500 to-yellow-500"
-        },
+      
         {
             title: "Noida Office",
             address: "B-24, Sector-1, Noida, Uttar Pradesh - 201301",
