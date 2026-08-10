@@ -9,53 +9,45 @@ import { PinTopIcon } from '@radix-ui/react-icons';
 
 const AddressContactNew = () => {
     const offices = [
-      
         {
-            title: "Noida Office",
-            address: "B-24, Sector-1, Noida, Uttar Pradesh - 201301",
+            title: 'Noida Office',
+            address: 'B-24, Sector-1, Noida, Uttar Pradesh - 201301',
             phones: [
-                { country: "India", flag: "/course/icons/indian.jpg", number: "+91-8882178896" }
+                { country: 'India', flag: '/course/icons/indian.jpg', number: '+91-8882178896' },
+                { country: 'US', flag: '/course/icons/uslogo.png', number: '+1 (343) 477-0926' }
             ],
-            email: "info@techpratham.com",
-            gradient: "from-blue-500 via-purple-500 to-pink-500"
+            email: 'info@techpratham.com',
+            mapLink: 'https://maps.app.goo.gl/ySMUPRpVmsihWD6B8',
+            gradient: 'from-blue-500 via-purple-500 to-pink-500'
         },
         {
-            title: "Hyderabad Office",
-            address: "LVS Arcade, 71, Hitech, 6th floor, Madhapur Road, Jubilee Enclave, HITEC City, Hyderabad",
+            title: 'Hyderabad Office',
+            address: 'LVS Arcade, 71, Hitech, 6th floor, Madhapur Road, Jubilee Enclave, HITEC City, Hyderabad',
             phones: [
-                { country: "India", flag: "/course/icons/indian.jpg", number: "+91-8882178896" },
-                { country: "US", flag: "/course/icons/uslogo.png", number: "+1 (343) 477-0926" }
+                { country: 'India', flag: '/course/icons/indian.jpg', number: '+91-8882178896' },
+                { country: 'US', flag: '/course/icons/uslogo.png', number: '+1 (343) 477-0926' }
             ],
-            email: "info@techpratham.com",
-            gradient: "from-green-500 via-teal-500 to-cyan-500"
+            email: 'info@techpratham.com',
+            mapLink: 'https://maps.app.goo.gl/qWSwV4SbAwLGiN2P6',
+            gradient: 'from-green-500 via-teal-500 to-cyan-500'
         }
     ];
 
     return (
         <div className='md:w-10/12 w-11/12  h-auto grid md:grid-cols-2 grid-cols-1 gap-10 place-content-center'>
             <div className='col-span-1 w-full h-auto flex flex-col gap-5 py-16 z-10 text-left'>
-                <div className="w-full h-auto flex flex-col items-start justify-center mb-4">
-
-                    <div className="text-3xl font-bold text-[#7f1d1d] mb-2">
+                <div className='w-full h-auto flex flex-col items-start justify-center mb-4'>
+                    <div className='text-3xl font-bold text-[#7f1d1d] mb-2'>
                         Our Office Addresses
                     </div>
 
-                    <svg
-                        width="290"
-                        height="6"
-                        viewBox="0 0 340 6"
-                        preserveAspectRatio="none"
-                    >
-                        <path
-                            d="M0 3 Q170 0 340 3 Q170 6 0 3 Z"
-                            fill="#7f1d1d"
-                        />
+                    <svg width='290' height='6' viewBox='0 0 340 6' preserveAspectRatio='none'>
+                        <path d='M0 3 Q170 0 340 3 Q170 6 0 3 Z' fill='#7f1d1d' />
                     </svg>
 
-                    <div className="text-lg text-gray-600 mt-2">
+                    <div className='text-lg text-gray-600 mt-2'>
                         Visit us at any of our offices
                     </div>
-
                 </div>
 
                 {offices.map((office, index) => (
@@ -63,12 +55,12 @@ const AddressContactNew = () => {
                         key={index}
                         className='group relative overflow-hidden rounded-2xl bg-white border border-gray-200 hover:border-transparent hover:shadow-2xl transition-all duration-500 hover:-translate-y-1'
                     >
-                        <div className={`absolute inset-0 bg-gradient-to-br ${office.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}></div>
+                        <div className={`absolute inset-0 bg-gradient-to-br ${office.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
 
                         <div className='relative p-6'>
                             <div className='flex items-start gap-3 mb-4'>
                                 <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${office.gradient} flex items-center justify-center text-white transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg flex-shrink-0`}>
-                                    <PinTopIcon className="w-6 h-6" />
+                                    <PinTopIcon className='w-6 h-6' />
                                 </div>
                                 <div className='flex-1'>
                                     <h3 className='text-xl font-bold text-gray-900 mb-1'>{office.title}</h3>
@@ -104,7 +96,7 @@ const AddressContactNew = () => {
                                 </Link>
 
                                 <Link
-                                    href='https://g.page/r/CX1XMlbVUiyaEBM/review'
+                                    href={office.mapLink}
                                     className='flex items-center gap-2 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg transition-all duration-300 group/btn'
                                 >
                                     <Image src='/support/google-maps.png' alt='Google Maps' width={24} height={24} className='group-hover/btn:scale-110 transition-transform duration-300' />
@@ -116,7 +108,7 @@ const AddressContactNew = () => {
                             </div>
                         </div>
 
-                        <div className={`absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r ${office.gradient} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left`}></div>
+                        <div className={`absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r ${office.gradient} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left`} />
                     </div>
                 ))}
             </div>
@@ -125,7 +117,7 @@ const AddressContactNew = () => {
                 <FormContact />
 
                 <div className='group mb-5 relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#600A0E] to-[#C6151D] p-6 shadow-2xl hover:shadow-3xl transition-all duration-500 hover:-translate-y-2'>
-                    <div className='absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-500'></div>
+                    <div className='absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-500' />
 
                     <div className='relative flex flex-col items-center gap-4'>
                         <div className='bg-white p-3 rounded-xl shadow-lg transform group-hover:scale-105 group-hover:rotate-3 transition-all duration-500'>

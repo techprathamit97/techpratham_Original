@@ -79,7 +79,7 @@ const Footer = () => {
               </span>
             </div>
             <div className="flex flex-col capitalize text-[14px] font-light gap-1">
-              <Link href="" className="transition-all duration-300 hover:underline">
+              <Link href="https://maps.app.goo.gl/ySMUPRpVmsihWD6B8" className="transition-all duration-300 hover:underline">
                 B-24, Sector-1, Noida, Uttar Pradesh - 201301
               </Link>
             </div>

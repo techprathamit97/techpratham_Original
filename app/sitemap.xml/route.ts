@@ -26,7 +26,7 @@ async function getCourseUrls() {
     return courses.map((c) => ({
       loc: `${siteUrl}/courses/${c.link}`,
       lastmod: new Date().toISOString(),
-      priority: "0.70",
+      priority: "0.08",
     }));
   } catch (error) {
     console.error("❌ Course fetch error:", error);
@@ -198,7 +198,7 @@ const staticPages = [
   { loc: `${siteUrl}/contact-us`, priority: "0.80" },
   { loc: `${siteUrl}/auth/login`, priority: "0.80" },
   { loc: `${siteUrl}/training-certificate`, priority: "0.80" },
-  { loc: `${siteUrl}/courses`, priority: "0.80" },
+  { loc: `${siteUrl}/courses`, priority: "0.70" },
   { loc: `${siteUrl}/privacy-policy`, priority: "0.80" },
   { loc: `${siteUrl}/terms-and-conditions`, priority: "0.80" },
   { loc: `${siteUrl}/refund-cancellation-policy`, priority: "0.80" },
