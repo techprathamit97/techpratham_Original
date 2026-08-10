@@ -3,61 +3,90 @@ import nodemailer from "nodemailer";
 
 export async function GET(req: NextRequest) {
   try {
-    console.log("Testing SMTP configuration...");
-    console.log("SMTP_USER:", process.env.SMTP_USER);
-    console.log("SMTP_PASS:", process.env.SMTP_PASS ? "***configured***" : "NOT SET");
-    console.log("SMTP_HOST:", process.env.SMTP_HOST);
-    console.log("SMTP_PORT:", process.env.SMTP_PORT);
-
+    // Check if SMTP credentials are configured
     if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-      return Response.json({
-        success: false,
-        error: "SMTP credentials not configured",
-        details: {
-          SMTP_USER: !!process.env.SMTP_USER,
-          SMTP_PASS: !!process.env.SMTP_PASS,
-        }
-      }, { status: 500 });
+      return Response.json(
+        { 
+          success: false, 
+          error: "SMTP credentials not configured",
+          details: {
+            SMTP_USER: process.env.SMTP_USER ? "✓ Set" : "✗ Missing",
+            SMTP_PASS: process.env.SMTP_PASS ? "✓ Set" : "✗ Missing",
+            SMTP_HOST: process.env.SMTP_HOST || "smtp.gmail.com",
+            SMTP_PORT: process.env.SMTP_PORT || "587"
+          }
+        },
+        { status: 500 }
+      );
     }
 
-    // Test with explicit configuration
+    // Create transporter
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || "smtp.gmail.com",
       port: parseInt(process.env.SMTP_PORT || "587"),
-      secure: false,
+      secure: false, // true for 465, false for other ports
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
-      tls: {
-        rejectUnauthorized: false,
-      },
     });
 
-    console.log("Verifying SMTP connection...");
-    await transporter.verify();
-    console.log("✅ SMTP connection successful!");
+    // Verify connection
+    const isConnected = await transporter.verify();
 
-    return Response.json({
-      success: true,
-      message: "SMTP connection successful!",
-      config: {
-        host: process.env.SMTP_HOST || "smtp.gmail.com",
-        port: process.env.SMTP_PORT || "587",
-        user: process.env.SMTP_USER,
-      }
-    });
-
+    if (isConnected) {
+      return Response.json({
+        success: true,
+        message: "SMTP connection successful!",
+        details: {
+          host: process.env.SMTP_HOST || "smtp.gmail.com",
+          port: process.env.SMTP_PORT || "587",
+          user: process.env.SMTP_USER,
+          secure: process.env.SMTP_PORT === "465"
+        }
+      });
+    } else {
+      return Response.json(
+        { 
+          success: false, 
+          error: "SMTP connection failed",
+          details: "Unable to connect to SMTP server"
+        },
+        { status: 500 }
+      );
+    }
   } catch (error: any) {
     console.error("SMTP test error:", error);
-    console.error("Error message:", error.message);
-    console.error("Error code:", error.code);
     
-    return Response.json({
-      success: false,
-      error: error.message,
-      code: error.code,
-      details: error.toString(),
-    }, { status: 500 });
+    let errorMessage = "SMTP connection test failed";
+    let specificError = "";
+    
+    if (error.code === "EAUTH" || error.message?.includes("Invalid login")) {
+      specificError = "Authentication failed - Check your Gmail App Password";
+    } else if (error.code === "ECONNREFUSED") {
+      specificError = "Connection refused - Check your internet connection";
+    } else if (error.code === "ETIMEDOUT") {
+      specificError = "Connection timeout - Check firewall settings";
+    } else if (error.message?.includes("535")) {
+      specificError = "Gmail rejected credentials - Generate a new App Password";
+    }
+    
+    return Response.json(
+      { 
+        success: false, 
+        error: errorMessage,
+        details: {
+          code: error.code,
+          message: error.message,
+          specificError,
+          solution: specificError ? 
+            (specificError.includes("App Password") ? 
+              "1. Enable 2-Step Verification on Gmail\n2. Generate new App Password\n3. Update SMTP_PASS in .env.local\n4. Restart server" :
+              "Check your internet connection and firewall settings"
+            ) : "Check server logs for more details"
+        }
+      },
+      { status: 500 }
+    );
   }
 }

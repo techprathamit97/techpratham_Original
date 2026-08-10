@@ -24,6 +24,11 @@ const ResetPassword = () => {
     e.preventDefault();
     setError('');
 
+    if (!token) {
+      setError('Invalid reset link. Please request a new password reset.');
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -54,11 +59,37 @@ const ResetPassword = () => {
         setError(data.error || 'Failed to reset password');
       }
     } catch (error) {
-      setError('An unexpected error occurred');
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
   };
+
+  if (!token && router.isReady) {
+    return (
+      <div
+        className="w-full min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative"
+        style={{ backgroundImage: "url('/home/banner/login3.jpeg')" }}
+      >
+        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="w-full max-w-md relative z-10 px-6">
+          <div className="bg-black/20 backdrop-blur-md p-8 rounded-xl text-center">
+            <Lock className="h-16 w-16 text-red-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-semibold text-white mb-2">Invalid Reset Link</h2>
+            <p className="text-gray-300 mb-4">
+              This password reset link is invalid or has expired. Please request a new password reset.
+            </p>
+            <Link
+              href="/auth/forgot-password"
+              className="inline-block bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded"
+            >
+              Request New Reset Link
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (success) {
     return (
