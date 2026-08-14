@@ -89,7 +89,7 @@ const Footer = () => {
               </span>
             </div>
             <div className="flex flex-col capitalize text-[14px] font-light gap-1">
-              <Link href="https://maps.app.goo.gl/qWSwV4SbAwLGiN2P6" className="transition-all duration-300 hover:underline">
+              <Link href="https://maps.app.goo.gl/GinqyPcv3Ao6euYD6" className="transition-all duration-300 hover:underline">
                 LVS Arcade, 71, Hitech, 6th floor ,<br />
                 Madhapur Road, Jubilee Enclave,<br />
                 HITEC City, Hyderabad - 500081

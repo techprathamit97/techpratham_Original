@@ -28,7 +28,7 @@ const AddressContactNew = () => {
                 { country: 'US', flag: '/course/icons/uslogo.png', number: '+1 (343) 477-0926' }
             ],
             email: 'info@techpratham.com',
-            mapLink: 'https://maps.app.goo.gl/qWSwV4SbAwLGiN2P6',
+            mapLink: 'https://maps.app.goo.gl/GinqyPcv3Ao6euYD6',
             gradient: 'from-green-500 via-teal-500 to-cyan-500'
         }
     ];

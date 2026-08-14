@@ -12,6 +12,7 @@ const FORM_LABELS: Record<string, string> = {
   "course-header-enquiry": "Course Enquiry",
   "certificate": "Certificate Inquiry",
   "training-lead": "Training Lead",
+  "linkedin lead": "LinkedIn Connection Request",
   "Reach out to us": "Reach Out Widget",
   "payment-form": "Payment Form",
 };
@@ -48,6 +49,7 @@ export async function sendLeadEmail(data: any) {
                 <p style="margin: 6px 0;"><strong>Phone:</strong> ${data.phone || "Not provided"}</p>
                 <p style="margin: 6px 0;"><strong>Email:</strong> ${data.email || "Not provided"}</p>
                 <p style="margin: 6px 0;"><strong>Course:</strong> ${data.course || "General inquiry"}</p>
+                ${data.linkedinProfile ? `<p style="margin: 6px 0;"><strong>LinkedIn:</strong> <a href="${data.linkedinProfile}" target="_blank" style="color: #0066cc;">${data.linkedinProfile}</a></p>` : ""}
                 <p style="margin: 6px 0;"><strong>Form Type:</strong> ${formLabel}</p>
               </div>
             </div>

@@ -282,7 +282,7 @@ const InvoiceViewPage = () => {
                 <div className="text-[10px] text-left border-r mt-4 border-white pr-6">
                   <div className="flex items-center">
                     <span className="mr-2">📍</span>
-                    <span>C-2, Block C, Sector 1, Noida, Uttar Pradesh 201301
+                    <span>G.F, B24, B Block, Sector-1, Noida, Uttar Pradesh-201301
                     </span>
                   </div>
                   <div className="flex items-center">
@@ -460,17 +460,17 @@ const InvoiceViewPage = () => {
                   <div className="text-sm font-bold text-gray-800">Thank you!</div>
                   <div className="text-xs text-gray-600">for joining us</div>
                 </div>
-                <div className="mt-2 pt-2 ">
+                <div className=" mt-2 pt-2 ">
 
                   <Image
                     src="/navbar/signature.svg"
                     alt="Bharat Sahai Signature"
-                    width={100}
-                    height={50}
+                    width={90}
+                    height={40}
                     className="h-auto object-contain"
                   />
-                  <div className="-mt-2 text-sm font-bold text-gray-800">
-                    Bharat Sahai
+                  <div className="-mt-5 text-sm font-bold text-gray-800">
+                    Bhagirath Tyagi
                   </div>
                   <div className="text-xs text-black">
                     Authorised Signature
