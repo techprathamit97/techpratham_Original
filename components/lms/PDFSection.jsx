@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from 'react';
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,6 +11,33 @@ import {
 } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import PhoneInput from "@/components/common/PhoneInput/PhoneInput";
+import { toS3Key, toSecurePdfUrl } from "@/lib/pdfKey";
+
+/**
+ * pdf.js touches browser-only APIs, so the protected viewer is client-only.
+ * The catch keeps a load failure visible instead of leaving the fallback up.
+ */
+const ProtectedPDFViewer = dynamic(
+  () =>
+    import("@/components/lms/ProtectedPDFViewer").catch((error) => {
+      console.error("Failed to load ProtectedPDFViewer:", error);
+      const Fallback = () => (
+        <div className="rounded-lg border border-red-300 bg-red-50 p-6 text-sm text-red-700">
+          <p className="mb-1 font-semibold">Viewer failed to load.</p>
+          <p className="font-mono text-xs">{String(error?.message || error)}</p>
+        </div>
+      );
+      return { default: Fallback };
+    }),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="py-16 text-center text-sm text-gray-500">
+        Loading document...
+      </div>
+    ),
+  }
+);
 
 const PDFSection = ({
   pdfUrl,
@@ -18,8 +46,20 @@ const PDFSection = ({
   height = "1000px",
   title,
   downloadEnabled = true,
-  displayType = "embed"
+  displayType = "embed",
+  /**
+   * Renders via pdf.js canvas instead of the browser's native PDF viewer, which
+   * removes the download / print controls and makes right-click blockable.
+   * Puck stores select values as strings, so "false" must be handled too.
+   */
+  protectedView = "true"
 }) => {
+  const isProtected = protectedView !== false && protectedView !== "false";
+
+  // Existing content stores absolute bucket URLs; derive the key at render time
+  // so no stored lesson data needs migrating.
+  const s3Key = toS3Key(pdfUrl);
+  const securePdfUrl = toSecurePdfUrl(pdfUrl);
   // PDF Download Form State
   const [pdfDialogOpen, setPdfDialogOpen] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -130,9 +170,10 @@ const PDFSection = ({
 
         // Close dialog and trigger download after success
         setTimeout(() => {
-          // Open PDF in new tab for download
-          console.log("Opening PDF URL:", pdfUrl);
-          window.open(pdfUrl, '_blank');
+          // This is an intentional, lead-gated download. Route it through the
+          // proxy when protected so the bucket URL is still never exposed.
+          const downloadUrl = isProtected && securePdfUrl ? securePdfUrl : pdfUrl;
+          window.open(downloadUrl, '_blank');
 
           setPdfDialogOpen(false);
           setPdfSubmitSuccess(false);
@@ -175,6 +216,9 @@ const PDFSection = ({
  const cleanPdfUrl =
   `${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`;
 
+  // In protected mode the link points at the proxy so the bucket URL stays hidden.
+  const linkHref = isProtected && securePdfUrl ? securePdfUrl : cleanPdfUrl;
+
   if (displayType === "link") {
     return (
       <div style={{ 
@@ -196,7 +240,7 @@ const PDFSection = ({
         )}
         <div style={{ display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap" }}>
           <a 
-            href={cleanPdfUrl}
+            href={linkHref}
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -218,12 +262,27 @@ const PDFSection = ({
     );
   }
 
+  // Canvas rendering sizes itself to its parent, so the container must not be
+  // forced wider than that parent.
+  const useCanvasViewer = isProtected && s3Key;
+
   return (
     <>
       {/* CSS for full-width iframe */}
       <style jsx>{`
         .pdf-container {
-          ${width === "fullscreen" ? `
+          ${useCanvasViewer ? `
+            /*
+             * The canvas viewer fills whatever width it is given, so it stays at
+             * 100% of the parent. The iframe branch below keeps 100vw, but that
+             * value is wider than the 75vw wrapper applied in puckConfig and
+             * also includes the vertical scrollbar, which is what produced the
+             * horizontal scrollbar under the PDF.
+             */
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+          ` : width === "fullscreen" ? `
             width: 100vw !important;
             
             position: relative !important;
@@ -251,6 +310,11 @@ const PDFSection = ({
         
           
           background: white;
+          ${useCanvasViewer ? `
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+          ` : ``}
         }
       `}</style>
       
@@ -269,15 +333,23 @@ const PDFSection = ({
         )}
         
         <div className="pdf-wrapper">
-          <iframe
-            src={cleanPdfUrl}
-            className="pdf-iframe"
-            title={title || "PDF Document"}
-            loading="lazy"
-          />
-          
-          {/* Download Button */}
-          
+          {useCanvasViewer ? (
+            /**
+             * Canvas rendering via pdf.js. No native viewer means no built-in
+             * download or print control, and right-click is cancellable.
+             */
+            <ProtectedPDFViewer
+              fileKey={s3Key}
+              maxWidth={1000}
+            />
+          ) : (
+            <iframe
+              src={cleanPdfUrl}
+              className="pdf-iframe"
+              title={title || "PDF Document"}
+              loading="lazy"
+            />
+          )}
         </div>
         
         

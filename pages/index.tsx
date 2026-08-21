@@ -183,7 +183,7 @@ const IndexPage: NextPage<IndexPageProps> = ({ trendingCourses, groupedCourses, 
           <meta name="twitter:image" content="https://www.techpratham.com/og.jpg" />
           
         </Head>
-{/* <Navbard/> */}
+<Navbard/>
         <IndexView 
           initialTrendingCourses={trendingCourses}
           initialGroupedCourses={groupedCourses}

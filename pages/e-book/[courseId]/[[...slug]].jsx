@@ -626,7 +626,7 @@ export default function CoursePage({ navbarData }) {
                 }
                 return (
                   <Render
-                    key={`${lessonSlug}-${sectionSlug}-${subSectionSlug}-${Date.now()}`}
+                    key={`${lessonSlug}-${sectionSlug}-${subSectionSlug}`}
                     config={puckConfig}
                     data={finalPuckData}
                   />

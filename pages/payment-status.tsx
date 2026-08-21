@@ -143,14 +143,14 @@ const PaymentStatusPage = () => {
         <meta name="description" content="Payment status for your TechPratham course" />
       </Head>
 
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-10 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="text-center">
             <Image 
-              src="/navbar/logotechnolyfirst2.svg" 
+              src="/navbar/lmslogo.png"
               alt="TechPratham Logo" 
-              width={120}
-              height={40}
+              width={190}
+              height={60}
               className="mx-auto mb-8"
             />
           </div>
@@ -221,7 +221,7 @@ const PaymentStatusPage = () => {
                 href="mailto:techprathamit@gmail.com"
                 className="text-blue-600 hover:text-blue-800"
               >
-                techprathamit@gmail.com
+                accounts@techpratham.com
               </a>
             </p>
           </div>

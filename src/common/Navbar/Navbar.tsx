@@ -14,6 +14,7 @@ import {
   IdCardIcon,
   MagnifyingGlassIcon
 } from '@radix-ui/react-icons';
+import { IoIosArrowForward } from 'react-icons/io';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search } from 'lucide-react';
@@ -23,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
 import { NavbarData, NavbarCategory, NavbarCourse } from '@/utils/navbarData';
 import CoursesDropdown from './CoursesDropdown';
+import { EBOOK_GROUPS } from './ebookLinks';
 
 
 // Type definitions
@@ -58,6 +60,8 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
   const [navOpen, setNavOpen] = useState<boolean>(false);
   const [searchActive, setSearchActive] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  /** Which e-book group is expanded in the mobile menu, if any. */
+  const [openEbook, setOpenEbook] = useState<string | null>(null);
 
   // Handle case when UserContext is not available (e.g., in App Router pages)
   let authenticated = false;
@@ -241,6 +245,8 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
 
   const handleNavToggle = (): void => {
     setNavOpen(!navOpen);
+    // Collapse any expanded e-book group so the menu reopens in a clean state.
+    setOpenEbook(null);
   };
 
   const handleSearchFocus = (): void => {
@@ -419,67 +425,17 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
         </div>
       </div>
 
-      <div className="w-full bg-yellow-600  h-auto py-1 lg:flex items-center justify-center  border-b border-b-gray-100 z-70">
-        <nav className="menu w-full md:pl-3  text-xs  font-extrabold flex flex-row flex-wrap gap-2 items-center justify-start">
-
-          <div className="flex flex-col items-center  sm:flex-row gap-3">
-
-            <Link
-              href="/courses/servicenow-training-in-india"
-              className="cursor-pointer hidden sm:flex  bg-gradient-to-tl from-[#C6151D] to-[#600A0E] px-2 py-2 rounded-lg text-gray-300 font-extrabold "
-            >
-              ServiceNow Training
-            </Link>
-
-            <Link
-              href="/e-book/workday"
-              className="cursor-pointer text-gray-300 hidden sm:flex bg-gradient-to-tl from-[#C6151D] to-[#600A0E] px-2 py-2 rounded-lg   text-xs font-extrabold "
-            >
-              Workday e-Book
-            </Link>
-
-
-          </div>
-
-          {/* 🔹 Scrolling Section */}
-          <div className="overflow-x-scroll flex-1 relative md:ml-4 no-scrollbar z-70">
-            <div className="whitespace-nowrap animate-scroll flex flex-row gap-2">
-              {[
-                { href: "/e-book/workday/Organizations-and-Organizations-Types", text: "Organization in Workday" },
-                { href: "/e-book/workday/Foundations-Of-Staffing-Model", text: "Staffing in Workday" },
-                { href: "/e-book/workday/Job-Profiles", text: "Job Profile in Workday" },
-                { href: "/e-book/workday/Core-Compensation", text: " Core Compensation in Workday" },
-                { href: "/e-book/workday/Security", text: "Security in Workday" },
-                { href: "/e-book/workday/Business-Processes", text: "Business Process in Workday" },
-                { href: "/e-book/workday/Reporting", text: "Reporting in Workday" },
-                { href: "/content/workday-hcm-training", text: "Recruitment in Workday" },
-                { href: "/e-book/workday/workday-absence-management-time-off", text: "Absence management & Time Off in Workday" },
-                { href: "/e-book/workday/workday-talent-and-performance-management", text: "Performance Management in Workday" },
-                { href: "/content/workday-hcm-training", text: "Advanced Compensation" },
-                { href: "/e-book/workday/EIB", text: "EIB in Workday" },
-              ].map((item, index) => (
-                <Link
-                  key={index}
-                  href={item.href}
-                  className="px-2 py-1 border-2 border-red-800 rounded-lg text-black font-medium 
-                       hover:bg-red-700 hover:text-white  transition-all duration-300 inline-block"
-                >
-                  {item.text}
-                </Link>
-              ))}
-            </div>
-
-          </div>
-        </nav>
-      </div>
-
-
-
+      {/*
+        lg:hidden matches the hamburger button above, which is also lg:hidden.
+        While this was md:hidden, tapping the hamburger between md and lg opened
+        nothing. max-h-[85vh] with scrolling replaces max-h-96, which clipped the
+        list once the e-book section was added.
+      */}
       <div className={`
-        w-full h-auto  md:hidden flex items-center justify-center bg-white border-b border-b-gray-100 z-20
+        w-full h-auto  lg:hidden flex items-start justify-center bg-white border-b border-b-gray-100 z-20
         transition-all duration-300 ease-in-out transform origin-top
         ${navOpen
-          ? 'max-h-96 opacity-100 translate-y-0 scale-y-100'
+          ? 'max-h-[85vh] overflow-y-auto opacity-100 translate-y-0 scale-y-100'
           : 'max-h-0 opacity-0 -translate-y-4 scale-y-0 overflow-hidden'
         }
       `}>
@@ -517,13 +473,6 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
             <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105 flex items-center gap-2">
               <MagnifyingGlassIcon className="w-4 h-4" />
               Job Openings
-            </Button>
-          </Link>
-
-          <Link href='/e-book/workday' onClick={handleNavToggle} className="w-full">
-            <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105 flex items-center gap-2">
-              <StarIcon className="w-4 h-4" />
-              Workday e-Book
             </Button>
           </Link>
 
@@ -585,6 +534,59 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
               Sign Out
             </Button>
           )}
+
+          {/*
+            E-Books accordion, kept last so the primary links stay reachable
+            without scrolling. Mirrors the desktop Navbard strip, which is hidden
+            below md, using the same EBOOK_GROUPS source.
+          */}
+          <div className="col-span-2 w-full flex flex-col gap-1 border-t border-gray-100 pt-2 mt-1">
+            <span className="flex items-center gap-2 px-1 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              <StarIcon className="w-3.5 h-3.5" />
+              E-Books
+            </span>
+
+            {EBOOK_GROUPS.map((group) => {
+              const isOpen = openEbook === group.label;
+
+              return (
+                <div key={group.label} className="w-full">
+                  <button
+                    type="button"
+                    aria-expanded={isOpen}
+                    onClick={() => setOpenEbook(isOpen ? null : group.label)}
+                    className={`w-full flex items-center justify-between gap-2 rounded-md border px-3 py-2 text-left transition-colors ${
+                      isOpen
+                        ? 'border-red-200 bg-red-50 text-red-700'
+                        : 'border-gray-200 bg-white text-gray-700 hover:bg-red-50 hover:text-red-700 hover:border-red-200'
+                    }`}
+                  >
+                    <span>{group.shortLabel} e-Book</span>
+                    <IoIosArrowForward
+                      className={`w-4 h-4 shrink-0 transition-transform duration-200 ${
+                        isOpen ? 'rotate-90' : ''
+                      }`}
+                    />
+                  </button>
+
+                  {isOpen && (
+                    <div className="mt-1 mb-1 flex flex-col gap-0.5 rounded-md bg-gray-50 py-1 pl-3">
+                      {group.links.map((link) => (
+                        <Link
+                          key={`${group.label}-${link.href}-${link.label}`}
+                          href={link.href}
+                          onClick={handleNavToggle}
+                          className="rounded px-2 py-1.5 text-[11px] text-gray-700 hover:bg-white hover:text-red-700"
+                        >
+                          {link.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </nav>
       </div>
 
@@ -636,7 +638,7 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
               <span className='text-gray-500'>No courses found matching your search</span>
             </div>
           ) : (
-            <div className='space-y-6'>
+              <div className='space-y-6'>
               {searchResultsByCategory.map((category) => (
                 <div key={category.name}>
                   <h4 className='font-medium text-md text-white mb-3 pb-1 border-b border-gray-200'>
@@ -660,9 +662,9 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
                             </span>
                           </div>
                           <div
-  className="text-xs text-white group-hover:text-green-300 line-clamp-2"
-  dangerouslySetInnerHTML={{ __html: course.shortDesc }}
-/>
+                            className="text-xs text-white group-hover:text-green-300 line-clamp-2"
+                            dangerouslySetInnerHTML={{ __html: course.shortDesc }}
+                          />
                           <div className='flex items-center gap-4 text-xs text-white'>
                             <span className='flex items-center gap-1'>
                               ⭐ {course.rating}

@@ -22,6 +22,8 @@ import AdminTopBar from '@/src/account/common/AdminTopBar';
 import { UserContext } from '@/context/userContext';
 import QuillEditor from '../../../../../src/account/common/QuillEditor';
 import { uploadImageToS3 } from "@/lib/uploadImage";
+import { useFormDraft, useUnsavedChangesWarning } from '@/hooks/useFormDraft';
+import DraftRestoreBanner from '@/src/account/common/DraftRestoreBanner';
 
 function stripHtml(html = "") {
   return html.replace(/<[^>]*>/g, "").trim();
@@ -346,6 +348,24 @@ const UpdateCoursePage = () => {
 
   const { setValue, reset } = form;
 
+  /**
+   * Autosave stays off until the fetched course has been loaded into the form,
+   * otherwise reset() with server data would immediately be recorded as a
+   * "draft" and the banner would offer to restore data the user never typed.
+   */
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  const {
+    hasDraft,
+    draftSavedAt,
+    restoreDraft,
+    discardDraft,
+    clearDraft,
+    saveError,
+  } = useFormDraft(form, courseLink || null, { enabled: isHydrated });
+
+  useUnsavedChangesWarning(form.formState.isDirty && !isSubmitting);
+
   // Fetch course data
   useEffect(() => {
     const fetchCourseData = async () => {
@@ -459,6 +479,8 @@ const UpdateCoursePage = () => {
         setError('Failed to fetch course data');
       } finally {
         setLoading(false);
+        // Server values are now in the form, so autosave can safely begin.
+        setIsHydrated(true);
       }
     };
 
@@ -900,6 +922,8 @@ const UpdateCoursePage = () => {
 
     if (response.ok) {
       toast.success("Course updated successfully!");
+      // Saved server side, so the local draft is no longer needed.
+      clearDraft();
       router.push("/admin/dashboard/courses");
     } else {
       const errorResult = await response.json();
@@ -982,6 +1006,15 @@ const UpdateCoursePage = () => {
                 <title>Update Course - {cleanTitle} | TechPratham Admin</title>
               </Head>
               <div className="container mx-auto">
+                <DraftRestoreBanner
+                  hasDraft={hasDraft}
+                  draftSavedAt={draftSavedAt}
+                  onRestore={restoreDraft}
+                  onDiscard={discardDraft}
+                  saveError={saveError}
+                  warning="These are local edits that were never submitted. Restoring replaces the currently loaded course values, which may be newer."
+                />
+
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                     <Card>

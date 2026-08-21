@@ -17,6 +17,8 @@ import { useRouter } from 'next/router';
 import { Separator } from '@/components/ui/separator';
 import QuillEditor from '../common/QuillEditor';
 import { uploadImageToS3 } from "@/lib/uploadImage";
+import { useFormDraft, useUnsavedChangesWarning } from '@/hooks/useFormDraft';
+import DraftRestoreBanner from '../common/DraftRestoreBanner';
 
 // Zod Schema
 const curriculumSchema = z.object({
@@ -327,6 +329,23 @@ const CourseTab = () => {
     });
 
     const { setValue, reset } = form;
+
+    /**
+     * Autosaves this form to localStorage so a refresh, crash, or dropped
+     * connection does not discard the work. Client side only; it does not touch
+     * the submit payload or any API.
+     */
+    const {
+        hasDraft,
+        draftSavedAt,
+        restoreDraft,
+        discardDraft,
+        clearDraft,
+        saveError,
+    } = useFormDraft(form, 'new');
+
+    useUnsavedChangesWarning(form.formState.isDirty && !isSubmitting);
+
     useEffect(() => {
         if (publicId) {
             setValue("image", publicId);
@@ -453,6 +472,8 @@ const CourseTab = () => {
                 console.log('Course created successfully:', result);
                 toast.success(`Course created successfully! Course ID: ${result._id}`);
 
+                // Saved server side, so the local draft is no longer needed.
+                clearDraft();
                 form.reset();
                 router.push('/admin/dashboard/courses');
             } else {
@@ -612,6 +633,15 @@ const CourseTab = () => {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
+                    <DraftRestoreBanner
+                        hasDraft={hasDraft}
+                        draftSavedAt={draftSavedAt}
+                        onRestore={restoreDraft}
+                        onDiscard={discardDraft}
+                        saveError={saveError}
+                        warning="Restore them to continue where you left off, or discard to start with a blank form."
+                    />
+
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 

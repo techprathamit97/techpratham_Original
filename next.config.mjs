@@ -6,6 +6,12 @@ const nextConfig = {
         fs: false,
       };
     }
+    // pdf.js optionally requires the native "canvas" package, which has no
+    // browser equivalent. Aliasing it off keeps react-pdf bundling cleanly.
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      canvas: false,
+    };
     return config;
   },
   images: {
@@ -83,6 +89,21 @@ const nextConfig = {
       {
         source: '/courses/sap-online-training-in-hyderabad', // replace with your dead URL path
         destination: '/courses/sap-training-in-hyderabad',        // home page
+        permanent: true,         // 301 redirect
+      },
+      {
+        source: '/courses/advanced-multi-agent-orchestration', // replace with your dead URL path
+        destination: '/courses/multi-agent-systems',        // home page
+        permanent: true,         // 301 redirect
+      },
+      {
+        source: '/courses/enterprise-agentic-workflows-with-pydanticai-langgraph', // replace with your dead URL path
+        destination: '/courses/enterprise-ai-agents',        // home page
+        permanent: true,         // 301 redirect
+      },
+      {
+        source: '/courses/agentic-rag-knowledge-engineering', // replace with your dead URL path
+        destination: '/courses/ai-agent-memory-rag',        // home page
         permanent: true,         // 301 redirect
       },
        {

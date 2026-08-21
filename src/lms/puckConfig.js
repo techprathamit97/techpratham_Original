@@ -1644,6 +1644,16 @@ PDFSection: {
         { label: "Yes", value: "true" },
         { label: "No", value: "false" }
       ]
+    },
+
+    protectedView: {
+      type: "select",
+      label: "Protected Viewer",
+      defaultValue: "true",
+      options: [
+        { label: "Yes - block right click & download", value: "true" },
+        { label: "No - use browser PDF viewer", value: "false" }
+      ]
     }
   }
 },

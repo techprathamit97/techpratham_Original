@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -19,9 +23,24 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "next.config.mjs", "models/course.js", "utils/mongodb.js", "src/index/components/CareerHome/Achivement.tsx", "src/index/components/PlacementHome/PlacementHome.tsx", "components/common/FireworksPopup.js"],
-  "exclude": ["node_modules"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "components/common/FireworksPopup.js",
+    "models/course.js",
+    "next-env.d.ts",
+    "next.config.mjs",
+    "src/index/components/CareerHome/Achivement.tsx",
+    "src/index/components/PlacementHome/PlacementHome.tsx",
+    "utils/mongodb.js"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

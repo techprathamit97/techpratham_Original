@@ -1,5 +1,5 @@
 import { Separator } from '@/components/ui/separator';
-import { FaLinkedin, FaYoutube, FaFacebook, FaTwitter } from "react-icons/fa";
+import { FaLinkedin, FaYoutube, FaFacebook, FaTwitter,FaInstagram } from "react-icons/fa";
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -49,15 +49,16 @@ const Footer = () => {
                 <FaLinkedin className="w-6 h-6" />
               </Link>
 
-              {/* <Link
-                href="https://www.instagram.com/techprathamofficial/"
+              <Link
+                href="https://www.instagram.com/techprathamofficials/"
                 target="_blank"
                 className="w-8 h-8 rounded-full bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white flex items-center justify-center"
               >
                 <FaInstagram className="w-6 h-6" />
-              </Link> */}
+              </Link>
               <Link
-                href="https://x.com/TechPratham_"
+                href="https://x.com/TechPrathamEdu"
+                target="_blank"
                 className="w-8 h-8 rounded-full bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white flex items-center justify-center"
               >
                 <FaTwitter className="w-6 h-6" />
