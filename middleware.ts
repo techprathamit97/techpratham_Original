@@ -37,6 +37,14 @@ const BYPASS_PREFIXES = [
   // pdf.js issues ranged requests, and the lead-gated download uses
   // window.open() which is a navigation.
   "/api/secure-pdf",
+
+  // Called server-to-server by /api/easebuzz/payment-response after a
+  // successful payment. Server requests carry no Sec-Fetch headers.
+  // Reading leads is still protected by the role guard in the route itself.
+  "/api/leads",
+
+  // Called server-to-server by /api/quiz/attempt.
+  "/api/quiz/send-completion-email",
 ];
 
 /** Methods that change state and therefore need an origin check. */
@@ -92,7 +100,29 @@ export function middleware(req: NextRequest) {
     return deny("This endpoint is not directly accessible.", 403);
   }
 
-  // 2. Reject cross-origin writes. Only enforced when an Origin is present;
+  /**
+   * 2. Require browser fetch metadata.
+   *
+   * Every modern browser sets Sec-Fetch-Site on fetch()/XHR, and page
+   * JavaScript cannot change it. API clients such as Postman, curl and
+   * scripted HTTP libraries send no Sec-Fetch-* headers at all, so a missing
+   * header means the request did not come from a browser page.
+   *
+   * This is what stops someone pasting an endpoint into Postman and reading
+   * the response. It is a speed bump, not a wall: the header is plain text and
+   * can be added manually. Per-endpoint authorisation remains the real control.
+   */
+  const fetchSite = req.headers.get("sec-fetch-site");
+
+  if (!fetchSite) {
+    return deny("This endpoint is only available to the application.", 403);
+  }
+
+  if (fetchSite !== "same-origin" && fetchSite !== "none") {
+    return deny("Cross-site requests are not permitted.", 403);
+  }
+
+  // 3. Reject cross-origin writes. Only enforced when an Origin is present;
   //    same-origin GETs and server-to-server calls send none.
   if (WRITE_METHODS.has(req.method.toUpperCase())) {
     const origin = req.headers.get("origin");
