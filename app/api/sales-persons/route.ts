@@ -1,10 +1,16 @@
 import { NextResponse } from 'next/server';
 import { connectMongo } from '@/utils/mongodb';
 import SalesPerson from '@/models/SalesPerson';
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 // GET - Fetch all active sales persons
+// Restricted: internal staff names, only used by the admin and accountant
+// invoice screens.
 export async function GET() {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
     const salesPersons = await SalesPerson.find({ isActive: true })
       .select('name')
@@ -23,6 +29,9 @@ export async function GET() {
 // POST - Create new sales person
 export async function POST(req: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     const data = await req.json();
     
     if (!data.name || data.name.trim() === '') {
@@ -84,6 +93,9 @@ export async function POST(req: Request) {
 // DELETE - Remove sales person
 export async function DELETE(req: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
     
     const { searchParams } = new URL(req.url);

@@ -4,6 +4,7 @@
 import { NextResponse } from "next/server";
 import { saveLead, getAllLeads } from "@/lib/saveLead";
 import { sendLeadEmail } from "@/lib/sendLeadEmail";
+import { requireRole, LEAD_ACCESS_ROLES } from "@/lib/apiAuth";
 
 /* -------------------- HELPERS -------------------- */
 
@@ -44,6 +45,11 @@ async function getCountryFromIP(ip: string): Promise<string> {
 
 /* -------------------- POST: CREATE LEAD -------------------- */
 
+/**
+ * Intentionally public. Every public form submits here (contact, enrolment,
+ * PDF download, payment) and the Easebuzz payment-response route posts to it
+ * server-side without cookies. Only reads and mutations below are restricted.
+ */
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -83,8 +89,15 @@ export async function POST(request: Request) {
 
 /* -------------------- GET: FETCH LEADS -------------------- */
 
+/**
+ * Restricted. This returns every lead's name, email, phone and IP address, so
+ * it must never be reachable without a staff session.
+ */
 export async function GET() {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     const leads = await getAllLeads();
 
     // Return leads directly as array for frontend compatibility
@@ -102,6 +115,9 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     const { searchParams } = new URL(request.url);
     const leadId = searchParams.get('id');
 
@@ -165,6 +181,9 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     const { searchParams } = new URL(request.url);
     const leadId = searchParams.get('id');
 

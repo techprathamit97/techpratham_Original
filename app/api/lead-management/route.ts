@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import { connectMongo } from "@/utils/mongodb";
 import { LeadManagement } from "@/models/LeadManagement";
+import { requireRole, LEAD_ACCESS_ROLES } from "@/lib/apiAuth";
 
 /* -------------------- GET: FETCH LEAD MANAGEMENT DATA -------------------- */
 
+/** Restricted: returns names, emails and phone numbers for every lead. */
 export async function GET() {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
     
     const leads = await LeadManagement.find()
@@ -27,6 +32,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
     
     const body = await request.json();
@@ -63,6 +71,9 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
     
     const body = await request.json();
@@ -105,6 +116,9 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
     
     const { searchParams } = new URL(request.url);
