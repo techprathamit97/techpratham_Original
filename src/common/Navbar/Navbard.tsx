@@ -14,7 +14,7 @@ const Navbard: React.FC = () => {
   const lastIndex = EBOOK_GROUPS.length - 1;
 
   return (
-    <div className="w-full bg-white h-auto py-1 hidden md:flex items-center justify-center border-b border-b-gray-100 sticky top-0 z-50 shadow-sm">
+    <div className="w-full bg-white h-auto py-1 hidden md:flex items-center justify-center border-b border-b-gray-100 sticky top-0 z-20 shadow-sm">
       <nav
         aria-label="E-book navigation"
         className="w-11/12 lg:w-10/12 flex flex-row flex-wrap gap-x-5 lg:gap-x-8 gap-y-1 items-center justify-center text-gray-600"

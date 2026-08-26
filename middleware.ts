@@ -101,24 +101,29 @@ export function middleware(req: NextRequest) {
   }
 
   /**
-   * 2. Require browser fetch metadata.
+   * 2. Reject requests that a browser has explicitly marked as cross-site.
    *
-   * Every modern browser sets Sec-Fetch-Site on fetch()/XHR, and page
-   * JavaScript cannot change it. API clients such as Postman, curl and
-   * scripted HTTP libraries send no Sec-Fetch-* headers at all, so a missing
-   * header means the request did not come from a browser page.
+   * Only applied when Sec-Fetch-Site is actually present. A MISSING header must
+   * be allowed through, because this application renders itself by calling its
+   * own API server-to-server from getServerSideProps, and server-side fetch
+   * sends no Sec-Fetch-* headers at all. Examples that break otherwise:
    *
-   * This is what stops someone pasting an endpoint into Postman and reading
-   * the response. It is a speed bump, not a wall: the header is plain text and
-   * can be added manually. Per-endpoint authorisation remains the real control.
+   *   pages/index.tsx          -> /api/get-course/trending, /api/course/fetch-grouped
+   *   pages/courses.tsx        -> /api/get-course/pages, /api/course/fetch-grouped
+   *   courses/[coursedata]     -> /api/course/link
+   *   courses/domain/[...]     -> /api/category/fetch, /api/course/filtered/get-all
+   *   blog.tsx, blog/[...]     -> /api/blog/unified, /api/blog/categories/unified
+   *   quiz/index, quiz/result  -> /api/quiz, /api/quiz/attempt/[id]
+   *   easebuzz/create-payment  -> /api/easebuzz/save-transaction
+   *
+   * Consequence: because a server render and a Postman request are
+   * indistinguishable at the header level, tools like Postman and curl are NOT
+   * blocked here. Per-endpoint authorisation in lib/apiAuth.ts is the only
+   * thing that actually stops them.
    */
   const fetchSite = req.headers.get("sec-fetch-site");
 
-  if (!fetchSite) {
-    return deny("This endpoint is only available to the application.", 403);
-  }
-
-  if (fetchSite !== "same-origin" && fetchSite !== "none") {
+  if (fetchSite && fetchSite !== "same-origin" && fetchSite !== "none") {
     return deny("Cross-site requests are not permitted.", 403);
   }
 

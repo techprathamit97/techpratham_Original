@@ -40,25 +40,6 @@ export default function TrainingBatches({ id, course }: any) {
 
   const batches = generateBatches();
 
-  // Check if this is a Workday category course
-  const isWorkdayCategory = course?.category?.toLowerCase().includes('workday');
-
-  // Define specific Workday courses that should show full batches
-  const workdayCoursesWithFullBatches = [
-    'workday-prism-analytics',
-    'workday-adaptive-planning',
-    'workday-studio-training'
-  ];
-
-  // Check if current course should show full batches
-  const shouldShowFullBatches = isWorkdayCategory &&
-    workdayCoursesWithFullBatches.some(courseLink =>
-      course?.link?.includes(courseLink)
-    );
-
-  // If it's Workday category but not one of the specific courses, hide the component
-
-
   return (
     <section id={id} className="w-full bg-gray-100 px-3 py-3 md:px-0">
       <div className="m-2 p-2 py-5 border-2">
@@ -118,27 +99,17 @@ export default function TrainingBatches({ id, course }: any) {
                   📅 {batch.date}
                 </div>
                 <div className="bg-slate-100 rounded-lg px-3 py-2 text-xs md:text-sm">
-                  {isWorkdayCategory && !shouldShowFullBatches ? (
-                    <div className="flex  items-center justify-center h-full">
-                      <span className="text-red-700 font-bold text-lg">
-                        Slot Unavailable
-                      </span>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="font-medium mb-2">⏰ Time</div>
+                  <div className="font-medium mb-2">⏰ Time</div>
 
-                      <div className="flex flex-wrap gap-2 text-slate-700">
-                        <span className="bg-white px-2 py-1 rounded">07:00 AM</span>
-                        <span className="bg-white px-2 py-1 rounded">11:00 AM</span>
-                      </div>
+                  <div className="flex flex-wrap gap-2 text-slate-700">
+                    <span className="bg-white px-2 py-1 rounded">07:00 AM</span>
+                    <span className="bg-white px-2 py-1 rounded">11:00 AM</span>
+                  </div>
 
-                      <div className="flex flex-wrap mt-2 gap-2 text-slate-700">
-                        <span className="bg-white px-2 py-1 rounded">02:00 PM</span>
-                        <span className="bg-white px-2 py-1 rounded">09:00 PM</span>
-                      </div>
-                    </>
-                  )}
+                  <div className="flex flex-wrap mt-2 gap-2 text-slate-700">
+                    <span className="bg-white px-2 py-1 rounded">02:00 PM</span>
+                    <span className="bg-white px-2 py-1 rounded">09:00 PM</span>
+                  </div>
                 </div>
 
               </label>

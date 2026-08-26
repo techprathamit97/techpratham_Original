@@ -26,12 +26,7 @@ export const teams = [
             "ISO Nirvana 🌿"
         ]
     },
-     {
-        image: "/about/teams/yuvraj.webp",
-        name: "Yuvraj Gaur",
-        position: "Admin Manager",
-        
-    },
+    
     {
         image: "/about/teams/durgesh.webp",
         name: "Durgesh Lawaniya",
@@ -48,12 +43,6 @@ export const teams = [
         image: "/about/teams/ayansh.webp",
         name: "Ayansh Maurya",
         position: "Software Developer",
-        
-    },
-    {
-        image: "/about/teams/yuvraj.webp",
-        name: "Yuvraj Gaur",
-        position: "Admin Manager",
         
     },
    {
