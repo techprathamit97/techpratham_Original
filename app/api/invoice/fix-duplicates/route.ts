@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import Invoice from '@/models/Invoice';
 import ManualInvoice from '@/models/ManualInvoice';
 import { generateUniqueInvoiceNumber } from '@/utils/invoiceNumberGenerator';
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 // ✅ Define types
 type InvoiceDoc = {
@@ -17,9 +18,12 @@ type InvoiceGroupItem = InvoiceDoc & {
 
 export async function POST(req: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
 
-    console.log('Starting duplicate invoice number cleanup...');
+  
 
     // ✅ Fetch invoices with proper typing
     const [regularInvoicesRaw, manualInvoicesRaw] = await Promise.all([
@@ -74,15 +78,12 @@ export async function POST(req: Request) {
       });
     }
 
-    console.log(`Found ${duplicates.length} duplicate invoice numbers`);
 
     let fixedCount = 0;
 
     // ✅ Fix duplicates
     for (const [duplicateNumber, invoices] of duplicates) {
-      console.log(
-        `Fixing duplicate invoice number: ${duplicateNumber} (${invoices.length} occurrences)`
-      );
+     
 
       // Keep first, update rest
       for (let i = 1; i < invoices.length; i++) {
@@ -99,9 +100,7 @@ export async function POST(req: Request) {
           });
         }
 
-        console.log(
-          `Updated ${invoice.type} invoice ${invoice._id}: ${duplicateNumber} → ${newInvoiceNumber}`
-        );
+      
 
         fixedCount++;
       }

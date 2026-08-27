@@ -373,9 +373,9 @@ const CreateManualInvoice = () => {
 
       // Upload screenshot if a new file is selected
       if (paymentScreenshot) {
-        console.log('Uploading screenshot file:', paymentScreenshot.name);
+      
         screenshotUrl = await uploadScreenshot(paymentScreenshot);
-        console.log('Screenshot uploaded successfully, URL:', screenshotUrl);
+       
       } else {
         console.log('No screenshot file to upload, using existing preview:', screenshotPreview);
       }
@@ -401,10 +401,6 @@ const CreateManualInvoice = () => {
         salesPerson: salesPerson && salesPerson !== 'none' ? salesPerson : null
       };
 
-      console.log('Final request body being sent:', {
-        ...requestBody,
-        paymentScreenshot: requestBody.paymentScreenshot
-      });
 
       let res, data;
 

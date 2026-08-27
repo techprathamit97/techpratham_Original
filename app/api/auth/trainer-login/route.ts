@@ -16,16 +16,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log('=== TRAINER LOGIN DEBUG ===');
-    console.log('Attempting login for trainerId:', trainerId);
+
     
     // Check all trainers in TrainerAuth database
     const allTrainers = await TrainerAuth.find({}).lean();
-    console.log('All trainers in TrainerAuth database:', allTrainers.map(t => ({ trainerId: (t as any).trainerId, name: (t as any).name })));
+    
 
     // Find trainer by trainerId in TrainerAuth table
     const trainerAuth = await TrainerAuth.findOne({ trainerId }).lean();
-    console.log('TrainerAuth found for', trainerId, ':', trainerAuth ? (trainerAuth as any).name : 'NOT FOUND');
+   
 
     if (!trainerAuth) {
       return NextResponse.json(
@@ -61,7 +60,7 @@ export async function POST(req: NextRequest) {
       phone: (trainerAuth as any).phone
     };
 
-    console.log('Login successful for trainer:', trainerData);
+  
 
     return NextResponse.json({
       success: true,

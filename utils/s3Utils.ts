@@ -82,7 +82,7 @@ export async function deleteFromS3(url: string): Promise<boolean> {
       return false;
     }
 
-    console.log('Attempting to delete S3 object:', key);
+ 
 
     const deleteCommand = new DeleteObjectCommand({
       Bucket: process.env.BUCKET_NAME!,
@@ -90,7 +90,7 @@ export async function deleteFromS3(url: string): Promise<boolean> {
     });
 
     await s3Client.send(deleteCommand);
-    console.log('Successfully deleted S3 object:', key);
+ 
     return true;
 
   } catch (error: any) {
@@ -120,7 +120,7 @@ export async function deleteMultipleFromS3(urls: string[]): Promise<{successful:
     return { successful: 0, failed: 0 };
   }
 
-  console.log(`Attempting to delete ${urls.length} files from S3`);
+
   
   let successful = 0;
   let failed = 0;
@@ -135,7 +135,7 @@ export async function deleteMultipleFromS3(urls: string[]): Promise<{successful:
     }
   }
 
-  console.log(`S3 deletion results: ${successful} successful, ${failed} failed`);
+  
   return { successful, failed };
 }
 
@@ -165,7 +165,7 @@ export function collectInvoiceImageUrls(invoice: any): string[] {
     // Remove duplicates
     const uniqueUrls = [...new Set(imageUrls)];
     
-    console.log(`Collected ${uniqueUrls.length} unique image URLs from invoice`);
+   
     return uniqueUrls;
 
   } catch (error) {

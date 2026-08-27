@@ -12,19 +12,12 @@ interface RouteParams {
 export async function GET(req: Request, context: RouteParams) {
   try {
     const { slug } = await context.params;
-    console.log(`🔍 Looking for blog post with slug: ${slug}`);
-    console.log(`🔍 Sanity config:`, {
-      projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-      dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
-      hasProjectId: !!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-      hasDataset: !!process.env.NEXT_PUBLIC_SANITY_DATASET
-    });
+   
 
     // First, try to find in custom blogs
     await connectMongo();
     const customPost = await BlogPost.findOne({ slug }).lean();
-    console.log(`📝 Custom post found:`, !!customPost);
-
+   
     if (customPost) {
       // Increment view count
       await BlogPost.findByIdAndUpdate((customPost as any)._id, { $inc: { viewCount: 1 } });
@@ -45,19 +38,13 @@ export async function GET(req: Request, context: RouteParams) {
 
     // If not found in custom blogs, try Sanity
     try {
-      console.log(`🔍 Searching for Sanity post with slug: ${slug}`);
-      console.log(`🔍 Using query: ${singlePostQuery(slug)}`);
+  
       
       const sanityPost = await client.fetch(singlePostQuery(slug));
-      console.log(`📝 Sanity post result:`, sanityPost ? 'Found' : 'Not found');
+     
       
       if (sanityPost) {
-        console.log(`📝 Sanity post details:`, {
-          id: sanityPost._id,
-          title: sanityPost.title,
-          slug: sanityPost.slug
-        });
-        // Handle body content for individual post
+       
         let bodyContent = "";
         let excerpt = "No excerpt available";
         
@@ -125,19 +112,19 @@ export async function GET(req: Request, context: RouteParams) {
         return response;
       } else {
         // If exact match not found, try to find similar slugs for debugging
-        console.log(`🔍 Exact match not found, searching for similar slugs...`);
+      
         const similarSlugs = await client.fetch(`*[_type == "post" && slug.current match "${slug}*"] {
           "slug": slug.current,
           title
         }`);
-        console.log(`📝 Similar slugs found:`, similarSlugs);
+     
         
         // Also try without the exact match to see all posts
         const allSlugs = await client.fetch(`*[_type == "post"][0...10] {
           "slug": slug.current,
           title
         }`);
-        console.log(`📝 First 10 post slugs:`, allSlugs);
+     
       }
     } catch (sanityError) {
       console.error("❌ Failed to fetch from Sanity:", sanityError);

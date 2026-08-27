@@ -146,7 +146,7 @@ const HeaderSection = ({ course }: any) => {
 
             if (response.ok) {
                 setSubmitSuccess(true);
-                console.log('Header form submitted successfully:', data);
+              
                 
                 // Reset form
                 reset();

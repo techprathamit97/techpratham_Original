@@ -40,12 +40,10 @@ function isCacheValid(): boolean {
 export async function getNavbarData(): Promise<NavbarData> {
   // Return cached data if still valid
   if (isCacheValid()) {
-    console.log('✅ Returning cached navbar data');
     return cachedData!;
   }
 
   try {
-    console.log('🔄 Fetching fresh navbar data from database');
     await connectMongo();
 
     // Fetch categories with priority sorting
@@ -124,23 +122,11 @@ export async function getNavbarData(): Promise<NavbarData> {
     cachedData = result;
     cacheTimestamp = Date.now();
 
-    console.log('✅ Navbar data cached:', {
-      categoriesCount: result.categories.length,
-      allCoursesCount: result.allCourses.length,
-      sampleCategories: result.categories.slice(0, 3).map(c => ({ name: c.name, courseCount: c.courses.length })),
-      sampleCourses: result.allCourses.slice(0, 3).map(c => ({ title: c.title, category: c.category })),
-      cacheExpiry: new Date(cacheTimestamp + CACHE_DURATION).toISOString()
-    });
-
     return result;
   } catch (error) {
     console.error('❌ Failed to fetch navbar data:', error);
     
-    // Return cached data if available, even if expired, as fallback
-    if (cachedData) {
-      console.log('⚠️ Returning expired cache as fallback');
-      return cachedData;
-    }
+  
     
     return {
       categories: [],
@@ -153,5 +139,5 @@ export async function getNavbarData(): Promise<NavbarData> {
 export function clearNavbarCache(): void {
   cachedData = null;
   cacheTimestamp = 0;
-  console.log('🗑️ Navbar cache cleared');
+
 }

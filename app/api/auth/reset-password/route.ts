@@ -23,8 +23,6 @@ export async function POST(req: NextRequest) {
 
     await connectMongo();
 
-    console.log("Looking for token:", token);
-    console.log("Current time:", new Date());
 
     // Find user with valid token
     const user = await User.findOne({
@@ -32,14 +30,8 @@ export async function POST(req: NextRequest) {
       resetPasswordExpiry: { $gt: new Date() }, // Token not expired
     });
 
-    console.log("User found:", user ? user.email : "No user found");
-    
-    if (user) {
-      console.log("User's token:", user.resetPasswordToken);
-      console.log("User's expiry:", user.resetPasswordExpiry);
-      console.log("Token matches:", user.resetPasswordToken === token);
-      console.log("Token expired:", user.resetPasswordExpiry < new Date());
-    }
+  
+  
 
     if (!user) {
       return Response.json(
@@ -57,7 +49,7 @@ export async function POST(req: NextRequest) {
     user.resetPasswordExpiry = undefined;
     await user.save();
 
-    console.log("✅ Password reset successful for:", user.email);
+ 
 
     return Response.json({
       success: true,

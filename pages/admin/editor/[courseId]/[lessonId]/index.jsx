@@ -93,7 +93,7 @@ export default function EditorPage() {
                 ? `/e-book/${courseId}/${lessonId}/${sectionId}?t=${Date.now()}`
                 : `/e-book/${courseId}/${lessonId}?t=${Date.now()}`;
               
-              console.log('Content saved! View at:', displayUrl);
+           
             }
             
             alert("Saved successfully to MongoDB");

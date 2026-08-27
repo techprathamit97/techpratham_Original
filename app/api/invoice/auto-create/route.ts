@@ -5,9 +5,13 @@ import { User } from '@/models/user';
 import Enrolled from '@/models/enrolled';
 import Invoice from '@/models/Invoice';
 import { generateReceiptNumber } from '@/utils/receiptGenerator';
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 export async function POST(req: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
 
     const body = await req.json();
@@ -43,7 +47,7 @@ export async function POST(req: Request) {
     let userId = null;
     
     if (!user) {
-      console.log('User not found for email:', enrollment.email, '- creating placeholder user');
+     
       // Create a placeholder user for invoice purposes
       try {
         user = await User.create({
@@ -53,14 +57,14 @@ export async function POST(req: Request) {
           isPlaceholder: true // Mark as placeholder user
         });
         userId = user._id;
-        console.log('Placeholder user created:', user.name);
+      
       } catch (userError: any) {
-        console.log('Could not create placeholder user, proceeding without userId');
+      
         userId = null;
       }
     } else {
       userId = user._id;
-      console.log('User found:', user.name);
+  
     }
 
     // Helper function to clean HTML tags

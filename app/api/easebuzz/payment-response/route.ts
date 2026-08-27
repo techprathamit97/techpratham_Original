@@ -60,10 +60,9 @@ export async function POST(request: NextRequest) {
 
     // Verify hash for security
     const hashString = `${EASEBUZZ_SALT}|${status}|||||||||||${email}|${firstname}|${productinfo}|${amount}|${txnid}`;
-    console.log('Hash verification string:', hashString);
+    
     const calculatedHash = crypto.createHash('sha512').update(hashString).digest('hex');
-    console.log('Calculated hash:', calculatedHash);
-    console.log('Received hash:', hash);
+ 
 
     if (hash !== calculatedHash) {
       console.error('Hash verification failed');

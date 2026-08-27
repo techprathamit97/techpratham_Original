@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     const bustCache = searchParams.get("bustCache");
     const timestamp = searchParams.get("t");
     
-    console.log('Course Fetch API: Cache busting requested:', !!bustCache || !!timestamp);
+  
 
     const projection = {
       _id: 1,
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
 
     const courseItem = await Course.find(query, projection).lean();
     
-    console.log('Course Fetch API: Found', courseItem.length, 'courses');
+
 
     // Sort courses by priority (handle null/undefined priority values)
     // LOWER priority numbers appear FIRST (1, 2, 3, 4, 5, etc.)

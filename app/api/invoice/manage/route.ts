@@ -6,18 +6,20 @@ import Enrolled from '@/models/enrolled';
 import Invoice from '@/models/Invoice';
 import ManualInvoice from '@/models/ManualInvoice';
 import { deleteMultipleFromS3, collectInvoiceImageUrls } from '@/utils/s3Utils';
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 // Update invoice (approve, payment, etc.)
 export async function PATCH(req: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
 
     const body = await req.json();
     const { invoiceId, action, amount, certificateData, paymentMode, paidDate, installmentNumber, installmentPaymentAmount, nextDueDate, thisDueDate } = body;
 
-    console.log('PATCH request received:', { invoiceId, action, amount, paymentMode, paidDate, installmentNumber, installmentPaymentAmount, nextDueDate, thisDueDate });
-    console.log('thisDueDate value:', thisDueDate);
-    console.log('thisDueDate type:', typeof thisDueDate);
+  
 
     if (!invoiceId || !action) {
       return NextResponse.json(
@@ -40,7 +42,7 @@ export async function PATCH(req: Request) {
     
     try {
       invoice = await Invoice.findById(invoiceId);
-      console.log('Regular invoice found:', !!invoice);
+   
     } catch (error: any) {
       console.log('Error finding regular invoice:', error.message);
     }
@@ -49,14 +51,14 @@ export async function PATCH(req: Request) {
       try {
         invoice = await ManualInvoice.findById(invoiceId);
         isManualInvoice = true;
-        console.log('Manual invoice found:', !!invoice);
+     
       } catch (error: any) {
-        console.log('Error finding manual invoice:', error.message);
+        console.log('Error finding manual invoice:');
       }
     }
 
     if (!invoice) {
-      console.log('Invoice not found in either collection for ID:', invoiceId);
+     
       return NextResponse.json(
         { error: 'Invoice not found in system' },
         { status: 404 }
@@ -217,7 +219,7 @@ export async function PATCH(req: Request) {
           }
         }
         
-        console.log('Payment update data:', updateData);
+      
         break;
 
       case 'update_invoice': {
@@ -316,7 +318,7 @@ export async function PATCH(req: Request) {
          .populate('enrollmentId', 'course_title course_link category');
       }
       
-      console.log('Invoice updated successfully:', !!updatedInvoice);
+    
     } catch (updateError: any) {
       console.error('Error updating invoice:', updateError);
       return NextResponse.json(
@@ -343,6 +345,9 @@ export async function PATCH(req: Request) {
 // Delete invoice
 export async function DELETE(req: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
 
     const { searchParams } = new URL(req.url);
@@ -378,7 +383,7 @@ export async function DELETE(req: Request) {
 
     // Collect all image URLs from the invoice
     const imageUrls = collectInvoiceImageUrls(invoiceToDelete);
-    console.log(`Found ${imageUrls.length} images to delete for invoice ${invoiceId}`);
+   
 
     // Delete the invoice from database first (critical operation)
     let deletedInvoice = null;
@@ -407,12 +412,10 @@ export async function DELETE(req: Request) {
     // This runs after database deletion to ensure invoice deletion succeeds even if S3 cleanup fails
     if (imageUrls.length > 0) {
       try {
-        console.log('Starting S3 cleanup for deleted invoice...');
+       
         const s3Results = await deleteMultipleFromS3(imageUrls);
         
-        if (s3Results.successful > 0) {
-          console.log(`Successfully cleaned up ${s3Results.successful} images from S3`);
-        }
+       
         
         if (s3Results.failed > 0) {
           console.warn(`Failed to delete ${s3Results.failed} images from S3 (non-critical)`);

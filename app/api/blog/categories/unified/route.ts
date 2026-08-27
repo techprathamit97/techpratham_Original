@@ -13,7 +13,7 @@ export async function GET(req: Request) {
     const includePostCount = searchParams.get("includePostCount") === "true";
     const activeOnly = searchParams.get("activeOnly") !== "false"; // default true
 
-    console.log('🔍 Unified Categories API called with:', { includePostCount, activeOnly });
+    
 
     const query = activeOnly ? { isActive: true } : {};
     
@@ -22,7 +22,7 @@ export async function GET(req: Request) {
       .sort({ order: 1, name: 1 })
       .lean();
 
-    console.log(`📂 Found ${customCategories.length} custom categories`);
+  
 
     // Add post count for custom categories if requested
     if (includePostCount) {
@@ -39,10 +39,10 @@ export async function GET(req: Request) {
     let sanityPostCount = 0;
     if (includePostCount) {
       try {
-        console.log('🔄 Fetching Sanity posts count...');
+    
         // Use cached fetch with 10 minute cache for count
         sanityPostCount = await cachedFetch(postsCountQuery, 10);
-        console.log(`📝 Found ${sanityPostCount} Sanity posts (cached)`);
+     
       } catch (error) {
         console.error('❌ Failed to fetch Sanity posts count:', error);
       }
@@ -65,7 +65,7 @@ export async function GET(req: Request) {
     // Combine categories
     const allCategories = [...customCategories, sanityCategory];
 
-    console.log(`📊 Returning ${allCategories.length} total categories (${customCategories.length} custom + 1 sanity)`);
+  
 
     const response = NextResponse.json({ categories: allCategories });
     

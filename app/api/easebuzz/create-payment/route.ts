@@ -36,20 +36,11 @@ export async function POST(request: NextRequest) {
     // Create hash for Easebuzz - Fixed format according to Easebuzz docs
     // Format: key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5|udf6|udf7|udf8|udf9|udf10|salt
     const hashString = `${EASEBUZZ_KEY}|${txnid}|${formattedAmount}|${productinfo}|${firstname}|${email}|||||||||||${EASEBUZZ_SALT}`;
-    console.log('Hash string for payment:', hashString);
+  
     const hash = crypto.createHash('sha512').update(hashString).digest('hex');
-    console.log('Generated hash:', hash);
+   
 
-    // Prepare payment data
-    console.log('Payment data preparation:', {
-      key: EASEBUZZ_KEY,
-      txnid,
-      amount: formattedAmount,
-      productinfo,
-      firstname,
-      email,
-      phone
-    });
+   
 
     const paymentData = {
       key: EASEBUZZ_KEY,

@@ -195,12 +195,7 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
         const categoriesApiData = await categoriesRes.json();
         setCategoriesData(categoriesApiData);
 
-        console.log('📋 Navbar data loaded:', {
-          totalCourses: allCoursesData.length,
-          categoriesCount: coursesData.length,
-          categoriesWithSubcategories: categoriesApiData.length,
-          subcategoriesFound: categoriesApiData.reduce((total: number, cat: any) => total + (cat.subcategories?.length || 0), 0)
-        });
+       
       } catch (err) {
         console.error("Failed to fetch navbar data", err);
       } finally {

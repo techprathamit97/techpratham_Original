@@ -32,12 +32,6 @@ export async function GET(request: Request) {
       "_id title image alt category link shortDesc level rating duration trending priority createdAt"
     ).lean();
 
-    console.log('📊 Database Query Results:');
-    console.log('   - Total courses found:', courses.length);
-    console.log('   - Courses with trending=true:', courses.filter(c => c.trending === true).length);
-    console.log('   - Courses with trending=false:', courses.filter(c => c.trending === false).length);
-    console.log('   - Courses with trending=null/undefined:', courses.filter(c => c.trending == null).length);
-
     // ✅ Sort courses by priority (handle null/undefined priority values)
     // LOWER priority numbers appear FIRST (1, 2, 3, 4, 5, etc.)
     const sortedCourses = courses.sort((a, b) => {
@@ -66,11 +60,6 @@ export async function GET(request: Request) {
 
       categoryMap[course.category].push(course);
     }
-
-    // Debug: Count trending courses (using previously declared trendingCourses)
-    console.log('🔍 API Debug - Total courses found:', sortedCourses.length);
-    console.log('🔍 API Debug - Trending courses found:', trendingCourses.length);
-    console.log('🔍 API Debug - Trending course titles:', trendingCourses.map(c => c.title?.substring(0, 30) || 'No title'));
 
     // ✅ Fetch categories with position to sort them
     const categoriesData = await Category.find({}, 'name position').sort({ position: 1 }).lean();

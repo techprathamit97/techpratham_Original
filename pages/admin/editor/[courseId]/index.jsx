@@ -73,7 +73,7 @@ export default function CourseEditor() {
       });
       
       if (res.ok) {
-        console.log('✅ Lesson order saved successfully');
+    
         alert('Lesson order updated successfully');
       } else {
         throw new Error('Failed to save order');
@@ -105,7 +105,7 @@ export default function CourseEditor() {
       });
       
       if (res.ok) {
-        console.log('✅ Section order saved successfully');
+       
         alert('Section order updated successfully');
       } else {
         throw new Error('Failed to save order');
@@ -137,7 +137,7 @@ export default function CourseEditor() {
       });
       
       if (res.ok) {
-        console.log('✅ Sub-section order saved successfully');
+      
         alert('Sub-section order updated successfully');
       } else {
         throw new Error('Failed to save order');
@@ -228,7 +228,7 @@ export default function CourseEditor() {
 
     setSidebar([...sidebar, newLesson]);
     setPendingLessons(prev => new Set([...prev, newId])); // ⭐ NEW: Track pending lesson
-    console.log(`✅ Lesson "${newLesson.title}" created in UI (ID: ${newId})`);
+   
   };
 
   // ⭐ NEW: Function to save lesson to database when "Edit Lesson" is clicked
@@ -263,7 +263,7 @@ export default function CourseEditor() {
           return newSet;
         });
         
-        console.log(`✅ Lesson "${lesson.title}" saved to database (ID: ${lesson.id})`);
+       
         return `/admin/editor/${courseId}/${lesson.slug}`;
       } else {
         const error = await res.json();
@@ -296,7 +296,7 @@ export default function CourseEditor() {
 
     // ⭐ NEW: Track pending section
     setPendingSections(prev => new Set([...prev, newId]));
-    console.log(`✅ Section "${newSection.title}" created in UI (ID: ${newId}) - will save when Edit Section is clicked`);
+   
   };
 
   // ⭐ NEW: Function to save section to database when "Edit Section" is clicked
@@ -343,7 +343,7 @@ export default function CourseEditor() {
           return newSet;
         });
         
-        console.log(`✅ Section "${section.title}" saved to database (ID: ${section.id})`);
+       
         return `/admin/editor/${courseId}/${lesson.slug}/${section.slug}`;
       } else {
         const error = await res.json();
@@ -377,7 +377,7 @@ export default function CourseEditor() {
 
     // ⭐ NEW: Track pending sub-section
     setPendingSubSections(prev => new Set([...prev, newId]));
-    console.log(`✅ Sub-section "${newSubSection.title}" created in UI (ID: ${newId}) - will save when Edit Sub-Section is clicked`);
+   
   };
 
   // ⭐ NEW: Function to save sub-section to database when "Edit Sub-Section" is clicked
@@ -434,7 +434,7 @@ export default function CourseEditor() {
           return newSet;
         });
         
-        console.log(`✅ Sub-section "${subSection.title}" saved to database (ID: ${subSection.id})`);
+       
         return `/admin/editor/${courseId}/${lesson.slug}/${section.slug}/${subSection.slug}`;
       } else {
         const error = await res.json();
@@ -480,7 +480,7 @@ export default function CourseEditor() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
           });
-          console.log(`✅ Auto-saved lesson update (ID: ${item.id})`);
+         
         } catch (error) {
           console.error("Auto-save error:", error);
         }
@@ -488,7 +488,7 @@ export default function CourseEditor() {
 
       setUpdateTimeout(newTimeout);
     } else {
-      console.log(`✅ Updated lesson "${item.title}" in UI (ID: ${item.id}) - will save when lesson is saved`);
+      console.log(`✅ Updated lesson will save when lesson is saved`);
     }
   };
 
@@ -565,7 +565,7 @@ export default function CourseEditor() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
           });
-          console.log(`✅ Auto-saved subsection update (ID: ${sub.id})`);
+         
         } catch (error) {
           console.error("Auto-save error:", error);
         }
@@ -573,7 +573,7 @@ export default function CourseEditor() {
 
       setUpdateTimeout(newTimeout);
     } else {
-      console.log(`✅ Updated subsection "${sub.title}" in UI (ID: ${sub.id}) - will save when subsection is saved`);
+      console.log(`✅ Updated subsection  will save when subsection is saved`);
     }
   };
 

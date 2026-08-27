@@ -456,7 +456,7 @@ const CourseTab = () => {
         setIsSubmitting(true);
 
         try {
-            console.log('Submitting form data:', data);
+            
 
             const response = await fetch('/api/course/create', {
                 method: 'POST',
@@ -469,7 +469,7 @@ const CourseTab = () => {
             if (response.ok) {
                 const result = await response.json();
 
-                console.log('Course created successfully:', result);
+               
                 toast.success(`Course created successfully! Course ID: ${result._id}`);
 
                 // Saved server side, so the local draft is no longer needed.

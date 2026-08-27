@@ -59,17 +59,14 @@ export async function POST(req: NextRequest) {
     const resetToken = crypto.randomBytes(32).toString("hex");
     const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour from now
 
-    console.log("Generated reset token:", resetToken);
-    console.log("Token expiry:", resetTokenExpiry);
+  
 
     // Save token to user
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpiry = resetTokenExpiry;
     await user.save();
 
-    console.log("Token saved to user:", user.email);
-    console.log("Saved token:", user.resetPasswordToken);
-    console.log("Saved expiry:", user.resetPasswordExpiry);
+
 
     // Create reset URL
     const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${resetToken}`;
@@ -168,7 +165,7 @@ export async function POST(req: NextRequest) {
         html: emailHtml,
       });
 
-      console.log("✅ Password reset email sent to:", email);
+   
     } catch (emailError: any) {
       console.error("Email sending error:", emailError);
       console.error("Email error message:", emailError.message);

@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
 
         const { name, position, slug, displayInNavbar, subcategories } = await request.json();
 
-        console.log("CREATE CATEGORY:", { name, position, slug, displayInNavbar });
+        
 
         if (!name || !slug) {
             return NextResponse.json(

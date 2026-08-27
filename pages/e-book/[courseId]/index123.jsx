@@ -54,7 +54,7 @@ export default function CoursePage({ navbarData }) {
     setData(null); // prevent stale render
 
     const key = `course-${courseId}-${activeLesson}`;
-    console.log("Loading lesson key:", key);
+  
 
     const saved = localStorage.getItem(key);
     if (saved) {

@@ -48,7 +48,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
 
   // Function to process categories - create "Trending Courses" from trending courses
   const processCategories = (courses: CourseCategory[]): CourseCategory[] => {
-    console.log('🔄 Processing categories:', courses.map(c => c.name));
+   
     
     // Filter out any remaining "Trending Courses" and "High Demanding" categories
     const filteredCourses = courses.filter(category => 
@@ -84,52 +84,47 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
         name: 'Trending Courses',
         courses: sortedTrendingCourses
       });
-      console.log('✅ Created Trending Courses with', sortedTrendingCourses.length, 'courses (sorted by priority):');
-      console.log('   Course priorities:', sortedTrendingCourses.map(c => `${c.title?.substring(0, 25)}... (priority: ${c.priority ?? 'null'})`));
+    
     }
 
     // Add other categories
     result.push(...nonTrendingCategories);
     
-    console.log('🏁 Final processed categories:', result.map(c => c.name));
+   
     return result;
   };
 
   // Function to filter categories
   const filterCategories = (courses: CourseCategory[], categories: any[]) => {
-    console.log('🔍 Filtering categories - input:', courses.map(c => c.name));
+   
     
-    // CRITICAL FIX: First extract ALL trending courses from ALL categories
-    // BEFORE filtering categories, to ensure no trending courses are lost
-    console.log('🚀 STEP 1: Extract all trending courses before category filtering');
+   
     const allTrendingCourses: Course[] = [];
     
     courses.forEach(category => {
       const trendingInCategory = category.courses.filter(c => c.trending === true);
       allTrendingCourses.push(...trendingInCategory);
-      console.log(`   📦 Found ${trendingInCategory.length} trending courses in "${category.name}"`);
+   
     });
     
-    console.log(`🎯 Total trending courses found: ${allTrendingCourses.length}`);
+   
     
-    // STEP 2: Now process categories (remove trending courses from original categories and filter)
-    console.log('🚀 STEP 2: Process and filter categories');
-    const processedCourses = processCategories(courses);
-    console.log('🔧 After processing:', processedCourses.map(c => c.name));
 
-    // STEP 3: Filter categories based on database existence
-    console.log('🚀 STEP 3: Filter categories by database existence');
+    const processedCourses = processCategories(courses);
+   
+
+
     const categoriesFiltered = processedCourses.filter((category) => {
         // Hide specific categories (should already be removed by processCategories, but double-check)
         const hiddenCategories = ['High Demanding', 'Trending Courses'];
         if (hiddenCategories.includes(category.name)) {
-          console.log('❌ Hiding category:', category.name);
+       
           return false;
         }
 
         // Always show "Trending Courses" (dynamically created from trending courses)
         if (category.name === 'Trending Courses') {
-          console.log('✅ Showing Trending Courses');
+        
           return true;
         }
 
@@ -138,22 +133,21 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
         if (categories.length > 0) {
           const categoryData = categories.find((cat: any) => cat.name === category.name);
           const shouldShow = categoryData && categoryData.slug;
-          console.log(`🔍 Category "${category.name}":`, shouldShow ? 'SHOW' : 'HIDE');
+         
           return shouldShow;
         }
-        console.log('✅ Showing (no category filter):', category.name);
+    
         return true;
       });
 
-    // STEP 4: Ensure Trending Courses category has ALL trending courses
-    console.log('🚀 STEP 4: Ensure Trending Courses has all trending courses');
+
     const finalResult = categoriesFiltered.map(category => {
       if (category.name === 'Trending Courses') {
-        console.log(`🔄 Updating Trending Courses: ${category.courses.length} -> ${allTrendingCourses.length} courses`);
+      
         const sortedTrendingCourses = sortCoursesByPriority(allTrendingCourses);
-        console.log('🎯 Final trending courses order by priority:');
+     
         sortedTrendingCourses.forEach((course, idx) => {
-          console.log(`   ${idx + 1}. ${course.title?.substring(0, 40)}... (priority: ${course.priority ?? 'undefined'})`);
+       
         });
         return {
           ...category,
@@ -166,7 +160,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
     // STEP 5: If no Trending Courses category exists but we have trending courses, create it
     const hasTrainingCoursesCategory = finalResult.some(cat => cat.name === 'Trending Courses');
     if (!hasTrainingCoursesCategory && allTrendingCourses.length > 0) {
-      console.log('🆕 Creating Trending Courses category with', allTrendingCourses.length, 'courses');
+     
       const sortedTrendingCourses = sortCoursesByPriority(allTrendingCourses);
       finalResult.unshift({
         name: 'Trending Courses',
@@ -193,7 +187,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
         return 0;
       });
       
-    console.log('🎯 Final filtered categories:', sortedResult.map(c => `${c.name} (${c.courses.length} courses)`));
+
     return sortedResult;
   };
 
@@ -219,7 +213,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
 
         const filteredCourses = filterCategories(coursesData, categoriesApiData);
         setCoursesByCategory(filteredCourses);
-        console.log('🏠 CoursesHome - Client-side fetch - Final categories:', filteredCourses.map(cat => `${cat.name} (${cat.courses.length} courses)`));
+      
       } catch (err) {
         console.error("Failed to fetch courses", err);
       } finally {
@@ -235,7 +229,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
     if (initialGroupedCourses.length > 0 && categoriesData.length > 0) {
       const filteredCourses = filterCategories(initialGroupedCourses, categoriesData);
       setCoursesByCategory(filteredCourses);
-      console.log('🏠 CoursesHome - Initial + Categories ready - Final categories:', filteredCourses.map(cat => `${cat.name} (${cat.courses.length} courses)`));
+     
     }
   }, [initialGroupedCourses, categoriesData]);
 
@@ -251,7 +245,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
           // Immediately filter the initial courses once categories are fetched
           const filteredCourses = filterCategories(initialGroupedCourses, categoriesApiData);
           setCoursesByCategory(filteredCourses);
-          console.log('🏠 CoursesHome - SSR data processed - Final categories:', filteredCourses.map(cat => `${cat.name} (${cat.courses.length} courses)`));
+          
         } catch (err) {
           console.error("Failed to fetch categories", err);
         }
@@ -264,15 +258,15 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
   // ✅ AUTO SELECT "Trending Courses" CATEGORY - Immediate selection to prevent layout shift
   useEffect(() => {
     if (coursesByCategory.length) {
-      // Debug: Log all category names with course counts
-      console.log('📂 Available categories for selection:', coursesByCategory.map(c => `${c.name} (${c.courses.length} courses)`));
+   
+     
 
       // Find "Trending Courses" category (should be first after processing)
       const trainingIdx = coursesByCategory.findIndex(
         cat => cat.name.toLowerCase() === 'trending courses'
       );
 
-      console.log('🎯 Auto-selecting category:', trainingIdx !== -1 ? `Trending Courses (index ${trainingIdx})` : `First category (index 0): ${coursesByCategory[0]?.name || 'none'}`);
+     
 
       // Select Trending Courses if found, otherwise first category - immediate to prevent layout shift
       setSelectedCategoryIdx(trainingIdx !== -1 ? trainingIdx : 0);

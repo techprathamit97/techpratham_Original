@@ -17,7 +17,7 @@ export async function GET(req: Request) {
     const sortBy = searchParams.get("sortBy") || "publishedAt";
     const sortOrder = searchParams.get("sortOrder") || "desc";
 
-    console.log('🔍 Unified API called with params:', { page, limit, status, category, search });
+    
 
     // Fetch custom blogs from MongoDB
     await connectMongo();
@@ -53,17 +53,17 @@ export async function GET(req: Request) {
       }));
     }
 
-    console.log(`📝 Found ${customPosts.length} custom posts`);
+
 
     // Fetch Sanity blogs with optimized query
     let sanityPosts = [];
     if (!category || category === "general-blogs") {
       try {
-        console.log('🔄 Fetching from Sanity...');
+       
         
         // Use cached fetch with 5 minute cache for listing
         const sanityData = await cachedFetch(postsListQuery, 5);
-        console.log(`📝 Fetched ${sanityData.length} Sanity posts (cached)`);
+      
         
         sanityPosts = sanityData.map((post: any) => ({
           _id: post._id,
@@ -100,7 +100,7 @@ export async function GET(req: Request) {
     // Combine and sort all posts
     let allPosts = [...customPosts, ...sanityPosts];
     
-    console.log(`📊 Total posts before sorting: ${allPosts.length} (${customPosts.length} custom + ${sanityPosts.length} sanity)`);
+   
     
     // Sort combined posts
     allPosts.sort((a, b) => {
@@ -114,7 +114,7 @@ export async function GET(req: Request) {
     const skip = (page - 1) * limit;
     const paginatedPosts = allPosts.slice(skip, skip + limit);
 
-    console.log(`📄 Returning ${paginatedPosts.length} posts (page ${page} of ${Math.ceil(total / limit)})`);
+   
 
     const response = NextResponse.json({
       posts: paginatedPosts,

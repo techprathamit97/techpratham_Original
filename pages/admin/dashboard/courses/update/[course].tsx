@@ -522,15 +522,14 @@ const UpdateCoursePage = () => {
       const courseCategoryId = courseData.categoryId;
       const courseSubcategoryPath = courseData.subcategoryPath;
       
-      console.log('Fixing category selection for:', { courseCategoryId, courseSubcategoryPath });
-      console.log('Available flattened categories:', flattenedSubcategories.map(c => ({ id: c.id, name: c.name, path: c.path })));
+    
       
       if (courseCategoryId) {
         // Check if current value exists in dropdown options
         const currentValueExists = flattenedSubcategories.some(item => item.id === courseCategoryId);
         
         if (currentValueExists) {
-          console.log('Current categoryId value is valid:', courseCategoryId);
+        
           return; // No need to fix if current value is valid
         }
         
@@ -546,7 +545,7 @@ const UpdateCoursePage = () => {
           
           if (subcategoryItem) {
             correctDropdownValue = subcategoryItem.id;
-            console.log('Found matching subcategory item:', correctDropdownValue);
+           
           }
         } else {
           // For main categories, find by categoryId
@@ -556,13 +555,13 @@ const UpdateCoursePage = () => {
           
           if (mainCategoryItem) {
             correctDropdownValue = mainCategoryItem.id;
-            console.log('Found matching main category item:', correctDropdownValue);
+           
           }
         }
         
         // Update the form value to match dropdown options
         if (correctDropdownValue) {
-          console.log('Updating categoryId from', courseCategoryId, 'to', correctDropdownValue);
+         
           form.setValue('categoryId', correctDropdownValue);
         } else {
           console.warn('Could not find matching category in dropdown options');
@@ -648,9 +647,9 @@ const UpdateCoursePage = () => {
   };
 
   const handleCategoryChange = (value: string) => {
-    console.log('Category change selected value:', value);
+
     const selected = flattenedSubcategories.find(item => item.id === value);
-    console.log('Selected category item:', selected);
+   
     
     if (!selected) {
       console.warn('No category found for value:', value);
@@ -659,17 +658,16 @@ const UpdateCoursePage = () => {
 
     if (selected.path === '') {
       // Main category selected
-      console.log('Main category selected:', selected.name);
+   
       form.setValue('category', selected.name);
       form.setValue('categoryId', selected.id);
       form.setValue('subcategoryPath', '');
       form.setValue('subcategoryName', '');
     } else {
-      // Subcategory selected
-      console.log('Subcategory selected:', selected.name, 'path:', selected.path);
+   
       const [categoryId] = selected.id.split(':');
       const category = categories.find(cat => cat._id === categoryId);
-      console.log('Parent category found:', category?.name);
+     
 
       form.setValue('category', category?.name || '');
       form.setValue('categoryId', categoryId);
@@ -677,12 +675,7 @@ const UpdateCoursePage = () => {
       form.setValue('subcategoryName', selected.name);
     }
     
-    console.log('Form values after change:', {
-      category: form.getValues('category'),
-      categoryId: form.getValues('categoryId'),
-      subcategoryPath: form.getValues('subcategoryPath'),
-      subcategoryName: form.getValues('subcategoryName')
-    });
+  
   };
 
   const getProfileImageUrl = () => {
@@ -904,13 +897,7 @@ const UpdateCoursePage = () => {
       })),
     };
 
-    console.log("Updating form data:", updatedData);
-    console.log("Category data being sent:", {
-      categoryId: updatedData.categoryId,
-      subcategoryPath: updatedData.subcategoryPath,
-      subcategoryName: updatedData.subcategoryName,
-      category: updatedData.category
-    });
+   
 
     const response = await fetch(`/api/course/update?link=${courseUrl}`, {
       method: "PUT",
@@ -1052,10 +1039,7 @@ const UpdateCoursePage = () => {
                                   onValueChange={handleCategoryChange} 
                                   value={form.watch('categoryId')}
                                   onOpenChange={(open) => {
-                                    if (open) {
-                                      console.log('Dropdown opened. Current value:', form.watch('categoryId'));
-                                      console.log('Available options:', flattenedSubcategories.map(c => ({ id: c.id, name: c.displayName })));
-                                    }
+                                   
                                   }}
                                 >
                                   <FormControl>

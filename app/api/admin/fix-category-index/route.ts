@@ -14,18 +14,18 @@ export async function GET() {
 
         // Get current indexes
         const indexes = await collection.indexes();
-        console.log('Current indexes:', indexes);
+       
 
         // Find and drop problematic unique indexes
         const indexesToDrop = ['position_1', 'name_1', 'description_1'];
         for (const index of indexes) {
             if (index.name && indexesToDrop.includes(index.name)) {
-                console.log(`Dropping index: ${index.name}`);
+               
                 try {
                     await collection.dropIndex(index.name);
-                    console.log(`Dropped index: ${index.name}`);
+                    
                 } catch (dropError: any) {
-                    console.log(`Could not drop ${index.name}: ${dropError.message}`);
+                    console.log(`Could not drop `);
                 }
             }
         }
@@ -36,9 +36,9 @@ export async function GET() {
                 { parentId: 1, position: 1 },
                 { unique: true, name: 'parentId_position' }
             );
-            console.log('Created new compound index');
+          
         } catch (idxError: any) {
-            console.log('Compound index may already exist:', idxError.message);
+            console.log('Compound index may already exist:');
         }
 
         // Make slug unique
@@ -47,9 +47,9 @@ export async function GET() {
                 { slug: 1 },
                 { unique: true, name: 'slug_1' }
             );
-            console.log('Created slug unique index');
+            
         } catch (idxError: any) {
-            console.log('Slug index may already exist:', idxError.message);
+            console.log('Slug index may already exist:');
         }
 
         // Get updated indexes

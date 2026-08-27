@@ -9,7 +9,7 @@ const reviewIds = [
 async function approveAndPublishReview(reviewId) {
   try {
     // Step 1: Approve
-    console.log(`Approving review: ${reviewId}`);
+  
     const approveResponse = await fetch('http://localhost:3000/api/review/manage', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -19,10 +19,8 @@ async function approveAndPublishReview(reviewId) {
       })
     });
     const approveData = await approveResponse.json();
-    console.log('Approve result:', approveData);
+  
 
-    // Step 2: Publish
-    console.log(`Publishing review: ${reviewId}`);
     const publishResponse = await fetch('http://localhost:3000/api/review/manage', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -32,7 +30,7 @@ async function approveAndPublishReview(reviewId) {
       })
     });
     const publishData = await publishResponse.json();
-    console.log('Publish result:', publishData);
+  
 
     return { success: true, reviewId };
   } catch (error) {
@@ -42,15 +40,14 @@ async function approveAndPublishReview(reviewId) {
 }
 
 async function processAllReviews() {
-  console.log('Starting to approve and publish all reviews...');
+
   
   for (const reviewId of reviewIds) {
     await approveAndPublishReview(reviewId);
-    console.log('---');
+  
   }
   
-  console.log('All reviews processed!');
-  console.log('Refresh the homepage to see the reviews.');
+
 }
 
 // Run the script

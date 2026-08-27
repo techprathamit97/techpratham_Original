@@ -42,7 +42,7 @@ export default function SubSectionEditor() {
         
         // ⭐ FIX: Handle case where subsection doesn't exist yet
         if (data.error && data.error.includes("not found")) {
-          console.log("SubSection not found, initializing with empty data");
+         
           setPuckData({ root: {}, content: [] });
         } else {
           setPuckData(data || { root: {}, content: [] });

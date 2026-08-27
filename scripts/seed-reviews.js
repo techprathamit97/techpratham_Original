@@ -139,7 +139,7 @@ const testReviews = [
 
 async function seedReviews() {
   try {
-    console.log('🔄 Connecting to MongoDB...');
+  
     
     if (!process.env.MONGODB_URL) {
       throw new Error('MONGODB_URL is not defined in environment variables');
@@ -149,31 +149,23 @@ async function seedReviews() {
       dbName: 'database'
     });
 
-    console.log('✅ Connected to MongoDB');
+
 
     // Clear existing reviews (optional)
     const existingCount = await Review.countDocuments();
-    console.log(`📊 Found ${existingCount} existing reviews`);
+ 
 
-    // Insert test reviews
-    console.log('🌱 Seeding test reviews...');
+ 
     const createdReviews = await Review.insertMany(testReviews);
     
-    console.log(`✅ Successfully created ${createdReviews.length} test reviews:`);
-    createdReviews.forEach((review, index) => {
-      console.log(`   ${index + 1}. ${review.name} - ${review.rating}⭐ - ${review.course}`);
-    });
+    
 
-    console.log('\n📋 Summary:');
-    console.log(`   - Total reviews in database: ${await Review.countDocuments()}`);
-    console.log(`   - Published reviews: ${await Review.countDocuments({ isPublished: true })}`);
-    console.log(`   - Featured reviews: ${await Review.countDocuments({ isFeatured: true })}`);
 
   } catch (error) {
     console.error('❌ Error seeding reviews:', error.message);
   } finally {
     await mongoose.disconnect();
-    console.log('🔌 Disconnected from MongoDB');
+   
   }
 }
 

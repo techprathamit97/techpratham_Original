@@ -282,7 +282,7 @@ export default function CoursePage({ navbarData }) {
           // Always add timestamp for fresh data
           t: Date.now().toString()
         });
-        console.log('Fetching puck data with query:', query.toString());
+     
         const res = await fetch(`/api/lms/puck?${query.toString()}`, {
           headers: {
             'Cache-Control': 'no-cache',
@@ -296,14 +296,7 @@ export default function CoursePage({ navbarData }) {
         
         const result = await res.json();
         
-        console.log('Fetched puck data:', result);
-        console.log('Data structure check:', {
-          hasContent: !!result.content,
-          contentLength: result.content?.length || 0,
-          hasZones: !!result.zones,
-          zonesKeys: result.zones ? Object.keys(result.zones) : [],
-          fullData: result
-        });
+       
         
         setData(result);
       } catch (error) {
@@ -337,7 +330,7 @@ export default function CoursePage({ navbarData }) {
               (!sectionSlug || updateInfo.sectionId === sectionSlug) &&
               (!subSectionSlug || updateInfo.subSectionId === subSectionSlug)) {
             
-            console.log('Content updated, refetching...');
+          
             
             // Refetch the data
             const fetchUpdatedData = async () => {
@@ -351,7 +344,7 @@ export default function CoursePage({ navbarData }) {
                 });
                 const res = await fetch(`/api/lms/puck?${query.toString()}`);
                 const result = await res.json();
-                console.log('Refetched data after content update:', result);
+               
                 setData(result);
               } catch (error) {
                 console.error("Failed to refetch puck data:", error);
@@ -369,7 +362,7 @@ export default function CoursePage({ navbarData }) {
         try {
           const updateInfo = JSON.parse(e.newValue || '{}');
           if (updateInfo.courseId === courseId) {
-            console.log('Sidebar updated, refetching content...');
+         
             
             // Refetch content after sidebar update
             setTimeout(async () => {
@@ -383,7 +376,7 @@ export default function CoursePage({ navbarData }) {
                 });
                 const res = await fetch(`/api/lms/puck?${query.toString()}`);
                 const result = await res.json();
-                console.log('Refetched data after sidebar update:', result);
+               
                 setData(result);
               } catch (error) {
                 console.error("Failed to refetch after sidebar update:", error);
@@ -537,8 +530,7 @@ export default function CoursePage({ navbarData }) {
           </div>
         ) : (
           <div>
-            {console.log('Rendering with data:', data)}
-            {/* Add error boundary and better handling */}
+          
             {(() => {
               try {
                 // Check if data has the right structure
@@ -559,14 +551,7 @@ export default function CoursePage({ navbarData }) {
                   content: Array.isArray(data.content) ? data.content : [],
                   zones: data.zones || {}
                 };
-                console.log('Rendering Puck with:', puckData);
-                console.log('Content items:', puckData.content.map((item, i) => ({
-                  index: i,
-                  type: item.type,
-                  hasProps: !!item.props,
-                  propsKeys: item.props ? Object.keys(item.props) : []
-                })));
-                // Add validation for each content item
+               
                 const validatedContent = puckData.content.map((item, index) => {
                   if (!item.type) {
                     console.error(`Content item ${index} missing type:`, item);
@@ -582,7 +567,7 @@ export default function CoursePage({ navbarData }) {
                   ...puckData,
                   content: validatedContent
                 };
-                console.log('Final validated Puck data:', finalPuckData);
+                
                 // DEBUG: Add a simple fallback renderer to test
                 if (typeof window !== 'undefined' && window.location.search.includes('debug=true')) {
                   return (

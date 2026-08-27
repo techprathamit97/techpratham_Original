@@ -4,7 +4,7 @@ import { clearFetchGroupedCache } from '@/lib/courseCache';
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔄 Force refreshing all course caches...');
+   
     
     // Clear all caches
     clearNavbarCache();
@@ -29,9 +29,7 @@ export async function POST(request: NextRequest) {
       }
     });
     
-    console.log('✅ All caches cleared and refreshed');
-    console.log('Fetch-grouped status:', fetchGroupedResponse.status);
-    console.log('Fetch status:', fetchResponse.status);
+ 
     
     return NextResponse.json({
       success: true,

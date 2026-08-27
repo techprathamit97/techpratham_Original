@@ -6,17 +6,35 @@ import { User } from '@/models/user';
 import Enrolled from '@/models/enrolled';
 import Invoice from '@/models/Invoice';
 import ManualInvoice from '@/models/ManualInvoice';
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 export async function GET(req: Request) {
   try {
-    await connectMongo();
-
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('userId');
     const status = searchParams.get('status');
     const limit = parseInt(searchParams.get('limit') || '20');
     const page = parseInt(searchParams.get('page') || '1');
     const invoiceId = searchParams.get('invoiceId');
+
+    /**
+     * Listing every invoice is restricted to admin and accountant.
+     *
+     * Without this, GET /api/invoice/fetch returned every customer's name,
+     * email, phone and payment amount to anyone, including from Postman.
+     *
+     * A single invoice requested by id is deliberately NOT restricted here,
+     * because pages/invoice/[invoiceId].tsx is a public page with no login and
+     * is how customers and students open their own invoice (window.open from
+     * pages/student/invoices.tsx and the admin dashboards). Guarding it would
+     * stop customers reaching their invoices.
+     */
+    if (!invoiceId) {
+      const denied = await requireRole(LEAD_ACCESS_ROLES);
+      if (denied) return denied;
+    }
+
+    await connectMongo();
 
     // If specific invoice requested
     if (invoiceId) {
@@ -94,7 +112,7 @@ export async function GET(req: Request) {
           .lean();
           
       } catch (populateError: any) {
-        console.log('Populate failed, getting basic invoices:', populateError.message);
+        
         // Fallback to basic query without population
         invoices = await Invoice.find(query)
           .sort({ invoiceDate: -1 })

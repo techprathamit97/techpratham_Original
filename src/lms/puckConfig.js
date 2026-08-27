@@ -1340,7 +1340,7 @@ col3BorderColor: {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ fileKey: oldFileKey }),
                   });
-                  console.log("Old image deleted from AWS");
+                  
                 }
               } catch (err) {
                 console.warn("Failed to delete old image:", err);
@@ -1500,7 +1500,7 @@ PDFSection: {
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ fileKey: oldFileKey }),
                       });
-                      console.log("Old PDF deleted from AWS");
+                    
                     }
                   } catch (err) {
                     console.warn("Failed to delete old PDF:", err);

@@ -5,44 +5,48 @@ import { User } from '@/models/user';
 import Enrolled from '@/models/enrolled';
 import Invoice from '@/models/Invoice';
 import { generateReceiptNumber } from '@/utils/receiptGenerator';
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 export async function POST(req: Request) {
-  console.log('Invoice create API called');
+ 
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
     console.log('MongoDB connected');
 
     const body = await req.json();
-    console.log('Request body received:', body);
+   
     
     const { enrollmentId, items, tax = 0, paymentMode = 'online', feeType, installmentDates, dueDate, paidDate } = body;
 
     if (!enrollmentId || !items || !Array.isArray(items) || items.length === 0) {
-      console.log('Validation failed: missing required fields');
+     
       return NextResponse.json(
         { error: 'Enrollment ID and items are required' },
         { status: 400 }
       );
     }
 
-    console.log('Looking for enrollment:', enrollmentId);
+
     // Fetch enrollment details
     const enrollment = await Enrolled.findById(enrollmentId);
     if (!enrollment) {
-      console.log('Enrollment not found');
+   
       return NextResponse.json(
         { error: 'Enrollment not found' },
         { status: 404 }
       );
     }
-    console.log('Enrollment found:', enrollment.name);
+  
 
     // Fetch user details (optional - create placeholder if not found)
     let user = await User.findOne({ email: enrollment.email });
     let userId = null;
     
     if (!user) {
-      console.log('User not found for email:', enrollment.email, '- creating placeholder user');
+      
       // Create a placeholder user for invoice purposes
       try {
         user = await User.create({
@@ -52,14 +56,14 @@ export async function POST(req: Request) {
           isPlaceholder: true // Mark as placeholder user
         });
         userId = user._id;
-        console.log('Placeholder user created:', user.name);
+     
       } catch (userError: any) {
-        console.log('Could not create placeholder user, proceeding without userId');
+      
         userId = null;
       }
     } else {
       userId = user._id;
-      console.log('User found:', user.name);
+     
     }
 
     // Calculate amounts
@@ -67,7 +71,7 @@ export async function POST(req: Request) {
     const totalAmount = subtotal + tax;
     const paidAmount = enrollment.advanceAmount || 0;
 
-    console.log('Calculated amounts:', { subtotal, totalAmount, paidAmount });
+   
 
     // Helper function to clean HTML tags
     const cleanHtml = (str: string) => {
@@ -115,10 +119,10 @@ export async function POST(req: Request) {
       paidDate: paidDate ? new Date(paidDate) : (paidAmount > 0 ? new Date() : null)
     };
 
-    console.log('Creating invoice with data:', invoiceData);
+   
     const invoice = new Invoice(invoiceData);
     await invoice.save();
-    console.log('Invoice saved successfully:', invoice._id);
+
 
     return NextResponse.json({
       success: true,

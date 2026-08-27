@@ -121,6 +121,12 @@ const PdfCanvas = ({ pdfDoc, pageNumber, width }) => {
 const ProtectedPDFViewer = ({
   /** S3 key (e.g. "puck/1234-file.pdf") or a full bucket URL. */
   fileKey,
+  /**
+   * Direct same-origin URL to a PDF, for files that are not in S3 (for example
+   * /training/x.pdf). When provided this is used instead of fileKey and the
+   * /api/secure-pdf proxy is skipped.
+   */
+  fileUrl,
   title,
   maxWidth = 900,
   /** Pages rendered before scrolling triggers more. */
@@ -159,9 +165,9 @@ const ProtectedPDFViewer = ({
     return () => window.removeEventListener("resize", measure);
   }, [maxWidth]);
 
-  /* Load the document. The browser only ever sees our own API route. */
+  /* Load the document. For S3 files the browser only sees our own API route. */
   useEffect(() => {
-    if (!fileKey) return;
+    if (!fileKey && !fileUrl) return;
 
     let cancelled = false;
     setStatus("loading");
@@ -173,7 +179,10 @@ const ProtectedPDFViewer = ({
         const pdfjs = await loadPdfLib();
         if (cancelled) return;
 
-        const url = `/api/secure-pdf?key=${encodeURIComponent(fileKey)}`;
+        // Strip any #toolbar=0 style hash; it is meaningless to pdf.js.
+        const url = fileUrl
+          ? fileUrl.split("#")[0]
+          : `/api/secure-pdf?key=${encodeURIComponent(fileKey)}`;
 
         /**
          * Ranged chunk fetching rather than one large response. Amplify serves
@@ -212,7 +221,7 @@ const ProtectedPDFViewer = ({
       docRef.current?.destroy();
       docRef.current = null;
     };
-  }, [fileKey, initialPages, onLoadError]);
+  }, [fileKey, fileUrl, initialPages, onLoadError]);
 
   /* Render more pages as the bottom of the list comes into view. */
   useEffect(() => {
@@ -257,10 +266,10 @@ const ProtectedPDFViewer = ({
     return () => node.removeEventListener("keydown", onKeyDown);
   }, [blockKeyboardShortcuts]);
 
-  if (!fileKey) {
+  if (!fileKey && !fileUrl) {
     return (
       <div className="rounded-lg border-2 border-dashed border-gray-300 p-10 text-center text-gray-500">
-        No PDF key provided.
+        No PDF provided.
       </div>
     );
   }

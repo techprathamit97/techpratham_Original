@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { CircleCheckBig } from "lucide-react";
 import { CaretUpIcon } from "@radix-ui/react-icons";
 import { Separator } from "@/components/ui/separator";
@@ -15,9 +16,36 @@ import { useForm } from "react-hook-form";
 import PhoneInput from "@/components/common/PhoneInput/PhoneInput";
 import { getLeadSource, isGoogleAdsVisitor } from '@/lib/leadSourceDetection';
 
+/**
+ * Renders the curriculum PDF as canvas pages via pdf.js instead of an iframe,
+ * so the browser's native PDF viewer (with its download and print buttons) is
+ * not used and right-click is blocked. Client-only because pdf.js needs the DOM.
+ */
+const ProtectedPDFViewer = dynamic(
+  () =>
+    import("@/components/lms/ProtectedPDFViewer").catch((error) => {
+      console.error("Failed to load ProtectedPDFViewer:", error);
+      const Fallback = () => (
+        <div className="rounded-lg border border-red-300 bg-red-50 p-6 text-sm text-red-700">
+          Viewer failed to load.
+        </div>
+      );
+      return { default: Fallback };
+    }),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="py-16 text-center text-sm text-gray-500">
+        Loading curriculum...
+      </div>
+    ),
+  }
+);
+
 // Courses that should show PDF in left side (CNA courses)
 const PDF_COURSES = [
   "servicenow-admin-certification",
+  "servicenow-it-operations-management-itom-implementation",
   "servicenow-itsm-training",
   "servicenow-training-in-india",
   "salesforce-devops-engineering"
@@ -26,14 +54,15 @@ const PDF_COURSES = [
 // PDF paths for courses - stored in /training folder
 const PDF_PATHS: Record<string, string> = {
   "servicenow-admin-certification": "/training/TechPratham_ServiceNow.pdf",
+  "servicenow-it-operations-management-itom-implementation": "/training/TechPratham_ITOM_Content.pdf",
   "servicenow-itsm-training": "/training/TechPratham_ServiceNow.pdf",
   "servicenow-training-in-india": "/training/TechPratham_ServiceNow_Admin_ITSM.pdf",
   "salesforce-devops-engineering": "/training/salesforce-devOps-engineering.pdf"
 };
 
-const getPdfUrl = (courseTitle: string): string => {
-  // Create slug from course title (same logic as shouldShowPdf)
-  const courseSlug = courseTitle?.toLowerCase().replace(/<[^>]*>/g, '').replace(/\s+/g, "-") || "";
+const getPdfUrl = (courselink: string): string => {
+  // Create slug from course link (same logic as shouldShowPdf)
+  const courseSlug = courselink?.toLowerCase().replace(/<[^>]*>/g, '').replace(/\s+/g, "-") || "";
 
   // Match course slug to PDF path
   for (const [key, path] of Object.entries(PDF_PATHS)) {
@@ -149,7 +178,7 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
         // Close dialog and trigger download after success
         setTimeout(() => {
           // Open PDF in new tab for download
-          const pdfUrl = getPdfUrl(course?.title || "");
+          const pdfUrl = getPdfUrl(course?.link || "");
           console.log("Opening PDF URL:", pdfUrl);
           window.open(pdfUrl, '_blank');
 
@@ -172,10 +201,10 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
 
   // Update course field when course prop changes
   useEffect(() => {
-    if (course?.title) {
-      setPdfValue("course", course.title.replace(/<[^>]*>/g, ""));
+    if (course?.link) {
+      setPdfValue("course", course.link.replace(/<[^>]*>/g, ""));
     }
-  }, [course?.title, setPdfValue]);
+  }, [course?.link, setPdfValue]);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -203,8 +232,11 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
 
   const visibleCurriculum = curriculumData;
 
-  // Check if this course should show PDF
-  const courseSlug = course.title?.toLowerCase().replace(/\s+/g, "-") || "";
+  // Check if this course should show PDF.
+  // Matched on course.link, not course.title, because the entries in
+  // PDF_COURSES and PDF_PATHS are link slugs. Titles are free text and can be
+  // edited or contain HTML, so they do not match reliably.
+  const courseSlug = course.link?.toLowerCase().replace(/<[^>]*>/g, '').replace(/\s+/g, "-") || "";
   const shouldShowPdf = PDF_COURSES.some(
     (pdfCourse) => courseSlug.includes(pdfCourse.toLowerCase().replace(/\s+/g, "-")) || pdfCourse.toLowerCase() === courseSlug
   );
@@ -227,11 +259,12 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
             {shouldShowPdf ? (
               /* PDF VIEWER */
               <div className="bg-[#f7f7f7] rounded-lg p-5 flex flex-col gap-4 h-[500px]">
-                <iframe
-                  src={getPdfUrl(course.title)}
-                  className="w-full h-full rounded-lg"
-                  title="Course Curriculum PDF"
-                />
+                <div className="w-full h-full overflow-y-auto rounded-lg">
+                  <ProtectedPDFViewer
+                    fileUrl={getPdfUrl(course.link)}
+                    maxWidth={900}
+                  />
+                </div>
                 <button
                   type="button"
                   className="mt-2 inline-flex items-center justify-center px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-900 transition-colors cursor-pointer"

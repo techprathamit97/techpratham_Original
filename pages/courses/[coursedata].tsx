@@ -101,7 +101,7 @@ export const getServerSideProps: GetServerSideProps<CourseDataPageProps> = async
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_API_URL;
     apiUrl = `${baseUrl}/api/course/link?link=${encodeURIComponent(coursedata)}&bustCache=true`;
     
-    console.log('Fetching course data from:', apiUrl);
+
     
     // Fetch course data and navbar data in parallel
     const [response, navbarData] = await Promise.all([

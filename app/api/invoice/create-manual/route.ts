@@ -2,15 +2,19 @@ import { NextResponse } from 'next/server';
 import { connectMongo } from '@/utils/mongodb';
 import ManualInvoice from '@/models/ManualInvoice';
 import { generateReceiptNumber } from '@/utils/receiptGenerator';
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 export async function POST(req: Request) {
-  console.log('Manual Invoice create API called');
+
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
-    console.log('MongoDB connected');
+ 
 
     const body = await req.json();
-    console.log('Request body received:', body);
+
     
     const { 
       customerDetails, 
@@ -27,15 +31,12 @@ export async function POST(req: Request) {
       salesPerson
     } = body;
 
-    console.log('=== CREATE MANUAL INVOICE DEBUG ===');
-    console.log('Request body received:', body);
-    console.log('PaymentScreenshot value:', paymentScreenshot);
-    console.log('PaymentScreenshot type:', typeof paymentScreenshot);
-    console.log('PaymentScreenshot exists:', !!paymentScreenshot);
+  
 
     // Validation
     if (!customerDetails || !customerDetails.name || !customerDetails.email) {
-      console.log('Validation failed: missing customer details');
+   
+      
       return NextResponse.json(
         { error: 'Customer name and email are required' },
         { status: 400 }
@@ -43,7 +44,7 @@ export async function POST(req: Request) {
     }
 
     if (!courseDetails || !courseDetails.title) {
-      console.log('Validation failed: missing course details');
+     
       return NextResponse.json(
         { error: 'Course title is required' },
         { status: 400 }
@@ -51,7 +52,7 @@ export async function POST(req: Request) {
     }
 
     if (!items || !Array.isArray(items) || items.length === 0) {
-      console.log('Validation failed: missing items');
+     
       return NextResponse.json(
         { error: 'Invoice items are required' },
         { status: 400 }
@@ -62,7 +63,7 @@ export async function POST(req: Request) {
     const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
     const totalAmount = subtotal + tax;
 
-    console.log('Calculated amounts:', { subtotal, totalAmount, paidAmount });
+  
 
     // Helper function to clean HTML tags
     const cleanHtml = (str: string) => {
@@ -138,10 +139,7 @@ export async function POST(req: Request) {
       salesPerson: salesPerson || null
     };
 
-    console.log('Invoice data being saved to DB:', {
-      ...invoiceData,
-      paymentScreenshot: invoiceData.paymentScreenshot
-    });
+   
     
     // Try to create the invoice with retry logic for duplicate invoice numbers
     let invoice;
@@ -152,22 +150,20 @@ export async function POST(req: Request) {
       try {
         invoice = new ManualInvoice(invoiceData);
         await invoice.save();
-        console.log('Manual invoice saved successfully:', invoice._id);
-        console.log('Saved invoice paymentScreenshot:', invoice.paymentScreenshot);
+     
         break;
       } catch (error: any) {
         attempts++;
         
         if (error.code === 11000 && error.message.includes('invoiceNumber')) {
-          console.log(`Duplicate invoice number detected, attempt ${attempts}/${maxAttempts}`);
+         
           
           if (attempts >= maxAttempts) {
             // Force a unique invoice number as final attempt
             invoiceData.invoiceNumber = `INV-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
             invoice = new ManualInvoice(invoiceData);
             await invoice.save();
-            console.log('Manual invoice saved with fallback number:', invoice._id);
-            console.log('Saved invoice paymentScreenshot:', invoice.paymentScreenshot);
+          
             break;
           }
           

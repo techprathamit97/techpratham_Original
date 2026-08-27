@@ -39,10 +39,10 @@ const BlogsHome = () => {
         if (!response.ok) throw new Error(`API failed with status ${response.status}`);
 
         const data = await response.json();
-        console.log("📝 Blog API Response:", data);
+       
 
         if (data.posts && Array.isArray(data.posts) && data.posts.length > 0) {
-          console.log("✅ Setting posts:", data.posts.length);
+        
           setPosts(data.posts);
         } else {
           console.warn("⚠️ No posts received from API", data);

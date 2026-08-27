@@ -12,10 +12,9 @@ export async function GET() {
         }
         const collection = db.collection('categories');
 
-        // Drop ALL indexes and recreate only what we need
-        console.log('Dropping all indexes...');
+      
         await collection.dropIndexes();
-        console.log('All indexes dropped');
+     
 
         // Create only the indexes we need (no unique constraints)
         await collection.createIndex({ parentId: 1, position: 1 });
@@ -24,7 +23,7 @@ export async function GET() {
 
         // Get updated indexes
         const updatedIndexes = await collection.indexes();
-        console.log('New indexes:', updatedIndexes);
+    
 
         return NextResponse.json({
             success: true,

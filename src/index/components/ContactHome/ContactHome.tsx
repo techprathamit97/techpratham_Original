@@ -34,7 +34,7 @@ export default function ContactLayout() {
       });
       if (response.ok) {
         setSubmitSuccess(true);
-        console.log(data);
+     
         reset();
         setPhoneNumber('');
         setIsPhoneValid(false);

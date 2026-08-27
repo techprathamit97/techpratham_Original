@@ -139,7 +139,7 @@ const QuizTakingPage: React.FC<QuizPageProps> = ({ navbarData, quiz, canTakeQuiz
       
       if (document.exitFullscreen) {
         document.exitFullscreen().catch((err) => {
-          console.log('Error exiting fullscreen:', err);
+        
         });
       } else if ((document as any).webkitExitFullscreen) {
         (document as any).webkitExitFullscreen();
@@ -435,15 +435,7 @@ const QuizTakingPage: React.FC<QuizPageProps> = ({ navbarData, quiz, canTakeQuiz
         ? `${userData.firstName} ${userData.lastName}`
         : session.user.name || userData.name || 'Unknown User';
 
-      console.log('Submitting quiz with data:', {
-        quizId: quiz._id,
-        quizType: quiz.quizType,
-        userId,
-        userEmail,
-        userName,
-        answersCount: submissionAnswers.length,
-        timeSpent
-      });
+     
 
       const response = await fetch('/api/quiz/attempt', {
         method: 'POST',
@@ -462,11 +454,11 @@ const QuizTakingPage: React.FC<QuizPageProps> = ({ navbarData, quiz, canTakeQuiz
         })
       });
 
-      console.log('Response status:', response.status);
+     
       
       if (response.ok) {
         const result = await response.json();
-        console.log('Submit result:', result);
+    
         setAttemptId(result.attemptId);
         setShowConfirmDialog(false);
         setShowSuccessDialog(true);
@@ -544,19 +536,7 @@ const QuizTakingPage: React.FC<QuizPageProps> = ({ navbarData, quiz, canTakeQuiz
     );
   }
 
-  // Debug logging
-  if (typeof window !== 'undefined') {
-    console.log('Quiz data:', {
-      quizType: quiz.quizType,
-      hasSteps: !!quiz.steps,
-      stepsLength: quiz.steps?.length,
-      hasQuestions: !!quiz.questions,
-      questionsLength: quiz.questions?.length
-    });
-  }
 
-  // Check if this is a multi-step quiz - but don't block it, we support it now!
-  // Just ensure we have valid data
   if (quiz.quizType === 'multi_step' && (!quiz.steps || quiz.steps.length === 0)) {
     return (
       <>

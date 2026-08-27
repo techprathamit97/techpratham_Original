@@ -3,8 +3,9 @@ import mongoose from "mongoose";
 let isConnected = false;
 
 export async function connectMongo() {
+  // No log here: this runs on every API call and was the largest source of
+  // terminal noise. Connection success and failure are still logged below.
   if (isConnected) {
-    console.log("✅ MongoDB already connected");
     return;
   }
 
@@ -14,12 +15,11 @@ export async function connectMongo() {
   }
 
   try {
-    console.log("🔄 Attempting MongoDB connection...");
     const db = await mongoose.connect(process.env.MONGODB_URL, {
       dbName: "database",
     });
     isConnected = true;
-    console.log(`✅ MongoDB connected to ${db.connection.host} - Database: database`);
+    
   } catch (error) {
     console.error("❌ MongoDB connection error:", error);
     console.error("❌ Connection string:", process.env.MONGODB_URL ? "Present" : "Missing");

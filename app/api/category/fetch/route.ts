@@ -16,7 +16,7 @@ export async function GET() {
         .sort({ position: 1 })
         .lean();
 
-        console.log('Fetched categories:', categories.length);
+
 
         // Ensure all categories have required fields with defaults
         const processedCategories = categories.map(cat => ({
