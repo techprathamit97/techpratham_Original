@@ -13,14 +13,12 @@ const s3Client = new S3Client({
 });
 
 export async function POST(request: NextRequest) {
-  console.log('=== PAYMENT SCREENSHOT UPLOAD DEBUG ===');
+
   try {
     const formData = await request.formData();
     const file = formData.get('screenshot') as File;
 
-    console.log('File received:', file ? file.name : 'No file');
-    console.log('File size:', file ? file.size : 'N/A');
-    console.log('File type:', file ? file.type : 'N/A');
+
 
     if (!file) {
       return NextResponse.json(

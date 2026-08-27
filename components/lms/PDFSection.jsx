@@ -130,7 +130,7 @@ const PDFSection = ({
       const googleAdsVisitor = isGoogleAdsVisitor();
       const source = googleAdsVisitor ? "google_ads" : "website_form";
 
-      console.log("Submitting PDF form with data:", { ...data, phone: phoneNumber, source });
+     
 
       const response = await fetch("/api/leads", {
         method: "POST",
@@ -146,7 +146,7 @@ const PDFSection = ({
 
       if (response.ok) {
         setPdfSubmitSuccess(true);
-        console.log("PDF download form submitted successfully:", data);
+      
 
         resetPdfForm();
         setPhoneNumber("");

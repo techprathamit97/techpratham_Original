@@ -147,7 +147,7 @@ export async function PUT(request: Request) {
     if (body.ipAddress !== undefined) updateData.ipAddress = body.ipAddress;
     if (body.metadata !== undefined) updateData.metadata = body.metadata;
 
-    console.log('Updating lead:', leadId, 'with data:', updateData);
+   
     
     const updatedLead = await Lead.findByIdAndUpdate(
       leadId,
@@ -162,7 +162,7 @@ export async function PUT(request: Request) {
       );
     }
 
-    console.log('Lead updated successfully:', updatedLead);
+  
 
     return NextResponse.json({ 
       status: "ok", 

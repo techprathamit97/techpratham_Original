@@ -153,8 +153,7 @@ export default function BlogEditor({ mode, initialData, onSave, onCancel }: Blog
   // Load initial data for edit mode
   useEffect(() => {
     if (mode === 'edit' && initialData) {
-      console.log('Loading initial data:', initialData); // Debug log
-      console.log('Initial puckData:', initialData.puckData); // Debug log
+
       setFormData(initialData);
       
       // Ensure puckData has proper structure
@@ -164,7 +163,7 @@ export default function BlogEditor({ mode, initialData, onSave, onCancel }: Blog
         ? initialData.puckData 
         : { root: {}, content: [] };
       
-      console.log('Setting puckData to:', puckDataToLoad); // Debug log
+    
       setPuckData(puckDataToLoad);
       setDataLoaded(true);
     } else if (mode === 'create') {
@@ -247,7 +246,7 @@ export default function BlogEditor({ mode, initialData, onSave, onCancel }: Blog
         if (fileKeyToDelete) {
           try {
             await deleteBlogImageFromS3(fileKeyToDelete);
-            console.log('Previous image deleted successfully');
+           
           } catch (deleteError) {
             console.warn('Failed to delete previous image:', deleteError);
             // Continue with upload even if delete fails
@@ -351,7 +350,7 @@ export default function BlogEditor({ mode, initialData, onSave, onCancel }: Blog
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ fileKey }),
             });
-            console.log(`Deleted removed image from AWS: ${fileKey}`);
+           
           }
         } catch (err) {
           console.warn(`Failed to delete image: ${imageUrl}`, err);
@@ -374,7 +373,7 @@ export default function BlogEditor({ mode, initialData, onSave, onCancel }: Blog
 
       // Auto-save while preserving current status (don't force to draft)
       await onSave(saveData);
-      console.log('✅ Auto-saved blog content');
+     
     } catch (error) {
       console.error('Auto-save error:', error);
     } finally {
@@ -905,7 +904,7 @@ export default function BlogEditor({ mode, initialData, onSave, onCancel }: Blog
           </div>
         ) : (
           <>
-            {console.log('Puck data being passed:', puckData)} {/* Debug log */}
+          
             <Puck 
               key={mode === 'edit' ? `edit-${initialData?._id || 'new'}` : 'create'}
               config={puckConfig} 

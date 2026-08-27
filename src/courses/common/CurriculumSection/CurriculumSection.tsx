@@ -148,7 +148,7 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
 
       if (response.ok) {
         setPdfSubmitSuccess(true);
-        console.log("PDF download form submitted successfully:", data);
+       
 
         resetPdfForm();
         setPhoneNumber("");
@@ -179,7 +179,7 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
         setTimeout(() => {
           // Open PDF in new tab for download
           const pdfUrl = getPdfUrl(course?.link || "");
-          console.log("Opening PDF URL:", pdfUrl);
+        
           window.open(pdfUrl, '_blank');
 
           setPdfDialogOpen(false);

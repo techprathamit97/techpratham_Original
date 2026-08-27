@@ -73,7 +73,7 @@ const Exo9EventsSection = () => {
         const data = await res.json();
         setEvents(data);
       } catch (e) {
-        console.log("Error fetching events", e);
+        console.log("Error fetching events");
       }
     };
 

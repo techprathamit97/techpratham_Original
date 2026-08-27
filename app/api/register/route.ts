@@ -16,7 +16,7 @@ export const POST = async (request: NextRequest) => {
     }
 
     await connectMongo();
-    console.log("connected with db");
+  
 
     const existingUser = await User.findOne({ email });
 

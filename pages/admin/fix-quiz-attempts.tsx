@@ -27,7 +27,7 @@ const FixQuizAttemptsPage = () => {
 
       if (response.ok) {
         toast.success(result.message);
-        console.log('Fixed attempt:', result);
+       
       } else {
         toast.error(result.error || 'Failed to fix attempt');
       }
@@ -57,7 +57,7 @@ const FixQuizAttemptsPage = () => {
 
       if (response.ok) {
         toast.success(result.message);
-        console.log('Fixed attempts:', result);
+       
       } else {
         toast.error(result.error || 'Failed to fix attempts');
       }

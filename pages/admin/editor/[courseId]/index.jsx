@@ -521,7 +521,7 @@ export default function CourseEditor() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
           });
-          console.log(`✅ Auto-saved section update (ID: ${section.id})`);
+         
         } catch (error) {
           console.error("Auto-save error:", error);
         }
@@ -529,7 +529,7 @@ export default function CourseEditor() {
 
       setUpdateTimeout(newTimeout);
     } else {
-      console.log(`✅ Updated section "${section.title}" in UI (ID: ${section.id}) - will save when section is saved`);
+      console.log(`✅ Updated section  - will save when section is saved`);
     }
   };
 

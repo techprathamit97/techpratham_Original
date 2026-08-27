@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log(`📧 Sending email to ${recipients.length} recipient(s):`, recipients);
+
 
     // Create transporter using Gmail
     const transporter = nodemailer.createTransport({
@@ -109,11 +109,7 @@ export async function POST(req: NextRequest) {
       html: emailHtml,
     });
 
-    console.log("✅ Email sent successfully!");
-    console.log("Message ID:", info.messageId);
-    console.log("To:", recipients.join(', '));
-    console.log("From:", process.env.SMTP_USER);
-    console.log("Total recipients:", recipients.length);
+ 
 
     return Response.json({ 
       success: true, 

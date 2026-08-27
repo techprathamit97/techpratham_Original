@@ -5,11 +5,11 @@ import QuizAttempt from '@/models/QuizAttempt';
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('Quiz attempt API called');
+  
     await connectMongo();
     
     const body = await request.json();
-    console.log('Request body:', body);
+
     
     const {
       quizId,
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     
     // Validate required fields
     if (!quizId || !userId || !userEmail || !userName || !answers || !Array.isArray(answers)) {
-      console.log('Missing required fields:', { quizId, userId, userEmail, userName, answers: !!answers });
+     
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -34,14 +34,14 @@ export async function POST(request: NextRequest) {
     // Get the quiz to calculate marks
     const quiz = await Quiz.findById(quizId);
     if (!quiz) {
-      console.log('Quiz not found:', quizId);
+    
       return NextResponse.json(
         { error: 'Quiz not found' },
         { status: 404 }
       );
     }
     
-    console.log('Quiz found:', quiz.title, 'Type:', quiz.quizType || quizType);
+  
     
     let totalMarks = 0;
     let maxMarks = 0;
@@ -49,8 +49,7 @@ export async function POST(request: NextRequest) {
     let stepResults: any[] = [];
     
     if (quiz.quizType === 'multi_step' || quizType === 'multi_step') {
-      // Handle multi-step quiz
-      console.log('Processing multi-step quiz with', quiz.steps?.length, 'steps');
+
       
       if (!quiz.steps || quiz.steps.length === 0) {
         return NextResponse.json(
@@ -130,8 +129,7 @@ export async function POST(request: NextRequest) {
       });
       
     } else {
-      // Handle single-step quiz
-      console.log('Processing single-step quiz with', quiz.questions?.length, 'questions');
+
       
       if (!quiz.questions || quiz.questions.length === 0) {
         return NextResponse.json(
@@ -187,7 +185,7 @@ export async function POST(request: NextRequest) {
       : (quiz.passingMarks || 70);
     const passed = percentage >= passingThreshold;
     
-    console.log('Calculated results:', { totalMarks, maxMarks, percentage, passed });
+
     
     const quizAttemptData: any = {
       quizId,
@@ -211,13 +209,13 @@ export async function POST(request: NextRequest) {
     
     const quizAttempt = new QuizAttempt(quizAttemptData);
     
-    console.log('Saving quiz attempt...');
+   
     await quizAttempt.save();
-    console.log('Quiz attempt saved successfully');
+ 
     
     // Send email notification to user
     try {
-      console.log('Attempting to send completion email...');
+
       
       const emailResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/quiz/send-completion-email`, {
         method: 'POST',
@@ -234,7 +232,7 @@ export async function POST(request: NextRequest) {
       });
       
       const emailResult = await emailResponse.json();
-      console.log('Email API response:', emailResult);
+   
       
       if (!emailResponse.ok) {
         console.error('Failed to send completion email:', emailResult);

@@ -154,7 +154,7 @@ export async function POST(req: Request) {
 
     /* ---------- MAIN COURSE PAGE SAVE ---------- */
     if (mainCoursePuckData) {
-      console.log(`[Content API] Main course page save for courseId: ${courseId}`);
+     
       
       if (!content) {
         content = new LmsContent({ courseId, sidebar: [] });
@@ -170,8 +170,7 @@ export async function POST(req: Request) {
 
     /* ---------- STRUCTURE-ONLY SAVE ---------- */
     if (structureOnly && sidebar) {
-      console.log(`[Content API] Structure-only save for courseId: ${courseId} - preserving all puckData`);
-      console.log(`[Content API] Received ${sidebar.length} lessons in payload`);
+     
       
       let content = await LmsContent.findOne({ courseId });
       
@@ -179,7 +178,7 @@ export async function POST(req: Request) {
         content = new LmsContent({ courseId });
       }
 
-      console.log(`[Content API] Current DB has ${content.sidebar?.length || 0} lessons`);
+  
 
       // ⭐ FIX: Process items in payload order to maintain user's intended order
       const updatedSidebar: any[] = [];
@@ -200,7 +199,7 @@ export async function POST(req: Request) {
 
         if (existingLesson) {
           // Update existing lesson
-          console.log(`[Content API] Updating existing lesson: ${lessonInput.slug} (ID: ${lessonInput.id})`);
+       
           let lesson = existingLesson;
           lesson.id = lessonInput.id || lesson.id;
           lesson.title = lessonInput.title;
@@ -222,7 +221,7 @@ export async function POST(req: Request) {
 
             if (existingSection) {
               // Update existing section
-              console.log(`[Content API] Updating existing section: ${sectionInput.slug} (ID: ${sectionInput.id})`);
+            
               let section = existingSection;
               section.id = sectionInput.id || section.id;
               section.type = sectionInput.type || section.type || "content";
@@ -245,7 +244,7 @@ export async function POST(req: Request) {
 
                 if (existingSub) {
                   // Update existing subsection
-                  console.log(`[Content API] Updating existing subsection: ${subInput.slug} (ID: ${subInput.id})`);
+                
                   let sub = existingSub;
                   sub.id = subInput.id || sub.id;
                   sub.type = subInput.type || sub.type || "content";
@@ -254,7 +253,7 @@ export async function POST(req: Request) {
                   updatedSubSections.push(sub);
                 } else {
                   // Create new subsection
-                  console.log(`[Content API] Creating new subsection: ${subInput.slug} (ID: ${subInput.id})`);
+              
                   const sub = {
                     id: subInput.id,
                     type: subInput.type || "content",
@@ -270,7 +269,7 @@ export async function POST(req: Request) {
               updatedSections.push(section);
             } else {
               // Create new section
-              console.log(`[Content API] Creating new section: ${sectionInput.slug} (ID: ${sectionInput.id})`);
+          
               const section = {
                 id: sectionInput.id,
                 type: sectionInput.type || "content",
@@ -293,7 +292,7 @@ export async function POST(req: Request) {
           updatedSidebar.push(lesson);
         } else {
           // Create new lesson
-          console.log(`[Content API] Creating new lesson: ${lessonInput.slug} (ID: ${lessonInput.id})`);
+
           const lesson = {
             id: lessonInput.id,
             title: lessonInput.title,
@@ -322,13 +321,13 @@ export async function POST(req: Request) {
       content.markModified("sidebar");
       await content.save();
 
-      console.log(`[Content API] Structure-only save completed - all puckData preserved`);
+  
       return NextResponse.json({ success: true });
     }
 
     /* ---------- MAIN COURSE PAGE SAVE ---------- */
     if (mainCoursePuckData) {
-      console.log(`[Content API] Main course page save for courseId: ${courseId}`);
+    
       
       if (!content) {
         content = new LmsContent({ courseId, sidebar: [] });

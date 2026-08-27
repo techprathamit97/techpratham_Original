@@ -91,6 +91,11 @@ const nextConfig = {
         destination: '/courses/sap-training-in-hyderabad',        // home page
         permanent: true,         // 301 redirect
       },
+       {
+        source: '/courses/agentic-rag-knowledge-engineering', // replace with your dead URL path
+        destination: '/courses/retrieval-augmented-generation',        // home page
+        permanent: true,         // 301 redirect
+      },
       {
         source: '/courses/advanced-multi-agent-orchestration', // replace with your dead URL path
         destination: '/courses/multi-agent-systems',        // home page

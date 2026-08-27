@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     await connectMongo();
 
     const body = await request.json();
-    console.log('Creating review image with data:', body);
+   
 
     // Validate required fields
     if (!body.imageUrl) {
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     }
 
     const newReviewImage = await ReviewImage.create(body);
-    console.log('Created review image:', newReviewImage);
+  
 
     return NextResponse.json(newReviewImage, { status: 201 });
   } catch (error: any) {
@@ -65,7 +65,7 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json();
     const { _id, ...updateData } = body;
-    console.log('Updating review image:', _id, 'with data:', updateData);
+  
 
     if (!_id) {
       return NextResponse.json({ message: 'Review Image ID is required' }, { status: 400 });
@@ -89,7 +89,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ message: 'Review Image not found' }, { status: 404 });
     }
 
-    console.log('Updated review image:', updatedReviewImage);
+
     return NextResponse.json(updatedReviewImage, { status: 200 });
   } catch (error: any) {
     console.error('Review Image update error:', error);

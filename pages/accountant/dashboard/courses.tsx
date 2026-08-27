@@ -70,7 +70,7 @@ const courses = () => {
       await fetch('/api/admin/clear-course-cache', { method: 'POST' });
       await fetch('/api/admin/refresh-navbar-cache', { method: 'POST' });
 
-      console.log('Course deleted successfully:', result);
+   
       toast.success('Course deleted successfully.')
     } catch (error) {
       console.error("Failed to delete course:", error);

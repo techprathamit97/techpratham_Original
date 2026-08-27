@@ -683,9 +683,9 @@ const InvoicesDashboard = () => {
 
       // Upload payment screenshot if provided
       if (paymentScreenshot) {
-        console.log('Uploading payment screenshot...');
+      
         paymentScreenshotUrl = await uploadPaymentScreenshot(paymentScreenshot);
-        console.log('Payment screenshot uploaded successfully:', paymentScreenshotUrl);
+       
       }
 
       const res = await fetch('/api/invoice/manage', {

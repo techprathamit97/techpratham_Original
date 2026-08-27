@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     });
 
     const initiateResult = await initiateResponse.json();
-    console.log('Easebuzz initiate response:', initiateResult);
+  
 
     if (initiateResult.status === 1) {
       // Success - redirect to payment page with access key

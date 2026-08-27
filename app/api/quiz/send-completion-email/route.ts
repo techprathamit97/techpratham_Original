@@ -4,7 +4,7 @@ import { sendQuizEmailFallback } from '@/lib/sendQuizEmailFallback';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('=== QUIZ EMAIL TEST ===');
+
     
     const testData = {
       userEmail: 'techpratham008@gmail.com',
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       passed: true
     };
 
-    console.log('Testing email system...');
+   
 
     let result;
     let emailMethod = 'Unknown';
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 
     if (smtpConfigured) {
       try {
-        console.log('Testing Gmail SMTP...');
+        
         result = await sendQuizEmailToStudent(testData);
         emailMethod = 'Gmail SMTP';
       } catch (smtpError) {
@@ -37,12 +37,12 @@ export async function GET(request: NextRequest) {
         emailMethod = 'Web3Forms (SMTP Fallback)';
       }
     } else {
-      console.log('SMTP not configured, testing Web3Forms...');
+    
       result = await sendQuizEmailFallback(testData);
       emailMethod = 'Web3Forms';
     }
 
-    console.log(`Email test completed successfully via ${emailMethod}!`);
+
 
     return NextResponse.json({ 
       success: true, 
@@ -82,13 +82,7 @@ export async function POST(request: NextRequest) {
       passed
     } = body;
 
-    console.log('=== QUIZ COMPLETION EMAIL ===');
-    console.log('Processing quiz completion email...');
-    console.log('Student Email:', userEmail);
-    console.log('Student Name:', userName);
-    console.log('Quiz Title:', quizTitle);
-    console.log('Score:', `${totalMarks}/${maxMarks} (${percentage}%)`);
-    console.log('Passed:', passed);
+
 
     let result;
     let emailMethod = 'Unknown';
@@ -100,7 +94,7 @@ export async function POST(request: NextRequest) {
 
     if (smtpConfigured) {
       try {
-        console.log('Attempting to send via Gmail SMTP...');
+     
         result = await sendQuizEmailToStudent({
           userEmail,
           userName,
@@ -111,7 +105,7 @@ export async function POST(request: NextRequest) {
           passed
         });
         emailMethod = 'Gmail SMTP';
-        console.log('✅ Email sent successfully via Gmail SMTP');
+   
       } catch (smtpError) {
         console.error('❌ Gmail SMTP failed, trying fallback...', smtpError);
         // Fall back to Web3Forms
@@ -127,7 +121,7 @@ export async function POST(request: NextRequest) {
         emailMethod = 'Web3Forms (SMTP Fallback)';
       }
     } else {
-      console.log('SMTP not configured, using Web3Forms...');
+    
       result = await sendQuizEmailFallback({
         userEmail,
         userName,
@@ -140,7 +134,7 @@ export async function POST(request: NextRequest) {
       emailMethod = 'Web3Forms';
     }
 
-    console.log(`Quiz completion email sent successfully via ${emailMethod}!`);
+
 
     return NextResponse.json({ 
       success: true, 

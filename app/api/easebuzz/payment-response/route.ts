@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       responseData[key] = value.toString();
     });
 
-    console.log('Easebuzz Payment Response:', responseData);
+    
 
     const { 
       txnid, 

@@ -16,18 +16,17 @@ export default function EditBlogPost() {
   useEffect(() => {
     if (!slug) return;
 
-    console.log('Fetching blog post with slug:', slug); // Debug log
+
 
     const fetchBlogPost = async () => {
       try {
         // Include unpublished posts for admin editing
         const response = await fetch(`/api/blog/${slug}?includeUnpublished=true`);
         const result = await response.json();
-        
-        console.log('API response:', result); // Debug log
+
         
         if (response.ok) {
-          console.log('Fetched blog data:', result.post); // Debug log
+         
           setBlogData(result.post);
         } else {
           console.error('API error:', result.error); // Debug log

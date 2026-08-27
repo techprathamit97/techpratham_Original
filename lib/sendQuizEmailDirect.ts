@@ -11,7 +11,7 @@ export async function sendQuizEmailDirect(data: any) {
   } = data;
 
   try {
-    console.log('Sending direct email to:', userEmail);
+   
 
     // Use a simple email service API (Formspree alternative)
     const emailData = {
@@ -89,7 +89,7 @@ export async function sendQuizEmailDirect(data: any) {
       `
     };
 
-    console.log('Sending admin notification email...');
+
     
     // For now, we'll send the notification to admin
     // In a production environment, you would also send to the student

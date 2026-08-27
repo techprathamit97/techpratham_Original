@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
       searchCriteria.status = status;
     }
 
-    console.log('Search criteria:', searchCriteria);
+
 
     // Execute search
     const batches = await Batch.find(searchCriteria)

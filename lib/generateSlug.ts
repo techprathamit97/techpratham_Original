@@ -6,7 +6,7 @@ export function generateSlug(title:any) {
     .replace(/\-\-+/g, "-") // Replace multiple consecutive dashes with a single dash
     .replace(/^\-+/, "") // Remove dashes from the beginning
     .replace(/\-+$/, ""); // Remove dashes from the end
-    console.log("Generated Slug:", slug);
+   
   return slug;
   
 }

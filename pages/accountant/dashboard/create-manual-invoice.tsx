@@ -151,13 +151,13 @@ const CreateManualInvoice = () => {
 
   const fetchInvoiceForEdit = async (invoiceId: string) => {
     try {
-      console.log('Fetching invoice for edit:', invoiceId);
+    
       const res = await fetch(`/api/invoice/fetch?invoiceId=${invoiceId}`);
       const data = await res.json();
       
       if (data.success && data.invoice) {
         const invoice = data.invoice;
-        console.log('Invoice data received:', invoice);
+     
         
         // Pre-fill customer details
         setCustomerDetails({
@@ -183,13 +183,13 @@ const CreateManualInvoice = () => {
         if (invoice.paidDate) {
           const paidDateStr = new Date(invoice.paidDate).toISOString().split('T')[0];
           setPaidDate(paidDateStr);
-          console.log('Set paid date:', paidDateStr);
+         
         }
         
         if (invoice.dueDate) {
           const dueDateStr = new Date(invoice.dueDate).toISOString().split('T')[0];
           setNextPaymentDate(dueDateStr);
-          console.log('Set due date:', dueDateStr);
+       
         }
         
         // Pre-fill installment dates if they exist
@@ -200,7 +200,7 @@ const CreateManualInvoice = () => {
             amount: installment.amount
           }));
           setInstallmentDates(installments);
-          console.log('Set installment dates:', installments);
+      
         }
 
         // Load payment screenshot if exists
@@ -371,11 +371,11 @@ const CreateManualInvoice = () => {
       
       // Upload screenshot if a new file is selected
       if (paymentScreenshot) {
-        console.log('Uploading screenshot file:', paymentScreenshot.name);
+     
         screenshotUrl = await uploadScreenshot(paymentScreenshot);
-        console.log('Screenshot uploaded successfully, URL:', screenshotUrl);
+       
       } else {
-        console.log('No screenshot file to upload, using existing preview:', screenshotPreview);
+        console.log('No screenshot file to upload, using existing preview:');
       }
 
       const requestBody = {
@@ -399,10 +399,7 @@ const CreateManualInvoice = () => {
         salesPerson: salesPerson && salesPerson !== 'none' ? salesPerson : null
       };
 
-      console.log('Final request body being sent:', {
-        ...requestBody,
-        paymentScreenshot: requestBody.paymentScreenshot
-      });
+    
 
       let res, data;
       

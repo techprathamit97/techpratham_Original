@@ -224,13 +224,7 @@ export async function GET() {
   const allBlogs = [...sanityBlogs, ...customBlogs];
   const allUrls = [...staticPages, ...courses, ...allBlogs, ...ebooks];
 
-  console.log(`📊 Sitemap generated with:
-    - Static pages: ${staticPages.length}
-    - Courses: ${courses.length}
-    - Sanity blogs: ${sanityBlogs.length}
-    - Custom blogs: ${customBlogs.length}
-    - E-books: ${ebooks.length}
-    - Total URLs: ${allUrls.length}`);
+
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset 

@@ -19,8 +19,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    console.log('=== TRAINER DASHBOARD DEBUG ===');
-    console.log('Looking for trainer with ID:', trainerId);
+
 
     // Find the trainer in TrainerAuth table
     const trainerAuth = await TrainerAuth.findOne({ trainerId }).lean();
@@ -32,7 +31,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    console.log('TrainerAuth found:', (trainerAuth as any).name);
+  
 
     // Try to find additional trainer details in Trainer table (optional)
     const trainerProfile = await Trainer.findOne({ 
@@ -64,17 +63,18 @@ export async function GET(req: NextRequest) {
 
     // Fetch assigned batches using trainerId
     const batches = await Batch.find({ trainerId }).lean();
-    console.log('Batches found for trainer:', batches.length);
+
+    
 
     // Get all student IDs from batches
     const allStudentIds = batches.flatMap(batch => (batch as any).enrolled_students || []);
-    console.log('Total student IDs from batches:', allStudentIds.length);
+  
     
     // Fetch student details from Enrolled table
     const students = await Enrolled.find({ 
       studentId: { $in: allStudentIds } 
     }).lean();
-    console.log('Students found in Enrolled table:', students.length);
+  
 
     // Calculate statistics
     const totalBatches = batches.length;
@@ -82,7 +82,7 @@ export async function GET(req: NextRequest) {
     const totalStudents = allStudentIds.length; // Use actual enrolled count from batches
     const completedStudents = students.filter(s => (s as any).courseCompletion).length;
 
-    console.log('Stats calculated:', { totalBatches, activeBatches, totalStudents, completedStudents });
+  
 
     return NextResponse.json({
       success: true,

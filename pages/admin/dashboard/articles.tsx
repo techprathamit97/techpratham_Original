@@ -118,7 +118,7 @@ const ArticlesPage = () => {
                 postedBy,
             };
 
-            console.log('Submitting blog:', newBlog);
+           
 
             const response = await fetch(`/api/article/create`, {
                 method: 'POST',
@@ -128,7 +128,7 @@ const ArticlesPage = () => {
                 body: JSON.stringify(newBlog),
             });
 
-            console.log('Response status:', response.status);
+         
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -136,7 +136,7 @@ const ArticlesPage = () => {
             }
 
             const result = await response.json();
-            console.log('Success:', result);
+           
 
             // Reset form
             reset();

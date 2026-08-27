@@ -19,29 +19,28 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    console.log('=== BATCHES WITH TRAINERS API DEBUG ===');
-    console.log('Fetching batches for student:', studentId);
+
 
     // Find all batches where this student is enrolled
     const batches = await Batch.find({ 
       enrolled_students: { $in: [studentId] } 
     }).lean();
 
-    console.log('Batches found:', batches.length);
+
 
     // Get student info from enrolled table
     const studentInfo = await Enrolled.findOne({ studentId }).lean();
-    console.log('Student info found:', studentInfo ? (studentInfo as any).name : 'Not found');
+
 
     // Process each batch to get trainer and course details
     const batchesWithDetails = await Promise.all(
       batches.map(async (batch) => {
         try {
-          console.log(`Processing batch ${batch.batchId} with trainer ${batch.trainerId}`);
+          
           
           // Get trainer details
           const trainer = await Trainer.findOne({ trainerId: batch.trainerId }).lean();
-          console.log(`Trainer found:`, trainer ? (trainer as any).name : 'Not found');
+         
           
           // Get course details from ManualInvoice for this student
           const courseInvoice = await ManualInvoice.findOne({ 
@@ -49,7 +48,7 @@ export async function GET(req: NextRequest) {
             'courseDetails.title': batch.course_title
           }).lean();
           
-          console.log(`Course invoice found:`, courseInvoice ? 'Yes' : 'No');
+  
 
           // Get student progress from enrolled table
           const studentProgress = await Enrolled.findOne({
@@ -208,7 +207,7 @@ export async function GET(req: NextRequest) {
 
     const trainersArray = Array.from(uniqueTrainers.values());
 
-    console.log('Returning batches with details:', batchesWithDetails.length);
+   
 
     return NextResponse.json({
       success: true,

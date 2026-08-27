@@ -12,7 +12,7 @@ export const CACHE_TTL = 30 * 1000;
 export function clearFetchGroupedCache(): void {
   cachedData = null;
   lastFetchTime = 0;
-  console.log('🗑️ Fetch-grouped cache cleared');
+
 }
 
 // Get cached data if valid

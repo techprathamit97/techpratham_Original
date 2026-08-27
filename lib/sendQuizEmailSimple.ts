@@ -11,8 +11,7 @@ export async function sendQuizEmailSimple(data: any) {
   } = data;
 
   try {
-    console.log('Sending email via Web3Forms to:', userEmail);
-    console.log('Access Key:', process.env.WEB3FORMS_ACCESS_KEY);
+  
 
     // Prepare email data as JSON
     const emailData = {
@@ -43,7 +42,7 @@ TechPratham Team
 Completed on: ${new Date().toLocaleString()}`
     };
 
-    console.log('Sending email with data:', emailData);
+   
 
     const response = await fetch('https://api.web3forms.com/submit', {
       method: 'POST',
@@ -54,10 +53,10 @@ Completed on: ${new Date().toLocaleString()}`
     });
 
     const result = await response.json();
-    console.log('Web3Forms response:', result);
+  
     
     if (result.success) {
-      console.log('✅ Student email sent successfully via Web3Forms');
+     
       
       // Also send admin notification
       await sendAdminNotification(data);
@@ -120,7 +119,7 @@ ${passed ?
     });
 
     const result = await response.json();
-    console.log('Admin notification result:', result);
+   
     
   } catch (error) {
     console.error('Admin notification error:', error);

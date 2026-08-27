@@ -23,44 +23,42 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    console.log('=== STUDENT DASHBOARD DEBUG ===');
-    console.log('Fetching dashboard data for student:', studentId);
+
 
     // Fetch enrolled courses
     const enrolledCourses = await Enrolled.find({ studentId }).lean();
-    console.log('Enrolled courses found:', enrolledCourses.length);
-    console.log('Enrolled courses data:', JSON.stringify(enrolledCourses, null, 2));
+
     
     // Get student email from first enrolled course
     const studentEmail = (enrolledCourses[0] as any)?.email || '';
-    console.log('Student email:', studentEmail);
+
 
     // Method 1: Find batches where this student is directly enrolled
     let batchesWithStudent = await Batch.find({ 
       enrolled_students: { $in: [studentId] } 
     }).lean();
 
-    console.log('Batches found by direct enrollment:', batchesWithStudent.length);
+
 
     // Method 2: If no batches found, try to find batches by course title and assign student
     if (batchesWithStudent.length === 0 && enrolledCourses.length > 0) {
-      console.log('No direct batch enrollment found, looking for batches by course title...');
+
       
       // Get unique course titles from enrolled courses
       const courseTitles = [...new Set(enrolledCourses.map(course => (course as any).course_title))];
-      console.log('Looking for batches with course titles:', courseTitles);
+
       
       // Find batches that match the course titles
       const matchingBatches = await Batch.find({
         course_title: { $in: courseTitles }
       }).lean();
 
-      console.log('Matching batches found:', matchingBatches.length);
+   
 
       // Auto-assign student to matching batches if not already assigned
       for (const batch of matchingBatches) {
         if (!(batch as any).enrolled_students.includes(studentId)) {
-          console.log(`Auto-assigning student ${studentId} to batch ${(batch as any).batchId}`);
+
           
           // Update the batch to include this student
           await Batch.findByIdAndUpdate(
@@ -78,29 +76,28 @@ export async function GET(req: NextRequest) {
 
     // Method 3: Also try to find by student email if still no batches
     if (batchesWithStudent.length === 0 && studentEmail) {
-      console.log('Trying to find batches by student email:', studentEmail);
+
       const batchesByEmail = await Batch.find({ 
         enrolled_students: { $in: [studentEmail] } 
       }).lean();
       batchesWithStudent = [...batchesWithStudent, ...batchesByEmail];
     }
 
-    console.log('Final batches with student:', batchesWithStudent.length);
+
 
     // Get all trainers for debugging
     const allTrainers = await TrainerAuth.find({}).lean();
-    console.log('All trainers in TrainerAuth database:', allTrainers.length);
-    console.log('TrainerAuth data:', JSON.stringify(allTrainers, null, 2));
+
 
     // Fetch trainer details for each batch
     const batchesWithTrainers = await Promise.all(
       batchesWithStudent.map(async (batch) => {
         try {
-          console.log(`Looking for trainer with trainerId: ${(batch as any).trainerId}`);
+
           
           // First try TrainerAuth table
           const trainerAuth = await TrainerAuth.findOne({ trainerId: (batch as any).trainerId }).lean();
-          console.log(`TrainerAuth found for batch ${(batch as any).batchId}:`, trainerAuth ? (trainerAuth as any).name : 'Not found');
+
           
           // Try to get additional profile info from Trainer table
           let trainerProfile = null;
@@ -260,7 +257,7 @@ export async function GET(req: NextRequest) {
         endDate: (batch as any).schedule.endDate
       }));
 
-    console.log('Returning dashboard data with', coursesWithBatchInfo.length, 'courses and', batchesWithTrainers.length, 'batches');
+   
 
     return NextResponse.json({
       success: true,

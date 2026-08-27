@@ -235,8 +235,7 @@ export async function POST(request: NextRequest) {
 
     // Insert sample quizzes
     const createdQuizzes = await Quiz.insertMany(sampleQuizzes);
-    
-    console.log('Sample quizzes created:', createdQuizzes.length);
+  
 
     return NextResponse.json({
       success: true,

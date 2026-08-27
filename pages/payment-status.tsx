@@ -62,7 +62,7 @@ const PaymentStatusPage = () => {
       });
 
       const result = await response.json();
-      console.log('Payment verification result:', result);
+     
     } catch (error) {
       console.error('Payment verification error:', error);
     }

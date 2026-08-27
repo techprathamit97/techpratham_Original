@@ -62,7 +62,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ course, onClose, onSuccess }) => {
             });
             if (response.ok) {
                 setSubmitSuccess(true);
-                console.log(data);
+           
                 reset();
                 setPhoneNumber('');
                 setIsPhoneValid(false);

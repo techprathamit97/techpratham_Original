@@ -44,7 +44,7 @@ export async function PATCH(req: Request) {
       invoice = await Invoice.findById(invoiceId);
    
     } catch (error: any) {
-      console.log('Error finding regular invoice:', error.message);
+      console.log('Error finding regular invoice:');
     }
     
     if (!invoice) {
@@ -103,7 +103,7 @@ export async function PATCH(req: Request) {
               }
             );
           } catch (enrollmentError: any) {
-            console.log('Failed to update enrollment certificate:', enrollmentError.message);
+            console.log('Failed to update enrollment certificate:');
           }
         }
         break;
@@ -281,7 +281,7 @@ export async function PATCH(req: Request) {
           updateData.status = 'due';
         }
         
-        console.log('Invoice update data:', updateData);
+      
         break;
       }
 
@@ -290,7 +290,6 @@ export async function PATCH(req: Request) {
         updateData = { 
           remark: remark || null
         };
-        console.log('Remark update data:', updateData);
         break;
 
       default:

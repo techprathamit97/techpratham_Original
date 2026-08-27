@@ -94,7 +94,7 @@ const courses = () => {
       // Remove the deleted course from the current view
       setCourseData(prevData => prevData.filter((course: any) => course._id !== courseId));
 
-      console.log('Course deleted successfully:', result);
+    
       toast.success('Course deleted successfully.')
     } catch (error) {
       console.error("Failed to delete course:", error);

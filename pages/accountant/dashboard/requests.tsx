@@ -132,7 +132,7 @@ const Requests = () => {
       if (!res.ok) throw new Error(`Update failed with status ${res.status}`);
 
       const updatedRequest = await res.json();
-      console.log('Payment verification updated:', updatedRequest);
+   
 
       // Refresh the request data
       await fetchRequestData();

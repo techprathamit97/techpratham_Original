@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     if (denied) return denied;
 
     await connectMongo();
-    console.log('MongoDB connected');
+
 
     const body = await req.json();
    

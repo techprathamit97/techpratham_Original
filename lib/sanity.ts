@@ -22,12 +22,12 @@ export async function cachedFetch(query: string, ttlMinutes: number = 5) {
   // Check if we have cached data that's still valid
   const cached = queryCache.get(cacheKey);
   if (cached && (now - cached.timestamp) < (cached.ttl * 60 * 1000)) {
-    console.log('🎯 Using cached Sanity data');
+  
     return cached.data;
   }
   
   try {
-    console.log('🔄 Fetching fresh Sanity data');
+  
     const data = await client.fetch(query);
     
     // Cache the result
@@ -41,7 +41,7 @@ export async function cachedFetch(query: string, ttlMinutes: number = 5) {
   } catch (error) {
     // If we have stale cached data, return it on error
     if (cached) {
-      console.log('⚠️ Using stale cached data due to error');
+    
       return cached.data;
     }
     throw error;

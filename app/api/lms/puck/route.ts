@@ -15,7 +15,7 @@ export async function GET(req: Request) {
     const sectionId = searchParams.get("sectionId");
     const subSectionId = searchParams.get("subSectionId");
 
-    console.log(`[Puck GET] Fetching: courseId=${courseId}, lessonId=${lessonId}, sectionId=${sectionId}, subSectionId=${subSectionId}`);
+   
 
     if (!courseId || !lessonId) {
       return NextResponse.json({ error: "courseId and lessonId are required" }, { status: 400 });
@@ -64,27 +64,27 @@ export async function GET(req: Request) {
       });
     }
 
-    console.log(`[Puck GET] MongoDB Pipeline:`, JSON.stringify(pipeline, null, 2));
+ 
     
     const result = await LmsContent.aggregate(pipeline);
-    console.log(`[Puck GET] Aggregation result:`, JSON.stringify(result, null, 2));
+   
 
     let puckData = result[0]?.puckData || { root: {}, content: [] };
     
     // ⭐ FIX: Add validation and fallback for puckData structure
     if (!puckData || typeof puckData !== 'object') {
-      console.log(`[Puck GET] WARNING: Invalid puckData, using default:`, puckData);
+     
       puckData = { root: {}, content: [] };
     } else {
       // Ensure content is an array
       if (!Array.isArray(puckData.content)) {
-        console.log(`[Puck GET] WARNING: content is not an array, converting:`, puckData.content);
+       
         puckData.content = [];
       }
       
       // Ensure root exists
       if (!puckData.root || typeof puckData.root !== 'object') {
-        console.log(`[Puck GET] WARNING: root is missing or invalid, setting default:`, puckData.root);
+       
         puckData.root = {};
       }
       
@@ -94,13 +94,7 @@ export async function GET(req: Request) {
       }
     }
     
-    console.log(`[Puck GET] Final puckData structure:`, {
-      hasContent: !!puckData.content,
-      contentLength: puckData.content?.length || 0,
-      hasZones: !!puckData.zones,
-      zonesKeys: puckData.zones ? Object.keys(puckData.zones) : [],
-      hasRoot: !!puckData.root
-    });
+   
 
     // ⭐ FIX: Smarter caching - shorter cache for recently updated content
     const hasTimestamp = req.url.includes('t=');
@@ -131,8 +125,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { courseId, lessonId, sectionId, subSectionId, puckData } = body;
 
-    console.log(`[Puck POST] Saving ${subSectionId ? 'subsection' : sectionId ? 'section' : 'lesson'} for course: ${courseId}`);
-    console.log(`[Puck POST] Data size: ${JSON.stringify(puckData).length} bytes`);
+
 
     if (!courseId || !lessonId || !puckData) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -173,14 +166,14 @@ export async function POST(req: Request) {
       { $set: { [updatePath]: puckData } },
       { arrayFilters }
     );
-    console.log(`[Puck POST] Update took: ${Date.now() - updateStart}ms`);
+  
 
     if (result.matchedCount === 0) {
       return NextResponse.json({ error: "Course not found" }, { status: 404 });
     }
 
     if (result.modifiedCount === 0) {
-      console.log(`[Puck POST] No modification, item might not exist. Falling back to creation.`);
+     
       
       // ⭐ FIX: Use atomic operations to avoid data loss during concurrent updates
       if (subSectionId && sectionId) {
@@ -238,7 +231,7 @@ export async function POST(req: Request) {
       }
     }
 
-    console.log(`[Puck POST] Total time: ${Date.now() - startTime}ms`);
+
     
     // ⭐ FIX: Add success response with metadata for debugging
     return NextResponse.json({ 
@@ -247,8 +240,7 @@ export async function POST(req: Request) {
       processingTime: Date.now() - startTime 
     });
   } catch (error: any) {
-    console.error("[Puck POST] Save Error:", error);
-    console.log(`[Puck POST] Failed after: ${Date.now() - startTime}ms`);
+
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

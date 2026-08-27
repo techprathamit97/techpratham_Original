@@ -20,8 +20,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    console.log('=== TRAINER PROFILE API DEBUG ===');
-    console.log('Fetching profile for trainer ID:', trainerId);
+
 
     // Find the trainer in TrainerAuth table
     const trainerAuth = await TrainerAuth.findOne({ trainerId }).lean();
@@ -42,7 +41,7 @@ export async function GET(req: NextRequest) {
 
     // Find batches assigned to this trainer
     const batches = await Batch.find({ trainerId }).lean();
-    console.log('Batches found:', batches.length);
+ 
 
     // Get all student IDs from batches
     const allStudentIds = batches.flatMap(batch => (batch as any).enrolled_students || []);

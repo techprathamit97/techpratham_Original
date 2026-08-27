@@ -19,28 +19,27 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    console.log('=== STUDENT PROFILE API DEBUG ===');
-    console.log('Fetching profile for student:', studentId);
+
 
     // Get student basic info from enrolled table
     const studentRecord = await Enrolled.findOne({ studentId }).lean();
-    console.log('Student record found:', studentRecord ? (studentRecord as any).name : 'Not found');
+
 
     // Get all enrolled courses for this student
     const enrolledCourses = await Enrolled.find({ studentId }).lean();
-    console.log('Enrolled courses found:', enrolledCourses.length);
+  
 
     // Get all batches where this student is enrolled
     const batchesWithStudent = await Batch.find({ 
       enrolled_students: { $in: [studentId] } 
     }).lean();
-    console.log('Batches with student found:', batchesWithStudent.length);
+
 
     // Get all invoices for this student
     const invoices = await ManualInvoice.find({
       'customerDetails.studentId': studentId
     }).lean();
-    console.log('Invoices found:', invoices.length);
+ 
 
     // Process courses with trainer and batch information
     const coursesWithDetails = [];
@@ -255,11 +254,7 @@ export async function GET(req: NextRequest) {
       }
     };
 
-    console.log('Returning profile data with:', {
-      courses: profileData.courses.length,
-      trainers: profileData.trainers.length,
-      batches: profileData.batches.length
-    });
+  
 
     return NextResponse.json({
       success: true,

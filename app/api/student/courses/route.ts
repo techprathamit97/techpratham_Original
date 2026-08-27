@@ -19,18 +19,17 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    console.log('=== STUDENT COURSES API DEBUG ===');
-    console.log('Fetching courses for student:', studentId);
+
 
     // Get all enrolled courses for this student
     const enrolledCourses = await Enrolled.find({ studentId }).lean();
-    console.log('Enrolled courses found:', enrolledCourses.length);
+  
 
     // Also find batches where this student is enrolled (even if no Enrolled record exists)
     const batchesWithStudent = await Batch.find({ 
       enrolled_students: { $in: [studentId] } 
     }).lean();
-    console.log('Batches with student found:', batchesWithStudent.length);
+
 
     // Create enrolled course records from batches if they don't exist in Enrolled table
     const coursesFromBatches = [];
@@ -64,19 +63,19 @@ export async function GET(req: NextRequest) {
           lastAccessedAt: null,
           quizScores: []
         });
-        console.log(`Created virtual course record for batch: ${batch.batchId}`);
+      
       }
     }
 
     // Combine enrolled courses with courses from batches
     const allCourses = [...enrolledCourses, ...coursesFromBatches];
-    console.log('Total courses (enrolled + batch):', allCourses.length);
+
 
     // Process each course to get batch and trainer information
     const coursesWithDetails = await Promise.all(
       allCourses.map(async (course) => {
         try {
-          console.log(`Processing course: ${course.course_title}`);
+       
           
           // Find batch for this course
           let batchInfo = null;
@@ -118,7 +117,7 @@ export async function GET(req: NextRequest) {
                     { $addToSet: { enrolled_students: studentId } }
                   );
                   batchInfo.enrolled_students.push(studentId);
-                  console.log(`Auto-assigned student ${studentId} to batch ${batchInfo.batchId}`);
+                 
                 }
               }
             }
@@ -128,7 +127,7 @@ export async function GET(req: NextRequest) {
           let trainerDetails = null;
           if (batchInfo && (batchInfo as any).trainerId) {
             trainerDetails = await Trainer.findOne({ trainerId: (batchInfo as any).trainerId }).lean();
-            console.log(`Trainer found for course ${course.course_title}:`, trainerDetails ? (trainerDetails as any).name : 'Not found');
+           
           }
 
           // Get invoice information
@@ -208,7 +207,6 @@ export async function GET(req: NextRequest) {
       ? Math.round(coursesWithDetails.reduce((sum, c) => sum + ((c as any).progressPercentage || 0), 0) / totalCourses)
       : 0;
 
-    console.log('Returning courses with details:', coursesWithDetails.length);
 
     return NextResponse.json({
       success: true,

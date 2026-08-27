@@ -81,7 +81,7 @@ const CreateInvoice = () => {
     setIsLoading(true);
     setErrors([]);
     try {
-      console.log('Fetching enrollments...');
+   
       const res = await fetch('/api/course/enrolled?all=true');
       
       if (!res.ok) {
@@ -89,7 +89,7 @@ const CreateInvoice = () => {
       }
       
       const data = await res.json();
-      console.log('Enrollments fetched:', data.length);
+     
       setEnrollments(Array.isArray(data) ? data : []);
       
       if (!Array.isArray(data) || data.length === 0) {
@@ -106,7 +106,7 @@ const CreateInvoice = () => {
   };
 
   const handleEnrollmentSelect = (enrollmentId: string) => {
-    console.log('Enrollment selected:', enrollmentId);
+   
     const enrollment = enrollments.find(e => e._id === enrollmentId);
     
     if (enrollment) {
@@ -124,7 +124,7 @@ const CreateInvoice = () => {
         amount: enrollment.totalAmount || 0
       }];
       setItems(newItems);
-      console.log('Items set:', newItems);
+     
     }
   };
 
@@ -272,14 +272,10 @@ const CreateInvoice = () => {
   };
 
   const handleCreateInvoice = async () => {
-    console.log('=== Create Invoice Started ===');
-    console.log('Selected enrollment:', selectedEnrollment);
-    console.log('Items:', items);
-    console.log('Tax:', tax);
-    console.log('Payment Mode:', paymentMode);
+   
 
     if (!validateForm()) {
-      console.log('Validation failed:', errors);
+    
       errors.forEach(err => toast.error(err));
       return;
     }
@@ -302,7 +298,7 @@ const CreateInvoice = () => {
         paidDate: paidDate || null
       };
 
-      console.log('Request body:', JSON.stringify(requestBody, null, 2));
+  
 
       const res = await fetch('/api/invoice/create', {
         method: 'POST',
@@ -310,13 +306,13 @@ const CreateInvoice = () => {
         body: JSON.stringify(requestBody)
       });
 
-      console.log('Response status:', res.status);
+
       const data = await res.json();
-      console.log('Response data:', data);
+    
 
       if (res.ok && data.success) {
         toast.success('Invoice created successfully!');
-        console.log('Invoice created, redirecting...');
+        
         setTimeout(() => {
           router.push('/admin/dashboard/invoices');
         }, 1000);

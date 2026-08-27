@@ -25,7 +25,7 @@ export async function sendEmail({ to, subject, html, from }: EmailOptions) {
 
     // Verify connection
     await transporter.verify();
-    console.log('✅ SMTP connection verified');
+   
 
     // Send email
     const info = await transporter.sendMail({
@@ -35,7 +35,7 @@ export async function sendEmail({ to, subject, html, from }: EmailOptions) {
       html,
     });
 
-    console.log('✅ Email sent successfully:', info.messageId);
+   
     return { success: true, messageId: info.messageId };
 
   } catch (error: any) {

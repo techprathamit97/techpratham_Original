@@ -42,7 +42,7 @@ export async function sendQuizEmailJS(data: any) {
 
     const result = await emailjs.send(serviceId, templateId, emailParams);
     
-    console.log('EmailJS result:', result);
+  
     return { success: true, result };
 
   } catch (error) {

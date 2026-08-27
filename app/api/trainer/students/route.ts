@@ -21,9 +21,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    console.log('=== TRAINER STUDENTS API DEBUG ===');
-    console.log('Fetching students for trainer ID:', trainerId);
-    console.log('Batch filter:', batchId || 'All batches');
+
 
     // Find the trainer in TrainerAuth table
     const trainerAuth = await TrainerAuth.findOne({ trainerId }).lean();
@@ -49,34 +47,33 @@ export async function GET(req: NextRequest) {
     }
     
     const batches = await Batch.find(batchQuery).lean();
-    console.log('Batches found:', batches.length);
+
 
     // Get all student IDs from all batches
     const allStudentIds = batches.flatMap(batch => (batch as any).enrolled_students || []);
-    console.log('Total student IDs from batches:', allStudentIds.length);
+ 
     
     // Remove duplicates
     const uniqueStudentIds = [...new Set(allStudentIds)];
-    console.log('Unique student IDs:', uniqueStudentIds.length);
+
 
     // Fetch student details from Enrolled table
     const enrolledStudents = await Enrolled.find({ 
       studentId: { $in: uniqueStudentIds } 
     }).lean();
-    console.log('Enrolled students found:', enrolledStudents.length);
+  
 
     // Get student details from ManualInvoice table
     const invoiceStudents = await ManualInvoice.find({
       'customerDetails.studentId': { $in: uniqueStudentIds }
     }).lean();
-    console.log('Invoice students found:', invoiceStudents.length);
+  
 
     // Process students with detailed information
     const studentsWithDetails: any[] = [];
     const processedStudentIds = new Set<string>();
 
-    console.log('Processing students from enrolled table...');
-    // Process enrolled students first
+
     for (const student of enrolledStudents) {
       if (!processedStudentIds.has((student as any).studentId)) {
         // Find which batches this student belongs to
@@ -134,32 +131,32 @@ export async function GET(req: NextRequest) {
         });
 
         processedStudentIds.add((student as any).studentId);
-        console.log(`Processed enrolled student: ${(student as any).studentId} - ${(student as any).name}`);
+
       }
     }
 
-    console.log('Processing students from batch enrolled_students who are not in Enrolled table...');
+
     // Process students who are in batches but not in Enrolled table
     for (const batch of batches) {
-      console.log(`Processing batch ${(batch as any).batchId} with ${(batch as any).enrolled_students.length} students`);
+   
       
       for (const studentId of (batch as any).enrolled_students) {
         if (!processedStudentIds.has(studentId)) {
-          console.log(`Processing student ${studentId} from batch ${(batch as any).batchId}`);
+
           
           // Find invoice information for this student
           const studentInvoices = invoiceStudents.filter(inv => 
             (inv as any).customerDetails.studentId === studentId
           );
 
-          console.log(`Found ${studentInvoices.length} invoices for student ${studentId}`);
+
 
           const primaryInvoice = studentInvoices.find(inv => 
             (inv as any).courseDetails.title === (batch as any).course_title
           ) || studentInvoices[0];
 
           if (primaryInvoice) {
-            console.log(`Using invoice data for student ${studentId}: ${(primaryInvoice as any).customerDetails.name}`);
+
             
             studentsWithDetails.push({
               studentId: studentId,
@@ -202,7 +199,7 @@ export async function GET(req: NextRequest) {
 
             processedStudentIds.add(studentId);
           } else {
-            console.log(`No invoice found for student ${studentId}, creating minimal record`);
+
             
             // Create minimal student record even without invoice
             studentsWithDetails.push({
@@ -262,15 +259,7 @@ export async function GET(req: NextRequest) {
       )
     }));
 
-    console.log('=== FINAL PROCESSING SUMMARY ===');
-    console.log('Total students processed:', studentsWithDetails.length);
-    console.log('Students by name:', studentsWithDetails.map(s => `${s.studentId}: ${s.name}`));
-    console.log('Returning students data:', {
-      totalStudents,
-      batchesCount: batches.length,
-      studentsByBatchCount: studentsByBatch.length,
-      studentsWithDetails: studentsWithDetails.length
-    });
+  
 
     return NextResponse.json({
       success: true,

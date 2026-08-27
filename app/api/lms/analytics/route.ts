@@ -15,24 +15,24 @@ export async function GET() {
 
     await connectMongo();
     
-    console.log('Analytics API: Starting data fetch...');
+   
     
     // Get basic counts from ManualInvoice (enrolled students)
     const totalStudents = await ManualInvoice.countDocuments({ isManual: true });
-    console.log('Total students:', totalStudents);
+  
     
     const activeStudents = await ManualInvoice.countDocuments({ 
       isManual: true, 
       isApproved: true, 
       certificateApproved: false 
     });
-    console.log('Active students:', activeStudents);
+   
     
     const completedStudents = await ManualInvoice.countDocuments({ 
       isManual: true, 
       certificateApproved: true 
     });
-    console.log('Completed students:', completedStudents);
+  
     
     const activeBatches = await Batch.countDocuments({ status: { $in: ['upcoming', 'ongoing'] } });
     const totalTrainers = await Trainer.countDocuments();
@@ -50,7 +50,7 @@ export async function GET() {
     ]);
     
     const revenue = revenueData[0] || { totalRevenue: 0, pendingRevenue: 0 };
-    console.log('Revenue data:', revenue);
+   
     
     // Get course stats from ManualInvoice
     const courseStats = await ManualInvoice.aggregate([
@@ -72,7 +72,7 @@ export async function GET() {
       { $limit: 5 }
     ]);
     
-    console.log('Course stats:', courseStats);
+  
     
     // Get recent enrollments from ManualInvoice
     const recentEnrollments = await ManualInvoice.find({ isManual: true })
@@ -81,7 +81,7 @@ export async function GET() {
       .select('customerDetails.name courseDetails.title status createdAt isApproved certificateApproved')
       .lean();
     
-    console.log('Recent enrollments count:', recentEnrollments.length);
+   
     
     // Mock trend data (you can implement real trend calculation)
     const enrollmentTrend = [
@@ -137,7 +137,7 @@ export async function GET() {
       })
     };
 
-    console.log('Final analytics:', analytics.overview);
+
     return NextResponse.json(analytics);
   } catch (error: any) {
     console.error("Analytics fetch error:", error);

@@ -111,7 +111,7 @@ export async function sendQuizEmailToStudent(data: any) {
       html: studentEmailHtml,
     });
 
-    console.log('Student email sent successfully:', studentEmailResult.messageId);
+
 
     // Also send notification to admin
     const adminEmailResult = await transporter.sendMail({
@@ -128,7 +128,7 @@ export async function sendQuizEmailToStudent(data: any) {
       `,
     });
 
-    console.log('Admin notification sent successfully:', adminEmailResult.messageId);
+   
 
     return {
       success: true,

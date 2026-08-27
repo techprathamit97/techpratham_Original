@@ -11,9 +11,7 @@ export async function sendQuizEmailFallback(data: any) {
   } = data;
 
   try {
-    console.log('=== SENDING EMAIL VIA WEB3FORMS ===');
-    console.log('To:', userEmail);
-    console.log('Subject: Quiz Results -', quizTitle);
+ 
 
     // Prepare email content
     const emailContent = `
@@ -63,7 +61,7 @@ This is an automated email from TechPratham Quiz System.
     const result = await response.json();
     
     if (result.success) {
-      console.log('✅ Email sent successfully via Web3Forms to:', userEmail);
+     
       
       // Also send admin notification
       await sendAdminNotificationFallback(data);
@@ -96,7 +94,7 @@ async function sendAdminNotificationFallback(data: any) {
   } = data;
 
   try {
-    console.log('=== SENDING ADMIN NOTIFICATION VIA WEB3FORMS ===');
+
     
     const adminContent = `
 🎯 QUIZ COMPLETION NOTIFICATION
@@ -137,7 +135,7 @@ ${passed ?
     const result = await response.json();
     
     if (result.success) {
-      console.log('✅ Admin notification sent successfully via Web3Forms');
+     
     } else {
       console.error('❌ Admin notification failed:', result.message);
     }
