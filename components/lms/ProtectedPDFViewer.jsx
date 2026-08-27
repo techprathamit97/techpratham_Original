@@ -118,24 +118,42 @@ const PdfCanvas = ({ pdfDoc, pageNumber, width }) => {
   );
 };
 
+/**
+ * Every prop has a default so TypeScript callers can pass only what they need.
+ * Without defaults, TS infers fileKey/fileUrl/title/onLoadError as required and
+ * a .tsx consumer fails to compile.
+ */
 const ProtectedPDFViewer = ({
   /** S3 key (e.g. "puck/1234-file.pdf") or a full bucket URL. */
-  fileKey,
+  fileKey = "",
   /**
    * Direct same-origin URL to a PDF, for files that are not in S3 (for example
    * /training/x.pdf). When provided this is used instead of fileKey and the
    * /api/secure-pdf proxy is skipped.
    */
-  fileUrl,
-  title,
+  fileUrl = "",
+  title = "",
   maxWidth = 900,
   /** Pages rendered before scrolling triggers more. */
   initialPages = 3,
   blockKeyboardShortcuts = true,
-  onLoadError,
+  /** Defaults to a no-op so the inferred type is a function, not null. */
+  onLoadError = () => {},
 }) => {
   const containerRef = useRef(null);
   const docRef = useRef(null);
+
+  /**
+   * Held in a ref so it is not an effect dependency. The prop has a default of
+   * () => {} to keep TypeScript callers happy, which means a new function
+   * identity on every render. Depending on it directly made the load effect
+   * re-run continuously and the viewer never left the loading state.
+   */
+  const onLoadErrorRef = useRef(onLoadError);
+  onLoadErrorRef.current = onLoadError;
+
+  /** Watched by IntersectionObserver to trigger rendering further pages. */
+  const sentinelRef = useRef(null);
 
   const [pdfDoc, setPdfDoc] = useState(null);
   const [numPages, setNumPages] = useState(0);
@@ -180,20 +198,33 @@ const ProtectedPDFViewer = ({
         if (cancelled) return;
 
         // Strip any #toolbar=0 style hash; it is meaningless to pdf.js.
+        const usingProxy = !fileUrl;
         const url = fileUrl
           ? fileUrl.split("#")[0]
           : `/api/secure-pdf?key=${encodeURIComponent(fileKey)}`;
 
         /**
-         * Ranged chunk fetching rather than one large response. Amplify serves
-         * route handlers from Lambda, which caps responses around 6MB, and
-         * existing course PDFs already exceed 10MB.
+         * Ranged chunk fetching is only needed for the /api/secure-pdf proxy.
+         * Amplify serves route handlers from Lambda, which caps responses around
+         * 6MB, and S3 course PDFs already exceed 10MB.
+         *
+         * Static files under /public must NOT use these options. With
+         * disableStream, pdf.js waits on ranged responses that the Next static
+         * file handler does not advertise the same way the proxy does, and the
+         * load hangs at "Loading document...". Those files are only a few MB, so
+         * the default streaming behaviour is correct for them.
          */
+        const rangeOptions = usingProxy
+          ? {
+              disableStream: true,
+              disableAutoFetch: true,
+              rangeChunkSize: 262144,
+            }
+          : {};
+
         const doc = await pdfjs.getDocument({
           url,
-          disableStream: true,
-          disableAutoFetch: true,
-          rangeChunkSize: 262144,
+          ...rangeOptions,
         }).promise;
 
         if (cancelled) {
@@ -210,7 +241,7 @@ const ProtectedPDFViewer = ({
         console.error("PDF load error:", err);
         setError(err?.message || "Could not load this document.");
         setStatus("error");
-        onLoadError?.(err);
+        onLoadErrorRef.current?.(err);
       }
     };
 
@@ -221,24 +252,38 @@ const ProtectedPDFViewer = ({
       docRef.current?.destroy();
       docRef.current = null;
     };
-  }, [fileKey, fileUrl, initialPages, onLoadError]);
+    // onLoadError is intentionally excluded: it is read through a ref so an
+    // unstable prop identity cannot restart the load.
+  }, [fileKey, fileUrl, initialPages]);
 
-  /* Render more pages as the bottom of the list comes into view. */
+  /**
+   * Render more pages as the end of the list comes into view.
+   *
+   * Uses IntersectionObserver rather than a window scroll listener. The viewer
+   * is sometimes placed inside a fixed-height overflow-y-auto container (the
+   * course curriculum section does this), where scrolling happens on that inner
+   * element and a window listener never fires, so pages past the first batch
+   * were never rendered. IntersectionObserver accounts for clipping ancestors,
+   * so it works for both page-level and inner-container scrolling.
+   */
   useEffect(() => {
     if (status !== "ready" || visiblePages >= numPages) return;
 
-    const onScroll = () => {
-      const node = containerRef.current;
-      if (!node) return;
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
 
-      if (node.getBoundingClientRect().bottom < window.innerHeight * 2) {
-        setVisiblePages((current) => Math.min(current + 3, numPages));
-      }
-    };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setVisiblePages((current) => Math.min(current + 3, numPages));
+        }
+      },
+      // Start fetching slightly before the sentinel is actually visible.
+      { root: null, rootMargin: "300px", threshold: 0 }
+    );
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
+    observer.observe(sentinel);
+    return () => observer.disconnect();
   }, [status, visiblePages, numPages]);
 
   /* Right-click, drag, and copy cancelled inside the viewer only. */
@@ -321,6 +366,11 @@ const ProtectedPDFViewer = ({
                 width={pageWidth}
               />
             ))}
+
+            {/* Watched by IntersectionObserver to load the next batch. */}
+            {visiblePages < numPages && (
+              <div ref={sentinelRef} className="h-4 w-full shrink-0" />
+            )}
           </div>
 
           <p className="mt-6 text-center text-xs text-gray-500">
