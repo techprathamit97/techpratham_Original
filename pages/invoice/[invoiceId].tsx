@@ -450,8 +450,9 @@ const InvoiceViewPage = () => {
                   <div className="text-xs font-bold text-gray-800 mb-1">Terms & Conditions:</div>
                   <div className="text-xs text-black leading-tight">
                     <div>Fee Once Paid will not be Refunded Back in Any Case.</div>
+                    <div>Course fee structures are strictly confidential and must not be disclosed. Any breach of this confidentiality policy may result in the immediate cancellation of your admission.</div>
                     <div>
-                      This is E-Invoice, Signature Not Required.For any query pls write us{' '}
+                      This is E-Invoice,For any query pls write us on{' '}
                       <span className="text-blue-600 underline">accounts@techpratham.com</span>
                     </div>
                   </div>
