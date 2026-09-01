@@ -1,8 +1,12 @@
 import nodemailer from "nodemailer";
 import { NextRequest } from "next/server";
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 export async function POST(req: NextRequest) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     const { to, subject, message } = await req.json();
 
     // Validate required fields

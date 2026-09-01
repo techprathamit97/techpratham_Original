@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { User } from '@/models/user';
 import { connectMongo } from '@/utils/mongodb';
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 export async function PUT(request: NextRequest) {
     try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
         await connectMongo();
 
         const url = new URL(request.url);

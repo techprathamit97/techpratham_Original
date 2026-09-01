@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
 import { connectMongo } from '@/utils/mongodb';
 import { User } from '@/models/user';
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 export async function PATCH(req: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
 
     const body = await req.json();

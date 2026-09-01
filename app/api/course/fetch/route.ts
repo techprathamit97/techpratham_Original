@@ -3,6 +3,9 @@ import { connectMongo } from "@/utils/mongodb";
 import Course from "@/models/course";
 import { categoryPrice } from "@/components/assets/categoryPrice";
 
+
+const MAX_LIMIT = 1000;
+
 export async function GET(request: NextRequest) {
   try {
     await connectMongo();
@@ -11,6 +14,13 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category");
     const bustCache = searchParams.get("bustCache");
     const timestamp = searchParams.get("t");
+
+    // Optional ?limit=N, clamped to MAX_LIMIT. Invalid or absent means the cap.
+    const requestedLimit = parseInt(searchParams.get("limit") || "", 10);
+    const limit =
+      Number.isFinite(requestedLimit) && requestedLimit > 0
+        ? Math.min(requestedLimit, MAX_LIMIT)
+        : MAX_LIMIT;
     
   
 
@@ -56,8 +66,12 @@ export async function GET(request: NextRequest) {
       return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
     });
 
+    // Apply the cap after sorting so the highest-priority courses are the ones
+    // kept, and the ordering callers rely on is unchanged.
+    const limitedCourses = sortedCourses.slice(0, limit);
+
     // Add price to each course based on category
-    const coursesWithPrice = sortedCourses.map(courseItem => {
+    const coursesWithPrice = limitedCourses.map(courseItem => {
       const priceData = categoryPrice.find(p => 
         p.Category.toLowerCase() === courseItem.category.toLowerCase()
       );

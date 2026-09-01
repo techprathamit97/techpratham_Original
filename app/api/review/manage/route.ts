@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectMongo } from '@/utils/mongodb';
 import Review from '@/models/Review';
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 // GET all reviews (including unapproved) - Admin only
 export async function GET(req: Request) {
@@ -55,6 +56,9 @@ export async function GET(req: Request) {
 // PATCH - Update review status (approve, publish, feature)
 export async function PATCH(req: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
 
     const body = await req.json();
@@ -125,6 +129,9 @@ export async function PATCH(req: Request) {
 // DELETE - Delete a review
 export async function DELETE(req: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
 
     const { searchParams } = new URL(req.url);

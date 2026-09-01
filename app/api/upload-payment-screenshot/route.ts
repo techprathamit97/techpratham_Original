@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 export const runtime = "nodejs";
 
@@ -15,6 +16,9 @@ const s3Client = new S3Client({
 export async function POST(request: NextRequest) {
 
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     const formData = await request.formData();
     const file = formData.get('screenshot') as File;
 

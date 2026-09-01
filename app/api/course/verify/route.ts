@@ -1,9 +1,13 @@
 import Enrolled from '@/models/enrolled';
 import { NextRequest, NextResponse } from 'next/server';
 import { connectMongo } from '@/utils/mongodb';
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 export async function PUT(request: NextRequest) {
     try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
         await connectMongo();
 
         const body = await request.json();
@@ -44,6 +48,9 @@ export async function PUT(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
     try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
         await connectMongo();
 
         const body = await request.json();

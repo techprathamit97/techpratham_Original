@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
 import { connectMongo } from '@/utils/mongodb';
 import mongoose from 'mongoose';
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 export async function GET() {
     try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
         await connectMongo();
 
         const db = mongoose.connection.db;

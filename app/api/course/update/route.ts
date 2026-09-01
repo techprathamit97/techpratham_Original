@@ -4,10 +4,14 @@ import Course from '@/models/course';
 import Enrolled from '@/models/enrolled';
 import { clearNavbarCache } from '@/utils/navbarData';
 import { clearFetchGroupedCache } from '@/lib/courseCache';
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 // Handle course updates by link
 export async function PUT(req: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
 
     const { searchParams } = new URL(req.url);
@@ -65,6 +69,9 @@ export async function PUT(req: Request) {
 // Handle enrollment updates (keep existing functionality)
 export async function PATCH(req: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
 
     const body = await req.json();

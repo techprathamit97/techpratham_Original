@@ -380,16 +380,28 @@ export const getServerSideProps: GetServerSideProps<DomainDataPageProps> = async
         
         // First, fetch categories to find the category name from slug
         const categoriesResponse = await fetch(`${baseUrl}/api/category/fetch`);
-        let categoryName = domaindata; // fallback to slug as name
-        
+
+        /**
+         * The slug must map to a real category. Without this check any value
+         * (including the literal string "[domaindata]" or a random word) would
+         * fall through to the API's partial regex fallback and return a broad
+         * mix of courses, which is why /courses/domain/[domaindata] appeared to
+         * "open all domain pages". Unknown slugs now return the standard 404.
+         */
+        let categoryName: string | null = null;
+
         if (categoriesResponse.ok) {
             const categories = await categoriesResponse.json();
             const foundCategory = categories.find((cat: any) => cat.slug === domaindata);
             if (foundCategory) {
-                categoryName = foundCategory.name; // Use actual category name
+                categoryName = foundCategory.name;
             }
         }
-        
+
+        if (!categoryName) {
+            return { notFound: true };
+        }
+
         // Fetch courses and navbar data in parallel using the category name
         const [response, navbarData] = await Promise.all([
             fetch(`${baseUrl}/api/course/filtered/get-all?category=${encodeURIComponent(categoryName)}`),

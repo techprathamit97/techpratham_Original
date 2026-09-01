@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 // Force refresh navbar cache by calling the fetch-grouped API with cache busting
 export async function POST() {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     // Get the base URL
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
     
@@ -42,7 +46,12 @@ export async function POST() {
   }
 }
 
+// Returns usage help only, no data and no side effects, but guarded for
+// consistency so nothing under /api/admin responds to anonymous callers.
 export async function GET() {
+  const denied = await requireRole(LEAD_ACCESS_ROLES);
+  if (denied) return denied;
+
   return NextResponse.json({
     message: 'Use POST method to refresh navbar cache',
     instructions: 'This endpoint forces a refresh of the course cache used in the navbar dropdown'

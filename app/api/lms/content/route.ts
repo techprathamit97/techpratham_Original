@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectMongo } from "@/utils/mongodb";
 import LmsContent from "@/models/LmsContent";
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 /* ===================== GET ===================== */
 // export async function GET(req: Request) {
@@ -131,6 +132,9 @@ export async function GET(req: Request) {
 /* ===================== POST ===================== */
 export async function POST(req: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
     const body = await req.json();
 
@@ -404,6 +408,9 @@ export async function POST(req: Request) {
 /* ===================== DELETE ===================== */
 export async function DELETE(req: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
     const { searchParams } = new URL(req.url);
 

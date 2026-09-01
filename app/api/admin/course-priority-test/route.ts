@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server';
 import { connectMongo } from '@/utils/mongodb';
 import Course from '@/models/course';
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 // Test endpoint to demonstrate priority ordering
 export async function GET() {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
 
     // Get all courses sorted by priority
@@ -37,6 +41,9 @@ export async function GET() {
 // Set sample priorities for testing
 export async function POST() {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
 
     // Get first few courses to set sample priorities

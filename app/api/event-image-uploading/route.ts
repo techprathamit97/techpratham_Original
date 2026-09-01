@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 export const runtime = "nodejs";
 
@@ -17,6 +18,9 @@ const BUCKET = "techpratham-image-storage";
 /* ================= UPLOAD IMAGE ================= */
 export async function POST(req: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
 
@@ -59,6 +63,9 @@ export async function POST(req: Request) {
 /* ================= DELETE IMAGE ================= */
 export async function DELETE(req: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     const { fileKey } = await req.json();
 
     if (!fileKey) {

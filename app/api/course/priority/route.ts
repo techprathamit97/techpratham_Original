@@ -3,10 +3,14 @@ import { connectMongo } from '@/utils/mongodb';
 import Course from '@/models/course';
 import { clearNavbarCache } from '@/utils/navbarData';
 import { clearFetchGroupedCache } from '@/lib/courseCache';
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 // Update course priority
 export async function PUT(req: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
 
     const { courseId, priority } = await req.json();
@@ -67,6 +71,9 @@ export async function PUT(req: Request) {
 // Batch update multiple course priorities
 export async function PATCH(req: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
 
     const { updates } = await req.json();

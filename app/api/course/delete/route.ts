@@ -3,9 +3,13 @@ import Course from '@/models/course';
 import { connectMongo } from '@/utils/mongodb';
 import { clearNavbarCache } from '@/utils/navbarData';
 import { clearFetchGroupedCache } from '@/lib/courseCache';
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 export async function DELETE(request: NextRequest) {
     try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
         await connectMongo();
 
         const url = new URL(request.url);

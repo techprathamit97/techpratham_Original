@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { clearFetchGroupedCache } from "@/lib/courseCache";
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 export async function GET() {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     clearFetchGroupedCache();
     
     return NextResponse.json(
@@ -22,6 +26,8 @@ export async function GET() {
   }
 }
 
+// Allow both GET and POST for convenience. Delegating to GET means the role
+// guard above applies to POST as well.
 export async function POST() {
-  return GET(); // Allow both GET and POST for convenience
+  return GET();
 }

@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectMongo } from '@/utils/mongodb';
 import QuizAttempt from '@/models/QuizAttempt';
 import Quiz from '@/models/Quiz';
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 export async function POST(request: NextRequest) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
     
     const { attemptId } = await request.json();
@@ -117,6 +121,9 @@ export async function POST(request: NextRequest) {
 // Fix all attempts for a specific quiz
 export async function PUT(request: NextRequest) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
     
     const { quizId } = await request.json();

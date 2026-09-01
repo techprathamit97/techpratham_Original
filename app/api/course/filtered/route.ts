@@ -19,15 +19,13 @@ export async function GET(request: Request) {
         const courseItems = await course
             .find({ category: category })
             .limit(3)
-            .lean(); // Remove sort from here, we'll sort manually
-
-        // Sort by priority (lower numbers first: 1, 2, 3...)
+            .lean(); 
         const sortedCourses = courseItems.sort((a, b) => {
           const priorityA = a.priority || 999;
           const priorityB = b.priority || 999;
           
           if (priorityA !== priorityB) {
-            return priorityA - priorityB; // Lower priority number appears first
+            return priorityA - priorityB; 
           }
           
           return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
@@ -76,15 +74,13 @@ export async function POST(request: Request) {
         const courseItems = await course
             .find(query)
             .limit(3)
-            .lean(); // Remove sort from here, we'll sort manually
-
-        // Sort by priority (lower numbers first: 1, 2, 3...)
+            .lean(); 
         const sortedCourses = courseItems.sort((a, b) => {
           const priorityA = a.priority || 999;
           const priorityB = b.priority || 999;
           
           if (priorityA !== priorityB) {
-            return priorityA - priorityB; // Lower priority number appears first
+            return priorityA - priorityB; 
           }
           
           return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();

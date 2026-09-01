@@ -2,10 +2,14 @@ import { NextResponse } from 'next/server';
 import { connectMongo } from '@/utils/mongodb';
 import Course from '@/models/course';
 import { Category } from '@/models/category';
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 // Set course priorities based on their category priority
 export async function POST() {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
 
     // Get all categories with their priorities
@@ -75,6 +79,9 @@ export async function POST() {
 // Get current priority distribution
 export async function GET() {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
 
     // Get categories with their priorities

@@ -2,9 +2,13 @@
 import { NextResponse } from "next/server";
 import { connectMongo } from "@/utils/mongodb";
 import LmsContent from "@/models/LmsContent";
+import { requireRole, LEAD_ACCESS_ROLES } from '@/lib/apiAuth';
 
 export async function DELETE(req: Request) {
   try {
+    const denied = await requireRole(LEAD_ACCESS_ROLES);
+    if (denied) return denied;
+
     await connectMongo();
 
     const { searchParams } = new URL(req.url);
