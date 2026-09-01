@@ -25,8 +25,6 @@ export async function GET(request: Request) {
     }
 
     await connectMongo();
-
-    // ✅ 3️⃣ Fetch only required fields including priority
     const courses = await Course.find(
       {},
       "_id title image alt category link shortDesc level rating duration trending priority createdAt"
