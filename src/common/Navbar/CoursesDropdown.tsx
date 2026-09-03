@@ -7,12 +7,14 @@ interface CoursesDropdownProps {
   isActive: boolean;
   coursesByCategory: NavbarCategory[];
   allCourses: NavbarCourse[];
-  categoriesData: any[]; // Categories with subcategories from API
+  categoriesData: any[];
   isLoading: boolean;
   onCourseClick: () => void;
   dropdownRef?: React.RefObject<HTMLDivElement>;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
+
+  anchorTo?: 'button' | 'navbar';
 }
 
 const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
@@ -24,7 +26,8 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
   onCourseClick,
   dropdownRef,
   onMouseEnter,
-  onMouseLeave
+  onMouseLeave,
+  anchorTo = 'navbar',
 }) => {
   const [hoveredCategory, setHoveredCategory] = useState<string>("");
   const [hoveredPath, setHoveredPath] = useState<string[]>([]); // Track the full path of nested subcategories
@@ -372,7 +375,7 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
   return (
     <div
       ref={dropdownRef}
-      className={`transition-all duration-300 top-12 absolute left-1/2 -translate-x-1/2 md:flex h-auto flex-col items-center md:overflow-hidden overflow-y-auto md:pb-0 pb-5 z-40 ${isActive ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}
+      className={`transition-all duration-300 ${anchorTo === 'button' ? 'top-full mt-2' : 'top-12'} absolute left-0 md:flex h-auto flex-col items-center md:overflow-hidden overflow-y-auto md:pb-0 pb-5 z-40 ${isActive ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}
       style={{ width: calculateWidth() }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}

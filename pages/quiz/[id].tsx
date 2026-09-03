@@ -32,7 +32,11 @@ import { UserContext } from '@/context/userContext';
 import { useSession } from 'next-auth/react';
 import { withNavbarSSR } from '@/utils/withNavbarSSR';
 import { NavbarData } from '@/utils/navbarData';
-import Navbar from '@/src/common/Navbar/Navbar';
+// Old navbar kept as backup, uncomment to roll back:
+
+// import Navbar from '@/src/common/Navbar/Navbar';
+
+import Navbar from '@/src/common/Navbar/Navbar'; // Navbar2 only on home page
 import { toast } from 'sonner';
 
 interface Question {

@@ -2,7 +2,9 @@ import React from 'react';
 import ReachForm from '@/components/common/ReachForm/ReachForm';
 import ToolTip from '@/components/common/ToolTip/ToolTip';
 import HeaderFaqs from '@/src/faqs/components/HeaderFaqs/HeaderFaqs';
-import Navbar from '@/src/common/Navbar/Navbar';
+// Old navbar kept as backup, uncomment to roll back:
+// import Navbar from '@/src/common/Navbar/Navbar';
+import Navbar from '@/src/common/Navbar/Navbar'; // Navbar2 only on home page
 import Footer from '@/src/common/Footer/Footer';
 import ContentFaqs from '@/src/faqs/components/ContentFaqs/ContentFaqs';
 import Head from 'next/head';

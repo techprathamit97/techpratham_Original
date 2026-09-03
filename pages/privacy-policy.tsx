@@ -1,6 +1,8 @@
 import React from 'react';
 import type { NextPage, GetServerSideProps } from 'next';
-import Navbar from '@/src/common/Navbar/Navbar';
+// Old navbar kept as backup, uncomment to roll back:
+// import Navbar from '@/src/common/Navbar/Navbar';
+import Navbar from '@/src/common/Navbar/Navbar'; // Navbar2 only on home page
 import Footer from '@/src/common/Footer/Footer';
 import { NavbarData } from '@/utils/navbarData';
 import { withNavbarSSR } from '@/utils/withNavbarSSR';

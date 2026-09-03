@@ -2,7 +2,11 @@ import ReachForm from '@/components/common/ReachForm/ReachForm';
 import ToolTip from '@/components/common/ToolTip/ToolTip';
 import { Button } from '@/components/ui/button';
 import Footer from '@/src/common/Footer/Footer';
-import Navbar from '@/src/common/Navbar/Navbar';
+// Old navbar kept as backup, uncomment to roll back:
+
+// import Navbar from '@/src/common/Navbar/Navbar';
+
+import Navbar from '@/src/common/Navbar/Navbar'; // Navbar2 only on home page
 import { getNavbarData, NavbarData } from '@/utils/navbarData';
 import Head from 'next/head';
 import Image from 'next/image';

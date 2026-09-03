@@ -6,7 +6,7 @@ import type { NextPage, GetServerSideProps } from 'next';
 import Script from 'next/script';
 import { getNavbarData, NavbarData } from '@/utils/navbarData';
 import LeadForm from '@/components/common/LeadForm/LeadForm';
-import Navbard from '@/src/common/Navbar/Navbard';
+
 
 interface Course {
   _id?: string;
@@ -144,7 +144,7 @@ const IndexPage: NextPage<IndexPageProps> = ({ trendingCourses, groupedCourses, 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <IndexController navbarData={navbarData}>
+      <IndexController navbarData={navbarData} useNavbar2={true}>
         <Head>
           <link rel="canonical" href="https://www.techpratham.com/" />
           <link rel="icon" href="/favicon.ico" type="image/ico" sizes="70x70" />
@@ -183,7 +183,9 @@ const IndexPage: NextPage<IndexPageProps> = ({ trendingCourses, groupedCourses, 
           <meta name="twitter:image" content="https://www.techpratham.com/og.jpg" />
           
         </Head>
-<Navbard/>
+        {/* Navbard removed here because Navbar2 now includes the e-book chip
+            strip inline. Uncomment to restore the standalone strip:
+            <Navbard/> */}
         <IndexView 
           initialTrendingCourses={trendingCourses}
           initialGroupedCourses={groupedCourses}
@@ -206,9 +208,9 @@ const IndexPage: NextPage<IndexPageProps> = ({ trendingCourses, groupedCourses, 
 export const getServerSideProps: GetServerSideProps<IndexPageProps> = async (context) => {
   try {
     // Use absolute URL for server-side fetch
-    const protocol = context.req.headers.host?.includes('localhost') ? 'http' : 'https';
-    const baseUrl = `${protocol}://${context.req.headers.host}`;
-    
+    // const protocol = context.req.headers.host?.includes('localhost') ? 'http' : 'https';
+    // const baseUrl = `${protocol}://${context.req.headers.host}`;
+    const baseUrl = 'http://127.0.0.1:3000';
     // Fetch all data in parallel for better performance
     const [trendingRes, groupedRes, eventsRes, navbarData] = await Promise.all([
       fetch(`${baseUrl}/api/get-course/trending`),

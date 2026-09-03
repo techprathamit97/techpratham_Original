@@ -3,7 +3,11 @@ import Image from "next/image";
 import React from 'react';
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Navbar from '@/src/common/Navbar/Navbar';
+// Old navbar kept as backup, uncomment to roll back:
+
+// import Navbar from '@/src/common/Navbar/Navbar';
+
+import Navbar from '@/src/common/Navbar/Navbar'; // Navbar2 only on home page
 import Footer from '@/src/common/Footer/Footer';
 
 export default function NotFound() {

@@ -21,8 +21,11 @@ import {
 } from 'lucide-react';
 import { withNavbarSSR } from '@/utils/withNavbarSSR';
 import { NavbarData } from '@/utils/navbarData';
-import Navbar from '@/src/common/Navbar/Navbar';
+// Old navbar kept as backup, uncomment to roll back:
 
+// import Navbar from '@/src/common/Navbar/Navbar';
+
+import Navbar from '@/src/common/Navbar/Navbar'; // Navbar2 only on home page
 interface QuestionResult {
   questionText: string;
   questionType: 'multiple_choice' | 'true_false';

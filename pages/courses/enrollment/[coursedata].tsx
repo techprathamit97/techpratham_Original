@@ -754,7 +754,11 @@ import React, { useEffect, useState, useContext } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
-import Navbar from "@/src/common/Navbar/Navbar";
+// Old navbar kept as backup, uncomment to roll back:
+
+// import Navbar from "@/src/common/Navbar/Navbar";
+
+import Navbar from '@/src/common/Navbar/Navbar'; // Navbar2 only on home page
 import FooterSm from "@/src/common/Footer/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

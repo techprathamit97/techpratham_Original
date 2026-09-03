@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Search } from "lucide-react";
+import { Search, ArrowRight } from "lucide-react";
 
 interface SearchResult {
   title: string;
@@ -96,25 +96,36 @@ const HeroSearch: React.FC<HeroSearchProps> = ({ onShowLeadForm }) => {
   };
 
   return (
-    <div 
-      ref={searchContainerRef} 
-      className="relative w-[240px] md:w-[65vh] md:max-w-xl mx-auto"
+    <div
+      ref={searchContainerRef}
+      className="relative w-full max-w-[92vw] sm:max-w-md md:max-w-2xl mx-auto"
     >
-      <div className="relative flex items-center">
+      {/*
+        Reference-matched search pill:
+          - white rounded-full container with a soft shadow
+          - magnifying glass icon on the left, inside the pill
+          - text input in the middle with placeholder from the reference
+          - circular solid-red submit button on the right with an arrow icon
+        The onChange, debounce, dropdown and click-outside logic below are
+        unchanged; only the outer visual container was restyled.
+      */}
+      <div className="relative flex items-center gap-2 rounded-full bg-white/95 pl-4 pr-1 py-1 shadow-[0_10px_30px_rgba(0,0,0,0.15)] ring-1 ring-black/5">
+        <Search className="w-5 h-5 shrink-0 text-gray-400" aria-hidden="true" />
         <input
           ref={inputRef}
           type="text"
-          placeholder="Search courses..."
+          placeholder="Tell us what you're looking to learn..."
           value={searchQuery}
           onChange={handleSearchChange}
-          className="w-full md:px-6 px-3 md:py-2 py-1 pr-16 rounded-full text-black text-base outline-none shadow-lg"
+          aria-label="Search courses"
+          className="flex-1 min-w-0 bg-transparent py-2 md:py-2.5 text-sm md:text-[15px] text-gray-800 placeholder:text-gray-500 outline-none"
         />
         <button
           onClick={handleSearchButtonClick}
-          className="absolute right-0 top-0 bottom-0 bg-gradient-to-tl from-[#C6151D] to-[#600A0E] px-6 rounded-r-full transition-colors flex items-center justify-center"
           aria-label="Search"
+          className="flex h-9 w-9 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-full bg-[#C6151D] text-white shadow-sm transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-red-200"
         >
-          <Search className='w-6 h-6 text-white' />
+          <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
         </button>
       </div>
 

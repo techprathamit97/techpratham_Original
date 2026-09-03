@@ -4,7 +4,13 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 
-import Navbar from '@/src/common/Navbar/Navbar';
+// Old navbar kept as backup, uncomment to roll back:
+
+
+// import Navbar from '@/src/common/Navbar/Navbar';
+
+
+import Navbar from '@/src/common/Navbar/Navbar'; // Navbar2 only on home page
 import Footer from '@/src/common/Footer/Footer';
 import { getNavbarData, NavbarData } from '@/utils/navbarData';
 import EmployeeLifecycle from '@/src/courses/common/EmployeeLifecycle';
