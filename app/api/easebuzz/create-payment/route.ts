@@ -24,8 +24,17 @@ export async function POST(request: NextRequest) {
     // Generate transaction ID
     const txnid = `TXN_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
     
-    // Format amount to 2 decimal places
-    const formattedAmount = parseFloat(amount).toFixed(2);
+    // Validate and format amount — Easebuzz requires a numeric string with
+    // exactly 2 decimal places (e.g. "5000.00"). Reject empty / non-numeric values.
+    const rawAmount = String(amount ?? '').trim().replace(/,/g, ''); // strip commas
+    const parsedAmount = parseFloat(rawAmount);
+    if (!rawAmount || isNaN(parsedAmount) || parsedAmount <= 0) {
+      return NextResponse.json(
+        { success: false, message: 'Invalid amount. Please enter a positive number.' },
+        { status: 400 }
+      );
+    }
+    const formattedAmount = parsedAmount.toFixed(2);
 
     // URLs for success/failure/cancel
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';

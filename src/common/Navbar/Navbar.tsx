@@ -530,11 +530,7 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
             </Button>
           )}
 
-          {/*
-            E-Books accordion, kept last so the primary links stay reachable
-            without scrolling. Mirrors the desktop Navbard strip, which is hidden
-            below md, using the same EBOOK_GROUPS source.
-          */}
+        
           <div className="col-span-2 w-full flex flex-col gap-1 border-t border-gray-100 pt-2 mt-1">
             <span className="flex items-center gap-2 px-1 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
               <StarIcon className="w-3.5 h-3.5" />
@@ -601,19 +597,19 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
       {/* Search Drawer */}
       <div
         ref={searchDrawerRef}
-        className={`transition-all duration-300 border-b border-b-gray-200 ${!searchActive ? '-top-80 left-0' : 'top-28 left-0'} absolute flex w-full h-auto bg-black/70 text-[#1a1a1a] flex-col items-center md:overflow-hidden overflow-y-auto pb-4 z-40`}
+        className={`transition-all duration-300 border-b border-b-gray-200 ${!searchActive ? '-top-80 left-0' : 'top-16 left-0'} absolute flex w-[70%] h-auto bg-white text-[#1a1a1a] flex-col items-center md:overflow-hidden overflow-y-auto pb-4 z-40`}
       >
         {/* <div className="absolute inset-0 bg-black/50 z-50 pointer-events-none"></div> */}
 
-        <div className='md:w-10/12 w-11/12 h-auto md:py-8 py-4 max-h-96 overflow-y-auto hide-scrollbar'>
+        <div className='p-2 h-auto md:py-3 py-2 max-h-96 overflow-y-auto hide-scrollbar'>
 
           {/* Search Results Header */}
           <div className='md:mb-6 mb-4'>
-            <h3 className='font-semibold text-lg text-white'>
+            <h3 className='font-semibold text-lg text-black'>
               {searchQuery ? `Search Results for "${searchQuery}"` : 'Start typing to search courses...'}
             </h3>
             {searchQuery && (
-              <p className='text-sm text-white mt-1'>
+              <p className='text-sm text-black mt-1'>
                 Found {filteredCourses.length} course.{filteredCourses.length !== 1 ? 's' : ''}
               </p>
             )}
@@ -636,7 +632,7 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
               <div className='space-y-6'>
               {searchResultsByCategory.map((category) => (
                 <div key={category.name}>
-                  <h4 className='font-medium text-md text-white mb-3 pb-1 border-b border-gray-200'>
+                  <h4 className='font-medium text-md text-black mb-3 pb-1 border-b border-gray-200'>
                     {category.name} ({category.courses.length})
                   </h4>
                   <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3'>

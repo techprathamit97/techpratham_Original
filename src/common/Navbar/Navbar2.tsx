@@ -448,11 +448,7 @@ const Navbar2: React.FC<NavbarProps> = () => {
       </div>
 
       {/* ==================== MOBILE DRAWER ==================== */}
-      {/*
-        Same structure and content as Navbar.tsx's mobile menu: 2-column grid
-        of quick links, then the e-book accordion (EBOOK_GROUPS) at the bottom.
-        Behaviour is identical; only the container styling changed.
-      */}
+     
       <div
         className={`w-full lg:hidden md:hidden flex items-start justify-center bg-white border-b border-gray-100 transition-all duration-300 ease-in-out transform origin-top ${
           navOpen
@@ -601,16 +597,16 @@ const Navbar2: React.FC<NavbarProps> = () => {
         ref={searchDrawerRef}
         style={{ zIndex: 99 }}
         className={`transition-all duration-300 border-b border-b-gray-200 ${
-          !searchActive ? '-top-80 left-0' : 'top-28 left-0'
-        } absolute flex w-full h-auto bg-black/70 text-[#1a1a1a] flex-col items-center md:overflow-hidden overflow-y-auto pb-4`}
+          !searchActive ? '-top-80 right-0' : 'top-16 right-0'
+        } absolute flex w-[70%] h-auto rounded-sm bg-white text-[#1a1a1a] flex-col items-center md:overflow-hidden overflow-y-auto pb-4`}
       >
-        <div className="md:w-10/12 w-11/12 h-auto md:py-8 py-4 max-h-96 overflow-y-auto hide-scrollbar">
+        <div className="p-2  h-auto md:py-2 py-4 max-h-96 content-center overflow-y-auto hide-scrollbar">
           <div className="md:mb-6 mb-4">
-            <h3 className="font-semibold text-lg text-white">
+            <h3 className="font-semibold text-lg text-black">
               {searchQuery ? `Search Results for "${searchQuery}"` : 'Start typing to search courses...'}
             </h3>
             {searchQuery && (
-              <p className="text-sm text-white mt-1">
+              <p className="text-sm text-black">
                 Found {filteredCourses.length} course.{filteredCourses.length !== 1 ? 's' : ''}
               </p>
             )}
@@ -618,21 +614,21 @@ const Navbar2: React.FC<NavbarProps> = () => {
 
           {!searchQuery ? (
             <div className="flex items-center justify-center h-32">
-              <span className="text-gray-300">Type in the search box to find courses</span>
+              <span className="text-black">Type in the search box to find courses</span>
             </div>
           ) : isLoading ? (
             <div className="flex items-center justify-center h-32">
-              <span className="text-gray-300">Searching courses...</span>
+              <span className="text-black">Searching courses...</span>
             </div>
           ) : filteredCourses.length === 0 ? (
             <div className="flex items-center justify-center h-32">
-              <span className="text-gray-300">No courses found matching your search</span>
+              <span className="text-black">No courses found matching your search</span>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-2">
               {searchResultsByCategory.map((category) => (
                 <div key={category.name}>
-                  <h4 className="font-medium text-md text-white mb-3 pb-1 border-b border-gray-200">
+                  <h4 className="font-medium text-md text-black mb-3 pb-1 border-b border-gray-200">
                     {category.name} ({category.courses.length})
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -675,30 +671,13 @@ const Navbar2: React.FC<NavbarProps> = () => {
 
   return (
     <>
-      {/*
-        In-flow spacer. Reserves navbar-height vertical space so content on
-        pages that do NOT overlap the navbar (privacy, terms, faqs, admin
-        dashboards, etc.) starts below it. The homepage HeroHome applies a
-        negative top margin to pull itself back up under the navbar.
-      */}
+   
       <div
         aria-hidden="true"
         className="w-full h-[64px] md:h-[80px] shrink-0 pointer-events-none"
       />
 
-      {/*
-        Render inline. Previously this was wrapped in createPortal after
-        mount to escape any ancestor with a CSS transform/filter, but
-        _app.tsx and IndexController don't apply those, and the portal
-        branch was triggering a hydration mismatch on the search input
-        inside <form> ("server HTML contains <input> in <form>"). The
-        portal is not needed and the mismatch is gone without it.
-
-        Kept commented for rollback:
-          {mounted && typeof document !== 'undefined'
-            ? createPortal(fixedNavbar, document.body)
-            : fixedNavbar}
-      */}
+     
       {fixedNavbar}
     </>
   );
