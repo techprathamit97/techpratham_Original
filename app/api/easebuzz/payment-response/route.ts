@@ -32,6 +32,12 @@ const PaymentTransaction = mongoose.models.PaymentTransaction ||
 export async function POST(request: NextRequest) {
   try {
     await connectMongo();
+
+    // Derive base URL from the request itself so it works on any deployment
+    // without needing NEXT_PUBLIC_BASE_URL explicitly set.
+    const host = request.headers.get('host') || 'localhost:3000';
+    const proto = request.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+    const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || `${proto}://${host}`).replace(/\/+$/, '');
     
     const formData = await request.formData();
     const responseData: any = {};
@@ -89,7 +95,7 @@ export async function POST(request: NextRequest) {
     // If payment is successful, also save as lead
     if (status === 'success') {
       try {
-        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/leads`, {
+        await fetch(`${baseUrl}/api/leads`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -113,15 +119,19 @@ export async function POST(request: NextRequest) {
 
     // Redirect based on payment status
     const redirectUrl = status === 'success'
-      ? `${process.env.NEXT_PUBLIC_BASE_URL}/payment-status?status=success&txnid=${txnid}&amount=${amount}`
-      : `${process.env.NEXT_PUBLIC_BASE_URL}/payment-status?status=failed&txnid=${txnid}`;
+      ? `${baseUrl}/payment-status?status=success&txnid=${txnid}&amount=${amount}`
+      : `${baseUrl}/payment-status?status=failed&txnid=${txnid}`;
 
     return NextResponse.redirect(redirectUrl);
 
   } catch (error: any) {
     console.error('Payment response processing error:', error);
+    // Fallback redirect — derive baseUrl again since it may not be in scope
+    const host2 = request.headers.get('host') || 'localhost:3000';
+    const proto2 = request.headers.get('x-forwarded-proto') || (host2.includes('localhost') ? 'http' : 'https');
+    const fallback = (process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || `${proto2}://${host2}`).replace(/\/+$/, '');
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/payment-status?status=error&message=Processing failed`
+      `${fallback}/payment-status?status=error&message=Processing+failed`
     );
   }
 }

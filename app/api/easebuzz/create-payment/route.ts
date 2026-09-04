@@ -37,7 +37,13 @@ export async function POST(request: NextRequest) {
     const formattedAmount = parsedAmount.toFixed(2);
 
     // URLs for success/failure/cancel
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    // Prefer explicit env var; fall back to deriving from the incoming request
+    // so it works on any deployment without extra config.
+    const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || (() => {
+      const host = request.headers.get('host') || 'localhost:3000';
+      const proto = request.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+      return `${proto}://${host}`;
+    })()).replace(/\/+$/, ''); // strip trailing slash
     const surl = `${baseUrl}/api/easebuzz/payment-response`;
     const furl = `${baseUrl}/api/easebuzz/payment-response`;
     const curl = `${baseUrl}/payment-status?status=cancelled`;

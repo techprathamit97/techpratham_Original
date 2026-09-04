@@ -8,19 +8,7 @@ import { useRef, useEffect, useState } from 'react';
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
 
-// Fallback images if backend is unavailable
-const fallbackImages = [
-  "/achiv/1.webp",
-  "/achiv/2.webp",
-  "/achiv/3.webp",
-  "/achiv/4.webp",
-  "/achiv/5.webp",
-  "/achiv/6.webp",
-  "/achiv/7.webp",
-  "/achiv/8.webp",
-  "/achiv/9.webp",
-  "/achiv/10.webp",
-];
+
 
 interface ReviewImage {
   _id: string;
@@ -80,10 +68,7 @@ export default function ThreeDCarousel() {
         src: img.imageUrl,
         alt: img.altText
       }))
-    : fallbackImages.map((img) => ({
-        src: img,
-        alt: "Student review testimonial"
-      }));
+    : [];
 
   // Handle image click to open in full screen
  
@@ -152,10 +137,7 @@ const middleIndex = Math.floor(imagesToDisplay.length / 2);
                 fill
                 loading="lazy"
                 className="object-cover"
-                onError={(e) => {
-                  // Fallback to first fallback image if backend image fails
-                  e.currentTarget.src = fallbackImages[0];
-                }}
+               
               />
             </div>
           </SwiperSlide>
