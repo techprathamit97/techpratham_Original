@@ -42,17 +42,19 @@ const ScrollButtons = () => {
       {showBottom && (
         <button
           onClick={scrollToBottom}
+          aria-label="Scroll to bottom of page"
           className="p-3 bg-gray-700 text-white rounded-full shadow-lg hover:bg-gray-600 transition"
         >
-          <FaArrowDown />
+          <FaArrowDown aria-hidden="true" />
         </button>
       )}
       {showTop && (
         <button
           onClick={scrollToTop}
+          aria-label="Scroll to top of page"
           className="p-3 bg-gray-700 text-white rounded-full shadow-lg hover:bg-gray-600 transition"
         >
-          <FaArrowUp />
+          <FaArrowUp aria-hidden="true" />
         </button>
       )}
     </div>

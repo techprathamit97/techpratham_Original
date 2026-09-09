@@ -120,7 +120,10 @@ export const getServerSideProps: GetServerSideProps<CourseDataPageProps> = async
     ]);
 
     if (!response.ok) {
-      console.error('Course API response not OK:', response.status, response.statusText);
+      // 404 is normal — bots/old links hit deleted course slugs. Don't pollute logs.
+      if (response.status !== 404) {
+        console.error('Course API response not OK:', response.status, response.statusText);
+      }
       const error = response.status === 404 ? 'Course not found' : 'Failed to fetch course data';
       return { props: { course: null, error, navbarData } };
     }

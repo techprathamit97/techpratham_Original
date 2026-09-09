@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Image from 'next/image';
 
 interface PhoneDisplayProps {
   phone: string;
@@ -106,6 +107,7 @@ const parsePhoneNumber = (phone: string) => {
 
 const PhoneDisplay: React.FC<PhoneDisplayProps> = ({ phone, className = '' }) => {
   const { countryCode, number, flagUrl, countryName, fullNumber } = parsePhoneNumber(phone);
+  const [flagError, setFlagError] = useState(false);
 
   if (!phone) {
     return <span className={`text-zinc-400 ${className}`}>-</span>;
@@ -113,16 +115,18 @@ const PhoneDisplay: React.FC<PhoneDisplayProps> = ({ phone, className = '' }) =>
 
   return (
     <div className={`flex items-center gap-2 ${className}`} title={`${fullNumber} (${countryName})`}>
-      {flagUrl && (
-        <img
-          src={flagUrl}
-          alt={`${countryName} flag`}
-          className="w-5 h-4 object-cover rounded-sm flex-shrink-0 border border-zinc-600"
-          onError={(e) => {
-            // Hide flag if it fails to load
-            (e.target as HTMLImageElement).style.display = 'none';
-          }}
-        />
+      {flagUrl && !flagError && (
+        <div className="relative w-5 h-4 flex-shrink-0 rounded-sm overflow-hidden border border-zinc-600">
+          <Image
+            src={flagUrl}
+            alt={`${countryName} flag`}
+            fill
+            sizes="20px"
+            loading="lazy"
+            className="object-cover"
+            onError={() => setFlagError(true)}
+          />
+        </div>
       )}
       <div className="flex flex-col min-w-0">
         <span className="text-white text-sm font-medium truncate" title={fullNumber}>

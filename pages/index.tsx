@@ -149,19 +149,18 @@ const IndexPage: NextPage<IndexPageProps> = ({ trendingCourses, groupedCourses, 
           <link rel="canonical" href="https://www.techpratham.com/" />
           <link rel="icon" href="/favicon.ico" type="image/ico" sizes="70x70" />
           
-          {/* ✅ LCP Image Preloads with proper Next.js srcset - Critical for Core Web Vitals */}
-          <link 
-            rel="preload" 
-            as="image" 
-            href="/_next/image?url=%2Fhome%2Fhero%2Fmainoffice3.webp&w=1920&q=90"
-            fetchPriority="high"
-          />
-          <link 
-            rel="preload" 
-            as="image" 
-            imageSrcSet="/_next/image?url=%2Fhome%2Fhero%2Fmainoffice3.webp&w=640&q=90 640w, /_next/image?url=%2Fhome%2Fhero%2Fmainoffice3.webp&w=750&q=90 750w, /_next/image?url=%2Fhome%2Fhero%2Fmainoffice3.webp&w=828&q=90 828w, /_next/image?url=%2Fhome%2Fhero%2Fmainoffice3.webp&w=1080&q=90 1080w, /_next/image?url=%2Fhome%2Fhero%2Fmainoffice3.webp&w=1200&q=90 1200w, /_next/image?url=%2Fhome%2Fhero%2Fmainoffice3.webp&w=1920&q=90 1920w, /_next/image?url=%2Fhome%2Fhero%2Fmainoffice3.webp&w=2048&q=90 2048w"
+          {/* LCP image — single preload pointing directly at the static WebP file.
+              Bypasses the /_next/image proxy so the browser starts the fetch
+              immediately from the HTML without a round-trip through Next.js.
+              imagesizes/imagesrcset must match what the <Image> component renders. */}
+          <link
+            rel="preload"
+            as="image"
+            href="/home/hero/mainoffice3.webp"
+            imageSrcSet="/home/hero/mainoffice3.webp 1x"
             imageSizes="100vw"
-            fetchPriority="high"
+            // @ts-ignore — fetchpriority is valid HTML but not in React types yet
+            fetchpriority="high"
           />
           
           <title>India's No.1 Best IT Training Institute | Corporate Learning</title>

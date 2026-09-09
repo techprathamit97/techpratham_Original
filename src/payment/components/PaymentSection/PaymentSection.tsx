@@ -14,6 +14,9 @@ const FormContact = () => {
             setEasebuzzSubmitting(true);
             
             // First save lead
+            // The leads/email system expects `fullName`, but this form registers
+            // the name field as `firstname` (Easebuzz's expected key). Map it so
+            // the lead email shows the name instead of "Not provided".
             await fetch('/api/leads', {
                 method: 'POST',
                 headers: {
@@ -21,6 +24,7 @@ const FormContact = () => {
                 },
                 body: JSON.stringify({
                     ...data,
+                    fullName: data.firstname,
                     formType: "easebuzz-payment-form",
                     course: `${data.productinfo} - Payment of Rs. ${data.amount}`,
                     message: `Easebuzz Payment Initiated:\nAmount: Rs. ${data.amount}\nAddress: ${data.address1}, ${data.city}, ${data.state}, ${data.country} - ${data.zipcode}`,

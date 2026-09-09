@@ -194,24 +194,19 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let inputValue = e.target.value;
-    
-    // Remove any non-digit characters except spaces and dashes for formatting
-    const cleanValue = inputValue.replace(/[^\d\s-]/g, '');
-    
-    // Prevent user from typing country code
-    if (cleanValue.startsWith(countryCode.substring(1))) {
-      inputValue = cleanValue.substring(countryCode.length - 1);
-    } else {
-      inputValue = cleanValue;
-    }
+    // Accept exactly what the user typed, keeping only digits, spaces and dashes.
+    // Do NOT strip leading digits that happen to match the country code — a valid
+    // local number can legitimately start with the same digits (e.g. an Indian
+    // number starting "91", or a Hungarian number starting "36"). The country
+    // code is already held separately in the selector, so there is nothing to strip.
+    const inputValue = e.target.value.replace(/[^\d\s-]/g, '');
 
     setPhoneNumber(inputValue);
-    
+
     // Create full phone number
     const cleanNumber = inputValue.replace(/\D/g, '');
     const fullNumber = cleanNumber ? `${countryCode}${cleanNumber}` : countryCode;
-    
+
     onChange(fullNumber);
     validatePhoneNumber(inputValue, countryCode);
   };

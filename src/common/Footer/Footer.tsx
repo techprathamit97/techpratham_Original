@@ -37,31 +37,39 @@ const Footer = () => {
               <Link
                 href="https://www.facebook.com/profile.php?id=61573041693401"
                 target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Follow TechPratham on Facebook (opens in new tab)"
                 className="w-8 h-8 rounded-full bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white flex items-center justify-center"
               >
-                <FaFacebook className="w-6 h-6" />
+                <FaFacebook className="w-6 h-6" aria-hidden="true" />
               </Link>
               <Link
                 href="https://www.linkedin.com/company/techpratham/"
                 target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Follow TechPratham on LinkedIn (opens in new tab)"
                 className="w-8 h-8 rounded-full bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white flex items-center justify-center"
               >
-                <FaLinkedin className="w-6 h-6" />
+                <FaLinkedin className="w-6 h-6" aria-hidden="true" />
               </Link>
 
               <Link
                 href="https://www.instagram.com/techprathamofficials/"
                 target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Follow TechPratham on Instagram (opens in new tab)"
                 className="w-8 h-8 rounded-full bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white flex items-center justify-center"
               >
-                <FaInstagram className="w-6 h-6" />
+                <FaInstagram className="w-6 h-6" aria-hidden="true" />
               </Link>
               <Link
                 href="https://x.com/TechPrathamEdu"
                 target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Follow TechPratham on X / Twitter (opens in new tab)"
                 className="w-8 h-8 rounded-full bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white flex items-center justify-center"
               >
-                <FaTwitter className="w-6 h-6" />
+                <FaTwitter className="w-6 h-6" aria-hidden="true" />
               </Link>
             </div>
           </div>

@@ -96,6 +96,9 @@ const ReachForm = () => {
 
 
             <div
+                id="reach-form"
+                role="region"
+                aria-label="Reach out form"
                 className={`bg-white text-black flex flex-col items-center justify-center gap-2 capitalize transition-all duration-500 ease-in-out shadow ${isOpen
                     ? 'max-h-[600px] opacity-100 py-2 px-4 translate-y-0'
                     : 'max-h-0 opacity-0 py-0 px-4 -translate-y-4'

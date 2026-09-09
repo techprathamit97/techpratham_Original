@@ -6,7 +6,7 @@ import { IndexController } from '@/src/index/controller/IndexController';
 import { NavbarData } from '@/utils/navbarData';
 import { withNavbarSSR } from '@/utils/withNavbarSSR';
 import JobsView from '@/src/jobs/views/JobsView';
-
+import NewComponent from '../src/index/components/NewComponent/NewComponent';
 interface JobOpeningsPageProps {
     navbarData: NavbarData;
 }
@@ -31,8 +31,9 @@ const JobOpeningsPage: NextPage<JobOpeningsPageProps> = ({ navbarData }) => (
                 <meta name="twitter:description" content="Apply for the latest job openings at TechPratham and grow your career in IT education." />
                 <meta name="twitter:image" content="/navbar/techpratham.svg" />
             </Head>
-
+{/* <NewComponent /> */}
             <JobsView />
+            <NewComponent />
         </IndexController>
     </div>
 );

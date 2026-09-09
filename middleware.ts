@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { rateLimit, getClientIp } from "@/lib/rateLimit";
 
 /**
  * API access control.
@@ -50,6 +51,41 @@ const BYPASS_PREFIXES = [
 /** Methods that change state and therefore need an origin check. */
 const WRITE_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
+/**
+ * Rate-limit tiers. Numbers are "requests per window per client IP".
+ * Tune to your real traffic — these are deliberately generous so normal users
+ * and SSR bursts never hit them, while a flood does.
+ *
+ *   auth   : login / password reset — brute-force sensitive, kept tight.
+ *   write  : any state-changing request (POST/PUT/PATCH/DELETE).
+ *   read   : everything else (GET). SSR can fan out several reads per page
+ *            load, so this is high.
+ */
+const RATE_TIERS = {
+  auth: { limit: 20, windowMs: 60_000 },    // 20 / minute
+  write: { limit: 60, windowMs: 60_000 },   // 60 / minute
+  read: { limit: 300, windowMs: 60_000 },   // 300 / minute
+} as const;
+
+/** Endpoints where brute-force is the main risk — get the strict auth tier. */
+const AUTH_SENSITIVE_PREFIXES = [
+  "/api/auth/forgot-password",
+  "/api/auth/reset-password",
+  "/api/auth/student-login",
+  "/api/auth/trainer-login",
+  "/api/register",
+];
+
+function pickTier(pathname: string, method: string) {
+  if (AUTH_SENSITIVE_PREFIXES.some((p) => pathname.startsWith(p))) {
+    return { name: "auth", ...RATE_TIERS.auth };
+  }
+  if (WRITE_METHODS.has(method.toUpperCase())) {
+    return { name: "write", ...RATE_TIERS.write };
+  }
+  return { name: "read", ...RATE_TIERS.read };
+}
+
 function deny(message: string, status: number) {
   return NextResponse.json(
     { status: "error", message },
@@ -66,6 +102,39 @@ function deny(message: string, status: number) {
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  /**
+   * Rate limiting runs FIRST, before the bypass check, so even bypassed
+   * endpoints (login, payment callbacks) are protected against floods.
+   * The developer bypass below is checked here too so devs are never throttled.
+   */
+  const devSecretRL = process.env.API_DEV_SECRET;
+  const presentedRL =
+    req.headers.get("x-dev-access") ?? req.cookies.get("dev_access")?.value;
+  const isDeveloperRL = Boolean(devSecretRL) && presentedRL === devSecretRL;
+
+  if (!isDeveloperRL) {
+    const ip = getClientIp(req.headers);
+    const tier = pickTier(pathname, req.method);
+    const rl = rateLimit(ip, tier.name, tier.limit, tier.windowMs);
+
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { status: "error", message: "Too many requests. Please slow down." },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rl.retryAfter),
+            "X-RateLimit-Limit": String(tier.limit),
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset": String(Math.ceil(rl.resetAt / 1000)),
+            "X-Robots-Tag": "noindex, nofollow",
+            "Cache-Control": "no-store",
+          },
+        }
+      );
+    }
+  }
 
   if (BYPASS_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
     return NextResponse.next();
