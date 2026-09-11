@@ -66,7 +66,7 @@ export const teams = [
     {
         image: "/about/teams/dhruv.webp",
         name: "Dhruv",
-        position: "Front-End Developer",
+        position: "Operation Manager",
        
     },
     {
