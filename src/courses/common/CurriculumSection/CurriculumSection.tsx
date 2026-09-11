@@ -48,7 +48,8 @@ const PDF_COURSES = [
   "servicenow-it-operations-management-itom-implementation",
   "servicenow-itsm-training",
   "servicenow-training-in-india",
-  "salesforce-devops-engineering"
+  "salesforce-devops-engineering",
+  "sap-successfactors"
 ];
 
 // PDF paths for courses - stored in /training folder
@@ -57,7 +58,8 @@ const PDF_PATHS: Record<string, string> = {
   "servicenow-it-operations-management-itom-implementation": "/training/TechPratham_ITOM_Content.pdf",
   "servicenow-itsm-training": "/training/TechPratham_ServiceNow.pdf",
   "servicenow-training-in-india": "/training/TechPratham_ServiceNow_Admin_ITSM.pdf",
-  "salesforce-devops-engineering": "/training/salesforce-devOps-engineering.pdf"
+  "salesforce-devops-engineering": "/training/salesforce-devOps-engineering.pdf",
+  "sap-successfactors": "/training/TechPratham_SAP_SuccessFactors_Employee_Central.pdf"
 };
 
 const getPdfUrl = (courselink: string): string => {

@@ -13,10 +13,7 @@ const FormContact = () => {
         try {
             setEasebuzzSubmitting(true);
             
-            // First save lead
-            // The leads/email system expects `fullName`, but this form registers
-            // the name field as `firstname` (Easebuzz's expected key). Map it so
-            // the lead email shows the name instead of "Not provided".
+    
             await fetch('/api/leads', {
                 method: 'POST',
                 headers: {
