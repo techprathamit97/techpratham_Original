@@ -303,12 +303,12 @@ const Navbar2: React.FC<NavbarProps> = () => {
         }`}
       >
         <div
-          className={`mx-auto  w-full max-w-[1400px] px-3 md:px-6 transition-[padding] duration-200 ${
+          className={`mx-auto  w-full max-w-[1250px] px-3 md:px-10 transition-[padding] duration-200 ${
             scrolled ? 'py-0' : 'py-1 md:py-3'
           }`}
         >
           <div
-            className={`flex w-full items-center justify-between md:justify-start gap-3 rounded-full px-3 md:px-4 transition-all duration-200 ${
+            className={`flex w-full items-center justify-between md:justify-start gap-3 rounded-full px-3 md:px-10 transition-all duration-200 ${
               scrolled
                 ? ' py-1'
                 : ' bg-white shadow-[0_4px_20px_rgba(0,0,0,0.08)] md:py-1'

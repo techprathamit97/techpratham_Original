@@ -32,11 +32,7 @@ const CHIP_ICONS: Record<string, string> = {
   'Data Analytics': '📈',
 };
 
-/**
- * Each chip carries its full EBOOK_GROUPS entry so it can render a hover
- * dropdown of sub-links (Learning e-Book, Interview Questions, etc.), matching
- * the behaviour of the original Navbard strip.
- */
+
 const HERO_CHIPS: Array<EbookGroup & { icon: string }> = EBOOK_GROUPS.map((group) => ({
   ...group,
   icon: CHIP_ICONS[group.shortLabel] ?? '📚',
