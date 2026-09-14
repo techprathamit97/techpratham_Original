@@ -179,7 +179,7 @@ const HeroHome = () => {
                   <button
                     type="button"
                     aria-haspopup="true"
-                    className="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-white/95 px-3 py-1.5 md:px-4 md:py-2 text-[12px] font-bold text-black shadow-sm ring-1 ring-black/5 transition hover:bg-white hover:text-[#C6151D] hover:ring-red-200 focus:outline-none focus:ring-2 focus:ring-red-200 group-hover:bg-white group-hover:text-[#C6151D] group-hover:ring-red-200 group-focus-within:bg-white group-focus-within:text-[#C6151D] group-focus-within:ring-red-200"
+                    className="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-white/95 px-3 py-1.5 md:px-4 md:py-2 text-[12px] font-bold text-[#C6151D] shadow-sm ring-1 ring-black/5 transition hover:bg-white hover:text-black hover:ring-red-200 focus:outline-none focus:ring-2 focus:ring-red-200 group-hover:bg-white group-hover:text-[#C6151D] group-hover:ring-red-200 group-focus-within:bg-white group-focus-within:text-[#C6151D] group-focus-within:ring-red-200"
                   >
                     <span aria-hidden="true" className="text-base leading-none">{chip.icon}</span>
                     <span>{chip.label}</span>
