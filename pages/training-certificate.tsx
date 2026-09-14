@@ -19,7 +19,7 @@ const CertificatePage: NextPage<CertificatePageProps> = ({ navbarData }) => (
                 <title>Training Certificate | TechPratham - India's Leading IT Training Institute</title>
                 <meta name="description" content="Download and verify your TechPratham training certificates. Showcase your achievements and boost your career with recognized credentials." />
                 <meta name="keywords" content="TechPratham Certificate, Training Certificate, IT Certification, Course Completion, TechPratham Credentials" />
-                <meta name="author" content="the-bipu" />
+                <meta name="author" content="techpratham" />
 
                 <meta property="og:title" content="Training Certificate | TechPratham - India's Leading IT Training Institute" />
                 <meta property="og:description" content="Access and verify your TechPratham training certificates. Demonstrate your skills and accomplishments." />

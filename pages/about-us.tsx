@@ -20,7 +20,7 @@ const AboutPage: NextPage<AboutPageProps> = ({ navbarData }) => (
                 <title>About Us | TechPratham - India's Leading IT Training Institute</title>
                 <meta name="description" content="Learn more about TechPratham, India's leading IT Training Institute. Discover our mission, vision, team, and commitment to delivering top-notch IT education and corporate learning solutions." />
                 <meta name="keywords" content="About TechPratham, IT Training Institute, Our Team, Our Mission, Corporate Learning, IT Education, Best IT Institute India" />
-                <meta name="author" content="the-bipu" />
+                <meta name="author" content="techpratham" />
 
                 <meta property="og:title" content="About Us | TechPratham - India's Leading IT Training Institute" />
                 <meta property="og:description" content="Learn more about TechPratham, our mission, vision, and commitment to delivering the best IT education and corporate learning in India." />

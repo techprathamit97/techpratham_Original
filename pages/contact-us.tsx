@@ -19,7 +19,7 @@ const ContactPage: NextPage<ContactPageProps> = ({ navbarData }) => (
                 <title>Contact Us | TechPratham - Get in Touch for IT Training Solutions</title>
                 <meta name="description" content="Contact TechPratham for customized IT training solutions. Reach out to our team for inquiries, support, or partnership opportunities." />
                 <meta name="keywords" content="Contact TechPratham, IT Training Contact, Corporate Training Inquiry, TechPratham Support, Training Solutions, Business IT Contact" />
-                <meta name="author" content="the-bipu" />
+                <meta name="author" content="techpratham" />
 
                 <meta property="og:title" content="Contact Us | TechPratham - Get in Touch for IT Training Solutions" />
                 <meta property="og:description" content="Connect with TechPratham for expert-led IT training. We're here to answer your questions and discuss your training needs." />

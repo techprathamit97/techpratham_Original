@@ -1,10 +1,7 @@
 "use client";
-
 import { useSession } from "next-auth/react";
 import React, { createContext, useEffect, useState } from "react";
-
 export const UserContext = createContext();
-
 export const UserProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);

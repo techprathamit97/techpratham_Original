@@ -276,14 +276,12 @@ const Navbar2: React.FC<NavbarProps> = () => {
   /* ------------------------ helpers -------------------------------- */
   const isActivePath = (href: string) => pathname === href;
  
-  // When scrolled (white bg), links must be dark-gray; when transparent (hero), links are white.
+  // Pill is white in both states, so links stay dark-gray for contrast.
   const navLinkCls = (href: string) =>
     `flex items-center gap-1 whitespace-nowrap text-[16px] font-medium transition-colors ${
       isActivePath(href)
         ? 'text-[#C6151D]'
-        : scrolled
-        ? 'text-gray-700 hover:text-[#C6151D]'
-        : 'text-white hover:text-[#C6151D]'
+        : 'text-black font-bold hover:text-[#C6151D]'
     }`;
 
   const fixedNavbar = (
@@ -298,14 +296,14 @@ const Navbar2: React.FC<NavbarProps> = () => {
       */}
       {/* On mobile: always white/solid. On desktop: transparent at top, solid on scroll. */}
       <div
-        className={`w-full transition-colors duration-200 ${
+        className={`w-full  transition-colors duration-200 ${
           scrolled
             ? 'bg-white/95 backdrop-blur-md shadow-[0_2px_10px_rgba(0,0,0,0.06)]'
             : 'bg-white/95 backdrop-blur-md shadow-[0_2px_10px_rgba(0,0,0,0.06)] md:bg-transparent md:backdrop-blur-none md:shadow-none'
         }`}
       >
         <div
-          className={`mx-auto w-full max-w-[1400px] px-3 md:px-6 transition-[padding] duration-200 ${
+          className={`mx-auto  w-full max-w-[1400px] px-3 md:px-6 transition-[padding] duration-200 ${
             scrolled ? 'py-0' : 'py-1 md:py-3'
           }`}
         >
@@ -313,7 +311,7 @@ const Navbar2: React.FC<NavbarProps> = () => {
             className={`flex w-full items-center justify-between md:justify-start gap-3 rounded-full px-3 md:px-4 transition-all duration-200 ${
               scrolled
                 ? ' py-1'
-                : ' md:py-2'
+                : ' bg-white shadow-[0_4px_20px_rgba(0,0,0,0.08)] md:py-1'
             }`}
           >
           {/* -------- Logo -------- */}
@@ -345,7 +343,7 @@ const Navbar2: React.FC<NavbarProps> = () => {
                 onMouseEnter={handleButtonMouseEnter}
                 onMouseLeave={handleButtonMouseLeave}
                 className={`flex items-center gap-1 whitespace-nowrap font-medium transition-colors ${
-                  isActive ? 'text-[#C6151D]' : scrolled ? 'text-gray-700 hover:text-[#C6151D]' : 'text-white hover:text-[#C6151D]'
+                  isActive ? 'text-[#C6151D]' : ' hover:text-[#C6151D]'
                 }`}
                 aria-haspopup="true"
                 aria-expanded={isActive}
@@ -382,13 +380,13 @@ const Navbar2: React.FC<NavbarProps> = () => {
           </nav>
 
           {/* -------- Search (md+) -------- */}
-          <form
+          {/* <form
             onSubmit={handleSearchSubmit}
             ref={searchDesktopFormRef}
             className="hidden md:flex items-center flex-1 lg:flex-none lg:w-56 max-w-xs"
           >
             <div className="relative flex w-full items-center border border-red-500 rounded-full bg-white focus-within:ring-2 focus-within:ring-red-100 transition overflow-hidden">
-              {/* <Search className="w-4 h-4 text-gray-400 ml-3 shrink-0" /> */}
+              
               <input
                 ref={searchInputRef}
                 value={searchQuery}
@@ -407,7 +405,7 @@ const Navbar2: React.FC<NavbarProps> = () => {
                 <Search className="w-3.5 h-3.5" />
               </button>
             </div>
-          </form>
+          </form> */}
 
 
           <div className="hidden md:flex items-center shrink-0">
@@ -426,7 +424,7 @@ const Navbar2: React.FC<NavbarProps> = () => {
             ) : (
               <Link
                 href="/auth/login"
-                className="rounded-full bg-[#C6151D] text-white text-[12px] font-bold tracking-wider uppercase px-5 py-2 shadow-sm hover:brightness-110 transition"
+                className="rounded-full bg-[#EE2C3C] text-white text-[12px] font-bold tracking-wider uppercase px-5 py-2 shadow-sm hover:brightness-110 transition"
               >
                 Sign Up
               </Link>

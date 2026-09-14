@@ -19,7 +19,7 @@ const PaymentPage: NextPage<PaymentPageProps> = ({ navbarData }) => (
         <title>Payment | TechPratham - Tech Insights & Career Tips</title>
         <meta name="description" content="Explore insightful payment options and guides at TechPratham." />
         <meta name="keywords" content="TechPratham Payment, IT Career Tips, Software Development Articles, Tech Insights, Programming Guides" />
-        <meta name="author" content="the-bipu" />
+        <meta name="author" content="techpratham" />
 
         <meta property="og:title" content="Payment | TechPratham - Tech Insights & Career Tips" />
         <meta property="og:description" content="Explore insightful payment options and guides at TechPratham." />

@@ -19,7 +19,7 @@ const AdmissionPage: NextPage<AdmissionPageProps> = ({ navbarData }) => (
         <title>Admission | TechPratham - Apply for IT Training Programs</title>
         <meta name="description" content="Apply for IT training programs at TechPratham. Start your journey with our expert-led courses and boost your career in technology." />
         <meta name="keywords" content="TechPratham Admission, IT Training Application, Enroll TechPratham, IT Courses Admission, Training Registration" />
-        <meta name="author" content="the-bipu" />
+        <meta name="author" content="techpratham" />
 
         <meta property="og:title" content="Admission | TechPratham - Apply for IT Training Programs" />
         <meta property="og:description" content="Join TechPratham's IT training programs. Apply now to enhance your skills with industry-leading instructors." />

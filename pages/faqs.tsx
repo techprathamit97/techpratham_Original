@@ -24,7 +24,7 @@ const faqs: NextPage<FaqsProps> = ({ navbarData }) => {
                 <title>FAQs | TechPratham - Frequently Asked Questions</title>
                 <meta name="description" content="Find answers to frequently asked questions about TechPratham’s IT training programs, certifications, admissions, courses, fees, and learning process." />
                 <meta name="keywords" content="TechPratham FAQs, IT Training FAQs, TechPratham Help, Course Queries, Admission FAQs, Certification Questions, IT Institute Support" />
-                <meta name="author" content="the-bipu" />
+                <meta name="author" content="techpratham" />
 
                 <meta property="og:title" content="FAQs | TechPratham - Frequently Asked Questions" />
                 <meta property="og:description" content="Have questions about TechPratham? Explore our FAQs to learn more about our IT training programs, certifications, and admission process." />

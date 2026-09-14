@@ -377,7 +377,7 @@ const CoursesDropdown: React.FC<CoursesDropdownProps> = ({
       ref={dropdownRef}
       className={`transition-all duration-300 ${
         anchorTo === 'button'
-          ? 'top-full mt-2 left-0'
+          ? 'top-full left-0'
           : 'top-12 left-1/2 -translate-x-1/2'
       } absolute md:flex h-auto flex-col items-center md:overflow-hidden overflow-y-auto md:pb-0 pb-5 z-40 ${isActive ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}
       style={{ width: calculateWidth() }}

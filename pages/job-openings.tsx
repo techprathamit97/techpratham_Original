@@ -19,7 +19,7 @@ const JobOpeningsPage: NextPage<JobOpeningsPageProps> = ({ navbarData }) => (
                 <title>Job Openings | TechPratham - Careers & Opportunities</title>
                 <meta name="description" content="Explore current job openings at TechPratham. Join our team and advance your career in IT education and training." />
                 <meta name="keywords" content="TechPratham Jobs, IT Careers, Job Openings, TechPratham Careers, IT Training Jobs, Work at TechPratham" />
-                <meta name="author" content="the-bipu" />
+                <meta name="author" content="techpratham" />
 
                 <meta property="og:title" content="Job Openings | TechPratham - Careers & Opportunities" />
                 <meta property="og:description" content="Discover exciting career opportunities at TechPratham and become part of our mission to empower IT professionals." />

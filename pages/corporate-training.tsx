@@ -19,7 +19,7 @@ const TrainingPage: NextPage<TrainingPageProps> = ({ navbarData }) => (
                 <title>Top Corporate Training Companies , Corporate Training & Certification Programs</title>
                 <meta name="description" content="Explore top corporate training companies offering certification programs, leadership development, employee upskilling, and customized training solutions." />
                 <meta name="keywords" content="Corporate Training, IT Training for Companies, Employee Upskilling, TechPratham Corporate, Customized Training, Business IT Solutions, Team Training India" />
-                <meta name="author" content="the-bipu" />
+                <meta name="author" content="techpratham" />
 
                 <meta property="og:title" content="Corporate Training | TechPratham - Upskill Your Team with Industry Experts" />
                 <meta property="og:description" content="Empower your workforce with tailored IT training from TechPratham. Drive business success with expert-led corporate learning solutions." />

@@ -153,7 +153,7 @@ const HeroSearch: React.FC<HeroSearchProps> = ({ onShowLeadForm }) => {
                   onClick={handleCourseClick}
                   className="block px-4 py-3 hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0"
                 >
-                  <p className="text-left text-black font-medium text-sm">
+                  <p className="text-left text-black font-bold text-sm">
                     {truncateTitle(course.title)}
                   </p>
                 </a>

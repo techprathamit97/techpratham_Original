@@ -166,7 +166,7 @@ const IndexPage: NextPage<IndexPageProps> = ({ trendingCourses, groupedCourses, 
           <title>India's No.1 Best IT Training Institute | Corporate Learning</title>
           <meta name="description" content="Corporate Learning is the best IT Training Institute in India for Industrial Training, provide training in 180+ courses as IT, Software, SAP, Data science & AWS." />
           <meta name="keywords" content="India's No.1 IT Training Institute,IT training institute in delhi with placement, IT training institute near me, IT training institute in india, best IT training institute in delhi, IT training institute in ghaziabad, IT training institute in noida, IT training institute in gurgaon, Professional courses training online, Professional courses training near me, professional development training courses, IT training institute India" />
-          <meta name="author" content="the-bipu" />
+          <meta name="author" content="techpratham" />
 
           <meta property="og:title" content="India's No.1 Best IT Training Institute | Corporate Learning" />
           <meta property="og:description" content="Corporate Learning is the best IT Training Institute in India for Industrial Training, provide training in 180+ courses as IT, Software, SAP, Data science & AWS." />
