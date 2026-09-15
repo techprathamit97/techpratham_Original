@@ -15,7 +15,7 @@ export default function DemoOne() {
 
       <section className="relative mx-auto bg-[#fdfbfb] w-full">
         <div className="text-center py-3 ">
-        <h2 className="text-[#7f1d1d] md:text-3xl text-2xl font-bold">
+        <h2 className="text-[#ff2a3b] md:text-3xl text-2xl font-bold">
           Placement Client  
         </h2>
 

@@ -76,12 +76,7 @@ export function rateLimit(
   };
 }
 
-/**
- * Best-effort client IP extraction from proxy headers.
- * Behind nginx / Amplify / Cloudflare the real IP is in x-forwarded-for
- * (first entry) or x-real-ip. Falls back to a constant so the limiter still
- * functions (all unknown clients share one bucket) rather than failing open.
- */
+
 export function getClientIp(headers: Headers): string {
   const xff = headers.get("x-forwarded-for");
   if (xff) {
@@ -95,3 +90,4 @@ export function getClientIp(headers: Headers): string {
     "unknown"
   );
 }
+ 
