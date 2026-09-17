@@ -1,15 +1,11 @@
 import { NextResponse } from "next/server";
 import { connectMongo } from "@/utils/mongodb";
 import Event from "@/models/event";
+import { getEvents } from "@/lib/homeData";
 
 export async function GET() {
   try {
-    await connectMongo();
-
-    const events = await Event.find()
-      .select("type videoUrl image order createdAt updatedAt")
-      .sort({ order: 1, createdAt: -1 })
-      .lean();
+    const events = await getEvents();
 
     return NextResponse.json(events, {
       headers: {

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import HeroSearch from "./HeroSearch";
 // Swiper removed intentionally: the carousel added ~40KB of JS to the LCP path
 // and shifted the hero repeatedly during load. Replaced by a static poster
@@ -106,18 +107,17 @@ const HeroHome = () => {
       {/* Hero background: static poster is the LCP element and is always
           present. Video overlays it (opacity fade) once it has buffered. */}
       <div className="absolute inset-0 z-0">
-        {/* LCP image — plain <img> (no /_next/image proxy) so the browser
-            finds it directly in the server HTML and the preload in
-            pages/index.tsx hits the exact same URL. This eliminates the
-            1,240ms resource load delay. */}
+        {/* LCP image — Next.js <Image> with priority so it is preloaded and
+            optimized. fill + object-cover reproduces the previous absolute
+            full-bleed background behavior. */}
         <div className="relative h-full w-full">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={HERO_POSTER}
             alt="TechPratham IT Training Institute"
-            fetchPriority="high"
-            decoding="async"
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
           />
           {/*
             Background video mounts after idle so it never enters the LCP

@@ -1,9 +1,6 @@
-
-
 import { connectMongo } from "@/utils/mongodb";
 import { Lead } from "@/models/Lead";
 
-// Save a single lead to the database
 export async function saveLead(data: any) {
   await connectMongo();
 

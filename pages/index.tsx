@@ -2,9 +2,10 @@ import React from 'react';
 import Head from 'next/head';
 import IndexView from '@/src/index/views/IndexView';
 import { IndexController } from '@/src/index/controller/IndexController';
-import type { NextPage, GetServerSideProps } from 'next';
+import type { NextPage, GetStaticProps } from 'next';
 import Script from 'next/script';
 import { getNavbarData, NavbarData } from '@/utils/navbarData';
+import { getTrendingCourses, getGroupedCourses, getEvents } from '@/lib/homeData';
 import LeadForm from '@/components/common/LeadForm/LeadForm';
 
 
@@ -203,33 +204,29 @@ const IndexPage: NextPage<IndexPageProps> = ({ trendingCourses, groupedCourses, 
   );
 };
 
-// Server-side data fetching - runs on every request
-export const getServerSideProps: GetServerSideProps<IndexPageProps> = async (context) => {
+// Static generation with ISR - the page HTML is cached and regenerated in the
+// background at most once per `revalidate` window, instead of running the full
+// data fetch on every request. Data is read directly from the DB layer
+// (lib/homeData) so there are no self-HTTP round-trips or middleware overhead.
+export const getStaticProps: GetStaticProps<IndexPageProps> = async () => {
   try {
-    // Use absolute URL for server-side fetch
-    // const protocol = context.req.headers.host?.includes('localhost') ? 'http' : 'https';
-    // const baseUrl = `${protocol}://${context.req.headers.host}`;
-    const baseUrl = 'http://127.0.0.1:3000';
     // Fetch all data in parallel for better performance
-    const [trendingRes, groupedRes, eventsRes, navbarData] = await Promise.all([
-      fetch(`${baseUrl}/api/get-course/trending`),
-      fetch(`${baseUrl}/api/course/fetch-grouped`),
-      fetch(`${baseUrl}/api/event`),
-      getNavbarData()
+    const [trendingCourses, groupedCourses, events, navbarData] = await Promise.all([
+      getTrendingCourses(),
+      getGroupedCourses(),
+      getEvents(),
+      getNavbarData(),
     ]);
-    
-    // Parse responses
-    const trendingCourses: Course[] = trendingRes.ok ? await trendingRes.json() : [];
-    const groupedCourses: CourseCategory[] = groupedRes.ok ? await groupedRes.json() : [];
-    const events: EventItem[] = eventsRes.ok ? await eventsRes.json() : [];
-    
+
     return {
       props: {
-        trendingCourses,
-        groupedCourses,
-        events,
+        trendingCourses: trendingCourses as Course[],
+        groupedCourses: groupedCourses as CourseCategory[],
+        events: events as EventItem[],
         navbarData,
       },
+      // Rebuild the page in the background at most once every 5 minutes.
+      revalidate: 300,
     };
   } catch (error) {
     console.error('Error fetching homepage data:', error);
@@ -242,6 +239,8 @@ export const getServerSideProps: GetServerSideProps<IndexPageProps> = async (con
         events: [],
         navbarData,
       },
+      // Retry sooner if the first build hit an error.
+      revalidate: 60,
     };
   }
 };
