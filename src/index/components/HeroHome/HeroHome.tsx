@@ -100,7 +100,7 @@ const HeroHome = () => {
      * it can no longer become the LCP element or extend "fully loaded" time.
      * The poster image stays the LCP element throughout.
      */
-    const POST_LOAD_DELAY = 4000;
+    const POST_LOAD_DELAY = 2000;
 
     const scheduleAfterDelay = () => {
       // Only mount when the hero is actually in the viewport.
@@ -150,7 +150,7 @@ const HeroHome = () => {
   const handleVideoCanPlay = () => {
     const v = videoRef.current;
     if (v && v.readyState >= 2) {
-      v.playbackRate = 0.5; // preserve the previous slow-motion background effect
+  
       v.play().catch(() => {
         // Autoplay blocked - keep poster visible, no error to the user.
       });
