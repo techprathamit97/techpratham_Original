@@ -179,7 +179,7 @@ const LeadForm: React.FC<LeadFormProps> = ({ course, onClose, onSuccess }) => {
                             <label htmlFor='consent' className='text-sm'>
                                 By registering here, I agree to TechPratham{' '}
                                 <a
-                                    href="/privacy-policy"
+                                    href="/terms-and-conditions"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className='text-blue-600 underline'

@@ -120,7 +120,7 @@ export default function CoursesHome({ initialGroupedCourses }: CoursesViewProps)
 
         <div className="flex items-center gap-1 text-yellow-400 my-2">
           <span className="text-sm">★ ★ ★ ★</span>
-          <span className="text-xs text-blue-500 font-medium">4.9 (68479)</span>
+          <span className="text-xs text-blue-700 font-medium">4.9 (68479)</span>
         </div>
 
         <div className="border-t pt-4 mt-auto">

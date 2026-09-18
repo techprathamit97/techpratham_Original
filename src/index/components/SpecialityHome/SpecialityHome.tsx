@@ -3,9 +3,6 @@
 
 import React from 'react';
 import { FaCheckCircle } from 'react-icons/fa'; // Icon for points
-import Slider from 'react-slick';
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import Image from 'next/image';
 
 interface Step {
@@ -152,20 +149,6 @@ const ChevronStep: React.FC<{ step: Step }> = ({ step }) => {
 };
 
 const StaticChevronSteps = () => {
-  // Slick settings for mobile carousel
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 2500,
-    arrows: true,
-    centerMode: true,
-    centerPadding: "10px",
-  };
-
   // --- DESKTOP VIEW ---
   const DesktopView = (
     <div 
@@ -178,17 +161,21 @@ const StaticChevronSteps = () => {
     </div>
   );
 
-  // --- MOBILE VIEW using react-slick ---
+  // --- MOBILE VIEW (static banner image) ---
   const MobileView = (
     <div className="sm:hidden w-full">
-    <Image
-      src="/home/banner/finalplacement.webp"   // your image path in public/
-      alt="Mobile Banner"
-      width={400}
-      height={300}
-      className="w-full h-auto"
-      priority
-    />
+    {/* aspect-ratio box reserves the height (4:3 = 400x300) before the image
+        loads, so no layout shift occurs when it arrives (fixes CLS 0.112). */}
+    <div className="relative w-full aspect-[4/3]">
+      <Image
+        src="/home/banner/finalplacement.webp"   // your image path in public/
+        alt="Mobile Banner"
+        fill
+        sizes="100vw"
+        className="object-contain"
+        priority
+      />
+    </div>
   </div>
   );
 

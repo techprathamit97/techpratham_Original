@@ -110,12 +110,13 @@ const HeroHome = () => {
         {/* LCP image — Next.js <Image> with priority so it is preloaded and
             optimized. fill + object-cover reproduces the previous absolute
             full-bleed background behavior. */}
-        <div className="relative h-full w-full">
+        <div className="relative h-full w-full bg-[#2a0a0c]">
           <Image
             src={HERO_POSTER}
             alt="TechPratham IT Training Institute"
             fill
             priority
+            fetchPriority="high"
             sizes="100vw"
             className="object-cover object-center"
           />

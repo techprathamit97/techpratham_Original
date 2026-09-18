@@ -65,8 +65,13 @@ function MyApp({ Component, pageProps }: AppProps) {
     fbq('track', 'PageView');
   `}
       </Script>
-      {/* GTM HEAD SCRIPT */}
-      <Script id="gtm-head" strategy="beforeInteractive">
+      {/* GTM HEAD SCRIPT
+          Moved from beforeInteractive → afterInteractive. beforeInteractive
+          forces the tag manager to load and execute before the page becomes
+          interactive, directly inflating Total Blocking Time. GTM does not
+          need to block first interaction; afterInteractive loads it right
+          after hydration without competing with the critical path. */}
+      <Script id="gtm-head" strategy="afterInteractive">
         {`
           (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
           new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],

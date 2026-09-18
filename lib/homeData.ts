@@ -1,22 +1,3 @@
-/* ============================================================================
-   HOMEPAGE DATA LAYER
-   ----------------------------------------------------------------------------
-   Shared data-fetching functions used by BOTH the App-Router API routes
-   (app/api/...) and the homepage (pages/index.tsx via getStaticProps).
-
-   Why this exists:
-     Previously pages/index.tsx fetched its own API over HTTP
-     (http://127.0.0.1:3000/api/...), adding three self-network round-trips +
-     middleware overhead to every render. These functions let the page call the
-     database directly, and let the API routes stay thin wrappers so their
-     public JSON response is byte-for-byte identical to before.
-
-   Serialization:
-     Each function returns plain JSON-serializable data (ObjectIds/Dates
-     stringified) so the exact same shape flows through both the HTTP responses
-     and Next.js getStaticProps props (which require serializable values).
-============================================================================ */
-
 import { connectMongo } from "@/utils/mongodb";
 import course from "@/models/course";
 import { Category } from "@/models/category";

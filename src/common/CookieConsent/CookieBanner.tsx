@@ -145,7 +145,7 @@ const CookieBanner: FC = () => {
                             </button>
                             <button 
                                 onClick={rejectAll}
-                                className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 text-xs rounded-lg transition shadow-md"
+                                className="bg-red-700 hover:bg-red-800 text-white px-2 py-1 text-xs rounded-lg transition shadow-md"
                             >
                                 Reject All Non-Essential
                             </button>

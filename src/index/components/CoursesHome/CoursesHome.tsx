@@ -384,7 +384,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
           {/* Fixed height rating section */}
           <div className="flex items-center gap-1 text-yellow-400" style={{ height: '24px', marginTop: '8px', marginBottom: '8px' }}>
             <span className="text-sm">★ ★ ★ ★</span>
-            <span className="text-xs text-blue-500 font-medium">
+            <span className="text-xs text-blue-700 font-medium">
               {rating} ({ratingCount})
             </span>
           </div>

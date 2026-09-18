@@ -150,19 +150,13 @@ const IndexPage: NextPage<IndexPageProps> = ({ trendingCourses, groupedCourses, 
           <link rel="canonical" href="https://www.techpratham.com/" />
           <link rel="icon" href="/favicon.ico" type="image/ico" sizes="70x70" />
           
-          {/* LCP image — single preload pointing directly at the static WebP file.
-              Bypasses the /_next/image proxy so the browser starts the fetch
-              immediately from the HTML without a round-trip through Next.js.
-              imagesizes/imagesrcset must match what the <Image> component renders. */}
-          <link
-            rel="preload"
-            as="image"
-            href="/home/hero/mainoffice3.webp"
-            imageSrcSet="/home/hero/mainoffice3.webp 1x"
-            imageSizes="100vw"
-            // @ts-ignore — fetchpriority is valid HTML but not in React types yet
-            fetchpriority="high"
-          />
+          {/* LCP hero image preload is emitted automatically by the
+              <Image priority fetchPriority="high"> in HeroHome, and it points
+              at the exact /_next/image optimized URL + srcset the browser
+              actually renders. A manual preload to the raw .webp was removed
+              because it targeted a different URL than the optimized <img>,
+              which double-downloaded the image and left the real LCP resource
+              undiscovered until <img> parse time. */}
           
           <title>India's No.1 Best IT Training Institute | Corporate Learning</title>
           <meta name="description" content="Corporate Learning is the best IT Training Institute in India for Industrial Training, provide training in 180+ courses as IT, Software, SAP, Data science & AWS." />

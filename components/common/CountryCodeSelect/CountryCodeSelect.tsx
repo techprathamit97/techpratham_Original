@@ -336,7 +336,10 @@ const CountryCodeSelect: React.FC<CountryCodeSelectProps> = ({
 
     return (
         <Select value={value} onValueChange={handleValueChange} onOpenChange={handleOpenChange}>
-            <SelectTrigger className={`${sizeClasses[size]} ${className}`}>
+            <SelectTrigger
+                aria-label={`Country code${selectedCountry ? `, selected ${selectedCountry.name} ${selectedCountry.code}` : ''}`}
+                className={`${sizeClasses[size]} ${className}`}
+            >
                 <SelectValue>
                     {selectedCountry && (
                         <span className="flex items-center gap-1">
