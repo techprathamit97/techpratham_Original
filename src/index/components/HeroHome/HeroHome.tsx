@@ -17,11 +17,12 @@ import { IoIosArrowUp } from 'react-icons/io';
 const HERO_POSTER = '/home/hero/mainoffice3.webp';
 
 /**
- * Background video path. The <video> element only mounts after the browser is
- * idle post-load, so this file's ~7MB download never enters the LCP budget or
- * blocks initial paint.
+ * Background video path. Web-optimized MP4 (H.264, ~4MB). The <video> element
+ * only mounts after page load + when the hero is in view (and never on slow
+ * connections), so this download never enters the LCP budget or blocks the
+ * initial paint.
  */
-const HERO_VIDEO = '/home/hero/officevideo.mov';
+const HERO_VIDEO = '/home/hero/officevideo.mp4';
 
 
 const CHIP_ICONS: Record<string, string> = {
