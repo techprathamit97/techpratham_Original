@@ -15,7 +15,19 @@ function serialize<T>(value: T): T {
  */
 export async function getTrendingCourses(): Promise<any[]> {
   await connectMongo();
-  const courseItem = await course.find({ trending: true });
+  // Only the lightweight "card" fields are needed by any consumer of trending
+  // courses (the homepage). The full course document carries very large blobs
+  // (description, curriculum, interview, *_data arrays, metadata) that were
+  // previously fetched, hydrated and serialized for nothing — inflating the
+  // server response time and the page payload. .lean() + this projection
+  // returns plain objects with just the card fields, which is a large speed win
+  // with no change to what any page renders.
+  const courseItem = await course
+    .find(
+      { trending: true },
+      "_id title image alt category link shortDesc level rating duration trending priority createdAt"
+    )
+    .lean();
   return serialize(courseItem);
 }
 

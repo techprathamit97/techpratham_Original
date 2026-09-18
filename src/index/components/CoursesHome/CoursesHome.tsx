@@ -341,6 +341,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
               alt={course.alt ?? course.title}
               width={320}
               height={144}
+              sizes="(max-width: 768px) 90vw, 320px"
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               style={{ aspectRatio: '20/9' }}
               priority={false}

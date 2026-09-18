@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 // Above-the-fold / lightweight: imported statically so they are part of the
 // initial render and hydrate immediately.
 // ---------------------------------------------------------------------------
-import ClientHome from '../components/ClientHome/ClientHome';
 import CoursesHome from '../components/CoursesHome/CoursesHome';
 import HeroHome from '../components/HeroHome/HeroHome';
 import ReachForm from '@/components/common/ReachForm/ReachForm';
@@ -27,6 +26,13 @@ const sectionFallback = (minHeight: number) => () => (
   <div style={{ minHeight }} aria-hidden="true" />
 );
 
+// ClientHome pulls in framer-motion (the animated logo cloud). It sits just
+// below the hero but is not the LCP element, so we defer its JS chunk to keep
+// framer-motion out of the initial bundle. SSR stays on so the markup is in the
+// HTML (no CLS / SEO-safe); a reserved height prevents any shift.
+const ClientHome = dynamic(() => import('../components/ClientHome/ClientHome'), {
+  loading: sectionFallback(200),
+});
 const NewComponent = dynamic(() => import('../components/NewComponent/NewComponent'), {
   loading: sectionFallback(400),
 });

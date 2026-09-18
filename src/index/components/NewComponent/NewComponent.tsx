@@ -238,6 +238,7 @@ export default function PromoSection({ id, initialEvents = [] }: SectionProps) {
                               alt={`Hiring ${index + 1}`}
                               width={300}
                               height={400}
+                              sizes="(max-width: 768px) 50vw, 300px"
                               className="w-full h-full md:object-fill object-contain"
                             />
                           </div>
@@ -356,6 +357,7 @@ export default function PromoSection({ id, initialEvents = [] }: SectionProps) {
                               alt={`Hiring ${index + 1}`}
                               width={300}
                               height={400}
+                              sizes="(max-width: 768px) 50vw, 300px"
                               className="w-full h-full md:object-fill object-contain"
                             />
                           </div>
