@@ -28,8 +28,10 @@ const CareerHome = () => {
       key={i}
       src={src}
       alt='Companies Associated'
-      width={500}
-      height={300}
+      width={160}
+      height={96}
+      sizes="112px"
+      loading="lazy"
       className='w-28 h-16 object-contain cursor-pointer transition-all duration-300 ease-in-out hover:scale-110 hover:shadow-lg hover:shadow-red-500/30'
     />
   ))}

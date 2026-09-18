@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { InfiniteSlider } from "./infinite-slider";
 import { cn } from "@/lib/utils";
 
@@ -35,12 +36,13 @@ export function LogoCloud({ className, logos, ...props }: LogoCloudProps) {
         "polygon(25% 0%, 75% 0%, 100% 25%, 100% 75%, 75% 100%, 25% 100%, 0% 75%, 0% 25%)",
     }}
   >
-    <img
+    <Image
       alt={logo.alt}
       src={logo.src}
-      width={200}
-      height={100}
+      width={112}
+      height={112}
       loading="lazy"
+      sizes="(max-width: 768px) 64px, 112px"
       className="pointer-events-none h-full w-full object-contain select-none"
       draggable={false}
     />

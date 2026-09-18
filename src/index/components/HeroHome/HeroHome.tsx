@@ -2,13 +2,19 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import HeroSearch from "./HeroSearch";
-// Swiper removed intentionally: the carousel added ~40KB of JS to the LCP path.
-// The hero now paints a solid CSS gradient immediately (so the LCP element is
-// the headline text, not an image) and fades the background video in on top
-// once it is buffered.
+// Swiper removed intentionally: the carousel added ~40KB of JS to the LCP path
+// and shifted the hero repeatedly during load. Replaced by a static poster
+// image (LCP-safe) with a background video that mounts only after idle.
 import { EBOOK_GROUPS, EbookGroup } from '@/src/common/Navbar/ebookLinks';
 import { IoIosArrowUp } from 'react-icons/io';
+
+/**
+ * Poster image path. Renders immediately with priority and is the LCP element,
+ * so replacing it or removing it will affect Core Web Vitals.
+ */
+const HERO_POSTER = '/home/hero/mainoffice3.webp';
 
 /**
  * Background video path. Web-optimized MP4 (H.264, ~4MB). The <video> element
@@ -40,13 +46,13 @@ const HeroHome = () => {
    * Video mount gate.
    *
    * LCP strategy:
-   *   - The hero paints a solid CSS gradient immediately (no network), so the
-   *     LCP element is the headline text, which renders right after first byte.
-   *   - The <video> element is only added to the DOM ~4s after the load event
-   *     (and only when the hero is in view / not on a slow connection), so the
-   *     video never competes for network or CPU during the critical first
-   *     paint and cannot become the LCP element.
-   *   - The video fades in on top of the gradient once its first frame is
+   *   - The poster image below renders IMMEDIATELY with priority and is the
+   *     LCP candidate. It stays visible until the video overlays it.
+   *   - The <video> element is only added to the DOM after the browser has
+   *     been idle for a moment post-load. This guarantees the 7MB video does
+   *     not compete with the poster for network or CPU during the critical
+   *     first paint, so LCP is unaffected.
+   *   - The video fades in on top of the poster once its first frame is
    *     buffered, so there is no visual flash.
    *
    * requestIdleCallback is not supported everywhere; setTimeout is the fallback.
@@ -154,15 +160,22 @@ const HeroHome = () => {
 
   return (
     <section ref={sectionRef} className="relative w-full -mt-[64px] md:-mt-[80px] pt-[64px] md:pt-[10px]">
-      {/* Hero background.
-          No poster <img> is rendered: an image LCP element was costing ~880ms
-          resource-load-delay + ~850ms load-duration. Instead we paint a solid
-          CSS gradient immediately (zero network, so the LCP element becomes the
-          headline text, which paints right after first byte). The decorative
-          video then fades in on top once it is buffered (mounted ~4s after
-          load / on view, so it never touches the LCP budget). */}
+      {/* Hero background: static poster is the LCP element and is always
+          present. Video overlays it (opacity fade) once it has buffered. */}
       <div className="absolute inset-0 z-0">
-        <div className="relative h-full w-full bg-gradient-to-br from-[#2a0a0c] via-[#4a0f14] to-[#1c0708]">
+        {/* LCP image — Next.js <Image> with priority so it is preloaded and
+            optimized. fill + object-cover reproduces the previous absolute
+            full-bleed background behavior. */}
+        <div className="relative h-full w-full">
+          <Image
+            src={HERO_POSTER}
+            alt="TechPratham IT Training Institute"
+            fill
+            priority
+            fetchPriority="high"
+            sizes="100vw"
+            className="object-cover object-center"
+          />
           {/*
             Background video mounts after idle so it never enters the LCP
             budget. preload="metadata" gives the browser only enough info to
