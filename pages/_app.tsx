@@ -10,18 +10,24 @@ import { Maitree, Montserrat } from "next/font/google";
 import { useEffect, useState } from "react";
 
 
+// display: "optional" instead of "swap" eliminates font-swap layout shift:
+// with "optional" the browser uses the size-adjusted fallback if the web font
+// is not ready by first paint and does NOT swap it in mid-view, so text metrics
+// never change after render (this removes the ~0.17 CLS Lighthouse attributed
+// to the hero chips reflowing when the font loaded). On repeat/cached visits
+// the custom font is available immediately, so the visual is unchanged.
 const maitree = Maitree({
   subsets: ["latin"],
   weight: ["400", "700"],
   variable: "--font-maitree",
-  display: "swap",
+  display: "optional",
 });
 
 const montserrat = Montserrat({
   subsets: ["latin"],
   weight: ["400", "500", "700"],
   variable: "--font-montserrat",
-  display: "swap",
+  display: "optional",
 });
 
 function MyApp({ Component, pageProps }: AppProps) {

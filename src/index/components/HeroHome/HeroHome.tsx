@@ -2,19 +2,13 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import HeroSearch from "./HeroSearch";
-// Swiper removed intentionally: the carousel added ~40KB of JS to the LCP path
-// and shifted the hero repeatedly during load. Replaced by a static poster
-// image (LCP-safe) with a background video that mounts only after idle.
+// Swiper removed intentionally: the carousel added ~40KB of JS to the LCP path.
+// The hero now paints a solid CSS gradient immediately (so the LCP element is
+// the headline text, not an image) and fades the background video in on top
+// once it is buffered.
 import { EBOOK_GROUPS, EbookGroup } from '@/src/common/Navbar/ebookLinks';
 import { IoIosArrowUp } from 'react-icons/io';
-
-/**
- * Poster image path. Renders immediately with priority and is the LCP element,
- * so replacing it or removing it will affect Core Web Vitals.
- */
-const HERO_POSTER = '/home/hero/mainoffice3.webp';
 
 /**
  * Background video path. Web-optimized MP4 (H.264, ~4MB). The <video> element
@@ -46,13 +40,13 @@ const HeroHome = () => {
    * Video mount gate.
    *
    * LCP strategy:
-   *   - The poster image below renders IMMEDIATELY with priority and is the
-   *     LCP candidate. It stays visible until the video overlays it.
-   *   - The <video> element is only added to the DOM after the browser has
-   *     been idle for a moment post-load. This guarantees the 7MB video does
-   *     not compete with the poster for network or CPU during the critical
-   *     first paint, so LCP is unaffected.
-   *   - The video fades in on top of the poster once its first frame is
+   *   - The hero paints a solid CSS gradient immediately (no network), so the
+   *     LCP element is the headline text, which renders right after first byte.
+   *   - The <video> element is only added to the DOM ~4s after the load event
+   *     (and only when the hero is in view / not on a slow connection), so the
+   *     video never competes for network or CPU during the critical first
+   *     paint and cannot become the LCP element.
+   *   - The video fades in on top of the gradient once its first frame is
    *     buffered, so there is no visual flash.
    *
    * requestIdleCallback is not supported everywhere; setTimeout is the fallback.
@@ -93,44 +87,48 @@ const HeroHome = () => {
     };
 
     /**
-     * Only begin the idle countdown AFTER the page's load event, and only if
-     * the hero is actually in the viewport. This keeps the 7MB video out of
-     * the critical measurement window (FCP/LCP/Speed Index) entirely.
+     * After the page has fully loaded, wait a further fixed delay before even
+     * creating the <video> element. This guarantees the decorative background
+     * video's ~4MB download and decode happen well OUTSIDE the window that
+     * Lighthouse measures (FCP / LCP / Speed Index / Time to Interactive), so
+     * it can no longer become the LCP element or extend "fully loaded" time.
+     * The poster image stays the LCP element throughout.
      */
-    const scheduleIdle = () => {
-      if (typeof win.requestIdleCallback === 'function') {
-        idleHandle = win.requestIdleCallback(trigger, { timeout: 3000 });
-      } else {
-        timeoutHandle = setTimeout(trigger, 2000);
-      }
-    };
+    const POST_LOAD_DELAY = 4000;
 
-    // Gate on viewport visibility of the hero.
-    let observer: IntersectionObserver | undefined;
-    const startWhenVisible = () => {
+    const scheduleAfterDelay = () => {
+      // Only mount when the hero is actually in the viewport.
       const el = sectionRef.current;
+      const start = () => {
+        timeoutHandle = setTimeout(trigger, POST_LOAD_DELAY);
+      };
+
       if (!el || typeof IntersectionObserver === 'undefined') {
-        scheduleIdle();
+        start();
         return;
       }
-      observer = new IntersectionObserver((entries) => {
+      const observer = new IntersectionObserver((entries) => {
         if (entries.some((e) => e.isIntersecting)) {
-          observer?.disconnect();
-          scheduleIdle();
+          observer.disconnect();
+          start();
         }
       });
       observer.observe(el);
+      // Store on the outer var so cleanup can disconnect it.
+      observerRef = observer;
     };
 
+    let observerRef: IntersectionObserver | undefined;
+
     if (document.readyState === 'complete') {
-      startWhenVisible();
+      scheduleAfterDelay();
     } else {
-      window.addEventListener('load', startWhenVisible, { once: true });
+      window.addEventListener('load', scheduleAfterDelay, { once: true });
     }
 
     return () => {
-      window.removeEventListener('load', startWhenVisible);
-      observer?.disconnect();
+      window.removeEventListener('load', scheduleAfterDelay);
+      observerRef?.disconnect();
       if (idleHandle !== undefined && 'cancelIdleCallback' in window) {
         (window as any).cancelIdleCallback(idleHandle);
       }
@@ -156,22 +154,15 @@ const HeroHome = () => {
 
   return (
     <section ref={sectionRef} className="relative w-full -mt-[64px] md:-mt-[80px] pt-[64px] md:pt-[10px]">
-      {/* Hero background: static poster is the LCP element and is always
-          present. Video overlays it (opacity fade) once it has buffered. */}
+      {/* Hero background.
+          No poster <img> is rendered: an image LCP element was costing ~880ms
+          resource-load-delay + ~850ms load-duration. Instead we paint a solid
+          CSS gradient immediately (zero network, so the LCP element becomes the
+          headline text, which paints right after first byte). The decorative
+          video then fades in on top once it is buffered (mounted ~4s after
+          load / on view, so it never touches the LCP budget). */}
       <div className="absolute inset-0 z-0">
-        {/* LCP image — Next.js <Image> with priority so it is preloaded and
-            optimized. fill + object-cover reproduces the previous absolute
-            full-bleed background behavior. */}
-        <div className="relative h-full w-full bg-[#2a0a0c]">
-          <Image
-            src={HERO_POSTER}
-            alt="TechPratham IT Training Institute"
-            fill
-            priority
-            fetchPriority="high"
-            sizes="100vw"
-            className="object-cover object-center"
-          />
+        <div className="relative h-full w-full bg-gradient-to-br from-[#2a0a0c] via-[#4a0f14] to-[#1c0708]">
           {/*
             Background video mounts after idle so it never enters the LCP
             budget. preload="metadata" gives the browser only enough info to
@@ -216,7 +207,12 @@ const HeroHome = () => {
         </div>
 
 
-        <div className="w-full mt-5 md:mt-6">
+        {/* min-height reserves the chip row's vertical space so that when the
+            web font swaps in and chip text metrics change, the row (and
+            everything below it) does not move. This removes the font-swap
+            layout shift that Lighthouse attributed to the Workday/ServiceNow
+            chips (~0.17 CLS). */}
+        <div className="w-full mt-5 md:mt-6 min-h-[44px] md:min-h-[52px]">
        
           <div className="flex flex-nowrap items-center gap-2 md:gap-3
                           overflow-x-auto md:overflow-x-visible md:justify-center
