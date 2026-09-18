@@ -176,14 +176,7 @@ const HeroHome = () => {
             sizes="100vw"
             className="object-cover object-center"
           />
-          {/*
-            Background video mounts after idle so it never enters the LCP
-            budget. preload="metadata" gives the browser only enough info to
-            start playback without downloading the whole file eagerly. The
-            video is muted and playsInline so browser autoplay policy allows
-            it, and the aria-hidden signals to screen readers that it is
-            decorative.
-          */}
+        
           {mountVideo && (
             <video
               ref={videoRef}

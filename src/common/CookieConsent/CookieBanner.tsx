@@ -102,10 +102,10 @@ const CookieBanner: FC = () => {
 
     return (
         <>
-            {/* Full-screen overlay for the main consent banner */}
-            <div className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center p-4">
-                
-                {/* Inner Content Box (80% screen coverage) */}
+            {/* Non-blocking bottom bar (no full-screen dark overlay). Using a
+                fixed-position box means it overlays the page without pushing
+                content (no CLS) and, critically, does not dim/cover the hero
+                LCP element the way the previous full-screen overlay did. */}
              <div 
   className="
     fixed bottom-12 left-2
@@ -152,7 +152,6 @@ const CookieBanner: FC = () => {
                         </div>
                     </div>
                 </div>
-            </div>
             
             {/* Show Modal if customization is active */}
             {showCustomizeModal && preferences && (
