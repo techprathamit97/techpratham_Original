@@ -59,27 +59,77 @@ const HeroHome = () => {
   const [mountVideo, setMountVideo] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const win = window as unknown as {
       requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
     };
-    if (videoRef.current) {
-      videoRef.current.playbackRate = 0.5;
+
+    /**
+     * Network guard. The background video is decorative and heavy (~7MB), so
+     * skip it entirely on data-saver mode or slow connections. Those users
+     * simply keep the poster image — no functional loss, and the large
+     * download never competes for bandwidth (this is the main Speed Index win).
+     */
+    const conn = (navigator as any).connection;
+    if (conn) {
+      const slow = conn.saveData ||
+        (typeof conn.effectiveType === 'string' && /(^|-)2g$/.test(conn.effectiveType));
+      if (slow) {
+        return; // never mount the video
+      }
     }
+
     let idleHandle: number | undefined;
     let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+    let started = false;
 
-    const trigger = () => setMountVideo(true);
+    const trigger = () => {
+      if (started) return;
+      started = true;
+      setMountVideo(true);
+    };
 
-    if (typeof win.requestIdleCallback === 'function') {
-      idleHandle = win.requestIdleCallback(trigger, { timeout: 2500 });
+    /**
+     * Only begin the idle countdown AFTER the page's load event, and only if
+     * the hero is actually in the viewport. This keeps the 7MB video out of
+     * the critical measurement window (FCP/LCP/Speed Index) entirely.
+     */
+    const scheduleIdle = () => {
+      if (typeof win.requestIdleCallback === 'function') {
+        idleHandle = win.requestIdleCallback(trigger, { timeout: 3000 });
+      } else {
+        timeoutHandle = setTimeout(trigger, 2000);
+      }
+    };
+
+    // Gate on viewport visibility of the hero.
+    let observer: IntersectionObserver | undefined;
+    const startWhenVisible = () => {
+      const el = sectionRef.current;
+      if (!el || typeof IntersectionObserver === 'undefined') {
+        scheduleIdle();
+        return;
+      }
+      observer = new IntersectionObserver((entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          observer?.disconnect();
+          scheduleIdle();
+        }
+      });
+      observer.observe(el);
+    };
+
+    if (document.readyState === 'complete') {
+      startWhenVisible();
     } else {
-      // Safari, older browsers.
-      timeoutHandle = setTimeout(trigger, 1500);
+      window.addEventListener('load', startWhenVisible, { once: true });
     }
 
     return () => {
+      window.removeEventListener('load', startWhenVisible);
+      observer?.disconnect();
       if (idleHandle !== undefined && 'cancelIdleCallback' in window) {
         (window as any).cancelIdleCallback(idleHandle);
       }
@@ -95,6 +145,7 @@ const HeroHome = () => {
   const handleVideoCanPlay = () => {
     const v = videoRef.current;
     if (v && v.readyState >= 2) {
+      v.playbackRate = 0.5; // preserve the previous slow-motion background effect
       v.play().catch(() => {
         // Autoplay blocked - keep poster visible, no error to the user.
       });
@@ -103,7 +154,7 @@ const HeroHome = () => {
   };
 
   return (
-    <section className="relative w-full -mt-[64px] md:-mt-[80px] pt-[64px] md:pt-[10px]">
+    <section ref={sectionRef} className="relative w-full -mt-[64px] md:-mt-[80px] pt-[64px] md:pt-[10px]">
       {/* Hero background: static poster is the LCP element and is always
           present. Video overlays it (opacity fade) once it has buffered. */}
       <div className="absolute inset-0 z-0">

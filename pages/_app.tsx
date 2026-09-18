@@ -7,6 +7,7 @@ import { SessionProvider } from 'next-auth/react';
 import { UserProvider } from '@/context/userContext';
 import Script from "next/script";
 import { Maitree, Montserrat } from "next/font/google";
+import { useEffect, useState } from "react";
 
 
 const maitree = Maitree({
@@ -24,9 +25,49 @@ const montserrat = Montserrat({
 });
 
 function MyApp({ Component, pageProps }: AppProps) {
+  /**
+   * Defer all third-party analytics (Clarity, Facebook Pixel, GTM) until the
+   * user first interacts with the page, with a safety timeout fallback.
+   *
+   * Why: these scripts previously loaded with strategy="afterInteractive",
+   * which downloads + executes them immediately after hydration — directly on
+   * the main thread during the window Total Blocking Time measures. None of
+   * them are needed for first paint or first interaction, so loading them on
+   * the first scroll/click/key/touch (or after 6s if the user never interacts)
+   * moves their cost out of the critical path without losing any tracking. A
+   * PageView still fires as soon as they load.
+   */
+  const [loadAnalytics, setLoadAnalytics] = useState(false);
+
+  useEffect(() => {
+    if (loadAnalytics) return;
+
+    const trigger = () => setLoadAnalytics(true);
+    const events: Array<keyof WindowEventMap> = [
+      'scroll',
+      'pointerdown',
+      'keydown',
+      'touchstart',
+      'mousemove',
+    ];
+
+    events.forEach((evt) =>
+      window.addEventListener(evt, trigger, { once: true, passive: true })
+    );
+    // Fallback: load even if the user never interacts (e.g. bounce), so
+    // analytics still capture the visit.
+    const timer = setTimeout(trigger, 6000);
+
+    return () => {
+      events.forEach((evt) => window.removeEventListener(evt, trigger));
+      clearTimeout(timer);
+    };
+  }, [loadAnalytics]);
+
   return (
    <div className={`${maitree.variable} ${montserrat.variable}`}>
-      {/* Microsoft Clarity */}
+      {/* Microsoft Clarity — loaded on first interaction (see loadAnalytics). */}
+      {loadAnalytics && (
       <Script
         id="microsoft-clarity"
         strategy="afterInteractive"
@@ -39,7 +80,9 @@ function MyApp({ Component, pageProps }: AppProps) {
         })(window, document, "clarity", "script", "u2rxsd55s3");
       `}
       </Script>
-      {/* Facebook Pixel */}
+      )}
+      {/* Facebook Pixel — loaded on first interaction (see loadAnalytics). */}
+      {loadAnalytics && (
       <Script
         id="facebook-pixel"
         strategy="afterInteractive"
@@ -65,12 +108,13 @@ function MyApp({ Component, pageProps }: AppProps) {
     fbq('track', 'PageView');
   `}
       </Script>
-      {/* GTM HEAD SCRIPT
-          Moved from beforeInteractive → afterInteractive. beforeInteractive
-          forces the tag manager to load and execute before the page becomes
-          interactive, directly inflating Total Blocking Time. GTM does not
-          need to block first interaction; afterInteractive loads it right
-          after hydration without competing with the critical path. */}
+      )}
+      {/* GTM HEAD SCRIPT — loaded on first interaction (see loadAnalytics).
+          Previously afterInteractive, which executed the tag manager right
+          after hydration and inflated Total Blocking Time. GTM is not needed
+          for first paint/interaction, so it now loads lazily on the first
+          user interaction (or the 6s fallback). */}
+      {loadAnalytics && (
       <Script id="gtm-head" strategy="afterInteractive">
         {`
           (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -80,6 +124,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           })(window,document,'script','dataLayer','GTM-KXS7C3FM');
         `}
       </Script>
+      )}
 
       <SessionProvider session={pageProps.session}>
         <UserProvider>
