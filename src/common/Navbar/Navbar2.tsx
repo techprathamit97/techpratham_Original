@@ -318,7 +318,7 @@ const Navbar2: React.FC<NavbarProps> = () => {
           <Link href="/" aria-label="TechPratham home" className="shrink-0">
             <div className="relative h-9 w-28 md:h-10 md:w-32">
               <Image
-                src="/navbar/lmslogo.png"
+                src="/navbar/techpratham.png"
                 alt="TechPratham"
                 fill
                 sizes="(max-width: 768px) 112px, 128px"
@@ -424,7 +424,7 @@ const Navbar2: React.FC<NavbarProps> = () => {
             ) : (
               <Link
                 href="/auth/login"
-                className="rounded-full bg-[#EE2C3C] text-white text-[12px] font-bold tracking-wider uppercase px-5 py-2 shadow-sm hover:brightness-110 transition"
+                className="rounded-full bg-[#ff2a3b] text-white text-[12px] font-bold tracking-wider uppercase px-5 py-2 shadow-sm hover:brightness-110 transition"
               >
                 Sign Up
               </Link>

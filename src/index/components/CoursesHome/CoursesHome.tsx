@@ -469,8 +469,13 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
                   ))}
                 </div>
 
-                {/* MOBILE - SHOW MORE/LESS */}
-                <div className="md:hidden flex flex-col gap-3">
+                {/* MOBILE - SHOW MORE/LESS.
+                    min-height reserves space for the (up to 5) category buttons
+                    so that when the category list is re-filtered/re-ordered
+                    after the client-side categories fetch, the buttons don't
+                    push the content below them (fixes the ~0.11 CLS attributed
+                    to the category div here). 5 buttons × ~40px + gaps ≈ 260px. */}
+                <div className="md:hidden flex flex-col gap-3" style={{ minHeight: '260px' }}>
                   {coursesByCategory
                     .slice(0, showAllCategories ? coursesByCategory.length : 5)
                     .map((cat, idx) => (

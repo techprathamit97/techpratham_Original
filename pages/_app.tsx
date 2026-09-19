@@ -10,12 +10,6 @@ import { Maitree, Montserrat } from "next/font/google";
 import { useEffect, useState } from "react";
 
 
-// display: "optional" instead of "swap" eliminates font-swap layout shift:
-// with "optional" the browser uses the size-adjusted fallback if the web font
-// is not ready by first paint and does NOT swap it in mid-view, so text metrics
-// never change after render (this removes the ~0.17 CLS Lighthouse attributed
-// to the hero chips reflowing when the font loaded). On repeat/cached visits
-// the custom font is available immediately, so the visual is unchanged.
 const maitree = Maitree({
   subsets: ["latin"],
   weight: ["400", "700"],
@@ -31,18 +25,7 @@ const montserrat = Montserrat({
 });
 
 function MyApp({ Component, pageProps }: AppProps) {
-  /**
-   * Defer all third-party analytics (Clarity, Facebook Pixel, GTM) until the
-   * user first interacts with the page, with a safety timeout fallback.
-   *
-   * Why: these scripts previously loaded with strategy="afterInteractive",
-   * which downloads + executes them immediately after hydration — directly on
-   * the main thread during the window Total Blocking Time measures. None of
-   * them are needed for first paint or first interaction, so loading them on
-   * the first scroll/click/key/touch (or after 6s if the user never interacts)
-   * moves their cost out of the critical path without losing any tracking. A
-   * PageView still fires as soon as they load.
-   */
+ 
   const [loadAnalytics, setLoadAnalytics] = useState(false);
 
   useEffect(() => {
