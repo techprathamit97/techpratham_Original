@@ -316,7 +316,7 @@ const Navbar2: React.FC<NavbarProps> = () => {
           >
           {/* -------- Logo -------- */}
           <Link href="/" aria-label="TechPratham home" className="shrink-0">
-            <div className="relative h-9 w-28 md:h-10 md:w-32">
+            <div className="relative h-9 w-28 md:h-9 md:w-32">
               <Image
                 src="/navbar/techpratham.png"
                 alt="TechPratham"

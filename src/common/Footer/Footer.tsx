@@ -1,167 +1,174 @@
-import { Separator } from '@/components/ui/separator';
-import { FaLinkedin, FaYoutube, FaFacebook, FaTwitter,FaInstagram } from "react-icons/fa";
+import { FaLinkedin, FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import Logo from '../Navbar/logo'
-import SeoDropdown from "./SeoDropdown";
+
 const Footer = () => {
   return (
-    <div className="w-full h-auto flex flex-col items-center justify-center bg-black text-gray-300">
-      <div className="md:w-11/12 w-11/12 flex flex-col py-3 gap-5">
+    <div className="w-full h-auto flex flex-col items-center justify-center bg-[#ff2a3b] pt-8 mb-10">
+      {/* White floating card */}
+      <div className="w-11/12 max-w-7xl bg-white rounded-t-2xl shadow-[0_-2px_30px_rgba(0,0,0,0.08)] overflow-hidden">
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6 px-6 md:px-8 py-6">
 
-        {/* Top part (your existing) */}
-        <div className="w-full flex flex-col md:flex-row items-start justify-between">
-          <div className="flex flex-col items-start mb-3 md:mb-0">
-            <Link href={'/'} aria-label='Techpratham'>
+          {/* ---- Brand + About (left) ---- */}
+          <div className="flex flex-col gap-4">
+            <Link href={'/'} aria-label="Techpratham">
               <div className="relative w-40">
                 <Image
-                  src={'/navbar/logotechnolyfirst2.svg'}
-                  alt='Techpratham Logo'
-                  width={80}
-                  height={30}
-                  className='w-full h-auto'
+                  src={'/navbar/techpratham.png'}
+                  alt="Techpratham Logo"
+                  width={160}
+                  height={48}
+                  className="w-full h-auto"
                 />
-
-                <span className="absolute bottom-2 pl-1 left-1/2 -translate-x-1/2 text-[7px] text-white">
-                  Technology First
-                </span>
+                
               </div>
             </Link>
+
+            <div>
+              <h3 className="text-gray-900 font-semibold text-base mb-2">About Us</h3>
+              <p className="text-gray-700 text-sm leading-relaxed">
+                TechPratham is an ISO 9001:2015 certified IT Training and Development,
+                delivering industry-focused certification courses with expert
+                guidance and placement support.
+              </p>
+            </div>
+
+            {/* Registration details (CIN / GST) kept from original data */}
+            <div className="flex flex-col gap-1 text-sm">
+              <span className="text-gray-900 font-medium">CIN:</span>
+              <span className="text-gray-700">U62013UP2025PTC223378</span>
+              <span className="text-gray-900 font-medium mt-1">GST:</span>
+              <span className="text-gray-700">09AALCT8794N1Z2</span>
+            </div>
           </div>
 
-          <div className="flex flex-col items-start">
-            <div className="text-xl font-semibold mb-1">Follow Us!</div>
-            <Separator className="mb-2 w-48" />
-            <div className="flex flex-row gap-3 flex-wrap">
-              <Link
-                href="https://www.facebook.com/profile.php?id=61573041693401"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Follow TechPratham on Facebook (opens in new tab)"
-                className="w-8 h-8 rounded-full bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white flex items-center justify-center"
-              >
-                <FaFacebook className="w-6 h-6" aria-hidden="true" />
-              </Link>
-              <Link
-                href="https://www.linkedin.com/company/techpratham/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Follow TechPratham on LinkedIn (opens in new tab)"
-                className="w-8 h-8 rounded-full bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white flex items-center justify-center"
-              >
-                <FaLinkedin className="w-6 h-6" aria-hidden="true" />
-              </Link>
+          {/* ---- Trending Courses ---- */}
+          <div className="flex flex-col gap-3">
+            <h3 className="text-gray-900 font-semibold text-base">Courses</h3>
+            <ul className="flex flex-col gap-2 text-sm text-gray-700">
+              <li><Link href="/courses/workday-certification-trainings" className="hover:text-[#C6151D] hover:underline transition-colors">Workday Training</Link></li>
+              <li><Link href="/courses/workday-hcm-functional-training" className="hover:text-[#C6151D] hover:underline transition-colors">Workday HCM Training</Link></li>
+              <li><Link href="/courses/workday-finance-training-certification-online" className="hover:text-[#C6151D] hover:underline transition-colors">Workday Finance Training</Link></li>
+              <li><Link href="/courses/servicenow-training-in-india" className="hover:text-[#C6151D] hover:underline transition-colors">ServiceNow Training</Link></li>
+              <li><Link href="/courses/sap-training-in-india" className="hover:text-[#C6151D] hover:underline transition-colors">SAP Certification Training</Link></li>
+              <li><Link href="/courses/master-in-agentic-ai" className="hover:text-[#C6151D] hover:underline transition-colors">Master In Agentic AI</Link></li>
+              <li><Link href="/courses/workday-training-in-hyderabad" className="hover:text-[#C6151D] hover:underline transition-colors">Workday HCM Training In Hyderabad</Link></li>
+              <li><Link href="/courses/data-science-certification-training-in-india" className="hover:text-[#C6151D] hover:underline transition-colors">Data Science Certification Training</Link></li>
+            </ul>
+          </div>
 
-              <Link
-                href="https://www.instagram.com/techprathamofficials/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Follow TechPratham on Instagram (opens in new tab)"
-                className="w-8 h-8 rounded-full bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white flex items-center justify-center"
-              >
-                <FaInstagram className="w-6 h-6" aria-hidden="true" />
-              </Link>
-              <Link
-                href="https://x.com/TechPrathamEdu"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Follow TechPratham on X / Twitter (opens in new tab)"
-                className="w-8 h-8 rounded-full bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white flex items-center justify-center"
-              >
-                <FaTwitter className="w-6 h-6" aria-hidden="true" />
-              </Link>
+          {/* ---- Company ---- */}
+          <div className="flex flex-col gap-2">
+            <h3 className="text-gray-900 font-semibold text-base">Company</h3>
+            <ul className="flex flex-col gap-1 text-sm text-gray-700">
+              <li><Link href="/about-us" className="hover:text-[#C6151D] hover:underline transition-colors">About Us</Link></li>
+              <li><Link href="/contact-us" className="hover:text-[#C6151D] hover:underline transition-colors">Contact Us</Link></li>
+              <li><Link href="/blog" className="hover:text-[#C6151D] hover:underline transition-colors">Blog</Link></li>
+              <li><Link href="/job-openings" className="hover:text-[#C6151D] hover:underline transition-colors">Careers</Link></li>
+              <li><Link href="/corporate-training" className="hover:text-[#C6151D] hover:underline transition-colors">Corporate Training</Link></li>
+              <li><Link href="/faqs" className="hover:text-[#C6151D] hover:underline transition-colors">FAQ&apos;s</Link></li>
+              <li><Link href="/payment" className="hover:text-[#C6151D] hover:underline transition-colors">Payment</Link></li>
+              <li><Link href="/privacy-policy" className="hover:text-[#C6151D] hover:underline transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms-and-conditions" className="hover:text-[#C6151D] hover:underline transition-colors">Terms &amp; Conditions</Link></li>
+              <li><Link href="/refund-cancellation-policy" className="hover:text-[#C6151D] hover:underline transition-colors">Refund/Cancellation Policy</Link></li>
+            </ul>
+          </div>
+
+          {/* ---- Contact + Social (right) ---- */}
+          <div className="flex flex-col gap-2">
+            <h3 className="text-gray-900 font-semibold text-base">Contact Us</h3>
+
+            <div className="flex flex-col gap-2 text-sm">
+              <div>
+                <span className="text-gray-900 font-semibold">Noida Office:</span>
+                <Link
+                  href="https://maps.app.goo.gl/ySMUPRpVmsihWD6B8"
+                  className="block text-gray-700 hover:text-[#C6151D] hover:underline transition-colors"
+                >
+                  B-24, Sector-1, Noida, Uttar Pradesh - 201301
+                </Link>
+              </div>
+              <div>
+                <span className="text-gray-900 font-semibold">Hyderabad Office:</span>
+                <Link
+                  href="https://maps.app.goo.gl/GinqyPcv3Ao6euYD6"
+                  className="block text-gray-700 hover:text-[#C6151D] hover:underline transition-colors"
+                >
+                  LVS Arcade, 71, Hitech, 6th floor, Madhapur Road,
+                  Jubilee Enclave, HITEC City, Hyderabad - 500081
+                </Link>
+              </div>
+
+              {/* Phone numbers with country flags */}
+              <div className="flex flex-col gap-1">
+                <a href="tel:+918882178896" className="flex items-center gap-2 text-[#C6151D] hover:text-[#C6151D] hover:underline transition-colors">
+                  <Image src="/course/icons/indian.jpg" alt="India" width={16} height={16} className="rounded-sm" />
+                  +91-8882178896
+                </a>
+                <a href="tel:+13434770926" className="flex items-center gap-2 text-[#C6151D] hover:text-[#C6151D] hover:underline transition-colors">
+                  <Image src="/course/icons/uslogo.png" alt="US" width={16} height={16} className="rounded-sm" />
+                  +1 (343) 477-0926
+                </a>
+              </div>
+
+              {/* Email */}
+              <a href="mailto:info@techpratham.com" className="text-[#C6151D] hover:text-[#C6151D] hover:underline transition-colors">
+                info@techpratham.com
+              </a>
+            </div>
+
+            {/* Follow Us */}
+            <div className="mt-1">
+              <h4 className="text-gray-900 font-semibold text-base mb-2">Follow Us</h4>
+              <div className="flex flex-row gap-3">
+                <Link
+                  href="https://www.facebook.com/profile.php?id=61573041693401"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow TechPratham on Facebook (opens in new tab)"
+                  className="w-9 h-9 rounded-full bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white flex items-center justify-center hover:brightness-110 transition"
+                >
+                  <FaFacebook className="w-5 h-5" aria-hidden="true" />
+                </Link>
+                <Link
+                  href="https://www.linkedin.com/company/techpratham/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow TechPratham on LinkedIn (opens in new tab)"
+                  className="w-9 h-9 rounded-full bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white flex items-center justify-center hover:brightness-110 transition"
+                >
+                  <FaLinkedin className="w-5 h-5" aria-hidden="true" />
+                </Link>
+                <Link
+                  href="https://www.instagram.com/techprathamofficials/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow TechPratham on Instagram (opens in new tab)"
+                  className="w-9 h-9 rounded-full bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white flex items-center justify-center hover:brightness-110 transition"
+                >
+                  <FaInstagram className="w-5 h-5" aria-hidden="true" />
+                </Link>
+                <Link
+                  href="https://x.com/TechPrathamEdu"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow TechPratham on X / Twitter (opens in new tab)"
+                  className="w-9 h-9 rounded-full bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white flex items-center justify-center hover:brightness-110 transition"
+                >
+                  <FaTwitter className="w-5 h-5" aria-hidden="true" />
+                </Link>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Middle part (offices + links) */}
-        <div className="w-full flex flex-row flex-wrap gap-10 items-start justify-between">
-          <div className="flex flex-col gap-1">
-           
-           
-            
-            {/* <div className="text-base uppercase font-normal bg-gradient-to-tr from-[#FC7A35] to-[#f8da52] text-transparent bg-clip-text">Noida Office:</div> */}
-            <div className="text-base uppercase font-normal inline-block">
-              <span className="bg-gradient-to-tr from-[#FC7A35] to-[#f8da52] text-transparent bg-clip-text border-b-2 border-orange-400">
-                Noida Office:
-              </span>
-            </div>
-            <div className="flex flex-col capitalize text-[14px] font-light gap-1">
-              <Link href="https://maps.app.goo.gl/ySMUPRpVmsihWD6B8" className="transition-all duration-300 hover:underline">
-                B-24, Sector-1, Noida, Uttar Pradesh - 201301
-              </Link>
-            </div>
-            <div className="text-base uppercase font-normal inline-block">
-              <span className="bg-gradient-to-tr from-[#FC7A35] to-[#f8da52] text-transparent bg-clip-text border-b-2 border-orange-400">
-                Hyderabad Office:
-              </span>
-            </div>
-            <div className="flex flex-col capitalize text-[14px] font-light gap-1">
-              <Link href="https://maps.app.goo.gl/GinqyPcv3Ao6euYD6" className="transition-all duration-300 hover:underline">
-                LVS Arcade, 71, Hitech, 6th floor ,<br />
-                Madhapur Road, Jubilee Enclave,<br />
-                HITEC City, Hyderabad - 500081
-              </Link>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <div className="text-base uppercase font-normal">Trending Certification Courses</div>
-            <div className="flex flex-col capitalize text-[12px] font-light">
-              <Link href="/courses/workday-certification-trainings" className="transition-all duration-300 hover:underline">Workday training</Link>
-              <Link href="/courses/workday-hcm-functional-training" className="transition-all duration-300 hover:underline">Workday HCM Training</Link>
-              <Link href="/courses/workday-finance-training-certification-online" className="transition-all duration-300 hover:underline">Workday Finance Training</Link>
-              <Link href="/courses/servicenow-training-in-india" className="transition-all duration-300 hover:underline">Servicenow training</Link>
-              <Link href="/courses/sap-training-in-india" className="transition-all duration-300 hover:underline">SAP Certification Training</Link>
-              <Link href="/courses/master-in-agentic-ai" className="transition-all duration-300 hover:underline">Master In Agentic AI</Link>
-              <Link href="/courses/workday-training-in-hyderabad" className="transition-all duration-300 hover:underline">Workday HCM Training in Hyderabad</Link>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <div className="text-base uppercase font-normal">Company</div>
-            <div className="flex flex-col capitalize text-xs font-light">
-              <Link href="/about-us" className="transition-all duration-300 hover:underline">About Us</Link>
-              <Link href="/contact-us" className="transition-all duration-300 hover:underline">Contact Us</Link>
-              <Link href="/blog" className="transition-all duration-300 hover:underline">Blog</Link>
-              <Link href="/job-openings" className="transition-all duration-300 hover:underline">Careers</Link>
-              <Link href="/corporate-training" className="transition-all duration-300 hover:underline">Corporate Training</Link>
-              <Link href="/faqs" className="transition-all duration-300 hover:underline">FAQ's</Link>
-              <Link href="/payment" className="transition-all duration-300 hover:underline">Payment</Link>
-              <Link href="/privacy-policy" className="transition-all duration-300 hover:underline">Privacy Policy</Link>
-              <Link href="/terms-and-conditions" className="transition-all duration-300 hover:underline">Terms & Conditions</Link>
-              <Link href="/refund-cancellation-policy" className="transition-all duration-300 hover:underline">Refund/Cancellation Policy</Link>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <div className="text-base uppercase font-normal">CIN:</div>
-            <div className="flex flex-col capitalize text-sm font-light gap-1">
-              <Link href="/" className="transition-all duration-300 hover:underline">U62013UP2025PTC223378</Link>
-            </div>
-            <div className="text-base uppercase font-normal">GST:</div>
-            <div className="flex flex-col capitalize text-sm font-light gap-1">
-              <Link href="/" className="transition-all duration-300 hover:underline">09AALCT8794N1Z2</Link>
-            </div>
-          </div>
+        {/* ---- Dark bottom bar (copyright + ISO) ---- */}
+        <div className="w-full bg-[#111827] text-gray-300 px-6 md:px-10 py-1
+                        flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm">
+          <span>© {new Date().getFullYear()} TechPratham. All rights reserved.</span>
+          <span className="text-gray-400">An ISO 9001:2015 Certified Company</span>
         </div>
-      </div>
-      {/* <div className='w-full mb-5'>
-        <SeoDropdown />
-      </div> */}
-
-      {/* Bottom “All Rights Reserved” text */}
-      <div className="w-full border-t border-gray-700 md:px-40 pb-12 pt-2 text-sm text-gray-500 
-            flex flex-col sm:flex-row 
-            sm:justify-between sm:items-center 
-            text-center sm:text-left gap-2">
-
-        <span>© {new Date().getFullYear()} TechPratham. All rights reserved.</span>
-
-        <span className="sm:text-right">
-          An ISO 9001:2015 Certified Company
-        </span>
       </div>
     </div>
   );
