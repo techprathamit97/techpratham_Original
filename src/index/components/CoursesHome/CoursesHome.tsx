@@ -333,7 +333,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
       <Link
         href={`/courses/${course.link}`}
         className="group block min-w-[280px] sm:min-w-0 w-full rounded-xl shadow-lg overflow-hidden border border-gray-200 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl relative bg-white flex flex-col"
-        style={{ height: '360px' }} // Fixed height to prevent layout shift (incl. 2-line description)
+        style={{ minHeight: '360px' }} // Min height keeps cards uniform but lets them grow so content never clips (fixes mobile overflow)
       >
         {/* Fixed aspect ratio image container */}
         <div className="relative bg-white w-full overflow-hidden" style={{ height: '144px' }}>
