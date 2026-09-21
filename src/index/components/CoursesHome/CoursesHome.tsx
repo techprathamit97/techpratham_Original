@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { ChevronRightIcon, ChevronUpIcon, ChevronDownIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, ChevronUpIcon, ChevronDownIcon } from "lucide-react";
 import Image from "next/image";
 
 interface Course {
@@ -15,7 +15,7 @@ interface Course {
   link: string;
   shortDesc?: string;
   trending?: boolean;
-  priority?: number; // Add priority field
+  priority?: number; 
 }
 
 interface CourseCategory {
@@ -37,6 +37,8 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
   const [categoriesData, setCategoriesData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const sectionRef = useRef<HTMLElement | null>(null);
+  // Ref for the desktop horizontal category pill bar (used by the arrow buttons).
+  const desktopCatScrollRef = useRef<HTMLDivElement | null>(null);
   const [selectedCategoryIdx, setSelectedCategoryIdx] = useState<number | null>(null);
   const [visibleLimit, setVisibleLimit] = useState(4);
   const [showAllCategories, setShowAllCategories] = useState(false);
@@ -331,7 +333,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
       <Link
         href={`/courses/${course.link}`}
         className="group block min-w-[280px] sm:min-w-0 w-full rounded-xl shadow-lg overflow-hidden border border-gray-200 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl relative bg-white flex flex-col"
-        style={{ height: '320px' }} // Fixed height to prevent layout shift
+        style={{ height: '360px' }} // Fixed height to prevent layout shift (incl. 2-line description)
       >
         {/* Fixed aspect ratio image container */}
         <div className="relative bg-white w-full overflow-hidden" style={{ height: '144px' }}>
@@ -373,7 +375,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
           </div>
         </div>
 
-        <div className="p-4 flex flex-col flex-grow" style={{ minHeight: '176px' }}>
+        <div className="p-4 flex flex-col flex-grow" style={{ minHeight: '216px' }}>
           {/* Fixed height title container */}
           <div style={{ minHeight: '40px', maxHeight: '60px' }}>
             <span
@@ -381,6 +383,16 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
               dangerouslySetInnerHTML={{ __html: course.title }}
             />
           </div>
+
+          {/* Short description (2 lines) from DB - fixed height to avoid layout shift */}
+          {course.shortDesc && (
+            <div style={{ minHeight: '32px' }} className="mt-1">
+              <p
+                className="text-xs text-gray-500 leading-snug line-clamp-2"
+                dangerouslySetInnerHTML={{ __html: course.shortDesc }}
+              />
+            </div>
+          )}
 
           {/* Fixed height rating section */}
           <div className="flex items-center gap-1 text-yellow-400" style={{ height: '24px', marginTop: '8px', marginBottom: '8px' }}>
@@ -392,7 +404,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
 
           {/* Fixed height button container */}
           <div className="border-t pt-4 mt-auto" style={{ minHeight: '56px' }}>
-            <div className="w-full py-2 rounded-md text-center text-xs font-semibold bg-gradient-to-tl from-[#C6151D] to-[#600A0E] text-white">
+            <div className="w-full py-2 rounded-md text-center text-xs font-semibold bg-[#ff2a3b] text-white">
               View Program
             </div>
           </div>
@@ -406,75 +418,84 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
       <div className=" p-1">
       <div className="max-w-6xl mx-auto px-4">
         {/* Pre-allocate space for title to prevent shift */}
-        <div style={{ minHeight: '60px' }} className="flex items-center justify-center md:justify-start mb-6 md:mb-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 text-center md:text-left">
-            Explore Our All Courses
-          </h2>
-        </div>
+               <div className="text-center py-2 ">
+        <h2 className="text-[#ff2a3b] md:text-3xl text-2xl font-bold">
+          Explore Our All Courses
+        </h2>
 
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* SIDEBAR - SCROLLABLE FOR DESKTOP, SHOW MORE/LESS FOR MOBILE */}
-          <aside className="w-full md:w-1/4 flex flex-col gap-3">
+        <svg
+          className="mx-auto"
+          width="340"
+          height="6"
+          viewBox="0 0 340 6"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0 3 Q170 0 340 3 Q170 6 0 3 Z"
+            fill="#7f1d1d"
+          />
+        </svg>
+      </div>
+
+        <div className="flex flex-col gap-6">
+          {/* CATEGORY BAR (top) + COURSES (below) */}
+          <aside className="w-full flex flex-col gap-3">
             {loading ? (
               // Loading skeleton with fixed dimensions
-              <div className="flex flex-col gap-2">
+              <div className="hidden md:flex gap-2">
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-10 bg-gray-200 rounded-lg animate-pulse"></div>
+                  <div key={i} className="h-10 w-32 bg-gray-200 rounded-lg animate-pulse"></div>
                 ))}
               </div>
             ) : (
               <>
-                {/* DESKTOP - SCROLLABLE */}
-                <div 
-                  className="hidden md:flex flex-col gap-2 max-h-[400px] overflow-y-auto pr-2" 
-                  style={{ scrollbarWidth: 'thin', scrollbarColor: '#C6151D #f3f9ff' }}
-                >
-                  <style jsx>{`
-                    div::-webkit-scrollbar {
-                      width: 6px;
-                    }
-                    div::-webkit-scrollbar-track {
-                      background: #f3f9ff;
-                      border-radius: 10px;
-                    }
-                    div::-webkit-scrollbar-thumb {
-                      background: #C6151D;
-                      border-radius: 10px;
-                    }
-                    div::-webkit-scrollbar-thumb:hover {
-                      background: #600A0E;
-                    }
-                  `}</style>
-                  {coursesByCategory.map((cat, idx) => (
-                    <div key={cat.name}>
+                {/* DESKTOP - HORIZONTAL SCROLLABLE PILL BAR WITH ARROWS */}
+                <div className="hidden md:flex relative items-center border border-[#C6151D] rounded-lg px-9 py-2 bg-white">
+                  {/* Left arrow */}
+                  <button
+                    type="button"
+                    aria-label="Scroll categories left"
+                    onClick={() => desktopCatScrollRef.current?.scrollBy({ left: -240, behavior: 'smooth' })}
+                    className="absolute left-1.5 top-1/2 -translate-y-1/2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-[#ff2a3b] text-white hover:bg-[#c84b52] transition"
+                  >
+                    <ChevronLeftIcon className="w-4 h-4" />
+                  </button>
+
+                  <div
+                    ref={desktopCatScrollRef}
+                    className="flex gap-2 overflow-x-auto no-scrollbar w-full"
+                  >
+                    {coursesByCategory.map((cat, idx) => (
                       <button
+                        key={cat.name}
                         onClick={() => handleCategoryChange(idx)}
-                        onMouseEnter={() => {
-                          // Only trigger on desktop
-                          if (typeof window !== 'undefined' && window.innerWidth >= 768) {
-                            setSelectedCategoryIdx(idx);
-                            setVisibleLimit(4);
-                          }
-                        }}
-                        className={`flex items-center justify-between px-5 py-1 rounded-lg w-full border transition-all
+                        className={`whitespace-nowrap px-4 border py-1.5 rounded-md text-sm font-medium transition-all shrink-0
                           ${selectedCategoryIdx === idx
-                            ? "bg-gradient-to-tl from-[#C6151D] to-[#600A0E] text-white"
-                            : "bg-white text-gray-700 hover:bg-yellow-500"
+                            ? "bg-[#ff2a3b] text-white"
+                            : "bg-white text-gray-700 hover:text-[#C6151D]"
                           }`}
-                        style={{ minHeight: '20px' }} // Fixed button height
                       >
                         {cat.name}
                       </button>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+
+                  {/* Right arrow */}
+                  <button
+                    type="button"
+                    aria-label="Scroll categories right"
+                    onClick={() => desktopCatScrollRef.current?.scrollBy({ left: 240, behavior: 'smooth' })}
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-[#ff2a3b] text-white hover:bg-[#C6151D] transition"
+                  >
+                    <ChevronRightIcon className="w-4 h-4" />
+                  </button>
                 </div>
 
-                {/* MOBILE - SHOW MORE/LESS.
-                    min-height reserves space for the (up to 5) category buttons
-                    so that when the category list is re-filtered/re-ordered
-                    after the client-side categories fetch, the buttons don't
-                    push the content below them (fixes the ~0.11 CLS attributed
-                    to the category div here). 5 buttons × ~40px + gaps ≈ 260px. */}
+                {/* MOBILE - horizontal category pill bar + horizontal course row.
+                    Redesigned to match the reference: a scrollable row of
+                    category pills (with left/right arrows) on top, and the
+                    selected category's courses in a horizontally scrolling row
+                    below, ending with a "Show more" button. Desktop is untouched. */}
                 <div className="md:hidden flex flex-col gap-3" style={{ minHeight: '260px' }}>
                   {coursesByCategory
                     .slice(0, showAllCategories ? coursesByCategory.length : 5)
@@ -525,7 +546,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
                       )}
                     </div>
                   ))}
-                  
+
                   {/* SHOW MORE/LESS CATEGORIES BUTTON - MOBILE ONLY */}
                   {coursesByCategory.length > 5 && (
                     <div className="flex justify-center mt-4">
@@ -534,13 +555,9 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
                         className="flex items-center gap-2 bg-white border border-[#C6151D] text-[#C6151D] px-4 py-2 rounded-full text-sm font-semibold hover:bg-[#C6151D] hover:text-white transition-colors"
                       >
                         {showAllCategories ? (
-                          <>
-                            Show Less <ChevronUpIcon className="w-4 h-4" />
-                          </>
+                          <>Show Less <ChevronUpIcon className="w-4 h-4" /></>
                         ) : (
-                          <>
-                            Show More <ChevronDownIcon className="w-4 h-4" />
-                          </>
+                          <>Show More <ChevronDownIcon className="w-4 h-4" /></>
                         )}
                       </button>
                     </div>
@@ -550,8 +567,8 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
             )}
           </aside>
 
-          {/* DESKTOP GRID - Pre-allocate space */}
-          <main className="hidden md:block w-3/4" style={{ minHeight: '400px' }}>
+          {/* DESKTOP GRID - Pre-allocate space (full width, below the pill bar) */}
+          <main className="hidden md:block w-full" style={{ minHeight: '400px' }}>
             {loading ? (
               // Loading skeleton with fixed dimensions matching actual content
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">

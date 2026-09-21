@@ -103,11 +103,11 @@ const Footer = () => {
               {/* Phone numbers with country flags */}
               <div className="flex flex-col gap-1">
                 <a href="tel:+918882178896" className="flex items-center gap-2 text-[#C6151D] hover:text-[#C6151D] hover:underline transition-colors">
-                  <Image src="/course/icons/indian.jpg" alt="India" width={16} height={16} className="rounded-sm" />
+                  <Image src="/course/icons/indian.jpg" alt="India" width={16} height={16} className="" />
                   +91-8882178896
                 </a>
                 <a href="tel:+13434770926" className="flex items-center gap-2 text-[#C6151D] hover:text-[#C6151D] hover:underline transition-colors">
-                  <Image src="/course/icons/uslogo.png" alt="US" width={16} height={16} className="rounded-sm" />
+                  <Image src="/course/icons/uslogo.png" alt="US" width={16} height={16} className="" />
                   +1 (343) 477-0926
                 </a>
               </div>
