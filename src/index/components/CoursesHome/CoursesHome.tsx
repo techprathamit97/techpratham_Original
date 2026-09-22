@@ -522,7 +522,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
                         <div className="mt-4">
                           <div className="flex overflow-x-auto gap-4 pb-4 no-scrollbar">
                             {cat.courses.slice(0, visibleLimit).map(course => (
-                              <div key={course._id} className="flex-shrink-0 w-[85%]">
+                              <div key={course._id} className="flex-shrink-0 w-[280px] max-w-[85vw]">
                                 <CourseCard course={course} />
                               </div>
                             ))}
