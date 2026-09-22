@@ -49,6 +49,7 @@ const PDF_COURSES = [
   "servicenow-itsm-training",
   "servicenow-training-in-india",
   "salesforce-devops-engineering",
+  "ai-for-developers",
   "sap-successfactors"
 ];
 
@@ -59,11 +60,11 @@ const PDF_PATHS: Record<string, string> = {
   "servicenow-itsm-training": "/training/TechPratham_ServiceNow.pdf",
   "servicenow-training-in-india": "/training/TechPratham_ServiceNow_Admin_ITSM.pdf",
   "salesforce-devops-engineering": "/training/salesforce-devOps-engineering.pdf",
+  "ai-for-developers": "/training/agentic-ai-engineering-course-content-techPratham.pdf",
   "sap-successfactors": "/training/TechPratham_SAP_SuccessFactors_Employee_Central.pdf"
 };
 
 const getPdfUrl = (courselink: string): string => {
-  // Create slug from course link (same logic as shouldShowPdf)
   const courseSlug = courselink?.toLowerCase().replace(/<[^>]*>/g, '').replace(/\s+/g, "-") || "";
 
   // Match course slug to PDF path
