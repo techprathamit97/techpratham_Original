@@ -219,7 +219,7 @@ const HeroHome = () => {
       </div>
 
       {/* ✅ Main Content */}
-      <div className="relative min-h-[320px] md:h-[70px] flex flex-col items-center justify-end z-10 pt-16 md:pt-24 pb-4 md:pb-6">
+      <div className="relative min-h-[320px] md:h-[70vh] flex flex-col items-center justify-end z-10 pt-16 md:pt-24 pb-4 md:pb-6">
 
         {/* Headline + search — padded, centred */}
         <div className="flex w-full flex-col items-center text-center gap-6 md:gap-8 px-4">
