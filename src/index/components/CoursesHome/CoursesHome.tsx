@@ -16,6 +16,7 @@ interface Course {
   shortDesc?: string;
   trending?: boolean;
   priority?: number; 
+  trending_priority?: number; // Order ONLY within the Trending Courses section
 }
 
 interface CourseCategory {
@@ -31,6 +32,19 @@ interface CoursesHomeProps {
 const sortCoursesByPriority = (courses: Course[]): Course[] => {
   // DON'T SORT - use the order as it comes from the API (same as navbar)
   return courses;
+};
+
+// Sort used ONLY for the "Trending Courses" section. Orders trending courses by
+// their `trending_priority` (lower number first). This does NOT affect any other
+// category — regular categories keep using sortCoursesByPriority (a no-op).
+// Courses without a trending_priority (0/undefined) fall to the end but keep
+// their existing relative order (stable sort).
+const sortTrendingCourses = (courses: Course[]): Course[] => {
+  return [...courses].sort((a, b) => {
+    const tpA = a.trending_priority && a.trending_priority > 0 ? a.trending_priority : 9999;
+    const tpB = b.trending_priority && b.trending_priority > 0 ? b.trending_priority : 9999;
+    return tpA - tpB;
+  });
 };
 
 export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeProps) {
@@ -81,7 +95,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
     const result: CourseCategory[] = [];
     
     if (trendingCourses.length > 0) {
-      const sortedTrendingCourses = sortCoursesByPriority(trendingCourses);
+      const sortedTrendingCourses = sortTrendingCourses(trendingCourses);
       result.push({
         name: 'Trending Courses',
         courses: sortedTrendingCourses
@@ -146,14 +160,14 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
     const finalResult = categoriesFiltered.map(category => {
       if (category.name === 'Trending Courses') {
       
-        const sortedTrendingCourses = sortCoursesByPriority(allTrendingCourses);
+        const sortedTrendingCourses = sortTrendingCourses(allTrendingCourses);
      
         sortedTrendingCourses.forEach((course, idx) => {
        
         });
         return {
           ...category,
-          courses: sortedTrendingCourses // Use ALL trending courses we found earlier, sorted by priority
+          courses: sortedTrendingCourses // Use ALL trending courses we found earlier, sorted by trending_priority
         };
       }
       return category;
@@ -163,7 +177,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
     const hasTrainingCoursesCategory = finalResult.some(cat => cat.name === 'Trending Courses');
     if (!hasTrainingCoursesCategory && allTrendingCourses.length > 0) {
      
-      const sortedTrendingCourses = sortCoursesByPriority(allTrendingCourses);
+      const sortedTrendingCourses = sortTrendingCourses(allTrendingCourses);
       finalResult.unshift({
         name: 'Trending Courses',
         courses: sortedTrendingCourses

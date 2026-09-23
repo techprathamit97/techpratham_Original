@@ -50,7 +50,7 @@ export async function getGroupedCourses(bustCache = false): Promise<any[]> {
   const courses = await course
     .find(
       {},
-      "_id title image alt category link shortDesc level rating duration trending priority createdAt"
+      "_id title image alt category link shortDesc level rating duration trending priority trending_priority createdAt"
     )
     .lean();
 

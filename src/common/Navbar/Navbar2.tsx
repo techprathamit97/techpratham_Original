@@ -299,7 +299,7 @@ const Navbar2: React.FC<NavbarProps> = () => {
         className={`w-full  transition-colors duration-200 ${
           scrolled
             ? 'bg-white/95 backdrop-blur-md shadow-[0_2px_10px_rgba(0,0,0,0.06)]'
-            : 'bg-white/95 backdrop-blur-md shadow-[0_2px_10px_rgba(0,0,0,0.06)] md:bg-transparent md:backdrop-blur-none md:shadow-none'
+            : 'bg-white/95 backdrop-blur-md shadow-[0_2px_10px_rgba(0,0,0,0.06)] lg:bg-transparent lg:backdrop-blur-none lg:shadow-none'
         }`}
       >
         <div
@@ -308,7 +308,7 @@ const Navbar2: React.FC<NavbarProps> = () => {
           }`}
         >
           <div
-            className={`flex w-full items-center justify-between md:justify-start gap-3 rounded-full px-3 md:px-10 transition-all duration-200 ${
+            className={`flex w-full items-center justify-between lg:justify-start gap-3 rounded-full px-3 md:px-10 transition-all duration-200 ${
               scrolled
                 ? ' py-1'
                 : ' bg-white shadow-[0_4px_20px_rgba(0,0,0,0.08)] md:py-1'
@@ -408,7 +408,7 @@ const Navbar2: React.FC<NavbarProps> = () => {
           </form> */}
 
 
-          <div className="hidden md:flex items-center shrink-0">
+          <div className="hidden lg:flex items-center shrink-0">
             {mounted && loading ? (
               <span className="text-xs text-gray-500 px-3">Loading...</span>
             ) : mounted && authenticated ? (
@@ -431,9 +431,9 @@ const Navbar2: React.FC<NavbarProps> = () => {
             )}
           </div>
 
-          {/* Mobile: always dark icon on white bg. Desktop: adapts to scroll state. */}
+          {/* Shown on mobile AND tablet (below lg). Desktop (lg+) uses the inline nav. */}
           <button
-            className={`md:hidden flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-colors border-gray-200 bg-white text-gray-700`}
+            className={`lg:hidden flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-colors border-gray-200 bg-white text-gray-700`}
             onClick={handleNavToggle}
             aria-label="Toggle navigation menu"
             aria-expanded={navOpen}
@@ -448,7 +448,7 @@ const Navbar2: React.FC<NavbarProps> = () => {
       {/* ==================== MOBILE DRAWER ==================== */}
      
       <div
-        className={`w-full lg:hidden md:hidden flex items-start justify-center bg-white border-b border-gray-100 transition-all duration-300 ease-in-out transform origin-top ${
+        className={`w-full lg:hidden flex items-start justify-center bg-white border-b border-gray-100 transition-all duration-300 ease-in-out transform origin-top ${
           navOpen
             ? 'max-h-[85vh] overflow-y-auto opacity-100 translate-y-0 scale-y-100'
             : 'max-h-0 opacity-0 -translate-y-4 scale-y-0 overflow-hidden'

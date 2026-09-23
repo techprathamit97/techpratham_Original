@@ -92,6 +92,7 @@ const courseSchema = z.object({
   subcategoryName: z.string().optional(),
   trending: z.boolean().optional(),
   priority: z.number().min(0, "Priority must be 0 or higher").optional(), // Add priority field
+  trending_priority: z.number().min(0, "Trending priority must be 0 or higher").optional(), // Order within Trending section
   placement_report: z.string().min(1, "Placement report is required"),
   curriculum: z.string().min(1, "Curriculum is required"),
   interview: z.string().min(1, "Interview information is required"),
@@ -120,6 +121,7 @@ interface Course extends CourseFormData {
   _id: string;
   trending?: boolean;
   priority?: number; // Add priority field
+  trending_priority?: number; // Order within Trending section
   metadata?: {
     title?: string;
     description?: string;
@@ -310,6 +312,7 @@ const UpdateCoursePage = () => {
       subcategoryName: '',
       trending: false,
       priority: 0, // Add priority field with default value
+      trending_priority: 0, // Order within the Trending section (default 0)
       placement_report: '',
       curriculum: '',
       interview: '',
@@ -424,6 +427,7 @@ const UpdateCoursePage = () => {
           subcategoryName: courseSubcategoryName,
           trending: courseData.trending ?? false,
           priority: courseData.priority || 0, // Add priority field
+          trending_priority: courseData.trending_priority || 0, // Order within Trending section
           placement_report: courseData.placement_report || '',
           curriculum: courseData.curriculum || '',
           interview: courseData.interview || '',
@@ -1134,6 +1138,35 @@ const UpdateCoursePage = () => {
                                   </FormItem>
                                 )}
                               />
+
+                              {/* Trending priority — only when the course is marked
+                                  trending. Controls order within the Trending
+                                  Courses section. */}
+                              {form.watch('trending') && (
+                                <FormField
+                                  control={form.control}
+                                  name="trending_priority"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Trending Priority</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          min="0"
+                                          max="100"
+                                          placeholder="0"
+                                          {...field}
+                                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                                        />
+                                      </FormControl>
+                                      <FormDescription>
+                                        Order within the Trending Courses section. Lower numbers appear first (1=first, 2=second, etc.). Leave 0 for default order.
+                                      </FormDescription>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              )}
 
                               <FormField
                                 control={form.control}

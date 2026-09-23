@@ -71,6 +71,9 @@ const courseSchema = new mongoose.Schema(
     trending: { type: Boolean, default: false, index: true },
     // 💡 Priority field for ordering courses (higher number = higher priority)
     priority: { type: Number, default: 0, index: true },
+    // 💡 Priority used ONLY for ordering courses within the "Trending Courses"
+    // section (lower number appears first). Independent of `priority`.
+    trending_priority: { type: Number, default: 0, index: true },
     placement_report: { type: String, required: true },
     // placement_report: { type: String, required: true },
     curriculum: { type: String, required: true },

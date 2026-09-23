@@ -219,7 +219,7 @@ const HeroHome = () => {
       </div>
 
       {/* ✅ Main Content */}
-      <div className="relative min-h-[320px] md:min-h-[80vh] flex flex-col items-center justify-end z-10 pt-16 md:pt-24 pb-4 md:pb-6">
+      <div className="relative min-h-[320px] md:h-[480px] flex flex-col items-center justify-end z-10 pt-16 md:pt-24 pb-4 md:pb-6">
 
         {/* Headline + search — padded, centred */}
         <div className="flex w-full flex-col items-center text-center gap-6 md:gap-8 px-4">
@@ -243,7 +243,7 @@ const HeroHome = () => {
        
           <div
             className="flex flex-nowrap items-center gap-2 md:gap-3
-                          overflow-x-auto md:overflow-x-visible md:justify-center
+                          overflow-x-auto lg:overflow-x-visible lg:justify-center
                           no-scrollbar py-1 pl-4 pr-4 md:px-6">
             {HERO_CHIPS.map((chip, index) => {
               const alignRight = index >= HERO_CHIPS.length - 2;
@@ -273,7 +273,7 @@ const HeroHome = () => {
                       overflow-x-visible so this is not clipped. Hidden on mobile
                       (mobile uses the shared panel rendered below the strip). */}
                   <div
-                    className={`hidden md:block absolute bottom-full mb-2 w-52 rounded-lg border border-gray-100 bg-white shadow-xl transition-all duration-200 z-50 ${
+                    className={`hidden lg:block absolute bottom-full mb-2 w-52 rounded-lg border border-gray-100 bg-white shadow-xl transition-all duration-200 z-50 ${
                       isOpen
                         ? 'opacity-100 visible translate-y-0'
                         : 'opacity-0 invisible pointer-events-none'
@@ -304,7 +304,7 @@ const HeroHome = () => {
               down. Rendered outside the scrolling chip row so it is never
               clipped and never widens the page. */}
           {openChip !== null && (
-            <div className="md:hidden absolute left-4 right-4 top-full z-50">
+            <div className="lg:hidden absolute left-4 right-4 top-full z-50">
               <div className="w-full rounded-lg border border-gray-100 bg-white shadow-xl overflow-hidden" role="menu">
                 {HERO_CHIPS[openChip].links.map((link) => (
                   <Link
