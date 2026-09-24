@@ -44,19 +44,84 @@ const Footer = () => {
           </div>
 
           {/* ---- Trending Courses ---- */}
-          <div className="flex flex-col gap-3">
-            <h3 className="text-gray-900 font-semibold text-base">Courses</h3>
-            <ul className="flex flex-col gap-2 text-sm text-gray-700">
-              <li><Link href="/courses/workday-certification-trainings" className="hover:text-[#C6151D] hover:underline transition-colors">Workday Training</Link></li>
-              <li><Link href="/courses/workday-hcm-functional-training" className="hover:text-[#C6151D] hover:underline transition-colors">Workday HCM Training</Link></li>
-              <li><Link href="/courses/workday-finance-training-certification-online" className="hover:text-[#C6151D] hover:underline transition-colors">Workday Finance Training</Link></li>
-              <li><Link href="/courses/servicenow-training-in-india" className="hover:text-[#C6151D] hover:underline transition-colors">ServiceNow Training</Link></li>
-              <li><Link href="/courses/sap-training-in-india" className="hover:text-[#C6151D] hover:underline transition-colors">SAP Certification Training</Link></li>
-              <li><Link href="/courses/master-in-agentic-ai" className="hover:text-[#C6151D] hover:underline transition-colors">Master In Agentic AI</Link></li>
-              <li><Link href="/courses/workday-training-in-hyderabad" className="hover:text-[#C6151D] hover:underline transition-colors">Workday HCM Training In Hyderabad</Link></li>
-              <li><Link href="/courses/data-science-certification-training-in-india" className="hover:text-[#C6151D] hover:underline transition-colors">Data Science Certification Training</Link></li>
-            </ul>
-          </div>
+         <div className="flex flex-col gap-3">
+  <h3 className="text-gray-900 font-semibold text-base">Courses</h3>
+
+  <ul className="flex flex-col gap-2 text-sm text-gray-700">
+    <li>
+      <Link href="/courses/workday-certification-trainings" className="hover:text-[#C6151D] hover:underline transition-colors">
+        Workday Training
+      </Link>
+    </li>
+
+    <li>
+      <Link href="/courses/workday-hcm-functional-training" className="hover:text-[#C6151D] hover:underline transition-colors">
+        Workday HCM Training
+      </Link>
+    </li>
+
+    <li>
+      <Link href="/courses/workday-finance-training-certification-online" className="hover:text-[#C6151D] hover:underline transition-colors">
+        Workday Finance Training
+      </Link>
+    </li>
+
+    <li>
+      <Link href="/courses/servicenow-training-in-india" className="hover:text-[#C6151D] hover:underline transition-colors">
+        ServiceNow Training
+      </Link>
+    </li>
+
+    <li>
+      <Link href="/courses/sap-training-in-india" className="hover:text-[#C6151D] hover:underline transition-colors">
+        SAP Certification Training
+      </Link>
+    </li>
+
+   
+
+    <li>
+      <Link href="/courses/workday-training-in-hyderabad" className="hover:text-[#C6151D] hover:underline transition-colors">
+        Workday HCM Training In Hyderabad
+      </Link>
+    </li>
+
+    <li>
+      <Link href="/courses/data-science-certification-training-in-india" className="hover:text-[#C6151D] hover:underline transition-colors">
+        Data Science Certification Training
+      </Link>
+    </li>
+
+    {/* Newly Added Courses */}
+
+    <li>
+      <Link href="/courses/software-testing-training-in-india" className="hover:text-[#C6151D] hover:underline transition-colors">
+        Software Testing Training in India
+      </Link>
+    </li>
+
+    
+
+    <li>
+      <Link href="/courses/salesforce-training-in-india" className="hover:text-[#C6151D] hover:underline transition-colors">
+        Salesforce Training in India
+      </Link>
+    </li>
+
+
+    <li>
+      <Link href="/courses/ai-training-in-india" className="hover:text-[#C6151D] hover:underline transition-colors">
+        AI Training in India
+      </Link>
+    </li>
+
+    <li>
+      <Link href="/courses/agentic-ai-training-in-india" className="hover:text-[#C6151D] hover:underline transition-colors">
+        Agentic AI Training in India
+      </Link>
+    </li>
+  </ul>
+</div>
 
           {/* ---- Company ---- */}
           <div className="flex flex-col gap-2">
