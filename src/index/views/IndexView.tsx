@@ -14,14 +14,7 @@ import HeroHome from '../components/HeroHome/HeroHome';
 import ReachForm from '@/components/common/ReachForm/ReachForm';
 import ToolTip from '@/components/common/ToolTip/ToolTip';
 
-// ---------------------------------------------------------------------------
-// Below-the-fold sections: code-split with next/dynamic so their (heavy)
-// carousel / animation JavaScript ships in separate chunks and does NOT run
-// during the initial hydration pass. This is the main lever for cutting Total
-// Blocking Time. SSR is kept on (ssr: true, the default) so the markup is
-// still present in the server HTML for SEO — only the client JS is deferred.
-// Each placeholder reserves vertical space to avoid layout shift (CLS).
-// ---------------------------------------------------------------------------
+
 const sectionFallback = (minHeight: number) => () => (
   <div style={{ minHeight }} aria-hidden="true" />
 );

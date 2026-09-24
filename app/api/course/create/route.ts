@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import Course from '@/models/course';
 import { connectMongo } from '@/utils/mongodb';
 import { clearNavbarCache } from '@/utils/navbarData';
@@ -23,6 +24,18 @@ export async function POST(request: NextRequest) {
         
         // Clear fetch-grouped cache since courses have been modified
         clearFetchGroupedCache();
+
+        // On-demand ISR revalidation so a newly created course shows on the
+        // homepage immediately instead of waiting for the 5-minute window.
+        try {
+            revalidatePath('/');
+            const links = Array.isArray(courseItems)
+                ? courseItems.map((c: any) => c?.link).filter(Boolean)
+                : [ (courseItems as any)?.link ].filter(Boolean);
+            links.forEach((link: string) => revalidatePath(`/courses/${link}`));
+        } catch (e) {
+            console.error('revalidatePath failed:', e);
+        }
             
         return NextResponse.json(courseItems, { status: 201 });
     } catch (error: any) {

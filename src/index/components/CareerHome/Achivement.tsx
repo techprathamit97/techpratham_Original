@@ -7,9 +7,9 @@ import { useEffect, useRef, useState } from 'react';
 ================================ */
 const getDigitHeight = () => {
   if (typeof window === "undefined") return 56;
-  if (window.innerWidth < 640) return 36;   // mobile
-  if (window.innerWidth < 1024) return 48;  // tablet
-  return 56;                                // desktop
+  if (window.innerWidth < 640) return 36;   
+  if (window.innerWidth < 1024) return 48;  
+  return 56;                                
 };
 
 function RollingDigit({
@@ -145,10 +145,7 @@ const StatCounter: React.FC<StatProps> = ({
   className="relative overflow-hidden rounded-xl bg-cover bg-center bg-no-repeat transition-all duration-500 hover:scale-[1.02]"
  
 >
-  {/* Overlay */}
-  {/* <div className="absolute inset-0 bg-black/60"></div> */}
 
-  {/* Content */}
   <div className="relative z-10 p-1 md:p-3 text-center">
     <Odometer value={end} suffix={suffix} start={start} />
 
@@ -174,7 +171,7 @@ export default function TrainingRecruitmentStats() {
   }}
 >
   {/* Overlay */}
-  <div className="absolute inset-0 bg-black/40"></div>
+  <div className="absolute inset-0 bg-black/70"></div>
 
   {/* Content */}
   <div className="relative z-10 mx-auto grid w-full grid-cols-3 gap-1 text-white md:gap-8">

@@ -464,7 +464,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
             ) : (
               <>
                 {/* DESKTOP - HORIZONTAL SCROLLABLE PILL BAR WITH ARROWS */}
-                <div className="hidden md:flex relative items-center border border-[#C6151D] rounded-lg px-9 py-2 bg-white">
+                <div className="hidden md:flex relative items-center border border-[#C6151D] rounded-lg px-9 py-2 bg-[#C6151D]">
                   {/* Left arrow */}
                   <button
                     type="button"

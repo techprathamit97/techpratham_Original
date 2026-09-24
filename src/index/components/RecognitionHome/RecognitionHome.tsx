@@ -45,30 +45,69 @@ const RecognitionHome = () => {
 
 
   return (
-    <div className="w-full h-auto flex flex-col items-center justify-center  gap-3 bg-[#F5F4F7] text-black">
+    <div className="w-full h-auto flex flex-col items-center justify-between gap-6 bg-[#FFFFFF]  text-black py-5 px-4">
 
-      <div className="w-full px-1 md:px-20 py-7  h-auto flex flex-col md:flex-row md:gap-10">
-
-        <div className="w-full md:w-1/2 flex flex-col gap-2">
-<div className='pb-2'>
-          <h3 className="text-[26px] text-yellow-600 font-bold">Government Recognition</h3>
-          <svg
-          className="mx-auto"
-          width="340"
+      {/* ---- Heading ---- */}
+      <div className="flex flex-col items-center">
+        <h2 className="text-2xl md:text-4xl font-bold text-center">
+          <span className="bg-gradient-to-r from-[#5b2fb0] to-[#C6151D] bg-clip-text text-transparent">
+           Government Recognition
+          </span>
+        </h2>
+        <svg
+          className="mt-2"
+          width="260"
           height="6"
           viewBox="0 0 340 6"
           preserveAspectRatio="none"
         >
-          <path
-            d="M0 3 Q170 0 340 3 Q170 6 0 3 Z"
-            fill="#7f1d1d"
-          />
+          <path d="M0 3 Q170 0 340 3 Q170 6 0 3 Z" fill="#7f1d1d" />
         </svg>
-        </div>
+      </div>
+
+      {/* ---- Awards row (uses existing certificate data) — full width ---- */}
+      <div
+        className="w-full px-4 md:px-12 flex md:justify-between md:items-start gap-6 lg:gap-10
+                   overflow-x-auto md:overflow-x-visible
+                   no-scrollbar pb-2"
+      >
+        {certificatesData.map((cert: Certificate, i: number) => (
+          <div
+            key={i}
+            className="shrink-0 md:flex-1 w-40 md:w-auto flex flex-col items-center text-center gap-3"
+          >
+            <Image
+              src={cert.img}
+              alt={cert.title}
+              width={200}
+              height={140}
+              sizes="200px"
+              className="h-24 md:h-28 w-auto object-contain border border-gray-300 rounded-lg bg-white shadow-sm"
+            />
+            <p className="text-sm font-medium text-gray-800 leading-snug">
+              {cert.title}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* ============================================================
+          PREVIOUS DESIGN — "Government Recognition" (commented out).
+          Kept for reference / easy restore. All data (certificatesData,
+          selectedCert, expandedMobile, handleSelect) is preserved above.
+      ============================================================
+      <div className="w-full px-1 md:px-20 py-7  h-auto flex flex-col md:flex-row md:gap-10">
+
+        <div className="w-full md:w-1/2 flex flex-col gap-2">
+          <div className='pb-2'>
+            <h3 className="text-[26px] text-yellow-600 font-bold">Government Recognition</h3>
+            <svg className="mx-auto" width="340" height="6" viewBox="0 0 340 6" preserveAspectRatio="none">
+              <path d="M0 3 Q170 0 340 3 Q170 6 0 3 Z" fill="#7f1d1d" />
+            </svg>
+          </div>
 
           {certificatesData.map((cert: Certificate, i: number) => (
             <div key={i} className="w-full">
-
               <div
                 className={`flex items-center gap-4 p-2 rounded-lg border cursor-pointer transition-all duration-300 ${
                   selectedCert.title === cert.title
@@ -78,77 +117,40 @@ const RecognitionHome = () => {
                 onClick={() => handleSelect(cert, i)}
               >
                 <div className="w-10 h-10 relative overflow-hidden rounded">
-                  <Image
-                    src={cert.img}
-                    alt={cert.title}
-                    fill
-                    sizes="40px"
-                    className="object-contain p-1"
-                  />
+                  <Image src={cert.img} alt={cert.title} fill sizes="40px" className="object-contain p-1" />
                 </div>
-
                 <div className="flex flex-col">
                   <div className="font-semibold text-sm text-black">{cert.title}</div>
                   <p className="text-xs text-black truncate max-w-[200px]">{cert.desc}</p>
                 </div>
               </div>
 
-              {/* MOBILE EXPANDED VIEW */}
               {expandedMobile === i && (
                 <div className="md:hidden w-full mt-3 bg-white border shadow-xl rounded-lg p-4">
                   <h2 className="text-lg font-bold mb-2 text-center">{cert.title}</h2>
-
                   <div className="w-full bg-gray-100 rounded-md overflow-hidden p-4">
-                    <Image
-                      src={cert.img}
-                      alt={cert.title}
-                      width={1200}
-                      height={800}
-                      className="w-full h-auto object-contain"
-                    />
+                    <Image src={cert.img} alt={cert.title} width={1200} height={800} className="w-full h-auto object-contain" />
                   </div>
-
                   <div className="p-2 rounded-md">
-                    <p className="text-sm text-gray-700">
-                      <strong>Description:</strong> {cert.desc}
-                    </p>
+                    <p className="text-sm text-gray-700"><strong>Description:</strong> {cert.desc}</p>
                   </div>
                 </div>
               )}
-
             </div>
           ))}
         </div>
 
-        {/* DESKTOP RIGHT SIDE VIEW */}
         <div className="w-full hidden md:flex h-[70vh] pb-4 flex-col justify-between rounded-md overflow-hidden">
-
-          {/* TITLE */}
-          <h2 className="text-sm md:text-3xl text-yellow-600 font-bold text-center">
-            {selectedCert.title}
-          </h2>
-
-          {/* IMAGE */}
+          <h2 className="text-sm md:text-3xl text-yellow-600 font-bold text-center">{selectedCert.title}</h2>
           <div className="flex-1 flex items-center justify-center">
-            <Image
-              src={selectedCert.img}
-              alt={selectedCert.title}
-              width={1200}
-              height={800}
-              className="md:max-w-[400px] max-h-[300px] object-fill pb-1"
-            />
+            <Image src={selectedCert.img} alt={selectedCert.title} width={1200} height={800} className="md:max-w-[400px] max-h-[300px] object-fill pb-1" />
           </div>
-
-          {/* DESCRIPTION */}
-         <div className=" rounded-md max-w-2xl p-3 mx-auto">
-  <p className="text-sm text-gray-700 text-center">
-    <strong>Description:</strong> {selectedCert.desc}
-  </p>
-</div>
-
+          <div className="rounded-md max-w-2xl p-3 mx-auto">
+            <p className="text-sm text-gray-700 text-center"><strong>Description:</strong> {selectedCert.desc}</p>
+          </div>
         </div>
-
       </div>
+      ============================================================ */}
     </div>
   );
 };

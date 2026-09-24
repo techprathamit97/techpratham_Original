@@ -4,7 +4,7 @@ import Achivement from './Achivement';
 
 const CareerHome = () => {
   return (
-    <div className='w-full h-auto flex flex-col items-center justify-center  bg-[#F5F4F7] text-black'>
+    <div className='w-full h-auto flex flex-col items-center justify-center  text-black'>
 
       <div className='w-full pt-5 text-center flex flex-col items-center justify-center gap-6'>
          <div className="md:text-3xl text-2xl md:font-semibold font-medium text-black capitalize cursor-pointer transition-all duration-500 ease-in-out hover:scale-110 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-br hover:from-[#1a0a0a] hover:to-[#a3262c]">In Association With</div>
@@ -32,7 +32,7 @@ const CareerHome = () => {
       height={96}
       sizes="112px"
       loading="lazy"
-      className='w-28 h-16 object-contain cursor-pointer transition-all duration-300 ease-in-out hover:scale-110 hover:shadow-lg hover:shadow-red-500/30'
+      className='w-28 h-16 object-contain cursor-pointer border border-gray-300 rounded-lg bg-white p-1 shadow-sm transition-all duration-300 ease-in-out hover:scale-110 hover:shadow-lg hover:shadow-red-500/30'
     />
   ))}
 </div>

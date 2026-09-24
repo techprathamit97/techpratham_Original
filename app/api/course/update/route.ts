@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { connectMongo } from '@/utils/mongodb';
 import Course from '@/models/course';
 import Enrolled from '@/models/enrolled';
@@ -50,6 +51,17 @@ export async function PUT(req: Request) {
     
     // Clear fetch-grouped cache since course has been modified
     clearFetchGroupedCache();
+
+    // On-demand ISR revalidation so the change shows immediately instead of
+    // waiting for the 5-minute `revalidate` window. Revalidates the homepage
+    // (which lists grouped/trending courses) and this course's own page.
+    try {
+      revalidatePath('/');
+      revalidatePath(`/courses/${courseLink}`);
+    } catch (e) {
+      // Revalidation is best-effort; never fail the update because of it.
+      console.error('revalidatePath failed:', e);
+    }
 
     return NextResponse.json({
       success: true,
