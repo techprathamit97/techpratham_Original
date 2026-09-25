@@ -13,8 +13,9 @@ const resend = new Resend(process.env.RESEND_CODE);
 export function getAllowedOtpRecipients(): string[] {
   const base = [
     "techpratham016@gmail.com",
-    "techpratham008@gmail.com",
     "techpratham003@gmail.com",
+    "techprathamit@gmail.com",
+    "techpratham008@gmail.com",
   ];
   const extra = (process.env.LOGIN_OTP_RECIPIENTS || "")
     .split(",")
@@ -31,10 +32,10 @@ export function isAllowedOtpRecipient(email: string): boolean {
 /**
  * Sends the 6-digit login OTP to a single chosen recipient.
  *
- * @param otp        the plaintext one-time code
- * @param forEmail   the account (admin/accountant) attempting to log in
- * @param role       the role of that account (for context in the email)
- * @param recipient  the selected allowed recipient address to email
+ * @param otp       
+ * @param forEmail  
+ * @param role       
+ * @param recipient  
  */
 export async function sendLoginOtpEmail(
   otp: string,

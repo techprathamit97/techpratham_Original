@@ -13,6 +13,9 @@ export const authOptions: NextAuthOptions = {
             credentials: {
                 email: { label: "Email", type: "text" },
                 password: { label: "Password", type: "password" },
+                // One-time proof that the OTP was verified. Required only for
+                // admin/accountant accounts (issued by /api/auth/login-otp/verify).
+                otpProof: { label: "OTP Proof", type: "text" },
             },
             async authorize(credentials: any) {
                 await connectMongo();
@@ -29,6 +32,35 @@ export const authOptions: NextAuthOptions = {
 
                     if (!isPasswordCorrect) {
                         throw new Error("Invalid Password");
+                    }
+
+                    // ---- 2FA enforcement for staff (admin / accountant) ----
+                    // These roles MUST present a valid one-time OTP proof. This
+                    // check lives inside authorize() so it cannot be bypassed by
+                    // signing in from the normal /auth/login page — every
+                    // credentials sign-in for staff goes through here.
+                    const role = user?.role?.type ?? "user";
+                    if (role === "admin" || role === "accountant") {
+                        const proof = credentials.otpProof;
+                        if (
+                            !proof ||
+                            !user.loginOtpProofHash ||
+                            !user.loginOtpProofExpiry ||
+                            new Date(user.loginOtpProofExpiry).getTime() < Date.now()
+                        ) {
+                            throw new Error("OTP verification required");
+                        }
+
+                        const proofOk = await bcrypt.compare(proof, user.loginOtpProofHash);
+                        if (!proofOk) {
+                            throw new Error("OTP verification required");
+                        }
+
+                        // Consume the proof so it is single-use (atomic $unset).
+                        await User.updateOne(
+                            { _id: user._id },
+                            { $unset: { loginOtpProofHash: "", loginOtpProofExpiry: "" } }
+                        );
                     }
 
                     return user;

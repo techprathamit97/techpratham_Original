@@ -48,10 +48,11 @@ export async function POST(req: Request) {
     }
 
     if (new Date(user.loginOtpExpiry).getTime() < Date.now()) {
-      // Expired — clear it.
-      user.loginOtpHash = undefined;
-      user.loginOtpExpiry = undefined;
-      await user.save();
+      // Expired — clear it atomically.
+      await User.updateOne(
+        { _id: user._id },
+        { $unset: { loginOtpHash: "", loginOtpExpiry: "" } }
+      );
       return NextResponse.json(
         { status: "error", message: "OTP has expired. Please try logging in again." },
         { status: 400 }
@@ -66,12 +67,26 @@ export async function POST(req: Request) {
       );
     }
 
-    // Success — invalidate the OTP so it can't be reused.
-    user.loginOtpHash = undefined;
-    user.loginOtpExpiry = undefined;
-    await user.save();
+    // Success — invalidate the OTP so it can't be reused, and issue a one-time
+    // "proof" token. This proof MUST be passed to the NextAuth sign-in; the
+    // authorize() callback requires it for admin/accountant, so OTP cannot be
+    // bypassed by calling signIn from any other page.
+    const crypto = await import("crypto");
+    const proof = crypto.randomBytes(32).toString("hex");
+    const proofHash = await bcrypt.hash(proof, 10);
 
-    return NextResponse.json({ status: "ok", verified: true });
+    await User.updateOne(
+      { _id: user._id },
+      {
+        $unset: { loginOtpHash: "", loginOtpExpiry: "" },
+        $set: {
+          loginOtpProofHash: proofHash,
+          loginOtpProofExpiry: new Date(Date.now() + 2 * 60 * 1000), // 2 min to sign in
+        },
+      }
+    );
+
+    return NextResponse.json({ status: "ok", verified: true, proof });
   } catch (error: any) {
     console.error("login-otp/verify error:", error);
     return NextResponse.json(

@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema(
     resetPasswordExpiry: { type: Date }, // Expiry for reset token
     loginOtpHash: { type: String }, // Hashed login OTP (admin/accountant 2FA)
     loginOtpExpiry: { type: Date }, // Expiry for the login OTP
+    // Proof that OTP was verified — required by NextAuth authorize() for
+    // admin/accountant so OTP cannot be bypassed via the normal login page.
+    loginOtpProofHash: { type: String },
+    loginOtpProofExpiry: { type: Date },
   },
   {
     timestamps: true,

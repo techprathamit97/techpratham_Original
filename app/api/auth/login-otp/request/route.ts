@@ -61,9 +61,13 @@ export async function POST(req: Request) {
 
     const role = user?.role?.type ?? "user";
 
-    // Normal users: no OTP required.
+    // This endpoint is ONLY for the secure admin/accountant login (/super-user).
+    // Reject any non-staff account so normal users cannot use this portal at all.
     if (!OTP_ROLES.includes(role)) {
-      return NextResponse.json({ status: "ok", requiresOtp: false });
+      return NextResponse.json(
+        { status: "error", message: "This portal is for administrators only." },
+        { status: 403 }
+      );
     }
 
     // admin / accountant: determine the OTP recipient (must be from the
@@ -76,17 +80,35 @@ export async function POST(req: Request) {
     const otp = String(Math.floor(100000 + Math.random() * 900000)); // 6 digits
     const otpHash = await bcrypt.hash(otp, 10);
 
-    user.loginOtpHash = otpHash;
-    user.loginOtpExpiry = new Date(Date.now() + OTP_TTL_MS);
-    await user.save();
+    // Use an atomic $set so the fields are persisted reliably regardless of
+    // any Mongoose model caching.
+    await User.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          loginOtpHash: otpHash,
+          loginOtpExpiry: new Date(Date.now() + OTP_TTL_MS),
+        },
+      }
+    );
 
-    await sendLoginOtpEmail(otp, email, role, chosenRecipient);
+    // Send the OTP email. A delivery failure must NOT abort the flow — the OTP
+    // is already stored, so we surface the failure but keep the request 200 so
+    // the UI can proceed. (Delivery problems are logged for the operator.)
+    let emailSent = true;
+    try {
+      await sendLoginOtpEmail(otp, email, role, chosenRecipient);
+    } catch (mailErr) {
+      emailSent = false;
+      console.error("Failed to send login OTP email:", mailErr);
+    }
 
     // Return a masked recipient so the UI can confirm where the code was sent.
     return NextResponse.json({
       status: "ok",
       requiresOtp: true,
       sentTo: chosenRecipient,
+      emailSent,
     });
   } catch (error: any) {
     console.error("login-otp/request error:", error);
