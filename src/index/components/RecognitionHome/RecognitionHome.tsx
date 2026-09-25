@@ -38,7 +38,7 @@ const certificatesData: Certificate[] = [
     desc: 'Officially registered under the Ministry of MSME for small-scale industry benefits.',
   },{
     title: 'Best Education Company of the Year 2025',
-    img: '/home/recognition/best_education.webp',
+    img: '/home/recognition/best_edn.webp',
     desc: 'Officially registered under the Ministry of MSME for small-scale industry benefits.',
   },
    {
