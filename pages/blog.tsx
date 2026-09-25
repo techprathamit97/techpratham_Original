@@ -207,7 +207,7 @@ export default function BlogsPage({
                     {categories.map((category) => (
                       <Link key={category._id} href={`/blog/${category.slug}`}>
                         <Badge variant="outline" className="hover:bg-gray-100">
-                          {category.name} ({category.postCount})
+                          {category.name} 
                         </Badge>
                       </Link>
                     ))}

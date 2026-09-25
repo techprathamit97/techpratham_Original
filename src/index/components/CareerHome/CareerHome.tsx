@@ -32,7 +32,7 @@ const CareerHome = () => {
       height={96}
       sizes="112px"
       loading="lazy"
-      className='w-28 h-16 object-contain cursor-pointer border border-gray-300 rounded-lg bg-white p-1 shadow-sm transition-all duration-300 ease-in-out hover:scale-110 hover:shadow-lg hover:shadow-red-500/30'
+      className='w-28 h-16 object-contain cursor-pointer border border-gray-300 rounded-lg bg-[#F6F6F6] p-1 shadow-sm transition-all duration-300 ease-in-out hover:scale-110 hover:shadow-lg hover:shadow-red-500/30'
     />
   ))}
 </div>

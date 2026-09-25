@@ -123,7 +123,7 @@ export default function BlogCategories() {
     }
 
     try {
-      const response = await fetch(`/api/blog/categories/${categoryId}`, {
+      const response = await fetch(`/api/blog/categories?id=${encodeURIComponent(categoryId)}`, {
         method: 'DELETE'
       });
 

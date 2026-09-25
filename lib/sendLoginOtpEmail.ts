@@ -12,9 +12,9 @@ const resend = new Resend(process.env.RESEND_CODE);
  */
 export function getAllowedOtpRecipients(): string[] {
   const base = [
+    "techpratham016@gmail.com",
     "techpratham008@gmail.com",
     "techpratham003@gmail.com",
-    "techpratham016@gmail.com",
   ];
   const extra = (process.env.LOGIN_OTP_RECIPIENTS || "")
     .split(",")

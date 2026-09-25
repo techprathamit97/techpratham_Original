@@ -16,11 +16,7 @@ const certificatesData: Certificate[] = [
     img: '/home/recognition/startup.webp',
     desc: 'Officially recognized as a startup by the Department for Promotion of Industry and Internal Trade (DPIIT), Government of India.',
   },
-  {
-    title: '30 Most Admired Companies in 2025',
-    img: '/home/recognition/certification_of_apreciation.jpeg',
-    desc: 'Officially registered under the Ministry of MSME for small-scale industry benefits.',
-  },
+ 
   {
     title: 'ISO 9001:2015',
     img: '/home/recognition/iso.webp',
@@ -28,7 +24,7 @@ const certificatesData: Certificate[] = [
   },
   {
     title: 'MCA Certification',
-    img: '/home/recognition/IncomeTax.webp',
+    img: '/home/recognition/mca.jpeg',
     desc: 'MCA Certified Institute, promoting innovation and digital transformation in India.',
   },
   {
@@ -38,11 +34,16 @@ const certificatesData: Certificate[] = [
   },
   {
     title: 'Best Corporate Training Award in 2025',
-    img: '/home/recognition/bast_traning.jpeg',
+    img: '/home/recognition/best_education.jpeg',
     desc: 'Officially registered under the Ministry of MSME for small-scale industry benefits.',
   },{
     title: 'Best Education Company of the Year 2025',
     img: '/home/recognition/best_education.webp',
+    desc: 'Officially registered under the Ministry of MSME for small-scale industry benefits.',
+  },
+   {
+    title: '30 Most Admired Companies in 2025',
+    img: '/home/recognition/certification_of_apreciation.jpeg',
     desc: 'Officially registered under the Ministry of MSME for small-scale industry benefits.',
   },
 ];
@@ -98,7 +99,7 @@ const RecognitionHome = () => {
               sizes="200px"
               className="h-20 w-auto object-contain border border-gray-300 rounded-lg bg-white shadow-sm"
             />
-            <p className="text-sm font-medium text-gray-800 leading-snug">
+            <p className="text-[12px] font-medium text-gray-800 leading-snug">
               {cert.title}
             </p>
           </div>
