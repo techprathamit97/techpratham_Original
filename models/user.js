@@ -22,6 +22,8 @@ const userSchema = new mongoose.Schema(
     emailVerificationExpiry: { type: Date }, // Expiry for verification token
     resetPasswordToken: { type: String }, // Token for password reset
     resetPasswordExpiry: { type: Date }, // Expiry for reset token
+    loginOtpHash: { type: String }, // Hashed login OTP (admin/accountant 2FA)
+    loginOtpExpiry: { type: Date }, // Expiry for the login OTP
   },
   {
     timestamps: true,

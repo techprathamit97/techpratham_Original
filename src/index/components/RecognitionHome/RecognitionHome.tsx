@@ -17,6 +17,11 @@ const certificatesData: Certificate[] = [
     desc: 'Officially recognized as a startup by the Department for Promotion of Industry and Internal Trade (DPIIT), Government of India.',
   },
   {
+    title: '30 Most Admired Companies in 2025',
+    img: '/home/recognition/certification_of_apreciation.jpeg',
+    desc: 'Officially registered under the Ministry of MSME for small-scale industry benefits.',
+  },
+  {
     title: 'ISO 9001:2015',
     img: '/home/recognition/iso.webp',
     desc: 'Certified in Quality Management System, ensuring consistent service and performance.',
@@ -29,6 +34,15 @@ const certificatesData: Certificate[] = [
   {
     title: 'MSME India',
     img: '/home/recognition/MEME.webp',
+    desc: 'Officially registered under the Ministry of MSME for small-scale industry benefits.',
+  },
+  {
+    title: 'Best Corporate Training Award in 2025',
+    img: '/home/recognition/bast_traning.jpeg',
+    desc: 'Officially registered under the Ministry of MSME for small-scale industry benefits.',
+  },{
+    title: 'Best Education Company of the Year 2025',
+    img: '/home/recognition/best_education.webp',
     desc: 'Officially registered under the Ministry of MSME for small-scale industry benefits.',
   },
 ];
@@ -51,7 +65,7 @@ const RecognitionHome = () => {
       <div className="flex flex-col items-center">
         <h2 className="text-2xl md:text-4xl font-bold text-center">
           <span className="bg-gradient-to-r from-[#5b2fb0] to-[#C6151D] bg-clip-text text-transparent">
-           Government Recognition
+           Government Recognition & Accomplishments
           </span>
         </h2>
         <svg
@@ -82,7 +96,7 @@ const RecognitionHome = () => {
               width={200}
               height={140}
               sizes="200px"
-              className="h-24 md:h-28 w-auto object-contain border border-gray-300 rounded-lg bg-white shadow-sm"
+              className="h-20 w-auto object-contain border border-gray-300 rounded-lg bg-white shadow-sm"
             />
             <p className="text-sm font-medium text-gray-800 leading-snug">
               {cert.title}

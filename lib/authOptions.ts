@@ -42,6 +42,15 @@ export const authOptions: NextAuthOptions = {
             clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? ""
         }),
     ],
+    // Session expires 15 hours after sign-in for ALL users (admin, accountant,
+    // user). Uses the JWT strategy so the expiry is enforced on the token.
+    session: {
+        strategy: "jwt",
+        maxAge: 15 * 60 * 60, // 15 hours (in seconds)
+    },
+    jwt: {
+        maxAge: 15 * 60 * 60, // keep the JWT lifetime in sync with the session
+    },
     pages: {
         signIn: '/auth/login',
     },
