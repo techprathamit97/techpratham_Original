@@ -2,7 +2,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Separator } from '@/components/ui/separator';
 
 type Certificate = {
   title: string;

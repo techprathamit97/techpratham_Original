@@ -379,9 +379,9 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
               </div>
             ) : (
               /* OLD FORMAT - Accordion */
-              <div className="bg-[#f7f7f7] rounded-lg p-5 flex flex-col gap-4 max-h-[450px] overflow-y-auto [&::-webkit-scrollbar]:hidden">
+              <div className="bg-[#f7f7f7] rounded-lg p-2 md:p-5 flex flex-col gap-4 max-h-[450px] overflow-y-auto [&::-webkit-scrollbar]:hidden">
                 {visibleCurriculum.map((item, index) => (
-                  <div key={index} className="flex gap-4">
+                  <div key={index} className="flex md:gap-4 gap-2">
 
                     {/* Timeline */}
                     <div className={`flex flex-col items-center ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
@@ -390,7 +390,7 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
                       : ""
                       }`}>
                       <div className="w-3 h-3 bg-red-800 rounded-full mt-6" />
-                      <Separator orientation="vertical" className="flex-1 bg-red-800" />
+                     <Separator orientation="vertical" className="flex-1 bg-red-800" />
                     </div>
 
                     {/* Accordion */}
@@ -402,13 +402,13 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
                       className={`w-full rounded-xl py-2 transition-colors duration-200 ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
                         (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
                         ? "bg-gradient-to-tl from-[#C6151D] to-[#600A0E] ml-7 text-white"
-                        : "bg-yellow-600 text-black hover:bg-red-800  cursor-pointer px-3"
+                        : "bg-yellow-600 text-black   cursor-pointer px-3"
                         }`}
                     >
                       <div className={`flex items-center ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
                         (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
                         ? "justify-between w-full"
-                      : "px-3"
+                      : "md:px-3"
                       }`}>
                       {/* Left Arrows for Value Added Learning */}
                       {(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
@@ -454,7 +454,7 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
                       (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
                         <div
                           className={`transition-all duration-500 ease-in-out ${selected === index
-                            ? "max-h-[500px] opacity-100 mt-4"
+                            ? " opacity-100 mt-4"
                             : "max-h-0 opacity-0 overflow-hidden"
                             }`}
                         >

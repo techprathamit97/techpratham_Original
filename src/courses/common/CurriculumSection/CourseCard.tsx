@@ -12,7 +12,7 @@ const plainTitle = getTextFromHtml(course.title);
   const firstLetter = plainTitle.charAt(0).toUpperCase() || "?";
 
   return (
-    <div className="w-full min-h-[80px] bg-white rounded-lg shadow flex overflow-hidden border">
+    <div className="w-full min-h-[90px] bg-white rounded-lg shadow flex overflow-hidden border">
 
       {/* LEFT STRIP with letter avatar */}
       <div className="w-16 flex items-center justify-center bg-gradient-to-tl from-[#C6151D] to-[#600A0E]">
@@ -35,12 +35,12 @@ const plainTitle = getTextFromHtml(course.title);
           dangerouslySetInnerHTML={{ __html: course.title }}
         />
 
-        <div className="text-xs text-gray-500 mt-1">
+        <div className="text-xs text-gray-500 ">
           {course.level && <span>{course.level} · </span>}
           Live Online
         </div>
 
-        <div className="mt-1">
+        <div className="">
           <a
             href={`/courses/${course.link}`}
             className="text-sm text-blue-600 font-medium hover:underline"

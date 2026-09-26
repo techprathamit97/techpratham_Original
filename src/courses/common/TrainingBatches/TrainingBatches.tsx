@@ -66,12 +66,13 @@ export default function TrainingBatches({ id, course }: any) {
         {/* MAIN CONTAINER */}
         <div className="bg-gray-100 rounded-xl shadow-lg p-4 md:p-6">
 
-          {/* BATCH ROW */}
-          <div className="flex gap-4 justify-center overflow-x-auto pb-3 no-scrollbar">
+          {/* BATCH ROW — start-aligned + horizontal scroll on mobile so cards
+              are never clipped at the edges; centered only when they fit (lg+). */}
+          <div className="flex gap-4 justify-start lg:justify-center overflow-x-auto px-1 pb-3 no-scrollbar">
             {batches.map((batch) => (
               <label
                 key={batch.id}
-                className={`relative min-w-[260px] bg-slate-300 sm:min-w-[180px] md:min-w-[260px]
+                className={`relative w-[80%] min-w-[240px] bg-slate-300 sm:w-auto sm:min-w-[220px] md:min-w-[260px]
                 flex-shrink-0 cursor-pointer rounded-xl border p-4 md:p-5 transition
                 ${selectedBatch === batch.id
                     ? "border-red-800 ring-2 ring-blue-200"
@@ -86,7 +87,7 @@ export default function TrainingBatches({ id, course }: any) {
                 />
 
                 {selectedBatch === batch.id && (
-                  <div className="absolute top-0 left-0 bg-red-900 text-white px-2 py-1 rounded-br-xl text-xs">
+                  <div className="absolute top-0 right-0 bg-red-900 text-white px-2 py-1 rounded-br-xl text-xs">
                     ✓ Selected
                   </div>
                 )}
