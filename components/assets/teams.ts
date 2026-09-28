@@ -2,89 +2,101 @@ export const teams = [
     {
         image: "/about/teams/sir.webp",
         name: "Bhagirath Tyagi",
-        position: "Founder",
+        position: "Founder & CEO",
         link: "bhagirath-tyagi",
-        about: [
-            "ISO Nirvana 🌿"
-        ]
+        workingAt: { name: "TechPratham", logo: "/navbar/lmslogo.png" },
+        about: "Founder & CEO of TechPratham, leading the organization’s vision, growth, and technology-focused training initiates to deliver industry-relevant learning and career opportunities across India.",
+        linkedin: "https://www.linkedin.com/in/bhagirath-tyagi-76842b192/",
     },
     {
-        image: "/about/teams/bharat.jpg",
-        name: "Bhagwan Sahai",
-        position: "Co-Founder",
-        link: "bharat-sahai",
-        about: [
-            "ISO Nirvana 🌿"
-        ]
-    },
-    {
-        image: "/about/teams/rani-kumari.jpg",
+        image: "/about/teams/rani_maam.webp",
         name: "Rani Kumari",
         position: "Head of HR and Operations",
         link: "rani-kumari",
-        about: [
-            "ISO Nirvana 🌿"
-        ]
+        workingAt: { name: "TechPratham", logo: "/navbar/lmslogo.png" },
+        about: "Leads HR strategy and day-to-day operations at TechPratham, ensuring a high-performance culture, seamless processes, and a rewarding environment for every team member.",
+        linkedin: "https://www.linkedin.com/company/techpratham/",
     },
-    
     {
         image: "/about/teams/durgesh.webp",
         name: "Durgesh Lawaniya",
         position: "Head of CSR",
-        
+        workingAt: { name: "TechPratham", logo: "/navbar/lmslogo.png" },
+        about: "Heads Corporate Social Responsibility at TechPratham, driving initiatives that create meaningful impact through education, community outreach, and sustainable practices.",
+        linkedin: "https://www.linkedin.com/company/techpratham/",
+    },
+    {
+        image: "/about/teams/devendra.webp",
+        name: "Devendra Yadav",
+        position: "IT Head",
+        workingAt: { name: "TechPratham", logo: "/navbar/lmslogo.png" },
+       about: "IT Head at TechPratham, driving technology strategy, digital operations, enterprise systems, and scalable solutions that support business growth and seamless client experiences.",
+        linkedin: "https://www.linkedin.com/company/techpratham/",
     },
     {
         image: "/about/teams/Riya.webp",
         name: "Riya",
         position: "IT Consultant",
-       
+        workingAt: { name: "TechPratham", logo: "/navbar/lmslogo.png" },
+        about: "IT Consultant at TechPratham with expertise in enterprise technology solutions, cloud platforms, and delivering end-to-end IT consulting services for corporate clients.",
+        linkedin: "https://www.linkedin.com/company/techpratham/",
     },
+
     {
         image: "/about/teams/ayansh.webp",
         name: "Ayansh Maurya",
-        position: "Software Developer",
-        
-    },
-   {
-        image: "/about/teams/chndrama.webp",
-        name: "Chandrama Vaishnaw",
-        position: "Marketing Team",
-        
+        position: "Sr. Software Developer",
+        workingAt: { name: "TechPratham", logo: "/navbar/lmslogo.png" },
+        about: "Full-stack software developer at TechPratham, building scalable and performant web applications that power the institute's digital learning and management platforms.",
+        linkedin: "https://www.linkedin.com/company/techpratham/",
     },
     {
-        image: "/about/teams/mozamir.webp",
+        image: "/about/teams/mozammil.webp",
         name: "Mozammil",
-        position: "Marketing team",
-       
+        position: "Sr. Social Media Specialist",
+        workingAt: { name: "TechPratham", logo: "/navbar/lmslogo.png" },
+        about: "Senior Social Media Specialist at TechPratham with expertise in social media strategy, content marketing, lead generation, and building strong digital engagement with aspiring learners.",
+        linkedin: "https://www.linkedin.com/company/techpratham/",
     },
+    {
+        image: "/about/teams/chandrama.webp",
+        name: "Chandrama Vaishnaw",
+        position: "Marketing Team",
+        workingAt: { name: "TechPratham", logo: "/navbar/lmslogo.png" },
+        about: "Part of the Marketing team at TechPratham, specialising in digital campaigns, brand positioning, and student outreach to amplify the institute's reach across platforms.",
+        linkedin: "https://www.linkedin.com/company/techpratham/",
+    },
+
     {
         image: "/about/teams/javed.webp",
         name: "Jawed Alam",
-        position: "IT Consultant",
-       
+        position: "Program Manager",
+        workingAt: { name: "TechPratham", logo: "/navbar/lmslogo.png" },
+       about: "Program Manager at TechPratham focused on driving program strategy, coordinating cross-functional teams, and ensuring smooth execution of training programs that create meaningful career outcomes for learners.",
+        linkedin: "https://www.linkedin.com/company/techpratham/",
+    },
+    {
+        image: "/about/teams/manisha.webp",
+        name: "Manisha Chauhan",
+        position: "Sr. HR Executive",
+        workingAt: { name: "TechPratham", logo: "/navbar/lmslogo.png" },
+        about: "Sr. HR Executive at TechPratham, focused on talent management, employee engagement, recruitment, and building a positive workplace culture that supports people and organizational growth.",
+        linkedin: "https://www.linkedin.com/company/techpratham/",
     },
     {
         image: "/about/teams/dhruv.webp",
         name: "Dhruv",
         position: "Operation Manager",
-       
-    },
-    {
-        image: "/about/teams/chhavi.webp",
-        name: "Chhavi Srivastava",
-        position: "Workday Consultant",
-       
+        workingAt: { name: "TechPratham", logo: "/navbar/lmslogo.png" },
+        about: "Operation Manager at TechPratham, overseeing batch scheduling, trainer coordination, and ensuring smooth delivery of training programs across both online and offline modes.",
+        linkedin: "https://www.linkedin.com/company/techpratham/",
     },
     {
         image: "/about/teams/shiva.webp",
         name: "Shiva Nayak Dheeravath",
         position: "IT Consultant",
-       
+        workingAt: { name: "TechPratham", logo: "/navbar/lmslogo.png" },
+        about: "IT Consultant at TechPratham with deep expertise in enterprise IT solutions, helping learners gain practical skills aligned with current industry demands and certification standards.",
+        linkedin: "https://www.linkedin.com/company/techpratham/",
     },
-    // {
-    //     image: "/about/teams/manisha.webp",
-    //     name: "Manisha Chauhan",
-    //     position: "Senior HR Executive",
-       
-    // }
 ];
