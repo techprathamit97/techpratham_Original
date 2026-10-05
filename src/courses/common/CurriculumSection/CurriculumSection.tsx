@@ -42,7 +42,6 @@ const ProtectedPDFViewer = dynamic(
   }
 );
 
-// Courses that should show PDF in left side (CNA courses)
 const PDF_COURSES = [
   "servicenow-admin-certification",
   "servicenow-it-operations-management-itom-implementation",
@@ -50,18 +49,78 @@ const PDF_COURSES = [
   "servicenow-training-in-india",
   "salesforce-devops-engineering",
   "ai-for-developers",
-  "sap-successfactors"
+  "sap-successfactors",
+
+  // Guidewire courses
+  "guidewire-training-in-india",
+  "guidewire-training-in-hyderabad",
+  "guidewire-training-in-bangalore",
+  "guidewire-training-in-chennai",
+  "guidewire-training-in-noida",
+  "guidewire-training-in-pune",
+  "guidewire-training-in-gurgaon",
+  "guidewire-training-in-mumbai",
+  "guidewire-training-in-chandigarh",
+  "guidewire-training-in-kolkata",
+  "guidewire-training-in-delhi",
 ];
 
 // PDF paths for courses - stored in /training folder
 const PDF_PATHS: Record<string, string> = {
-  "servicenow-admin-certification": "/training/TechPratham_ServiceNow.pdf",
-  "servicenow-it-operations-management-itom-implementation": "/training/TechPratham_ITOM_Content.pdf",
-  "servicenow-itsm-training": "/training/TechPratham_ServiceNow.pdf",
-  "servicenow-training-in-india": "/training/TechPratham_ServiceNow_Admin_ITSM.pdf",
-  "salesforce-devops-engineering": "/training/salesforce-devOps-engineering.pdf",
-  "ai-for-developers": "/training/agentic-ai-engineering-course-content-techPratham.pdf",
-  "sap-successfactors": "/training/TechPratham_SAP_SuccessFactors_Employee_Central.pdf"
+  "servicenow-admin-certification":
+    "/training/TechPratham_ServiceNow.pdf",
+
+  "servicenow-it-operations-management-itom-implementation":
+    "/training/TechPratham_ITOM_Content.pdf",
+
+  "servicenow-itsm-training":
+    "/training/TechPratham_ServiceNow.pdf",
+
+  "servicenow-training-in-india":
+    "/training/TechPratham_ServiceNow_Admin_ITSM.pdf",
+
+  "salesforce-devops-engineering":
+    "/training/salesforce-devOps-engineering.pdf",
+
+  "ai-for-developers":
+    "/training/agentic-ai-engineering-course-content-techPratham.pdf",
+
+  "sap-successfactors":
+    "/training/TechPratham_SAP_SuccessFactors_Employee_Central.pdf",
+
+  // Guidewire PDF
+  "guidewire-training-in-india":
+    "/training/guidewire_training.pdf",
+
+  "guidewire-training-in-hyderabad":
+    "/training/guidewire_training.pdf",
+
+  "guidewire-training-in-bangalore":
+    "/training/guidewire_training.pdf",
+
+  "guidewire-training-in-chennai":
+    "/training/guidewire_training.pdf",
+
+  "guidewire-training-in-noida":
+    "/training/guidewire_training.pdf",
+
+  "guidewire-training-in-pune":
+    "/training/guidewire_training.pdf",
+
+  "guidewire-training-in-gurgaon":
+    "/training/guidewire_training.pdf",
+
+  "guidewire-training-in-mumbai":
+    "/training/guidewire_training.pdf",
+
+  "guidewire-training-in-chandigarh":
+    "/training/guidewire_training.pdf",
+
+  "guidewire-training-in-kolkata":
+    "/training/guidewire_training.pdf",
+
+  "guidewire-training-in-delhi":
+    "/training/guidewire_training.pdf",
 };
 
 const getPdfUrl = (courselink: string): string => {

@@ -346,7 +346,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
     return (
       <Link
         href={`/courses/${course.link}`}
-        className="group block min-w-[280px] sm:min-w-0 w-full rounded-xl shadow-lg overflow-hidden border border-gray-200 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl relative bg-white flex flex-col"
+        className="group block min-w-[280px] sm:min-w-0 w-full rounded-xl shadow-lg overflow-hidden border border-gray-200  hover:shadow-xl relative bg-white flex flex-col"
         style={{ minHeight: '360px' }} // Min height keeps cards uniform but lets them grow so content never clips (fixes mobile overflow)
       >
         {/* Fixed aspect ratio image container */}
@@ -358,7 +358,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
               width={320}
               height={144}
               sizes="(max-width: 768px) 90vw, 320px"
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              className="w-full h-full object-cover"
               style={{ aspectRatio: '20/9' }}
               priority={false}
               loading="lazy"
