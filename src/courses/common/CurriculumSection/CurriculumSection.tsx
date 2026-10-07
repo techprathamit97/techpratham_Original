@@ -16,11 +16,6 @@ import { useForm } from "react-hook-form";
 import PhoneInput from "@/components/common/PhoneInput/PhoneInput";
 import { getLeadSource, isGoogleAdsVisitor } from '@/lib/leadSourceDetection';
 
-/**
- * Renders the curriculum PDF as canvas pages via pdf.js instead of an iframe,
- * so the browser's native PDF viewer (with its download and print buttons) is
- * not used and right-click is blocked. Client-only because pdf.js needs the DOM.
- */
 const ProtectedPDFViewer = dynamic(
   () =>
     import("@/components/lms/ProtectedPDFViewer").catch((error) => {
