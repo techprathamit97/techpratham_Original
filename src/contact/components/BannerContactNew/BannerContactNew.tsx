@@ -12,8 +12,8 @@ const BannerContactNew = () => {
         { name: 'Google', icon: '/support/socials/google.svg', url: 'https://share.google/53IFpTK4qCyDXY8y7', color: 'hover:bg-red-50' },
         { name: 'WhatsApp', icon: '/support/socials/whatsapp.svg', url: 'https://wa.me/+918882178896', color: 'hover:bg-green-50' },
         { name: 'Pinterest', icon: '/support/socials/pinterest.svg', url: 'https://in.pinterest.com/techprathamofficial/', color: 'hover:bg-red-50' },
-        { name: 'YouTube', icon: '/support/socials/youtube.svg', url: 'https://youtube.com/@techprathamofficial-y1?si=GY3lUXPZWK6_LW18', color: 'hover:bg-red-50' },
-        { name: 'X', icon: '/support/socials/x.svg', url: 'https://x.com/home', color: 'hover:bg-gray-50' }
+        { name: 'YouTube', icon: '/support/socials/youtube.svg', url: 'https://www.youtube.com/@TechPrathamofficials', color: 'hover:bg-red-50' },
+        { name: 'X', icon: '/support/socials/x.svg', url: 'https://x.com/TechPrathamEdu', color: 'hover:bg-gray-50' }
     ];
 
     return (

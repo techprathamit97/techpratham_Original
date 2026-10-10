@@ -4,7 +4,8 @@ import { ChevronDownIcon } from '@radix-ui/react-icons';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import PhoneInput from '../PhoneInput/PhoneInput';
-import { getLeadSource, isGoogleAdsVisitor } from '@/lib/leadSourceDetection';
+import { getLeadSource } from '@/lib/leadSourceDetection';
+import { redirectToThankYou, FORM_TYPES } from '@/lib/thankYouRedirect';
 
 const ReachForm = () => {
     const [isOpen, setIsOpen] = useState(true);
@@ -45,28 +46,19 @@ const ReachForm = () => {
                 setPhoneNumber('');
                 setIsPhoneValid(false);
 
-                // ✅ Only send Google Ads conversion if visitor came from Google Ads
-                if (isGoogleAdsVisitor() && typeof window !== "undefined") {
-                    // Use gtag if available (recommended)
-                    if ((window as any).gtag) {
-                        (window as any).gtag("event", "conversion", {
-                            send_to: "AW-17462500412/K_E4CNSPy-0bELy44oZB",
-                        });
-                    } else {
-                        // Fallback to dataLayer
-                        (window as any).dataLayer = (window as any).dataLayer || [];
-                        (window as any).dataLayer.push({
-                            event: "google_ads_conversion",
-                            conversion_id: "17462500412",
-                            conversion_label: "K_E4CNSPy-0bELy44oZB",
-                        });
-                    }
-                }
+                // Redirect to Thank You page with conversion tracking
+                setTimeout(() => {
+                    redirectToThankYou({
+                        formType: FORM_TYPES.REACH_OUT,
+                        course: data.course || '',
+                        source: source,
+                        additionalData: {
+                            lead_value: 1,
+                            form_location: 'sidebar'
+                        }
+                    });
+                }, 1000);
                 
-                // TODO: Add Facebook/Instagram conversion tracking here if needed
-                // if (leadSource === 'facebook_ads' || leadSource === 'instagram_ads') {
-                //     // Facebook Pixel conversion tracking
-                // }
             } else {
                 console.error('Failed to submit form');
             }

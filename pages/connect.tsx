@@ -5,7 +5,8 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import PhoneInput from '@/components/common/PhoneInput/PhoneInput';
-import { getLeadSource, isGoogleAdsVisitor } from '@/lib/leadSourceDetection';
+import { getLeadSource } from '@/lib/leadSourceDetection';
+import { redirectToThankYou, FORM_TYPES } from '@/lib/thankYouRedirect';
 import { Download } from 'lucide-react';
 import Link from "next/link";
 /** Brand reds, matching the gradient already used across the site. */
@@ -57,25 +58,20 @@ export default function Connect() {
         setPhoneNumber('');
         setIsPhoneValid(false);
 
-        // ✅ Only send Google Ads conversion if visitor came from Google Ads
-        if (isGoogleAdsVisitor() && typeof window !== 'undefined') {
-          if ((window as any).gtag) {
-            (window as any).gtag('event', 'conversion', {
-              send_to: 'AW-17462500412/K_E4CNSPy-0bELy44oZB',
-            });
-          } else {
-            (window as any).dataLayer = (window as any).dataLayer || [];
-            (window as any).dataLayer.push({
-              event: 'google_ads_conversion',
-              conversion_id: '17462500412',
-              conversion_label: 'K_E4CNSPy-0bELy44oZB',
-            });
-          }
-        }
-
+        // Redirect to Thank You page with conversion tracking
         setTimeout(() => {
-          setSubmitSuccess(false);
-        }, 5000);
+          redirectToThankYou({
+            formType: FORM_TYPES.COMMUNITY_JOIN, // LinkedIn lead is similar to community join
+            course: data.course || 'LinkedIn Connection',
+            source: source,
+            additionalData: {
+              lead_value: 1,
+              form_location: 'connect_page',
+              lead_type: 'linkedin_connect'
+            }
+          });
+        }, 1000);
+
       } else {
         console.error('Failed to submit form');
       }

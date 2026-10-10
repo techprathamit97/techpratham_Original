@@ -13,6 +13,7 @@ import CoursesHome from '../components/CoursesHome/CoursesHome';
 import HeroHome from '../components/HeroHome/HeroHome';
 import ReachForm from '@/components/common/ReachForm/ReachForm';
 import ToolTip from '@/components/common/ToolTip/ToolTip';
+import LinkdinCommunities from '../components/LinkdinCommunities/LinkdinCommunities';
 
 
 const sectionFallback = (minHeight: number) => () => (
@@ -151,6 +152,7 @@ const IndexView: React.FC<IndexViewProps> = ({
   <CoursesHome initialGroupedCourses={initialGroupedCourses} />
 {/* </section> */}
       <NewComponent initialEvents={initialEvents} />
+      {/* <LinkdinCommunities/> */}
 
       <CareerHome />
 

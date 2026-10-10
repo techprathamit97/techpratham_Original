@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { redirectToThankYou, FORM_TYPES } from '@/lib/thankYouRedirect';
+import { getLeadSource } from '@/lib/leadSourceDetection';
 
 const CertificateSection = () => {
   const { register, handleSubmit, reset } = useForm();
@@ -13,6 +15,9 @@ const CertificateSection = () => {
     try {
       setSubmitting(true);
 
+      // Determine source based on URL parameters
+      const source = getLeadSource();
+
       const response = await fetch('/api/leads', {
         method: 'POST',
         headers: {
@@ -21,12 +26,27 @@ const CertificateSection = () => {
         body: JSON.stringify({
           ...data,
           formType: 'certificate-form',
+          source: source,
         }),
       });
 
       if (response.ok) {
         setSubmitSuccess(true);
         reset();
+        
+        // Redirect to Thank You page with conversion tracking
+        setTimeout(() => {
+          redirectToThankYou({
+            formType: FORM_TYPES.CERTIFICATE_REQUEST,
+            course: data.course || 'Certificate Request',
+            source: source,
+            additionalData: {
+              lead_value: 1,
+              form_location: 'certificate_page'
+            }
+          });
+        }, 1000);
+        
       } else {
         console.error('Failed to submit form');
       }

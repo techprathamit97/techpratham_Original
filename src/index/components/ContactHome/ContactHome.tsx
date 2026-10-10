@@ -5,6 +5,8 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import PhoneInput from "@/components/common/PhoneInput/PhoneInput";
 import Image from "next/image";
+import { redirectToThankYou, FORM_TYPES } from '@/lib/thankYouRedirect';
+import { getLeadSource } from '@/lib/leadSourceDetection';
 
 export default function ContactLayout() {
   const { register, handleSubmit, reset, setValue } = useForm();
@@ -21,6 +23,10 @@ export default function ContactLayout() {
 
     try {
       setSubmitting(true);
+      
+      // Determine source based on URL parameters
+      const source = getLeadSource();
+      
       const response = await fetch('/api/leads', {
         method: 'POST',
         headers: {
@@ -30,14 +36,29 @@ export default function ContactLayout() {
           ...data,
           phone: phoneNumber,
           formType: "Home-contact-form",
+          source: source,
         }),
       });
+      
       if (response.ok) {
         setSubmitSuccess(true);
-     
         reset();
         setPhoneNumber('');
         setIsPhoneValid(false);
+        
+        // Redirect to Thank You page with conversion tracking
+        setTimeout(() => {
+          redirectToThankYou({
+            formType: FORM_TYPES.CONTACT_FORM,
+            course: data.course || '',
+            source: source,
+            additionalData: {
+              lead_value: 1,
+              form_location: 'home_page'
+            }
+          });
+        }, 1000);
+        
       } else {
         console.error('Failed to submit form');
       }

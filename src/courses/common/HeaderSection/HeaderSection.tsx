@@ -9,6 +9,7 @@ import { categoryPrice } from "@/components/assets/categoryPrice";
 import { useForm } from 'react-hook-form';
 import { getLeadSource, isGoogleAdsVisitor } from '@/lib/leadSourceDetection';
 import PhoneInput from '@/components/common/PhoneInput/PhoneInput';
+import { redirectToThankYou, FORM_TYPES } from '@/lib/thankYouRedirect';
 
 import './header.css';
 
@@ -146,38 +147,25 @@ const HeaderSection = ({ course }: any) => {
 
             if (response.ok) {
                 setSubmitSuccess(true);
-              
                 
                 // Reset form
                 reset();
                 setPhoneNumber('');
                 setIsPhoneValid(false);
                 
-                // ✅ Google Ads conversion tracking - only for Google Ads traffic
-                if (isGoogleAdsVisitor() && typeof window !== "undefined") {
-                    if ((window as any).gtag) {
-                        (window as any).gtag("event", "conversion", {
-                            send_to: "AW-17462500412/K_E4CNSPy-0bELy44oZB",
-                        });
-                    } else {
-                        (window as any).dataLayer = (window as any).dataLayer || [];
-                        (window as any).dataLayer.push({
-                            event: "google_ads_conversion",
-                            conversion_id: "17462500412",
-                            conversion_label: "K_E4CNSPy-0bELy44oZB",
-                        });
-                    }
-                }
-                
-                // TODO: Add Facebook/Instagram conversion tracking here if needed
-                // if (leadSource === 'facebook_ads' || leadSource === 'instagram_ads') {
-                //     // Facebook Pixel conversion tracking
-                // }
-
-                // Hide success message after 3 seconds
+                // Redirect to Thank You page with conversion tracking
                 setTimeout(() => {
-                    setSubmitSuccess(false);
-                }, 3000);
+                    redirectToThankYou({
+                        formType: FORM_TYPES.COURSE_HEADER_ENQUIRY,
+                        course: course?.title?.replace(/<[^>]*>/g, '') || '',
+                        source: source,
+                        additionalData: {
+                            lead_value: 1,
+                            form_location: 'course_header',
+                            course_category: course?.category || ''
+                        }
+                    });
+                }, 1000);
                 
             } else {
                 const errorData = await response.json();

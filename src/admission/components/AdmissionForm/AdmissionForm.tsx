@@ -3,6 +3,8 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { redirectToThankYou, FORM_TYPES } from '@/lib/thankYouRedirect';
+import { getLeadSource } from '@/lib/leadSourceDetection';
 
 const AdmissionForm = () => {
   const { register, handleSubmit, reset } = useForm();
@@ -13,6 +15,9 @@ const AdmissionForm = () => {
     try {
       setSubmitting(true);
 
+      // Determine source based on URL parameters
+      const source = getLeadSource();
+
       const response = await fetch('/api/leads', {
         method: 'POST',
         headers: {
@@ -21,12 +26,27 @@ const AdmissionForm = () => {
         body: JSON.stringify({
           ...data,
           formType: 'admission-form',
+          source: source,
         }),
       });
 
       if (response.ok) {
         setSubmitSuccess(true);
         reset();
+        
+        // Redirect to Thank You page with conversion tracking
+        setTimeout(() => {
+          redirectToThankYou({
+            formType: FORM_TYPES.ADMISSION_FORM,
+            course: data.course || 'Admission Inquiry',
+            source: source,
+            additionalData: {
+              lead_value: 1,
+              form_location: 'admission_page'
+            }
+          });
+        }, 1000);
+        
       } else {
         console.error('Failed to submit form');
       }

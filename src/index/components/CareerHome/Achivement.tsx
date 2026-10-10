@@ -206,9 +206,9 @@ import { useEffect, useRef, useState } from 'react';
 ================================ */
 const getDigitHeight = () => {
   if (typeof window === "undefined") return 56;
-  if (window.innerWidth < 640) return 28;  // smaller on mobile
-  if (window.innerWidth < 1024) return 44;
-  return 56;
+  if (window.innerWidth < 640) return 22;  // small enough to fit 1/3 column
+  if (window.innerWidth < 1024) return 38;
+  return 52;
 };
 
 function RollingDigit({
@@ -371,27 +371,22 @@ const StatCounter: React.FC<StatProps> = ({ end, text, suffix, subtitle, iconBg,
   return (
     <div
       ref={ref}
-      className="flex flex-col items-center gap-3"
+      className="flex flex-col items-center gap-2 overflow-hidden w-full"
     >
-      {/* Icon + counter row */}
-      <div className="flex items-center gap-2 sm:gap-3">
-        {/* Circular icon — elevated with shadow like in the reference */}
-      
-
-        {/* Counter pill */}
-        <div className={`${counterBg} rounded-xl px-2 sm:px-4 py-2 flex items-center
-                         shadow-lg scale-[0.7] sm:scale-[0.9] md:scale-100 origin-left`}>
+      {/* Counter pill — centered, constrained to column width */}
+      <div className="flex justify-center w-full overflow-hidden">
+        <div className={`${counterBg} rounded-xl px-1 sm:px-3 py-1 sm:py-2 flex items-center shadow-lg max-w-full`}>
           <Odometer value={end} suffix={suffix} start={start} />
         </div>
       </div>
 
-      {/* Label */}
-      <div className="text-center">
-        <p className="text-[9px] sm:text-xs md:text-sm font-black uppercase tracking-widest text-gray-800">
+      {/* Label — centered on all devices */}
+      <div className="text-center w-full px-1">
+        <p className="text-[8px] sm:text-xs md:text-sm font-black uppercase tracking-widest text-gray-800 text-center break-words">
           {text}
         </p>
         {subtitle && (
-          <p className="text-[8px] sm:text-[11px] text-gray-500 mt-0.5">{subtitle}</p>
+          <p className="text-[7px] sm:text-[10px] md:text-xs text-gray-500 mt-0.5 text-center">{subtitle}</p>
         )}
       </div>
     </div>
@@ -407,7 +402,7 @@ export default function TrainingRecruitmentStats() {
     <div className="relative w-full overflow-hidden bg-[#fdfbfb] px-3 py-10 md:px-6">
 
       {/* Content Grid */}
-      <div className="mx-auto grid max-w-6xl w-full grid-cols-3 gap-3 sm:gap-6 md:gap-10 items-start">
+      <div className="mx-auto grid max-w-6xl w-full grid-cols-3 gap-3 sm:gap-6 md:gap-10 items-start overflow-hidden">
         <StatCounter
           end={94567}
           text="Happy Learners"

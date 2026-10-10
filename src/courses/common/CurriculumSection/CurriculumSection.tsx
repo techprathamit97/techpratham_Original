@@ -15,6 +15,7 @@ import {
 import { useForm } from "react-hook-form";
 import PhoneInput from "@/components/common/PhoneInput/PhoneInput";
 import { getLeadSource, isGoogleAdsVisitor } from '@/lib/leadSourceDetection';
+import { redirectToThankYou, FORM_TYPES } from '@/lib/thankYouRedirect';
 
 const ProtectedPDFViewer = dynamic(
   () =>
@@ -205,43 +206,34 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
 
       if (response.ok) {
         setPdfSubmitSuccess(true);
-       
-
+        
         resetPdfForm();
         setPhoneNumber("");
         setIsPhoneValid(false);
-
-        // Google Ads conversion tracking - only for Google Ads traffic
-        if (isGoogleAdsVisitor() && typeof window !== "undefined") {
-          if ((window as any).gtag) {
-            (window as any).gtag("event", "conversion", {
-              send_to: "AW-17462500412/K_E4CNSPy-0bELy44oZB",
-            });
-          } else {
-            (window as any).dataLayer = (window as any).dataLayer || [];
-            (window as any).dataLayer.push({
-              event: "google_ads_conversion",
-              conversion_id: "17462500412",
-              conversion_label: "K_E4CNSPy-0bELy44oZB",
-            });
-          }
-        }
         
-        // TODO: Add Facebook/Instagram conversion tracking here if needed
-        // if (leadSource === 'facebook_ads' || leadSource === 'instagram_ads') {
-        //     // Facebook Pixel conversion tracking
-        // }
-
-        // Close dialog and trigger download after success
+        // Get PDF URL for download
+        const pdfUrl = getPdfUrl(course?.link || "");
+        
+        // Close dialog
+        setPdfDialogOpen(false);
+        
+        // Open PDF in new tab immediately
+        window.open(pdfUrl, '_blank');
+        
+        // Redirect to Thank You page with conversion tracking after a short delay
         setTimeout(() => {
-          // Open PDF in new tab for download
-          const pdfUrl = getPdfUrl(course?.link || "");
-        
-          window.open(pdfUrl, '_blank');
-
-          setPdfDialogOpen(false);
-          setPdfSubmitSuccess(false);
-        }, 2000);
+          redirectToThankYou({
+            formType: FORM_TYPES.COURSE_CALLBACK, // PDF download is essentially a course callback
+            course: course?.title?.replace(/<[^>]*>/g, '') || 'PDF Download',
+            source: source,
+            additionalData: {
+              lead_value: 1,
+              form_location: 'pdf_download',
+              course_category: course?.category || '',
+              pdf_downloaded: true
+            }
+          });
+        }, 1000);
 
       } else {
         const errorData = await response.json();

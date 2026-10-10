@@ -33,7 +33,7 @@ const BannerContact = () => {
                         <div className='w-16 h-16 flex items-center justify-center bg-white rounded transition-all hover:transform hover:scale-110 duration-300 group'>
                             <Image src='/support/socials/pinterest.svg' alt='Pinterest' width={46} height={46} className='transition-all duration-300 group-hover:rotate-12' />
                         </div>
-                        <Link href='https://www.youtube.com/@TechPratham_official' target="_blank" className='w-16 h-16 flex items-center justify-center bg-white rounded transition-all hover:transform hover:scale-110 duration-300 group'>
+                        <Link href='https://www.youtube.com/@TechPrathamofficials' target="_blank" className='w-16 h-16 flex items-center justify-center bg-white rounded transition-all hover:transform hover:scale-110 duration-300 group'>
                             <Image src='/support/socials/youtube.svg' alt='YouTube' width={46} height={46} className='transition-all duration-300 group-hover:rotate-12' />
                         </Link>
                          <Link href='https://x.com/TechPrathamEdu' target="_blank" className='w-16 h-16 flex items-center justify-center bg-white rounded transition-all hover:transform hover:scale-110 duration-300 group'>

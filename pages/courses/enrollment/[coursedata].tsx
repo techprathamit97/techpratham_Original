@@ -20,6 +20,8 @@ import type { NextPage, GetServerSideProps } from 'next';
 import { NavbarData } from '@/utils/navbarData';
 import { withNavbarSSR } from '@/utils/withNavbarSSR';
 import PhoneInput from "@/components/common/PhoneInput/PhoneInput";
+import { redirectToThankYou, FORM_TYPES } from '@/lib/thankYouRedirect';
+import { getLeadSource } from '@/lib/leadSourceDetection';
 
 interface Course {
   title: string;
@@ -94,6 +96,9 @@ const CourseEnrollPage: NextPage<CourseEnrollPageProps> = ({ navbarData }) => {
 
     setSubmitting(true);
     try {
+      // Determine source based on URL parameters
+      const source = getLeadSource();
+      
       const response = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -103,11 +108,11 @@ const CourseEnrollPage: NextPage<CourseEnrollPageProps> = ({ navbarData }) => {
           email: data.email,
           phone: phoneNumber,
           course: course.title,
-          // message: course.shortDesc,
           courseLink: course.link,
           duration: course.duration,
           level: course.level,
           category: course.category,
+          source: source,
         }),
       });
 
@@ -119,15 +124,23 @@ const CourseEnrollPage: NextPage<CourseEnrollPageProps> = ({ navbarData }) => {
       setPhoneNumber("");
       setIsPhoneValid(false);
       setShowSuccess(true);
-      if (typeof window !== "undefined") {
-        (window as any).dataLayer = (window as any).dataLayer || [];
-        (window as any).dataLayer.push({
-          event: "google_ads_conversion",
-          
-          conversion_id: "17462500412",
-          conversion_label: "K_E4CNSPy-0bELy44oZB",
+      
+      // Redirect to Thank You page with conversion tracking
+      setTimeout(() => {
+        redirectToThankYou({
+          formType: FORM_TYPES.COURSE_HEADER_ENQUIRY, // Enrollment is similar to course enquiry
+          course: course.title?.replace(/<[^>]*>/g, '') || '',
+          source: source,
+          additionalData: {
+            lead_value: 5, // Enrollment has higher value than regular enquiries
+            form_location: 'enrollment_page',
+            course_category: course.category || '',
+            course_duration: course.duration || '',
+            course_level: course.level || ''
+          }
         });
-      }
+      }, 2000);
+      
     } catch (error) {
       console.error("Enrollment failed:", error);
     } finally {

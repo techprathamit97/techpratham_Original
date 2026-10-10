@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { redirectToThankYou, FORM_TYPES } from '@/lib/thankYouRedirect';
+import { getLeadSource } from '@/lib/leadSourceDetection';
 
 const FormContact = () => {
   const { register, handleSubmit, reset } = useForm({
@@ -23,6 +25,9 @@ const FormContact = () => {
     try {
       setSubmitting(true);
 
+      // Determine source based on URL parameters
+      const source = getLeadSource();
+
       const response = await fetch('/api/leads', {
         method: 'POST',
         headers: {
@@ -31,6 +36,7 @@ const FormContact = () => {
         body: JSON.stringify({
           ...data,
           formType: 'contact-form',
+          source: source,
         }),
       });
 
@@ -38,9 +44,19 @@ const FormContact = () => {
         setSubmitSuccess(true);
         reset();
 
+        // Redirect to Thank You page with conversion tracking
         setTimeout(() => {
-          setSubmitSuccess(false);
-        }, 3000);
+          redirectToThankYou({
+            formType: FORM_TYPES.CONTACT_FORM,
+            course: data.course || '',
+            source: source,
+            additionalData: {
+              lead_value: 1,
+              form_location: 'contact_page'
+            }
+          });
+        }, 1000);
+        
       } else {
         console.error('Failed to submit form');
       }

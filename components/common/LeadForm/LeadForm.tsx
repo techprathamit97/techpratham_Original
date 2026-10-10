@@ -1,13 +1,12 @@
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { X } from 'lucide-react';
-import Image from 'next/image';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import PhoneInput from '../PhoneInput/PhoneInput';
 import { getLeadSource, isGoogleAdsVisitor } from '@/lib/leadSourceDetection';
+import { redirectToThankYou, FORM_TYPES } from '@/lib/thankYouRedirect';
 
 interface LeadFormProps {
     course: {
@@ -60,39 +59,28 @@ const LeadForm: React.FC<LeadFormProps> = ({ course, onClose, onSuccess }) => {
                     source: source, // Set source based on visitor origin
                 }),
             });
+            
             if (response.ok) {
                 setSubmitSuccess(true);
-           
+                
+                // Reset form
                 reset();
                 setPhoneNumber('');
                 setIsPhoneValid(false);
                 
-                // ✅ Only send Google Ads conversion if visitor came from Google Ads
-                if (isGoogleAdsVisitor() && typeof window !== "undefined") {
-                    // Use gtag if available (recommended)
-                    if ((window as any).gtag) {
-                        (window as any).gtag("event", "conversion", {
-                            send_to: "AW-17462500412/K_E4CNSPy-0bELy44oZB",
-                        });
-                    } else {
-                        // Fallback to dataLayer
-                        (window as any).dataLayer = (window as any).dataLayer || [];
-                        (window as any).dataLayer.push({
-                            event: "google_ads_conversion",
-                            conversion_id: "17462500412",
-                            conversion_label: "K_E4CNSPy-0bELy44oZB",
-                        });
-                    }
-                }
-                
-                // TODO: Add Facebook/Instagram conversion tracking here if needed
-                // if (leadSource === 'facebook_ads' || leadSource === 'instagram_ads') {
-                //     // Facebook Pixel conversion tracking
-                // }
-
+                // Redirect to Thank You page with conversion tracking
                 setTimeout(() => {
-                    onSuccess();
-                }, 2000);
+                    redirectToThankYou({
+                        formType: FORM_TYPES.COURSE_CALLBACK,
+                        course: stripHtml(course?.title || ""),
+                        source: source,
+                        additionalData: {
+                            lead_value: 1,
+                            form_location: 'modal'
+                        }
+                    });
+                }, 1000);
+                
             } else {
                 console.error('Failed to submit form');
             }

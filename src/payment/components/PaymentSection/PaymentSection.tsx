@@ -252,6 +252,7 @@ import { Input } from '@/components/ui/input';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Image from 'next/image';
+import { getLeadSource } from '@/lib/leadSourceDetection';
 
 const FormContact = () => {
     const { register, handleSubmit, reset } = useForm();
@@ -261,19 +262,44 @@ const FormContact = () => {
     const onSubmit = async (data: any) => {
         try {
             setSubmitting(true);
-            const response = await fetch('/email/payment', {
+            
+            // Determine source based on URL parameters
+            const source = getLeadSource();
+            
+            // First, save the lead to database (like other forms)
+            const leadResponse = await fetch('/api/leads', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ...data,
+                    formType: 'payment-form',
+                    source: source,
+                    message: `Payment Form Submission:\nAmount: ${data.amount}\nAddress: ${data.city}, ${data.state}, ${data.country} - ${data.pinCode}`,
+                }),
+            });
+            
+            if (!leadResponse.ok) {
+                console.error('Failed to save lead to database');
+            }
+            
+            // Then send email notification (existing functionality)
+            const emailResponse = await fetch('/email/payment', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data),
             });
-            if (response.ok) {
+            
+            if (emailResponse.ok) {
                 setSubmitSuccess(true);
+                // Redirect to PayU payment gateway (existing functionality)
                 window.location.href = 'https://payu.in/pay/E5AEF5CAEF5E85E7E367B9673CE3C477';
                 reset();
             } else {
-                console.error('Failed to submit form');
+                console.error('Failed to send payment email');
             }
         } catch (error) {
             console.error('Error submitting form:', error);
