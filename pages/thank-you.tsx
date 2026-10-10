@@ -179,7 +179,7 @@ const ThankYouPage: NextPage<ThankYouPageProps> = ({ navbarData }) => {
                   <div className="flex flex-col items-center p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
                     <Phone className="w-8 h-8 text-blue-600 mb-2" />
                     <p className="text-sm text-gray-600">Call Us</p>
-                    <p className="font-semibold text-gray-900">+91-8447-717-203</p>
+                    <p className="font-semibold text-gray-900">+91-8882178896</p>
                   </div>
                   <div className="flex flex-col items-center p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
                     <Mail className="w-8 h-8 text-green-600 mb-2" />
