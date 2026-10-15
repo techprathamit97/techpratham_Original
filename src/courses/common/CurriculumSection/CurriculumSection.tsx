@@ -59,18 +59,30 @@ const PDF_COURSES = [
   "guidewire-training-in-chandigarh",
   "guidewire-training-in-kolkata",
   "guidewire-training-in-delhi",
+  "servicenow-itsm-training",
+  "servicenow-admin-certification",
+  "tosca-certification-training-in-india",
+  "tosca-testing-training-in-chennai",
+  "tosca-testing-training-in-bangalore",
+  "tosca-testing-training-in-pune",
+  "tosca-testing-training-in-hyderabad",
+  "tosca-testing-training-in-gurgaon",
+  "tosca-testing-training-in-noida",
+
+  "servicenow-itsm-training",
+  "servicenow-admin-certification",
 ];
 
 // PDF paths for courses - stored in /training folder
 const PDF_PATHS: Record<string, string> = {
   "servicenow-admin-certification":
-    "/training/TechPratham_ServiceNow.pdf",
+    "/training/Techpratham_ServiceNow_admin_ITSM_course_curriculum.pdf",
 
   "servicenow-it-operations-management-itom-implementation":
     "/training/TechPratham_ITOM_Content.pdf",
 
   "servicenow-itsm-training":
-    "/training/TechPratham_ServiceNow.pdf",
+    "/training/Techpratham_ServiceNow_admin_ITSM_course_curriculum.pdf",
 
   "servicenow-training-in-india":
     "/training/TechPratham_ServiceNow_Admin_ITSM.pdf",
@@ -117,6 +129,28 @@ const PDF_PATHS: Record<string, string> = {
 
   "guidewire-training-in-delhi":
     "/training/guidewire_training.pdf",
+  // TOSCA PDF
+  "tosca-certification-training-in-india":
+    "/training/TOSCA.pdf",
+
+  "tosca-testing-training-in-chennai":
+    "/training/TOSCA.pdf",
+
+  "tosca-testing-training-in-bangalore":
+    "/training/TOSCA.pdf",
+
+  "tosca-testing-training-in-pune":
+    "/training/TOSCA.pdf",
+
+  "tosca-testing-training-in-hyderabad":
+    "/training/TOSCA.pdf",
+
+  "tosca-testing-training-in-gurgaon":
+    "/training/TOSCA.pdf",
+
+  "tosca-testing-training-in-noida":
+    "/training/TOSCA.pdf",
+
 };
 
 const getPdfUrl = (courselink: string): string => {
@@ -132,7 +166,7 @@ const getPdfUrl = (courselink: string): string => {
   }
 
   // Default PDF
-  return `/training/TechPratham_ServiceNow.pdf#toolbar=0&navpanes=0`;
+  return `/training/Techpratham_ServiceNow_admin_ITSM_course_curriculum.pdf#toolbar=0&navpanes=0`;
 };
 
 interface CurriculumItem {
@@ -206,20 +240,20 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
 
       if (response.ok) {
         setPdfSubmitSuccess(true);
-        
+
         resetPdfForm();
         setPhoneNumber("");
         setIsPhoneValid(false);
-        
+
         // Get PDF URL for download
         const pdfUrl = getPdfUrl(course?.link || "");
-        
+
         // Close dialog
         setPdfDialogOpen(false);
-        
+
         // Open PDF in new tab immediately
         window.open(pdfUrl, '_blank');
-        
+
         // Redirect to Thank You page with conversion tracking after a short delay
         setTimeout(() => {
           redirectToThankYou({
@@ -436,7 +470,7 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
                       : ""
                       }`}>
                       <div className="w-3 h-3 bg-red-800 rounded-full mt-6" />
-                     <Separator orientation="vertical" className="flex-1 bg-red-800" />
+                      <Separator orientation="vertical" className="flex-1 bg-red-800" />
                     </div>
 
                     {/* Accordion */}
@@ -454,78 +488,78 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
                       <div className={`flex items-center ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
                         (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
                         ? "justify-between w-full"
-                      : "md:px-3"
-                      }`}>
-                      {/* Left Arrows for Value Added Learning */}
-                      {(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-                        (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
-                          <div className="flex items-center w-16 justify-center">
-                            <span className="arrow text-2xl text-orange-200 font-bold">❯</span>
-                            <span className="arrow text-2xl text-orange-200 font-bold">❯</span>
-                            <span className="arrow text-2xl text-orange-200 font-bold">❯</span>
-                          </div>
-                        )}
+                        : "md:px-3"
+                        }`}>
+                        {/* Left Arrows for Value Added Learning */}
+                        {(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
+                          (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
+                            <div className="flex items-center w-16 justify-center">
+                              <span className="arrow text-2xl text-orange-200 font-bold">❯</span>
+                              <span className="arrow text-2xl text-orange-200 font-bold">❯</span>
+                              <span className="arrow text-2xl text-orange-200 font-bold">❯</span>
+                            </div>
+                          )}
 
-                      <div
-                        className={`text-lg font-semibold transition-colors duration-200 ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-                          (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
-                          ? "text-orange-200 pl-3 font-bold text-[17px] text-center flex-1"
-                          : "hover:text-white flex-1"
-                          }`}
-                        dangerouslySetInnerHTML={{ __html: item.que }}
-                      />
+                        <div
+                          className={`text-lg font-semibold transition-colors duration-200 ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
+                            (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
+                            ? "text-orange-200 pl-3 font-bold text-[17px] text-center flex-1"
+                            : "hover:text-white flex-1"
+                            }`}
+                          dangerouslySetInnerHTML={{ __html: item.que }}
+                        />
 
-                      {/* Right Arrows for Value Added Learning */}
-                      {(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-                        (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
-                          <div className="flex items-center w-16 justify-center">
-                            <span className="arrow text-2xl text-orange-200 font-bold">❮</span>
-                            <span className="arrow text-2xl text-orange-200 font-bold">❮</span>
-                            <span className="arrow text-2xl text-orange-200 font-bold">❮</span>
-                          </div>
-                        )}
+                        {/* Right Arrows for Value Added Learning */}
+                        {(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
+                          (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
+                            <div className="flex items-center w-16 justify-center">
+                              <span className="arrow text-2xl text-orange-200 font-bold">❮</span>
+                              <span className="arrow text-2xl text-orange-200 font-bold">❮</span>
+                              <span className="arrow text-2xl text-orange-200 font-bold">❮</span>
+                            </div>
+                          )}
 
-                      {/* CaretUpIcon - Only for regular questions */}
+                        {/* CaretUpIcon - Only for regular questions */}
+                        {!(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
+                          (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
+                            <CaretUpIcon
+                              className={`w-6 h-6 transition-transform duration-300 ml-2 text-white ${selected === index ? "rotate-0" : "rotate-180"
+                                }`}
+                            />
+                          )}
+                      </div>
+
+                      {/* CONTENT - Only for regular questions */}
                       {!(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
                         (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
-                          <CaretUpIcon
-                            className={`w-6 h-6 transition-transform duration-300 ml-2 text-white ${selected === index ? "rotate-0" : "rotate-180"
+                          <div
+                            className={`transition-all duration-500 ease-in-out ${selected === index
+                              ? " opacity-100 mt-4"
+                              : "max-h-0 opacity-0 overflow-hidden"
                               }`}
-                          />
+                          >
+                            <Separator className="mb-4 bg-yellow-600" />
+
+                            <div
+                              className="text-sm"
+                              dangerouslySetInnerHTML={{ __html: item.ans }}
+                            />
+
+                            {item?.topics?.map((topic: string, i: number) => (
+                              <div key={i} className="flex items-center gap-2 mt-2 text-sm">
+                                <CircleCheckBig className="w-4 h-4 text-red-800" />
+                                <span>{topic}</span>
+                              </div>
+                            ))}
+                          </div>
                         )}
                     </div>
-
-                    {/* CONTENT - Only for regular questions */}
-                    {!(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-                      (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
-                        <div
-                          className={`transition-all duration-500 ease-in-out ${selected === index
-                            ? " opacity-100 mt-4"
-                            : "max-h-0 opacity-0 overflow-hidden"
-                            }`}
-                        >
-                          <Separator className="mb-4 bg-yellow-600" />
-
-                          <div
-                            className="text-sm"
-                            dangerouslySetInnerHTML={{ __html: item.ans }}
-                          />
-
-                          {item?.topics?.map((topic: string, i: number) => (
-                            <div key={i} className="flex items-center gap-2 mt-2 text-sm">
-                              <CircleCheckBig className="w-4 h-4 text-red-800" />
-                              <span>{topic}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
                   </div>
-                </div>
                 ))}
 
-              {/* SHOW MORE / LESS */}
+                {/* SHOW MORE / LESS */}
 
-            </div>
+              </div>
             )}
           </div>
 
