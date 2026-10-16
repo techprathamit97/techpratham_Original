@@ -2,7 +2,7 @@ import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { IndexController } from '@/src/index/controller/IndexController';
 import { withNavbarSSR } from '@/utils/withNavbarSSR';
 import { Badge } from '@/components/ui/badge';
@@ -59,22 +59,33 @@ export default function CategoryPage({
   totalPages
 }: CategoryPageProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredPosts, setFilteredPosts] = useState(posts);
+
+  // Derived from the `posts` prop on every render. Previously this was copied into
+  // useState(posts), which only reads the initial value: when the user clicked a
+  // pagination link Next.js reused the same component instance, so the list kept
+  // showing the first page's posts until a full refresh.
+  const filteredPosts = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return posts;
+    return posts.filter(post =>
+      post.title.toLowerCase().includes(query) ||
+      post.excerpt.toLowerCase().includes(query) ||
+      post.tags.some(tag => tag.toLowerCase().includes(query))
+    );
+  }, [posts, searchQuery]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    if (!query.trim()) {
-      setFilteredPosts(posts);
-      return;
-    }
-
-    const filtered = posts.filter(post =>
-      post.title.toLowerCase().includes(query.toLowerCase()) ||
-      post.excerpt.toLowerCase().includes(query.toLowerCase()) ||
-      post.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
-    );
-    setFilteredPosts(filtered);
   };
+
+  // Sliding window of page numbers around the current page (max 5 buttons)
+  const pageNumbers = useMemo(() => {
+    const windowSize = Math.min(5, totalPages);
+    let start = Math.max(1, currentPage - Math.floor(windowSize / 2));
+    const end = Math.min(totalPages, start + windowSize - 1);
+    start = Math.max(1, end - windowSize + 1);
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  }, [currentPage, totalPages]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -333,8 +344,7 @@ export default function CategoryPage({
                         </Link>
                       )}
 
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        const page = i + 1;
+                      {pageNumbers.map((page) => {
                         return (
                           <Link key={page} href={`/blog/${currentCategory.slug}?page=${page}`}>
                             <Button
@@ -370,48 +380,37 @@ export default function CategoryPage({
 export const getServerSideProps: GetServerSideProps = async ({ params, query }) => {
   try {
     const { category } = params as { category: string };
-    const page = parseInt(query.page as string) || 1;
+    const page = Math.max(1, parseInt(query.page as string) || 1);
     const limit = 12;
 
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-    // Fetch posts for this category using unified API
-    const postsResponse = await fetch(
-      `${baseUrl}/api/blog/unified?category=${category}&status=published&page=${page}&limit=${limit}`
-    );
-    const postsData = await postsResponse.json();
+    // Posts, categories and navbar are independent, so fetch them in parallel
+    // (previously: posts, then categories up to twice, then navbar, one after another).
+    const navbarSSRFunction = withNavbarSSR<{ navbarData: any }>();
+    const [postsResponse, categoriesResponse, navbarResult] = await Promise.all([
+      fetch(`${baseUrl}/api/blog/unified?category=${category}&status=published&page=${page}&limit=${limit}`),
+      fetch(`${baseUrl}/api/blog/categories/unified?includePostCount=true`),
+      navbarSSRFunction({
+        params: params || {},
+        query,
+        req: {} as any,
+        res: {} as any,
+        resolvedUrl: ''
+      })
+    ]);
 
-    if (!postsData.posts || postsData.posts.length === 0) {
-      // Check if category exists using unified categories
-      const categoriesResponse = await fetch(`${baseUrl}/api/blog/categories/unified?includePostCount=true`);
-      const categoriesData = await categoriesResponse.json();
-      const categoryExists = categoriesData.categories?.find((cat: any) => cat.slug === category);
+    const [postsData, categoriesData] = await Promise.all([
+      postsResponse.json(),
+      categoriesResponse.json()
+    ]);
 
-      if (!categoryExists) {
-        return { notFound: true };
-      }
-    }
-
-    // Fetch all categories with post counts using unified API
-    const categoriesResponse = await fetch(`${baseUrl}/api/blog/categories/unified?includePostCount=true`);
-    const categoriesData = await categoriesResponse.json();
-
-    // Find current category
+    // Find current category (also covers the "category does not exist" check)
     const currentCategory = categoriesData.categories?.find((cat: any) => cat.slug === category);
 
     if (!currentCategory) {
       return { notFound: true };
     }
-
-    // Get navbar data using the withNavbarSSR pattern
-    const navbarSSRFunction = withNavbarSSR<{ navbarData: any }>();
-    const navbarResult = await navbarSSRFunction({
-      params: params || {},
-      query,
-      req: {} as any,
-      res: {} as any,
-      resolvedUrl: ''
-    });
 
     let navbarData = {};
     if ('props' in navbarResult) {
