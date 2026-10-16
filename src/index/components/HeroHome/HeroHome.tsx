@@ -22,7 +22,7 @@ const HERO_POSTER = '/home/hero/mainoffice3.webp';
  * connections), so this download never enters the LCP budget or blocks the
  * initial paint.
  */
-const HERO_VIDEO = '/home/hero/officevideo.mp4';
+const HERO_VIDEO = '/home/hero/herovideo.mp4';
 
 
 const CHIP_ICONS: Record<string, string> = {
@@ -214,12 +214,12 @@ const HeroHome = () => {
               onCanPlay={handleVideoCanPlay}
             />
           )}
-          <div className="absolute inset-0 bg-black/10 z-[1]" />
+          <div className="absolute inset-0 bg-black/20 z-[1]" />
         </div>
       </div>
 
       {/* ✅ Main Content */}
-      <div className="relative min-h-[320px] md:h-[75vh] flex flex-col items-center justify-end z-10 pt-16 md:pt-24 pb-4 md:pb-6">
+      <div className="relative min-h-[320px] md:h-[77vh] flex flex-col items-center justify-end z-10 pt-16 md:pt-24 pb-4 md:pb-6">
 
         {/* Headline + search — padded, centred */}
         <div className="flex w-full flex-col items-center text-center gap-6 md:gap-8 px-4">
