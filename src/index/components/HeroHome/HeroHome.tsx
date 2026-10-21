@@ -150,7 +150,7 @@ const HeroHome = () => {
             className="font-serif italic text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-semibold leading-tight text-[#ff2a3b] drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)]"
             style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
           >
-            Build Better <span className="text-white">Skills</span>
+            Build Better <span className="text-white">Skills.</span>
           </h1>
 
           <HeroSearch />
