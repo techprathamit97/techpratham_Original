@@ -14,7 +14,7 @@ import { IoIosArrowUp } from 'react-icons/io';
  * Poster image path. Renders immediately with priority and is the LCP element,
  * so replacing it or removing it will affect Core Web Vitals.
  */
-const HERO_POSTER = '/home/hero/mainoffice3.webp';
+// const HERO_POSTER = '/home/hero/herosky.webp';
 
 /**
  * Background video path. Web-optimized MP4 (H.264, ~4MB). The <video> element
@@ -188,15 +188,7 @@ const HeroHome = () => {
             optimized. fill + object-cover reproduces the previous absolute
             full-bleed background behavior. */}
         <div className="relative h-full w-full">
-          <Image
-            src={HERO_POSTER}
-            alt="TechPratham IT Training Institute"
-            fill
-            priority
-            fetchPriority="high"
-            sizes="100vw"
-            className="object-cover object-center"
-          />
+        
         
           {mountVideo && (
             <video
