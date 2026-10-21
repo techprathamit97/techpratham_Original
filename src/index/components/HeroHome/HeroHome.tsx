@@ -3,18 +3,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import HeroSearch from "./HeroSearch";
-// Swiper removed intentionally: the carousel added ~40KB of JS to the LCP path
-// and shifted the hero repeatedly during load. The hero is now a single
-// background video (no poster image).
 import { EBOOK_GROUPS, EbookGroup } from '@/src/common/Navbar/ebookLinks';
 import { IoIosArrowUp } from 'react-icons/io';
 
-/**
- * Background video path. Web-optimized MP4 (H.264, ~2.5MB). Rendered directly
- * in the server HTML so the browser starts fetching it right away.
- */
 const HERO_VIDEO = '/home/hero/herovideo.mp4';
-
+// Poster = the video's own first frame, so the transition from still → motion
+// is seamless (the image just starts moving) instead of swapping to a
+// different picture.
+const HERO_POSTER = '/home/hero/herovideo-poster.webp';
 
 const CHIP_ICONS: Record<string, string> = {
   Workday: '👤',
@@ -31,19 +27,10 @@ const HERO_CHIPS: Array<EbookGroup & { icon: string }> = EBOOK_GROUPS.map((group
   icon: CHIP_ICONS[group.shortLabel] ?? '📚',
 }));
 
-// ✅ Optimized Client Component with video-only hero background
 const HeroHome = () => {
-  /**
-   * Video-only hero (no poster image).
-   *
-   * The <video> is part of the initial server-rendered HTML, so the browser
-   * discovers and starts downloading it immediately instead of waiting for
-   * hydration, page load and a timer. It is muted + autoplay + playsInline so
-   * it starts on its own. Until the first frame is decoded the area shows a
-   * solid dark background, which avoids any flash of white.
-   */
-  const [skipVideo, setSkipVideo] = useState(false);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const posterRef = useRef<HTMLImageElement | null>(null);
 
   // Which e-book chip dropdown is open (click/tap based so it works on touch
   // devices too, where hover does not exist). null = all closed.
@@ -67,58 +54,94 @@ const HeroHome = () => {
   }, [openChip]);
 
   useEffect(() => {
-    /**
-     * Network guard. The background video is decorative, so skip it on
-     * data-saver mode or 2G connections to avoid burning the user's data.
-     */
-    const conn = (navigator as any).connection;
-    if (conn) {
-      const slow = conn.saveData ||
-        (typeof conn.effectiveType === 'string' && /(^|-)2g$/.test(conn.effectiveType));
-      if (slow) {
-        setSkipVideo(true);
-        return;
+    const connection = (
+      navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
       }
+    ).connection;
+    const shouldSkipVideo = connection?.saveData ||
+      (typeof connection?.effectiveType === 'string' && /(^|-)2g$/.test(connection.effectiveType));
+    const video = videoRef.current;
+    const poster = posterRef.current;
+
+    if (shouldSkipVideo || !video) return;
+
+    let cancelled = false;
+    let raf1 = 0;
+    let raf2 = 0;
+
+    const loadVideo = () => {
+      if (cancelled) return;
+      video.src = HERO_VIDEO;
+      video.load();
+      video.play().catch(() => {
+        // Autoplay can be blocked; the poster remains visible in that case.
+      });
+    };
+
+    // Start the video as soon as the high-priority poster has painted. The
+    // poster is locked in first as the LCP element; the video is exactly the
+    // same size, so when its frame paints it is NOT a *larger* paint and does
+    // not become a new LCP candidate — the LCP stays the poster + headline.
+    // Waiting for the poster to finish first also keeps the 2.4MB video from
+    // stealing bandwidth from the poster's own download (protecting LCP time),
+    // while loading it far sooner than before so the still-to-motion handoff
+    // is nearly instant and matches the frame already on screen.
+    const schedule = () => {
+      raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(loadVideo);
+      });
+    };
+
+    if (!poster || poster.complete) {
+      schedule();
+    } else {
+      poster.addEventListener('load', schedule, { once: true });
+      poster.addEventListener('error', schedule, { once: true });
     }
 
-    // The <video> is server-rendered, so it can start playing before React
-    // hydrates. In that case the autoplay may already be running; make sure we
-    // pick up the current state instead of waiting for an event that already fired.
-    const v = videoRef.current;
-    if (v) {
-      if (v.paused) {
-        v.play().catch(() => {
-          // Autoplay blocked - dark background stays, no error to the user.
-        });
-      }
-    }
+    return () => {
+      cancelled = true;
+      poster?.removeEventListener('load', schedule);
+      poster?.removeEventListener('error', schedule);
+      if (raf1) cancelAnimationFrame(raf1);
+      if (raf2) cancelAnimationFrame(raf2);
+    };
   }, []);
 
   return (
     <section className="relative w-full -mt-[64px] md:-mt-[80px] pt-[64px] md:pt-[10px]">
-      {/* Hero background: video only. Solid dark backdrop shows until the
-          first frame is ready. */}
-      <div className="absolute inset-0 z-0 bg-black">
+      {/* The poster is the stable initial hero and the video's poster frame. */}
+      <div className="absolute inset-0 z-0 overflow-hidden bg-black">
         <div className="relative h-full w-full">
-          {!skipVideo && (
-            <video
-              ref={videoRef}
-              className="absolute inset-0 h-full w-full object-cover object-center"
-              src={HERO_VIDEO}
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-              disablePictureInPicture
-              aria-hidden="true"
-            />
-          )}
+          <img
+            ref={posterRef}
+            src={HERO_POSTER}
+            alt=""
+            fetchPriority="high"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover object-center"
+          />
+          <video
+            ref={videoRef}
+            className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-500 ${
+              isVideoPlaying ? 'opacity-100' : 'opacity-0'
+            }`}
+            poster={HERO_POSTER}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="none"
+            disablePictureInPicture
+            aria-hidden="true"
+            tabIndex={-1}
+            onPlaying={() => setIsVideoPlaying(true)}
+          />
           <div className="absolute inset-0 bg-black/20 z-[1]" />
         </div>
       </div>
 
-      {/* ✅ Main Content */}
       <div className="relative min-h-[320px] md:h-[77vh] flex flex-col items-center justify-end z-10 pt-16 md:pt-24 pb-4 md:pb-6">
 
         {/* Headline + search — padded, centred */}
