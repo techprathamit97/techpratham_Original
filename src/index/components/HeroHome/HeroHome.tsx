@@ -1,26 +1,17 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import HeroSearch from "./HeroSearch";
 // Swiper removed intentionally: the carousel added ~40KB of JS to the LCP path
-// and shifted the hero repeatedly during load. Replaced by a static poster
-// image (LCP-safe) with a background video that mounts only after idle.
+// and shifted the hero repeatedly during load. The hero is now a single
+// background video (no poster image).
 import { EBOOK_GROUPS, EbookGroup } from '@/src/common/Navbar/ebookLinks';
 import { IoIosArrowUp } from 'react-icons/io';
 
 /**
- * Poster image path. Renders immediately with priority and is the LCP element,
- * so replacing it or removing it will affect Core Web Vitals.
- */
-// const HERO_POSTER = '/home/hero/herosky.webp';
-
-/**
- * Background video path. Web-optimized MP4 (H.264, ~4MB). The <video> element
- * only mounts after page load + when the hero is in view (and never on slow
- * connections), so this download never enters the LCP budget or blocks the
- * initial paint.
+ * Background video path. Web-optimized MP4 (H.264, ~2.5MB). Rendered directly
+ * in the server HTML so the browser starts fetching it right away.
  */
 const HERO_VIDEO = '/home/hero/herovideo.mp4';
 
@@ -40,27 +31,19 @@ const HERO_CHIPS: Array<EbookGroup & { icon: string }> = EBOOK_GROUPS.map((group
   icon: CHIP_ICONS[group.shortLabel] ?? '📚',
 }));
 
-// ✅ Optimized Client Component with LCP hero image
+// ✅ Optimized Client Component with video-only hero background
 const HeroHome = () => {
   /**
-   * Video mount gate.
+   * Video-only hero (no poster image).
    *
-   * LCP strategy:
-   *   - The poster image below renders IMMEDIATELY with priority and is the
-   *     LCP candidate. It stays visible until the video overlays it.
-   *   - The <video> element is only added to the DOM after the browser has
-   *     been idle for a moment post-load. This guarantees the 7MB video does
-   *     not compete with the poster for network or CPU during the critical
-   *     first paint, so LCP is unaffected.
-   *   - The video fades in on top of the poster once its first frame is
-   *     buffered, so there is no visual flash.
-   *
-   * requestIdleCallback is not supported everywhere; setTimeout is the fallback.
+   * The <video> is part of the initial server-rendered HTML, so the browser
+   * discovers and starts downloading it immediately instead of waiting for
+   * hydration, page load and a timer. It is muted + autoplay + playsInline so
+   * it starts on its own. Until the first frame is decoded the area shows a
+   * solid dark background, which avoids any flash of white.
    */
-  const [mountVideo, setMountVideo] = useState(false);
-  const [videoReady, setVideoReady] = useState(false);
+  const [skipVideo, setSkipVideo] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const sectionRef = useRef<HTMLElement | null>(null);
 
   // Which e-book chip dropdown is open (click/tap based so it works on touch
   // devices too, where hover does not exist). null = all closed.
@@ -84,126 +67,51 @@ const HeroHome = () => {
   }, [openChip]);
 
   useEffect(() => {
-    const win = window as unknown as {
-      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
-    };
-
     /**
-     * Network guard. The background video is decorative and heavy (~7MB), so
-     * skip it entirely on data-saver mode or slow connections. Those users
-     * simply keep the poster image — no functional loss, and the large
-     * download never competes for bandwidth (this is the main Speed Index win).
+     * Network guard. The background video is decorative, so skip it on
+     * data-saver mode or 2G connections to avoid burning the user's data.
      */
     const conn = (navigator as any).connection;
     if (conn) {
       const slow = conn.saveData ||
         (typeof conn.effectiveType === 'string' && /(^|-)2g$/.test(conn.effectiveType));
       if (slow) {
-        return; // never mount the video
-      }
-    }
-
-    let idleHandle: number | undefined;
-    let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
-    let started = false;
-
-    const trigger = () => {
-      if (started) return;
-      started = true;
-      setMountVideo(true);
-    };
-
-    /**
-     * After the page has fully loaded, wait a further fixed delay before even
-     * creating the <video> element. This guarantees the decorative background
-     * video's ~4MB download and decode happen well OUTSIDE the window that
-     * Lighthouse measures (FCP / LCP / Speed Index / Time to Interactive), so
-     * it can no longer become the LCP element or extend "fully loaded" time.
-     * The poster image stays the LCP element throughout.
-     */
-    const POST_LOAD_DELAY = 2000;
-
-    const scheduleAfterDelay = () => {
-      // Only mount when the hero is actually in the viewport.
-      const el = sectionRef.current;
-      const start = () => {
-        timeoutHandle = setTimeout(trigger, POST_LOAD_DELAY);
-      };
-
-      if (!el || typeof IntersectionObserver === 'undefined') {
-        start();
+        setSkipVideo(true);
         return;
       }
-      const observer = new IntersectionObserver((entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          observer.disconnect();
-          start();
-        }
-      });
-      observer.observe(el);
-      // Store on the outer var so cleanup can disconnect it.
-      observerRef = observer;
-    };
-
-    let observerRef: IntersectionObserver | undefined;
-
-    if (document.readyState === 'complete') {
-      scheduleAfterDelay();
-    } else {
-      window.addEventListener('load', scheduleAfterDelay, { once: true });
     }
 
-    return () => {
-      window.removeEventListener('load', scheduleAfterDelay);
-      observerRef?.disconnect();
-      if (idleHandle !== undefined && 'cancelIdleCallback' in window) {
-        (window as any).cancelIdleCallback(idleHandle);
+    // The <video> is server-rendered, so it can start playing before React
+    // hydrates. In that case the autoplay may already be running; make sure we
+    // pick up the current state instead of waiting for an event that already fired.
+    const v = videoRef.current;
+    if (v) {
+      if (v.paused) {
+        v.play().catch(() => {
+          // Autoplay blocked - dark background stays, no error to the user.
+        });
       }
-      if (timeoutHandle) clearTimeout(timeoutHandle);
-    };
+    }
   }, []);
 
-  /**
-   * Autoplay hint. Once the video element has enough data to play, fade it in
-   * over the poster. If autoplay is blocked, the poster simply remains, which
-   * is a graceful degradation.
-   */
-  const handleVideoCanPlay = () => {
-    const v = videoRef.current;
-    if (v && v.readyState >= 2) {
-  
-      v.play().catch(() => {
-        // Autoplay blocked - keep poster visible, no error to the user.
-      });
-      setVideoReady(true);
-    }
-  };
-
   return (
-    <section ref={sectionRef} className="relative w-full -mt-[64px] md:-mt-[80px] pt-[64px] md:pt-[10px]">
-      {/* Hero background: static poster is the LCP element and is always
-          present. Video overlays it (opacity fade) once it has buffered. */}
-      <div className="absolute inset-0 z-0">
-        {/* LCP image — Next.js <Image> with priority so it is preloaded and
-            optimized. fill + object-cover reproduces the previous absolute
-            full-bleed background behavior. */}
+    <section className="relative w-full -mt-[64px] md:-mt-[80px] pt-[64px] md:pt-[10px]">
+      {/* Hero background: video only. Solid dark backdrop shows until the
+          first frame is ready. */}
+      <div className="absolute inset-0 z-0 bg-black">
         <div className="relative h-full w-full">
-        
-        
-          {mountVideo && (
+          {!skipVideo && (
             <video
               ref={videoRef}
-              className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-500 ${videoReady ? 'opacity-100' : 'opacity-0'
-                }`}
+              className="absolute inset-0 h-full w-full object-cover object-center"
               src={HERO_VIDEO}
               autoPlay
               muted
               loop
               playsInline
-              preload="metadata"
+              preload="auto"
               disablePictureInPicture
               aria-hidden="true"
-              onCanPlay={handleVideoCanPlay}
             />
           )}
           <div className="absolute inset-0 bg-black/20 z-[1]" />
