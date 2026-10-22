@@ -198,7 +198,7 @@ const HeaderSection = ({ course }: any) => {
                     fill
                     priority
                     sizes="(max-width: 768px) 100vw, 56vw"
-                    className="object-cover object-center scale-125 "
+                    className="object-cover object-center  "
                 />
             </div>
 
