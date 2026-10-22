@@ -121,7 +121,7 @@ const trackCall = () => {
       </div>
 
       {/* Desktop Bottom Bar */}
-      <div className="w-full md:flex hidden h-11 bg-gradient-to-tl from-[#600A0E] to-[#C6151D] fixed bottom-0 left-0 z-50 items-center justify-center">
+      <div className="w-full md:flex hidden h-11 bg-[#ff2a3b] fixed bottom-0 left-0 z-50 items-center justify-center">
         <div className="w-10/12 flex gap-4">
           <div className="flex bg-[#CA8A04] p-2 gap-1">
             <FaWhatsapp className="w-6 h-6" />

@@ -192,7 +192,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Follow TechPratham on Facebook (opens in new tab)"
-                  className="w-9 h-9 rounded-full bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white flex items-center justify-center hover:brightness-110 transition"
+                  className="w-9 h-9 rounded-full bg-[#ff2a3b] text-white flex items-center justify-center hover:brightness-110 transition"
                 >
                   <FaFacebook className="w-5 h-5" aria-hidden="true" />
                 </Link>
@@ -201,7 +201,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Follow TechPratham on LinkedIn (opens in new tab)"
-                  className="w-9 h-9 rounded-full bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white flex items-center justify-center hover:brightness-110 transition"
+                  className="w-9 h-9 rounded-full bg-[#ff2a3b] text-white flex items-center justify-center hover:brightness-110 transition"
                 >
                   <FaLinkedin className="w-5 h-5" aria-hidden="true" />
                 </Link>
@@ -210,7 +210,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Follow TechPratham on Instagram (opens in new tab)"
-                  className="w-9 h-9 rounded-full bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white flex items-center justify-center hover:brightness-110 transition"
+                  className="w-9 h-9 rounded-full bg-[#ff2a3b] text-white flex items-center justify-center hover:brightness-110 transition"
                 >
                   <FaInstagram className="w-5 h-5" aria-hidden="true" />
                 </Link>
@@ -219,7 +219,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Follow TechPratham on X / Twitter (opens in new tab)"
-                  className="w-9 h-9 rounded-full bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white flex items-center justify-center hover:brightness-110 transition"
+                  className="w-9 h-9 rounded-full bg-[#ff2a3b] text-white flex items-center justify-center hover:brightness-110 transition"
                 >
                   <FaTwitter className="w-5 h-5" aria-hidden="true" />
                 </Link>

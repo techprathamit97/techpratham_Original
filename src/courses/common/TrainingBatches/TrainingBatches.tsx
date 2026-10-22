@@ -45,7 +45,7 @@ export default function TrainingBatches({ id, course }: any) {
       <div className="m-2 p-2 py-5 border-2">
 
         <div className="text-center">
-          <h2 className="text-[#7f1d1d] md:text-3xl text-2xl font-bold">
+          <h2 className="text-[#ff2a3b] md:text-3xl text-2xl font-bold">
             Upcoming Batches
           </h2>
 
@@ -58,7 +58,7 @@ export default function TrainingBatches({ id, course }: any) {
           >
             <path
               d="M0 3 Q170 0 340 3 Q170 6 0 3 Z"
-              fill="#7f1d1d"
+              fill="#ff2a3b"
             />
           </svg>
         </div>
@@ -75,7 +75,7 @@ export default function TrainingBatches({ id, course }: any) {
                 className={`relative w-[80%] min-w-[240px] bg-slate-300 sm:w-auto sm:min-w-[220px] md:min-w-[260px]
                 flex-shrink-0 cursor-pointer rounded-xl border p-4 md:p-5 transition
                 ${selectedBatch === batch.id
-                    ? "border-red-800 ring-2 ring-blue-200"
+                    ? "border-[#ff2a3b] ring-2 ring-blue-200"
                     : "border-slate-200 hover:shadow-md"
                   }`}
               >
@@ -87,7 +87,7 @@ export default function TrainingBatches({ id, course }: any) {
                 />
 
                 {selectedBatch === batch.id && (
-                  <div className="absolute top-0 right-0 bg-red-900 text-white px-2 py-1 rounded-br-xl text-xs">
+                  <div className="absolute top-0 right-0 bg-[#ff2a3b] text-white px-2 py-1 rounded-br-xl text-xs">
                     ✓ Selected
                   </div>
                 )}

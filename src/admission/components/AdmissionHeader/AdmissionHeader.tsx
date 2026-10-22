@@ -2,7 +2,7 @@ import React from 'react';
 
 const AdmissionHeader = () => {
     return (
-        <div className='w-full h-auto  flex flex-col items-center justify-center gap-6  pt-10 pb-10 bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white'>
+        <div className='w-full h-auto  flex flex-col items-center justify-center gap-6  pt-10 pb-10 bg-[#ff2a3b] text-white'>
             <div className='px-4 py-1 rounded border-2 border-white text-white uppercase font-semibold'>
                 Admission
             </div>

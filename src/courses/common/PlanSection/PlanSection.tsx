@@ -107,7 +107,7 @@ const router = useRouter();
 
       {/* ===== HEADING ===== */}
       <div className="text-center mb-12">
-        <h2 className="text-[#7f1d1d] md:text-3xl text-2xl font-bold">
+        <h2 className="text-[#ff2a3b] md:text-3xl text-2xl font-bold">
           Training Plan
         </h2>
 

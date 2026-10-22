@@ -1,5 +1,7 @@
+/* The course header no longer uses a full-bleed background image.
+   The career graphic is rendered as a contained <Image> on the right
+   side of the section (see HeaderSection.tsx). */
 .headerImage {
-  background-image: url("/course/Courses.webp");
   background-repeat: no-repeat;
   background-size: cover;
 }

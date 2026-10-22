@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import {
-  BackpackIcon,
   Cross2Icon,
   DashboardIcon,
   HamburgerMenuIcon,
@@ -14,7 +13,7 @@ import {
   IdCardIcon,
   MagnifyingGlassIcon
 } from '@radix-ui/react-icons';
-import { IoIosArrowForward } from 'react-icons/io';
+import { IoIosArrowForward, IoIosArrowDown } from 'react-icons/io';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search } from 'lucide-react';
@@ -90,6 +89,7 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
   const coursesButtonRef = useRef<HTMLButtonElement>(null);
   const searchDrawerRef = useRef<HTMLDivElement>(null);
   const searchContainerRef = useRef<HTMLFormElement>(null);
+  const searchMobileFormRef = useRef<HTMLFormElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -150,13 +150,15 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
         setIsActive(false);
       }
 
-      // Handle search drawer click outside
-      if (
-        searchDrawerRef.current &&
-        !searchDrawerRef.current.contains(event.target as Node) &&
-        searchContainerRef.current &&
-        !searchContainerRef.current.contains(event.target as Node)
-      ) {
+      // Handle search drawer click outside — dismiss only when the click is
+      // outside the drawer AND both the desktop and mobile search forms.
+      const inDrawer =
+        !!searchDrawerRef.current && searchDrawerRef.current.contains(event.target as Node);
+      const inDesktopForm =
+        !!searchContainerRef.current && searchContainerRef.current.contains(event.target as Node);
+      const inMobileForm =
+        !!searchMobileFormRef.current && searchMobileFormRef.current.contains(event.target as Node);
+      if (!inDrawer && !inDesktopForm && !inMobileForm) {
         setSearchActive(false);
         setSearchQuery('');
       }
@@ -264,156 +266,175 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
     // You can add search submit logic here if needed
   };
 
+  // Shared style for the white navbar's text links (dark text, red active/hover).
+  const navLinkCls = (href: string): string =>
+    `flex items-center gap-1 whitespace-nowrap text-[15px] transition-colors ${
+      pathname === href ? 'text-[#C6151D] font-bold' : 'text-black  hover:text-[#C6151D]'
+    }`;
+
   return (
-    <div className={`${(isActive || searchActive) ? 'fixed top-0 left-0' : 'absolute'}  w-full bottom-0 flex flex-col items-center md:static sticky left-0 z-30 shadow-md justify-center`}>
+    <div className={`sticky top-0 left-0 w-full flex flex-col items-center z-50 shadow-md justify-center`}>
 
-      <div className='bg-gradient-to-tl from-[#C6151D] to-[#600A0E] text-white w-full h-auto flex items-center justify-center z-[50]'>
-        <div className='w-full lg:py-1 md:py-1 py-1 md:flex hidden flex-row gap-4 lg:justify-center justify-between items-center font-light'>
-          <Link href={'/'} aria-label='Techpratham'>
-            <div className="relative w-36 ">
-              <Image
-                src={'/navbar/logotechnolyfirst2.svg'}
-                alt='Techpratham Logo'
-                width={80}
-                height={30}
-                className='w-full h-auto'
-              />
+      <div className='w-full bg-white/95 backdrop-blur-md shadow-[0_2px_10px_rgba(0,0,0,0.06)] z-[50]'>
+        <div className='mx-auto w-full max-w-[1250px] px-3 md:px-10 py-2'>
 
-              <span className="absolute bottom-2 pl-1 left-1/2 -translate-x-1/2 text-[7px] text-white">
-                Technology First
-              </span>
-            </div>
-          </Link>
-
-
-          <div className='flex flex-row gap-1 items-center justify-center'>
-            <form onSubmit={handleSearchSubmit} className='flex flex-row lg:w-60 md:w-72' ref={searchContainerRef}>
-              <Input
-                ref={searchInputRef}
-                className='lg:max-w-60 max-w-72 h-7 bg-white text-black rounded-r-none rounded-l-md'
-                placeholder='Search courses...'
-                aria-label='Search courses'
-                value={searchQuery}
-                onChange={handleSearchChange}
-                onFocus={handleSearchFocus}
-              />
-              <button
-                type="submit"
-                className='p-1 bg-yellow-600 flex items-center justify-center rounded-r-md hover:bg-red-800 transition-colors'
-                aria-label='Search'
-              >
-                <Search className='w-4 h-4' />
-              </button>
-            </form>
-
-
-          </div>
-          <Link href="/" className={`cursor-pointer text-[15px] transition-colors flex items-center gap-1 ${pathname === '/' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>
-            <HomeIcon className="w-4 h-4" />
-            <span>Home</span>
-          </Link>
-          <button
-            ref={coursesButtonRef}
-            onClick={handleCoursesClick}
-            onMouseEnter={handleButtonMouseEnter}
-            onMouseLeave={handleButtonMouseLeave}
-            className="hidden sm:flex flex-row text-white gap-1 items-center justify-center cursor-pointer text-[15px] hover:opacity-80 transition-opacity"
-            aria-label="All Courses"
-          >
-            <DashboardIcon className="w-4 h-4" />
-            <span className='text-sm'>All Courses</span>
-          </button>
-          <button className='lg:hidden flex' onClick={handleNavToggle} aria-label='Toggle navigation menu'>
-            <HamburgerMenuIcon className='w-5 h-5' />
-          </button>
-
-          <Link href="/about-us" className={`cursor-pointer text-[15px] transition-colors flex items-center gap-1 ${pathname === '/about-us' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>
-            <PersonIcon className="w-4 h-4" />
-            <span>About Us</span>
-          </Link>
-          <Link href="/payment" className={`cursor-pointer text-[15px] transition-colors flex items-center gap-1 ${pathname === '/payment' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>
-            <CardStackIcon className="w-4 h-4" />
-            <span>Payment</span>
-          </Link>
-          <Link href="/contact-us" className={`cursor-pointer text-[15px] transition-colors flex items-center gap-1 ${pathname === '/contact-us' ? 'text-yellow-600 font-semibold' : 'text-white hover:text-yellow-600'}`}>
-            <EnvelopeClosedIcon className="w-4 h-4" />
-            <span>Contact Us</span>
-          </Link>
-
-          <Link href='/corporate-training' className='lg:flex hidden flex-row gap-2 items-center text-[15px] justify-center cursor-pointer hover:opacity-80 transition-opacity'>
-            <BackpackIcon className='w-4 h-4' />
-            <span>Corporate Training</span>
-          </Link>
-          <Link href='/blog' className='lg:flex hidden flex-row gap-2 items-center text-[15px] justify-center cursor-pointer hover:opacity-80 transition-opacity'>
-            <FileTextIcon className='w-4 h-4' />
-            <span>Blog</span>
-          </Link>
-
-          {/* Conditional User Authentication */}
-          {loading ? (
-            <div className="text-sm text-gray-300">Loading...</div>
-          ) : authenticated ? (
-            /* Direct Dashboard Link - Only when authenticated */
-            <Link
-              href={isAdmin ? '/admin/dashboard' : '/user/dashboard'}
-              className="ml-4 cursor-pointer text-sm bg-yellow-600 text-white hover:bg-yellow-700 transition-colors flex items-center justify-center rounded-full w-8 h-8 font-semibold"
-              title={`Go to ${isAdmin ? 'Admin' : 'User'} Dashboard`}
-            >
-              {userData?.name ? userData.name.charAt(0).toUpperCase() : userData?.email?.charAt(0).toUpperCase() || 'U'}
-            </Link>
-          ) : (
-            /* Login Button - Only when not authenticated */
-            <Link
-              href='/auth/login'
-              className="cursor-pointer text-sm hover:text-yellow-600 transition-colors flex items-center justify-center hover:bg-white/10 rounded-full"
-            >
-              {/* <PersonIcon className="w-4 h-4 mr-1" /> */}
-              <span>Login</span>
-            </Link>
-          )}
-
-        </div>
-
-        <div className='w-11/12 md:hidden flex flex-col gap-1 items-center  justify-between sticky pb-3  '>
-          <div className='w-full h-full flex flex-row items-center gap-4 justify-between '>
-            <Link href={'/'} aria-label='Techpratham'>
-              <div className="relative w-32">
+          {/* ===== Desktop / tablet top bar (md+) ===== */}
+          <div className='hidden md:flex w-full items-center justify-between gap-4'>
+            {/* Logo */}
+            <Link href={'/'} aria-label='Techpratham' className='shrink-0'>
+              <div className='relative h-9 w-28 md:w-32'>
                 <Image
-                  src={'/navbar/logotechnolyfirst2.svg'}
-                  alt='Techpratham Logo'
-                  width={128}
-                  height={48}
-                  className='w-full h-auto'
+                  src={'/navbar/techpratham.png'}
+                  alt='TechPratham'
+                  fill
+                  sizes='(max-width: 768px) 112px, 128px'
+                  className='object-contain object-left'
+                  priority
                 />
-                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[6px] text-white whitespace-nowrap">
-                  Technology First
-                </span>
               </div>
             </Link>
-            <form onSubmit={handleSearchSubmit} className='flex flex-row md:w-full w-22' ref={searchContainerRef}>
+
+            {/* Center inline nav (lg+) */}
+            <nav className='hidden lg:flex flex-1 items-center justify-center gap-6 xl:gap-8'>
+              <Link href='/' className={navLinkCls('/')}>Home</Link>
+
+              {/* All Courses trigger + dropdown anchored to the button */}
+              <div className='relative'>
+                <button
+                  ref={coursesButtonRef}
+                  onClick={handleCoursesClick}
+                  onMouseEnter={handleButtonMouseEnter}
+                  onMouseLeave={handleButtonMouseLeave}
+                  className={`flex items-center gap-1 whitespace-nowrap text-[15px]  transition-colors ${
+                    isActive ? 'text-[#C6151D]' : 'text-black hover:text-[#C6151D]'
+                  }`}
+                  aria-haspopup='true'
+                  aria-expanded={isActive}
+                  aria-label='All Courses'
+                >
+                  <span>All Courses</span>
+                  <IoIosArrowDown className={`w-3.5 h-3.5 transition-transform ${isActive ? 'rotate-180' : ''}`} />
+                </button>
+
+                <CoursesDropdown
+                  isActive={isActive}
+                  coursesByCategory={coursesByCategory}
+                  allCourses={allCourses}
+                  categoriesData={categoriesData}
+                  isLoading={isLoading}
+                  onCourseClick={handleCourseClick}
+                  dropdownRef={coursesDropdownRef}
+                  onMouseEnter={handleDropdownMouseEnter}
+                  onMouseLeave={handleDropdownMouseLeave}
+                  anchorTo='button'
+                />
+              </div>
+
+              <Link href='/about-us' className={navLinkCls('/about-us')}>About Us</Link>
+              <Link href='/corporate-training' className={navLinkCls('/corporate-training')}>Corporate Training</Link>
+              <Link href='/blog' className={navLinkCls('/blog')}>Blog</Link>
+              <Link href='/payment' className={navLinkCls('/payment')}>Payment</Link>
+              <Link href='/contact-us' className={navLinkCls('/contact-us')}>Contact Us</Link>
+            </nav>
+
+            {/* Right cluster: search + auth (lg+) / hamburger (tablet) */}
+            <div className='flex items-center gap-3 shrink-0'>
+              {/* Compact search (lg+) — feature kept */}
+              <form onSubmit={handleSearchSubmit} ref={searchContainerRef} className='hidden lg:flex items-center w-52'>
+                <div className='relative flex w-full items-center rounded-full border border-gray-300 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-red-100 transition'>
+                  <Input
+                    ref={searchInputRef}
+                    className='flex-1 h-8 border-0 bg-transparent pl-3 pr-2 text-sm text-gray-800 shadow-none focus-visible:ring-0'
+                    placeholder='Search courses...'
+                    aria-label='Search courses'
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    onFocus={handleSearchFocus}
+                  />
+                  <button
+                    type='submit'
+                    className='flex h-8 w-9 shrink-0 items-center justify-center bg-[#ff2a3b] text-white transition hover:brightness-110'
+                    aria-label='Search'
+                  >
+                    <Search className='w-4 h-4' />
+                  </button>
+                </div>
+              </form>
+
+              {/* Auth: Sign Up pill / avatar (lg+) */}
+              <div className='hidden lg:flex items-center'>
+                {loading ? (
+                  <span className='text-xs text-gray-500 px-3'>Loading...</span>
+                ) : authenticated ? (
+                  <Link
+                    href={isAdmin ? '/admin/dashboard' : '/user/dashboard'}
+                    title={`Go to ${isAdmin ? 'Admin' : 'User'} Dashboard`}
+                    className='flex h-9 w-9 items-center justify-center rounded-full bg-[#C6151D] text-white font-bold text-sm shadow-sm hover:brightness-110 transition'
+                  >
+                    {userData?.name ? userData.name.charAt(0).toUpperCase() : userData?.email?.charAt(0).toUpperCase() || 'U'}
+                  </Link>
+                ) : (
+                  <Link
+                    href='/auth/login'
+                    className='rounded-full bg-[#ff2a3b] text-white text-[12px] font-bold tracking-wider uppercase px-5 py-2 shadow-sm hover:brightness-110 transition'
+                  >
+                    Sign Up
+                  </Link>
+                )}
+              </div>
+
+              {/* Tablet hamburger (md to lg) */}
+              <button
+                className='lg:hidden flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700'
+                onClick={handleNavToggle}
+                aria-label='Toggle navigation menu'
+                aria-expanded={navOpen}
+              >
+                {navOpen ? <Cross2Icon className='w-5 h-5' /> : <HamburgerMenuIcon className='w-5 h-5' />}
+              </button>
+            </div>
+          </div>
+
+          {/* ===== Mobile top bar (below md) ===== */}
+          <div className='md:hidden flex w-full items-center justify-between gap-3'>
+            <Link href={'/'} aria-label='Techpratham' className='shrink-0'>
+              <div className='relative h-9 w-28'>
+                <Image
+                  src={'/navbar/techpratham.png'}
+                  alt='TechPratham'
+                  fill
+                  sizes='112px'
+                  className='object-contain object-left'
+                  priority
+                />
+              </div>
+            </Link>
+
+            <form onSubmit={handleSearchSubmit} ref={searchMobileFormRef} className='flex flex-1 max-w-[190px]'>
               <Input
                 ref={searchInputRef}
-                className='w-full h-9 bg-white text-black rounded-r-none rounded-l-md text-sm font-light placeholder:font-light placeholder:text-sm'
-                placeholder='Search courses...'
+                className='w-full h-9 bg-white text-black rounded-r-none rounded-l-md text-sm border-gray-300'
+                placeholder='Search...'
                 aria-label='Search courses'
                 value={searchQuery}
                 onChange={handleSearchChange}
                 onFocus={handleSearchFocus}
               />
               <button
-                type="submit"
-                className='p-2 bg-yellow-600 flex items-center justify-center rounded-r-md hover:bg-red-800 transition-colors'
+                type='submit'
+                className='px-3 bg-[#ff2a3b] flex items-center justify-center rounded-r-md text-white hover:brightness-110 transition'
                 aria-label='Search'
               >
                 <Search className='w-4 h-4' />
               </button>
             </form>
-            <button onClick={handleNavToggle} aria-label='Toggle navigation menu'>
-              {!navOpen ? (
-                <HamburgerMenuIcon className='w-5 h-5' />
-              ) : (
-                <Cross2Icon className='w-5 h-5' />
-              )}
+
+            <button
+              onClick={handleNavToggle}
+              aria-label='Toggle navigation menu'
+              className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700'
+            >
+              {!navOpen ? <HamburgerMenuIcon className='w-5 h-5' /> : <Cross2Icon className='w-5 h-5' />}
             </button>
           </div>
 
@@ -581,23 +602,12 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
         </nav>
       </div>
 
-      {/* Courses Dropdown Component */}
-      <CoursesDropdown
-        isActive={isActive}
-        coursesByCategory={coursesByCategory}
-        allCourses={allCourses}
-        categoriesData={categoriesData}
-        isLoading={isLoading}
-        onCourseClick={handleCourseClick}
-        dropdownRef={coursesDropdownRef}
-        onMouseEnter={handleDropdownMouseEnter}
-        onMouseLeave={handleDropdownMouseLeave}
-      />
+      {/* Courses dropdown is rendered inline under the "All Courses" button (desktop). */}
 
       {/* Search Drawer */}
       <div
         ref={searchDrawerRef}
-        className={`transition-all duration-300 border-b border-b-gray-200 ${!searchActive ? '-top-80 left-0' : 'top-16 left-0'} absolute flex w-[70%] h-auto bg-white text-[#1a1a1a] flex-col items-center md:overflow-hidden overflow-y-auto pb-4 z-40`}
+        className={`transition-all duration-300 border-b border-b-gray-200 rounded-b-lg shadow-lg ${!searchActive ? '-top-80 right-0 md:right-10' : 'top-16 right-0 md:right-10'} absolute flex w-full md:w-[55%] h-auto bg-white text-[#1a1a1a] flex-col items-start md:overflow-hidden overflow-y-auto pb-4 z-40`}
       >
         {/* <div className="absolute inset-0 bg-black/50 z-50 pointer-events-none"></div> */}
 

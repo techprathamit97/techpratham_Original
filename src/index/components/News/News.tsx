@@ -134,7 +134,7 @@ export default function NewsHighlights() {
           </div>
 
           {/* CENTER COLUMN - Featured "Featured in" Card */}
-          <div className="bg-gradient-to-tl from-[#C6151D] to-[#600A0E] rounded-2xl shadow-lg px-6 flex flex-col items-center justify-center">
+          <div className="bg-[#ff2a3b] rounded-2xl shadow-lg px-6 flex flex-col items-center justify-center">
             <h3 className="text-3xl md:text-4xl font-bold text-white mb-2 text-center">
               Featured In
             </h3>

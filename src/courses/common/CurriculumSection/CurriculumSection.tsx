@@ -333,7 +333,7 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
           <div className="lg:col-span-3 flex flex-col gap-2">
 
             <div className="text-center flex flex-col mt-3 items-left">
-              <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#CD4647] to-[#7F3B40]">
+              <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-[#ff2a3b]">
                 {shouldShowPdf ? "Course Curriculum" : (course.curriculumTitle || `${course.title} Course Curriculum`)}
               </h2>
             </div>
@@ -449,7 +449,7 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
                       <Button
                         type="submit"
                         disabled={pdfSubmitting}
-                        className="w-full mt-2 font-semibold bg-red-800 hover:bg-red-900 text-white"
+                        className="w-full mt-2 font-semibold bg-[#ff2a3b] hover:bg-red-900 text-white"
                       >
                         {pdfSubmitting ? "Submitting..." : "Download PDF"}
                       </Button>
@@ -469,8 +469,8 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
                       ? "hidden"
                       : ""
                       }`}>
-                      <div className="w-3 h-3 bg-red-800 rounded-full mt-6" />
-                      <Separator orientation="vertical" className="flex-1 bg-red-800" />
+                      <div className="w-3 h-3 bg-[#ff2a3b] rounded-full mt-6" />
+                      <Separator orientation="vertical" className="flex-1 bg-[#ff2a3b]" />
                     </div>
 
                     {/* Accordion */}
@@ -565,7 +565,7 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
 
           {/* RIGHT SIDE */}
           <div className="lg:col-span-2 flex flex-col md:mt-12 gap-4">
-            <h3 className="text-lg font-semibold text-red-800">
+            <h3 className="text-lg font-semibold text-[#ff2a3b]">
               {course.category} Courses
             </h3>
 

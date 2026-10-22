@@ -21,41 +21,14 @@ interface CommunityData {
   url: string;
 }
 
-interface ImageAssets {
-  logo: string;
-  bgImage: string;
-}
-
-/* ─── Main TechPratham LinkedIn profile ─── */
-
-/* ─── Default banner for fallback ─── */
-const DEFAULT_BANNER = '/comunity_icon/test.jpg';
-
-/* ─── Image Asset Utilities ─── */
-const getImageAssets = (community: CommunityData): ImageAssets => {
-  return {
-    logo: community.logo || '/comunity_icon/default-logo.png',
-    bgImage: community.bgImage || DEFAULT_BANNER
-  };
-};
-
-const validateImagePath = (path: string): boolean => {
-  return path.includes('/comunity_icon/') && (
-    path.endsWith('.jpg') || 
-    path.endsWith('.jpeg') || 
-    path.endsWith('.png') || 
-    path.endsWith('.webp')
-  );
-};
-
-/* ─── Communities with individual background images ─── */
+/* ─── Communities with individual LinkedIn page screenshots ─── */
 const COMMUNITIES: CommunityData[] = [
   {
     name: 'Workday Learning Community',
     tagline: 'Workday HCM & Finance learners',
     description: 'A professional community for Workday HCM, Finance & Payroll learners offering live instructor-led training, real-project exposure, certification guidance, resume building, mock interviews and placement support to build enterprise-ready Workday skills.',
     logo: '/comunity_icon/workday.png',
-    bgImage: '/comunity_icon/bgimage.jpg',
+    bgImage: '/comunity_icon/workday.png',
     url: 'https://www.linkedin.com/showcase/109985952/',
   },
   {
@@ -63,7 +36,7 @@ const COMMUNITIES: CommunityData[] = [
     tagline: 'CSA, CAD, ITSM & ITOM professionals',
     description: 'A professional community for aspiring & experienced ServiceNow professionals covering CSA, CAD, ITSM, ITOM, ITAM, HRSD, SecOps, CSM and more — with live training, real project exposure, certification guidance, mock interviews and career mentorship.',
     logo: '/comunity_icon/workday.png',
-    bgImage: '/comunity_icon/bgimage.jpg',
+    bgImage: '/comunity_icon/servicenow.png',
     url: 'https://www.linkedin.com/showcase/servicenow-learner-community/',
   },
   {
@@ -71,7 +44,7 @@ const COMMUNITIES: CommunityData[] = [
     tagline: 'SAP S/4HANA, FICO, MM & SD careers',
     description: 'A dedicated community for SAP learners covering SAP FICO, MM, SD, BASIS, ABAP, S/4HANA, BRIM and more — with live instructor-led sessions, hands-on project practice, certification support and global placement guidance.',
     logo: '/comunity_icon/workday.png',
-    bgImage: '/comunity_icon/bgimage.jpg',
+    bgImage: '/comunity_icon/sap.png',
     url: 'https://www.linkedin.com/showcase/sap-learning-community/',
   },
   {
@@ -79,7 +52,7 @@ const COMMUNITIES: CommunityData[] = [
     tagline: 'PolicyCenter, ClaimCenter & InsuranceSuite',
     description: 'A professional community for Guidewire & Duck Creek learners covering PolicyCenter, ClaimCenter, BillingCenter, Gosu, configurations, integrations and the insurance domain — with live training, project exposure, certification guidance and placement support.',
     logo: '/comunity_icon/workday.png',
-    bgImage: '/comunity_icon/bgimage.jpg',
+    bgImage: '/comunity_icon/guidewire.png',
     url: 'https://www.linkedin.com/showcase/109981635/',
   },
   {
@@ -87,7 +60,7 @@ const COMMUNITIES: CommunityData[] = [
     tagline: 'LLMs & Agentic AI',
     description: 'Welcome to the TechPratham AI & Generative AI Learning Community a professional platform for aspiring and experienced technology professionals looking to build real-world skills in Artificial Intelligence, Data Science, Machine Learning, and enterprise AI solutions.',
     logo: '/comunity_icon/workday.png',
-    bgImage: '/comunity_icon/bgimage.jpg',
+    bgImage: '/comunity_icon/ai.png',
     url: 'https://www.linkedin.com/showcase/109985635/',
   },
   {
@@ -95,7 +68,7 @@ const COMMUNITIES: CommunityData[] = [
     tagline: 'QA, Tosca, Selenium & ISTQB professionals',
     description: 'A QA-focused learning community for aspiring and experienced testers covering Tosca, Selenium, API testing, ISTQB, automation frameworks and enterprise testing practices — with live training, mock interviews, resume building and placement support.',
     logo: '/comunity_icon/workday.png',
-    bgImage: '/comunity_icon/bgimage.jpg',
+    bgImage: '/comunity_icon/softwaretesting.png',
     url: 'https://www.linkedin.com/showcase/software-testing-automation-community/',
   },
   {
@@ -103,7 +76,7 @@ const COMMUNITIES: CommunityData[] = [
     tagline: 'Power BI, Python, SQL & data careers',
     description: 'A learning community for data professionals covering Power BI, Python, SQL, Excel analytics and business intelligence — with live instructor-led sessions, real-world projects, certification preparation and career development support.',
     logo: '/comunity_icon/workday.png',
-    bgImage: '/comunity_icon/bgimage.jpg',
+    bgImage: '',
     url: 'https://www.linkedin.com/showcase/110000586/',
   },
   {
@@ -111,7 +84,7 @@ const COMMUNITIES: CommunityData[] = [
     tagline: 'Admin, Developer, CPQ & Consultant careers',
     description: 'A Salesforce-focused community covering Admin, Developer, CPQ, Marketing Cloud, Integration and Consultant roles — with live training, Trailhead guidance, certification preparation and professional placement mentorship.',
     logo: '/comunity_icon/workday.png',
-    bgImage: '/comunity_icon/bgimage.jpg',
+    bgImage: '/comunity_icon/salesforce.png',
     url: 'https://www.linkedin.com/showcase/salesforce-learners-community/',
   },
 ];
@@ -364,92 +337,57 @@ export default function LinkdinCommunities() {
                 className="flex transition-transform duration-500 ease-in-out"
                 style={{ gap: `${CARD_GAP}px`, transform: `translateX(-${translateX}px)` }}
               >
-                {COMMUNITIES.map((c: CommunityData, i: number) => {
-                  const imageAssets = getImageAssets(c);
-                  
-                  return (
+                {COMMUNITIES.map((c: CommunityData, i: number) => (
                   <button
                     key={i}
                     type="button"
                     onClick={() => setPendingCommunity({ name: c.name, url: c.url })}
                     className="flex-shrink-0 relative overflow-hidden rounded-2xl border border-gray-200
                                cursor-pointer group focus:outline-none bg-white shadow-md hover:shadow-xl
-                               transition-all duration-300"
+                               transition-all duration-300 flex flex-col"
                     style={{ width: perCard > 0 ? `${perCard}px` : `calc((100% - ${CARD_GAP * (visibleCount - 1)}px) / ${visibleCount})`, height: '300px' }}
                   >
-                    {/* Close Button - Top Right */}
-                    <div className="absolute top-3 right-3 w-7 h-7 bg-black/70 rounded-full flex items-center justify-center
-                                    opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-                      <X className="w-3.5 h-3.5 text-white" />
-                    </div>
-
-                    {/* Top Section - Cover Image Banner (40%) */}
-                    <div className="relative h-[40%] overflow-hidden">
-                      <Image
-                        src={imageAssets.bgImage}
-                        alt={`${c.name} cover`}
-                        fill
-                        sizes="400px"
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = DEFAULT_BANNER;
-                        }}
-                      />
-                      
-                      {/* Subtle dark overlay */}
-                      <div className="absolute inset-0 bg-black/10" />
-                    </div>
-
-                    {/* Logo Overlap Section - Positioned over banner edge */}
-                    <div className="absolute top-[28%] left-1/2 transform -translate-x-1/2 z-10">
-                      <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center 
-                                      shadow-2xl border-2 border-white group-hover:scale-105 transition-transform duration-300
-                                      ring-2 ring-gray-100">
-                        <Image 
-                          src={imageAssets.logo} 
-                          alt={`${c.name} logo`} 
-                          width={64} 
-                          height={64} 
-                          className="object-contain rounded-full" 
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = '/comunity_icon/default-logo.png';
-                          }}
+                    {/* ── Screenshot area (the LinkedIn proof) ── */}
+                    <div className="relative flex-1 overflow-hidden bg-gray-100">
+                      {c.bgImage ? (
+                        <Image
+                          src={c.bgImage}
+                          alt={`${c.name} LinkedIn page`}
+                          fill
+                          sizes="(max-width:300px) 50vw, 200px"
+                          className="object-contain object-top group-hover:scale-[1.03] transition-transform duration-500"
                         />
-                      </div>
-                    </div>
-
-                    {/* Content Section (60%) */}
-                    <div className="h-[60%] pt-10 px-6 pb-6 flex flex-col items-center text-center bg-white">
-                      {/* Community Name */}
-                      <h3 className="font-bold text-gray-900 text-xl mb-2 line-clamp-2 leading-tight">
-                        {c.name}
-                      </h3>
-                   
-
-                      {/* Spacer to push button to bottom */}
-                      <div className="flex-1" />
-
-                      {/* Connect Button */}
-                      <div className="w-full max-w-[240px]">
-                        <div className="flex items-center justify-center gap-3 bg-[#0A66C2] hover:bg-[#084d8a] 
-                                        text-white font-semibold text-base px-6 py-2 rounded-full
-                                        transition-all duration-300 shadow-lg hover:shadow-xl
-                                        group-hover:bg-[#084d8a] transform hover:scale-105">
-                          <FaLinkedin className="w-5 h-5" />
-                          + Connect
+                      ) : (
+                        /* Fallback for a community with no screenshot yet */
+                        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#0A66C2] to-[#084d8a] px-4 text-center">
+                          <span className="text-white font-semibold text-lg leading-tight">{c.name}</span>
                         </div>
+                      )}
+
+                      {/* White fade so the screenshot blends into the action bar */}
+                      {/* <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white via-white/70 to-transparent" /> */}
+
+                      {/* Hover overlay — "Open LinkedIn Proof" */}
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/55 opacity-0
+                                      group-hover:opacity-100 transition-opacity duration-300">
+                        <span className="flex items-center gap-2 text-white font-semibold text-lg drop-shadow">
+                          <FaLinkedin className="w-5 h-5" />
+                          Open LinkedIn
+                        </span>
                       </div>
                     </div>
 
-                    {/* Subtle hover effect */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-blue-50/30 to-transparent 
-                                    opacity-0 group-hover:opacity-100 transition-opacity duration-300 
-                                    pointer-events-none rounded-2xl" />
+                    {/* ── Action bar: See More + LinkedIn icon ── */}
+                    <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-100">
+                      <span className="inline-flex items-center justify-center rounded-full border-2 border-[#FF2E41]
+                                       px-5 py-1.5 text-sm font-semibold text-[#FF2E41]
+                                       transition-colors group-hover:bg-[#FF2E41] group-hover:text-white">
+                        See More
+                      </span>
+                      <FaLinkedin className="w-7 h-7 text-[#0A66C2]" />
+                    </div>
                   </button>
-                  );
-                })}
+                ))}
               </div>
             </div>
 

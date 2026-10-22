@@ -2,7 +2,7 @@ import React from 'react';
 
 const CertificateHeader = () => {
     return (
-        <div className='w-full py-10 h-auto flex flex-col items-center justify-center gap-6  pb-10 bg-gradient-to-tl from-[#600A0E] to-[#C6151D] text-white'>
+        <div className='w-full py-10 h-auto flex flex-col items-center justify-center gap-6  pb-10 bg-[#ff2a3b] text-white'>
             <div className='px-4 py-1 rounded border-2 border-white text-white uppercase font-semibold'>
                 Certificate
             </div>

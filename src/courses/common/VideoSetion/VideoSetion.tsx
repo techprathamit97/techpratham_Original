@@ -215,7 +215,7 @@ export default function ReviewCards() {
                 <div className="m-2 p-2 py-5 border-2">
                     {/* Heading */}
                     <div className="text-center mb-5 flex flex-col items-center">
-                        <h2 className="text-3xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#CD4647] to-[#7F3B40]">
+                        <h2 className="text-3xl md:text-3xl font-semibold text-transparent bg-clip-text bg-[#ff2a3b]">
                             Additional Program Highlights
                         </h2>
 

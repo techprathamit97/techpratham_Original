@@ -15,7 +15,7 @@ const plainTitle = getTextFromHtml(course.title);
     <div className="w-full min-h-[90px] bg-white rounded-lg shadow flex overflow-hidden border">
 
       {/* LEFT STRIP with letter avatar */}
-      <div className="w-16 flex items-center justify-center bg-gradient-to-tl from-[#C6151D] to-[#600A0E]">
+      <div className="w-16 flex items-center justify-center bg-[#ff2a3b]">
         <div className="bg-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold text-[#C6151D]">
           {firstLetter}
         </div>

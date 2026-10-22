@@ -27,7 +27,7 @@ export const teams = [
     },
     {
         image: "/about/teams/devendra.webp",
-        name: "Devendra Yadav",
+        name: "Devendra",
         position: "IT Head",
         workingAt: { name: "TechPratham", logo: "/navbar/lmslogo.png" },
        about: "IT Head at TechPratham, driving technology strategy, digital operations, enterprise systems, and scalable solutions that support business growth and seamless client experiences.",
@@ -44,7 +44,7 @@ export const teams = [
 
     {
         image: "/about/teams/ayansh.webp",
-        name: "Ayansh Maurya",
+        name: "Ayansh",
         position: "Sr. Software Developer",
         workingAt: { name: "TechPratham", logo: "/navbar/lmslogo.png" },
         about: "Full-stack software developer at TechPratham, building scalable and performant web applications that power the institute's digital learning and management platforms.",
@@ -60,7 +60,7 @@ export const teams = [
     },
     {
         image: "/about/teams/chandrama.webp",
-        name: "Chandrama Vaishnaw",
+        name: "Priyanka",
         position: "Marketing Team",
         workingAt: { name: "TechPratham", logo: "/navbar/lmslogo.png" },
         about: "Part of the Marketing team at TechPratham, specialising in digital campaigns, brand positioning, and student outreach to amplify the institute's reach across platforms.",
@@ -93,7 +93,7 @@ export const teams = [
     },
     {
         image: "/about/teams/shiva.webp",
-        name: "Shiva Nayak Dheeravath",
+        name: "Shiva",
         position: "IT Consultant",
         workingAt: { name: "TechPratham", logo: "/navbar/lmslogo.png" },
         about: "IT Consultant at TechPratham with deep expertise in enterprise IT solutions, helping learners gain practical skills aligned with current industry demands and certification standards.",

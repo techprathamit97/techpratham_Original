@@ -45,10 +45,10 @@ const EmployeeLifecycle: React.FC = () => {
                   <div
                     className={`absolute inset-0 ${
                       index === 0
-                        ? "bg-gradient-to-tl from-[#C6151D] to-[#600A0E] clip-chevron-start"
+                        ? "bg-[#FF2E41] clip-chevron-start"
                         : index === sections.length - 1
-                        ? "bg-gradient-to-tl from-[#C6151D] to-[#600A0E] clip-chevron-end"
-                        : "bg-gradient-to-tl from-[#C6151D] to-[#600A0E] clip-chevron"
+                        ? "bg-[#FF2E41] clip-chevron-end"
+                        : "bg-[#FF2E41] clip-chevron"
                     } border-l border-black/20 group-hover:opacity-90`}
                   />
                   <div className="relative z-10 h-full flex items-center justify-center text-center px-2">

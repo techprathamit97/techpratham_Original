@@ -13,32 +13,31 @@ import { redirectToThankYou, FORM_TYPES } from '@/lib/thankYouRedirect';
 
 import './header.css';
 
-// Custom styles for PhoneInput in transparent form
+// Custom styles for PhoneInput on the light (white) form card.
 const phoneInputStyles = `
   .phone-input-header .country-select button {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    color: white !important;
+    background: rgba(255, 255, 255, 0.7) !important;
+    border: 1px solid rgb(209, 213, 219) !important;
+    color: rgb(17, 24, 39) !important;
   }
-  
+
   .phone-input-header .country-select button:hover {
-    background: rgba(255, 255, 255, 0.15) !important;
+    background: rgb(249, 250, 251) !important;
   }
-  
+
   .phone-input-header input {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    color: white !important;
+    background: rgba(255, 255, 255, 0.7) !important;
+    border: 1px solid rgb(209, 213, 219) !important;
+    color: rgb(17, 24, 39) !important;
   }
-  
+
   .phone-input-header input::placeholder {
-    color: rgb(209, 213, 219) !important;
+    color: rgb(156, 163, 175) !important;
   }
-  
+
   .phone-input-header input:focus {
     outline: none !important;
-    ring: 2px !important;
-    ring-color: rgba(255, 255, 255, 0.4) !important;
+    border-color: rgb(198, 21, 29) !important;
   }
 `;
 
@@ -184,33 +183,50 @@ const HeaderSection = ({ course }: any) => {
     }
 
     return (
-        <div className='flex flex-col bg-gradient-to-tl from-[#C6151D] to-[#600A0E] items-center justify-center w-full h-auto headerImage text-white relative min-h-[385px]'>
-            
+        <div className='flex flex-col items-center justify-center w-full h-auto text-gray-900 relative min-h-[385px] py-2 md:py-5 overflow-hidden'>
+
             {/* Add custom styles for PhoneInput */}
             <style dangerouslySetInnerHTML={{ __html: phoneInputStyles }} />
-            
+
+            {/* Career graphic — a CONTAINED illustration on the right (not a full
+                background). It carries the "Learn → Grow → Get Placed" artwork and
+                fades into white on its left/bottom so it reads as a corner image. */}
+            <div className="pointer-events-none absolute inset-0 h-full w-full z-0" aria-hidden="true">
+                <Image
+                    src="/course/test2.png"
+                    alt=""
+                    fill
+                    priority
+                    sizes="(max-width: 768px) 100vw, 56vw"
+                    className="object-cover object-center scale-125 "
+                />
+            </div>
+
+            {/* Overlay to improve content readability over the image */}
+            {/* <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-r from-white/90 via-white/70 to-white/40" aria-hidden="true" /> */}
+
             {/* Main Content Wrapper - Shifted to grid-cols-2 on desktop */}
-            <div className="md:w-10/12 w-11/12 h-auto grid md:grid-cols-[1.7fr_1fr] grid-cols-1 gap-4 items-center z-20">
+            <div className="relative md:w-10/12 w-11/12 h-auto grid md:grid-cols-[1.7fr_1fr] grid-cols-1 gap-4 items-center z-20">
                 
                 {/* Left Side: Course Details */}
                 <div className=' h-auto'>
-                    <div className='flex flex-row gap-2 items-center justify-start mb-6 md:text-sm text-xs'>
+                    <div className='flex flex-row gap-2 items-center justify-start mb-6 md:text-sm text-xs text-gray-600'>
                         <span>Courses</span>
                         <ChevronRightIcon />
-                        <Link href={`/courses/domain/${categorySlug}`} className='transition-all duration-300 hover:underline'>{course.category}</Link>
+                        <Link href={`/courses/domain/${categorySlug}`} className='transition-all duration-300 hover:underline hover:text-[#C6151D]'>{course.category}</Link>
                         <ChevronRightIcon />
-                        <div dangerouslySetInnerHTML={{ __html: course.title }} />
+                        <div className='text-gray-800 font-medium' dangerouslySetInnerHTML={{ __html: course.title }} />
                     </div>
 
-                    <span className={`px-4 py-1 rounded-full md:text-base text-sm font-normal bg-gradient-to-tl from-[#C6151D] to-[#600A0E] text-gray-200`}>
+                    <span className={`inline-block px-4 py-1 rounded-full md:text-base text-sm font-medium bg-[#FF2E41] text-white`}>
                         {course.category}
                     </span>
 
-                    <div className="md:text-2xl text-2xl font-semibold leading-tight flex-1 pr-2 mt-3 mb-1">
+                    <div className="md:text-3xl text-2xl font-bold leading-tight flex-1 pr-2 mt-3 mb-1 text-gray-900">
                         <h1 dangerouslySetInnerHTML={{ __html: course.title }} />
                     </div>
-                    <div className="md:text-sm text-sm text-justify mb-4 flex-grow flex flex-row gap-2 max-w-[700px]">
-                        <CircleCheck className='w-6 h-6 mt-[2px] md:flex hidden flex-shrink-0' />
+                    <div className="md:text-sm text-sm text-justify mb-4 flex-grow flex flex-row gap-2 max-w-[700px] text-gray-700">
+                        <CircleCheck className='w-6 h-6 mt-[2px] md:flex hidden flex-shrink-0 text-[#FF2E41]' />
                         <div dangerouslySetInnerHTML={{ __html: course.shortDesc }} />
                     </div>
 
@@ -223,48 +239,48 @@ const HeaderSection = ({ course }: any) => {
                                     </svg>
                                 ))}
                             </span>
-                            <span>5/5</span>
-                            <span className="text-white font-normal">(4,890 Reviews)</span>
+                            <span className="text-gray-800 font-semibold">5/5</span>
+                            <span className="text-gray-600 font-normal">(4,890 Reviews)</span>
                         </div>
                     </div>
 
-                    <div className="flex px-3 py-2 gap-4 rounded-xl border border-gray-200 max-w-fit mb-4">
+                    <div className="flex px-3 py-2 gap-4 rounded-xl border border-gray-200 bg-white/70 max-w-fit mb-4">
                         <div className="flex flex-col gap-1">
-                            <p className="md:text-sm xs:text-xs text-gray-300">Level</p>
-                            <p className="md:text-sm xs:text-base font-semibold text-gray-200">{course.level}</p>
+                            <p className="md:text-sm xs:text-xs text-gray-500">Level</p>
+                            <p className="md:text-sm xs:text-base font-semibold text-gray-900">{course.level}</p>
                         </div>
                         <div className="flex flex-col gap-1">
-                            <p className="md:text-sm xs:text-xs text-gray-300">Duration</p>
-                            <p className="md:text-sm xs:text-base font-semibold text-gray-200">{course.duration}</p>
+                            <p className="md:text-sm xs:text-xs text-gray-500">Duration</p>
+                            <p className="md:text-sm xs:text-base font-semibold text-gray-900">{course.duration}</p>
                         </div>
                     </div>
 
                     <div className='w-full h-auto flex flex-row flex-wrap gap-3'>
                         <Link href={`/courses/enrollment/${course.link}`} className='w-auto'>
-                            <Button variant='manual' className='w-full'>Enroll Now</Button>
+                            <Button variant='manual' className='w-full '>Enroll Now</Button>
                         </Link>
                     </div>
                 </div>
 
                 {/* Right Side: Transparent Form */}
                 <div className="w-full max-w-[300px] justify-self-center md:justify-self-end">
-                    <form 
-                        onSubmit={handleSubmit(onSubmit)} 
-                        className="bg-white/5 border border-white/20 rounded-2xl p-2 shadow-xl w-full flex flex-col gap-4 text-white"
+                    <form
+                        onSubmit={handleSubmit(onSubmit)}
+                        className="bg-white/25 backdrop-blur-md border border-white/50 rounded-2xl p-4 shadow-lg w-full flex flex-col gap-4 text-gray-900"
                     >
                         <div className="text-center mb-2">
-                            <h3 className="text-xl font-bold tracking-wide">Enquire This Course</h3>
+                            <h3 className="text-xl font-bold tracking-wide text-gray-900">Enquire This Course</h3>
                         </div>
 
                         {/* Success/Error Messages */}
                         {submitSuccess && (
-                            <div className="bg-green-500/20 border border-green-400/40 rounded-lg px-3 py-2 text-green-200 text-sm text-center">
+                            <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-green-700 text-sm text-center">
                                 ✅ Form submitted successfully! We'll reach you soon!
                             </div>
                         )}
                         
                         {submitError && (
-                            <div className="bg-red-500/20 border border-red-400/40 rounded-lg px-3 py-2 text-red-200 text-sm text-center">
+                            <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-red-700 text-sm text-center">
                                 ❌ {submitError}
                             </div>
                         )}
@@ -276,7 +292,7 @@ const HeaderSection = ({ course }: any) => {
                                 type="text" 
                                 placeholder="Full Name*" 
                                 disabled={submitting}
-                                className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/40 transition-all disabled:opacity-50"
+                                className="w-full bg-white/70 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-[#C6151D] transition-all disabled:opacity-50"
                             />
                             {errors.fullName && (
                                 <span className="text-red-200 text-xs">{errors.fullName.message}</span>
@@ -312,7 +328,7 @@ const HeaderSection = ({ course }: any) => {
                                 type="email" 
                                 placeholder="Email ID*" 
                                 disabled={submitting}
-                                className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/40 transition-all disabled:opacity-50"
+                                className="w-full bg-white/70 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-[#C6151D] transition-all disabled:opacity-50"
                             />
                             {errors.email && (
                                 <span className="text-red-200 text-xs">{errors.email.message}</span>
@@ -325,7 +341,7 @@ const HeaderSection = ({ course }: any) => {
                                 {...register('course')}
                                 type="text" 
                                 disabled
-                                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-gray-300 cursor-not-allowed font-medium"
+                                className="w-full bg-white/50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600 cursor-not-allowed font-medium"
                             />
                         </div>
 
