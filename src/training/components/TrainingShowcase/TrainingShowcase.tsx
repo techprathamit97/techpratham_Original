@@ -39,56 +39,55 @@ const clientLogos = [
 const slides = [
   {
     src: '/corporate/sentgobin.jpeg',
-    caption: 'In partnership with Balmer Lawrie & Co. Ltd.',
+    caption: 'Sentgobin Corporate Training',
   },
   {
     src: '/corporate/hydrabedt.jpeg',
-    caption: 'In partnership with Balmer Lawrie & Co. Ltd.',
+    caption: 'QualiZeal Corporate Training',
   },
-   {
+  {
     src: '/corporate/corporate4.webp',
-    caption: 'Upskilling enterprise teams',
+    caption: 'College Freshers Training',
   },
-  
   {
     src: '/corporate/bosch.webp',
-    caption: 'Upskilling enterprise teams',
+    caption: 'BOSCH Corporate Training',
   },
   {
     src: '/corporate/wnstr.jpeg',
-    caption: 'Upskilling enterprise teams',
+    caption: 'WNS Corporate Training',
   },
   {
     src: '/corporate/bdes.webp',
-    caption: 'Upskilling enterprise teams',
+    caption: 'Central Bank Training',
   },
   {
     src: '/corporate/bankofamrica.webp',
-    caption: 'Upskilling enterprise teams',
+    caption: 'Bank of America Training',
   },
   {
     src: '/corporate/blcl.webp',
-    caption: 'Upskilling enterprise teams',
+    caption: 'Balmer Lawrie Training',
   },
   {
     src: '/corporate/delivery.webp',
-    caption: 'Upskilling enterprise teams',
+    caption: 'Delivery Hero Corporate Training',
   },
-   {
+  {
     src: '/corporate/meeting_portrait.jpeg',
-    caption: 'Upskilling enterprise teams',
+    caption: 'TechPratham Offline Training',
   },
   {
     src: '/corporate/gravity.webp',
-    caption: 'Upskilling enterprise teams',
+    caption: 'Gravity Corporate Training',
   },
-    {
+  {
     src: '/corporate/aitraning.webp',
-    caption: 'Corporate training delivered on-site',
+    caption: 'On-Site Corporate Training',
   },
   {
     src: '/corporate/harman.jpeg',
-    caption: 'Upskilling enterprise teams',
+    caption: 'HARMAN Corporate Training',
   },
 ];
 
