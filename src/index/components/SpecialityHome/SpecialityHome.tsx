@@ -151,8 +151,8 @@ const ChevronStep: React.FC<{
         <div
           className={`absolute inset-0 transition-opacity duration-500 ${
             isActive
-              ? 'bg-black/50'
-              : 'bg-black/20'
+              ? 'bg-black/40'
+              : 'bg-black/50'
           }`}
         />
 
@@ -256,8 +256,8 @@ const MobileStep: React.FC<{
 };
 
 const StaticChevronSteps = () => {
-  // Which panel is expanded. Defaults to the middle step (matches the mockup).
-  const [activeIndex, setActiveIndex] = useState(2);
+  // Which panel is expanded. Defaults to the second step.
+  const [activeIndex, setActiveIndex] = useState(1);
 
   // --- DESKTOP VIEW ---
   const DesktopView = (

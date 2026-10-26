@@ -12,6 +12,7 @@ const FORM_LABELS: Record<string, string> = {
   "course-header-enquiry": "Course Enquiry",
   "certificate": "Certificate Inquiry",
   "training-lead": "Training Lead",
+  "corporate-training": "Corporate Training Enquiry",
   "linkedin lead": "LinkedIn Connection Request",
   "Reach out to us": "Reach Out Widget",
   "payment-form": "Payment Form",

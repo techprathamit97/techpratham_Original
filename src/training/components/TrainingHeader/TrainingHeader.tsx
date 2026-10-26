@@ -1,40 +1,71 @@
-import Image from "next/image";
+import Image from 'next/image';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
-const HeaderContact = () => {
+const TrainingHeader = () => {
   return (
-    <div className="relative w-full md:h-[400px] h-56">
+    <div className="relative w-full md:h-[520px] h-auto min-h-[460px] flex items-center justify-center overflow-hidden">
       {/* Background Image */}
       <Image
         src="/home/hero/corporate.webp"
-        alt="Header Image"
+        alt="Corporate technology training with TechPratham"
         fill
         className="object-cover"
         priority
       />
 
-      {/* Overlay */}
+      {/* Brand gradient overlay (red/maroon theme) */}
+      <div className="absolute inset-0 " />
       <div className="absolute inset-0 bg-black/40" />
 
       {/* Content */}
-      <div className="absolute inset-0 flex items-end justify-center pb-8 md:pb-12">
-        <div className="max-w-5xl px-6 md:px-16 text-center text-white">
-          <p className="uppercase tracking-widest text-xs md:text-base border-b-2 border-white inline-block pb-1 mb-4">
-            Corporate Upskilling
-          </p>
+      <div className="relative z-10 w-11/12 md:w-10/12 max-w-6xl mx-auto py-14 md:py-20 text-white">
+        <p className="uppercase tracking-[0.25em] text-xs md:text-sm font-semibold text-white/80 border-l-4 border-[#FF2E41] pl-3 mb-5">
+          Corporate Upskilling
+        </p>
 
-          <h1 className="text-xs md:text-2xl font-semibold mb-2">
-            Future-Ready Workforce Solutions
-          </h1>
+        <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold leading-tight max-w-4xl">
+          Corporate Training for Workday, SAP, ServiceNow and Agentic AI
+        </h1>
 
-          <h2 className="text-xl md:text-4xl font-bold mb-4">
-            Transforming Talent Into Impact
-          </h2>
+        <p className="mt-5 text-base md:text-xl text-white/90 max-w-3xl leading-relaxed">
+          Plan your team&apos;s technology upskilling with practical, role-based
+          learning options aligned to your business goals.
+        </p>
 
-          
+        {/* Technology pills */}
+        <div className="mt-7 flex flex-wrap gap-2.5">
+          {['Workday', 'SAP', 'ServiceNow', 'Agentic AI'].map((tech) => (
+            <span
+              key={tech}
+              className="px-4 py-1.5 rounded-full bg-white/10 border border-white/25 backdrop-blur-sm text-sm font-medium"
+            >
+              {tech}
+            </span>
+          ))}
+        </div>
+
+        <div className="mt-8 flex flex-wrap gap-4">
+          <Link href="#enquiry">
+            <Button
+              variant="default"
+              className="h-11 px-7 text-base bg-gradient-to-r from-[#FF2E41] to-[#FF2E41] hover:from-[#E0202F] hover:to-[#E0202F] transition-all duration-200"
+            >
+              Discuss Your Requirements
+            </Button>
+          </Link>
+          <Link href="#programs">
+            <Button
+              variant="outline"
+              className="h-11 px-7 text-base bg-transparent border-white/60 text-white hover:bg-white hover:text-[#FF2E41] transition-all duration-200"
+            >
+              Explore Training Areas
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
   );
 };
 
-export default HeaderContact;
+export default TrainingHeader;
