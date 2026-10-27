@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
-import Image from 'next/image';
+import React, { useState } from 'react';
 import { FaLinkedin } from 'react-icons/fa';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ExternalLink, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -19,6 +18,8 @@ interface CommunityData {
   logo: string;
   bgImage: string;
   url: string;
+  abbr: string;      // short badge code e.g. "SAP"
+  category: string;  // e.g. "Enterprise software" / "Technology"
 }
 
 /* ─── Communities with individual LinkedIn page screenshots ─── */
@@ -30,6 +31,8 @@ const COMMUNITIES: CommunityData[] = [
     logo: '/comunity_icon/workday.png',
     bgImage: '/comunity_icon/workday.png',
     url: 'https://www.linkedin.com/showcase/109985952/',
+    abbr: 'WD',
+    category: 'Enterprise software',
   },
   {
     name: 'ServiceNow Learner Community',
@@ -38,6 +41,8 @@ const COMMUNITIES: CommunityData[] = [
     logo: '/comunity_icon/workday.png',
     bgImage: '/comunity_icon/servicenow.png',
     url: 'https://www.linkedin.com/showcase/servicenow-learner-community/',
+    abbr: 'SN',
+    category: 'Technology',
   },
   {
     name: 'SAP Learning Community',
@@ -46,6 +51,8 @@ const COMMUNITIES: CommunityData[] = [
     logo: '/comunity_icon/workday.png',
     bgImage: '/comunity_icon/sap.png',
     url: 'https://www.linkedin.com/showcase/sap-learning-community/',
+    abbr: 'SAP',
+    category: 'Enterprise software',
   },
   {
     name: 'MS Dynamics Community',
@@ -54,6 +61,8 @@ const COMMUNITIES: CommunityData[] = [
     logo: '/comunity_icon/workday.png',
     bgImage: '/comunity_icon/guidewire.png',
     url: 'https://www.linkedin.com/showcase/109981635/',
+    abbr: 'GW',
+    category: 'Enterprise software',
   },
   {
     name: 'Agentic AI Community',
@@ -62,6 +71,8 @@ const COMMUNITIES: CommunityData[] = [
     logo: '/comunity_icon/workday.png',
     bgImage: '/comunity_icon/ai.png',
     url: 'https://www.linkedin.com/showcase/109985635/',
+    abbr: 'AI',
+    category: 'Technology',
   },
   {
     name: 'Software Testing & Automation',
@@ -70,6 +81,8 @@ const COMMUNITIES: CommunityData[] = [
     logo: '/comunity_icon/workday.png',
     bgImage: '/comunity_icon/softwaretesting.png',
     url: 'https://www.linkedin.com/showcase/software-testing-automation-community/',
+    abbr: 'QA',
+    category: 'Technology',
   },
   {
     name: 'Data Analytics Community',
@@ -78,6 +91,8 @@ const COMMUNITIES: CommunityData[] = [
     logo: '/comunity_icon/workday.png',
     bgImage: '',
     url: 'https://www.linkedin.com/showcase/110000586/',
+    abbr: 'DA',
+    category: 'Technology',
   },
   {
     name: 'Salesforce Learners Community',
@@ -86,10 +101,34 @@ const COMMUNITIES: CommunityData[] = [
     logo: '/comunity_icon/workday.png',
     bgImage: '/comunity_icon/salesforce.png',
     url: 'https://www.linkedin.com/showcase/salesforce-learners-community/',
+    abbr: 'SF',
+    category: 'Technology',
   },
+  {
+  name: 'Microsoft 365 Learner Community',
+  tagline: 'Learn Microsoft 365 | Build Practical Skills | Advance Your IT Career',
+  description: 'A Microsoft 365-focused community helping learners and professionals develop practical skills in Microsoft 365 applications, administration, collaboration tools, and cloud productivity — with live training, career guidance, certification preparation, job assistance, and professional mentorship.',
+  logo: '/comunity_icon/workday.png',
+  bgImage: '/comunity_icon/microsoft365.png',
+  url: 'https://www.linkedin.com/showcase/144058968/',
+  abbr: 'M365',
+  category: 'Technology',
+},
 ];
 
-const CARD_GAP = 24; // px between cards
+/* ─── Downward shield badge (matches reference mock) ─── */
+function ShieldBadge({ abbr, large = false }: { abbr: string; large?: boolean }) {
+  return (
+    <div
+      className={`flex items-start justify-center bg-[#FF2E41] text-white font-bold leading-none ${
+        large ? 'w-12 h-[52px] text-sm' : 'w-9 h-10 text-[11px]'
+      }`}
+      style={{ clipPath: 'polygon(0 0, 100% 0, 100% 68%, 50% 100%, 0 68%)' }}
+    >
+      <span className={large ? 'pt-3' : 'pt-2'}>{abbr}</span>
+    </div>
+  );
+}
 
 /* ─── Community gated lead form modal ─── */
 interface ModalProps {
@@ -254,165 +293,116 @@ function CommunityLeadModal({ communityName, linkedinUrl, onClose }: ModalProps)
 }
 
 export default function LinkdinCommunities() {
-  const viewportRef = useRef<HTMLDivElement>(null);
-  const [cardWidth, setCardWidth] = useState(0);
-  const [startIdx, setStartIdx] = useState(0);
-  const autoRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  // Gated navigation state — set when a card is clicked.
+  // When set, the gated lead form modal is open for this community.
   const [pendingCommunity, setPendingCommunity] = useState<{ name: string; url: string } | null>(null);
 
-  const total = COMMUNITIES.length;
-  const visibleCount = cardWidth > 0 ? (cardWidth > 800 ? 4 : cardWidth > 600 ? 3 : cardWidth > 400 ? 2 : 1) : 4;
-  const MAX_START = Math.max(0, total - visibleCount);
-
-  // Measure viewport and pick visible count.
-  useEffect(() => {
-    const calc = () => {
-      if (!viewportRef.current) return;
-      setCardWidth(viewportRef.current.offsetWidth);
-    };
-    calc();
-    window.addEventListener('resize', calc);
-    return () => window.removeEventListener('resize', calc);
-  }, []);
-
-  // Auto-scroll: advance 1 every 3s, loop back to 0.
-  useEffect(() => {
-    autoRef.current = setInterval(() => {
-      setStartIdx((i) => (i >= MAX_START ? 0 : i + 1));
-    }, 3000);
-    return () => { if (autoRef.current) clearInterval(autoRef.current); };
-  }, [MAX_START]);
-
-  const resetTimer = () => {
-    if (autoRef.current) clearInterval(autoRef.current);
-    autoRef.current = setInterval(() => {
-      setStartIdx((i) => (i >= MAX_START ? 0 : i + 1));
-    }, 3000);
-  };
-
-  const goBack = () => {
-    setStartIdx((i) => Math.max(0, i - 1));
-    resetTimer();
-  };
-  const goForward = () => {
-    setStartIdx((i) => Math.min(MAX_START, i + 1));
-    resetTimer();
-  };
-
-  // Per-card pixel width.
-  const perCard = cardWidth > 0
-    ? (cardWidth - CARD_GAP * (visibleCount - 1)) / visibleCount
-    : 300;
-  const translateX = startIdx * (perCard + CARD_GAP);
-
   return (
-    <section className="w-full bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50 py-12 px-4 md:px-12">
-      {/* ── Single rounded container wrapping everything ── */}
-      <div className="max-w-7xl mx-auto border border-gray-200/50 rounded-3xl bg-white/80 backdrop-blur-sm shadow-xl overflow-hidden">
+    <section className="w-full bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50 py-3 md:py-5 px-4 md:px-12">
+      <div className="max-w-7xl mx-auto">
+        {/* ── Heading ── */}
+        <div className="text-center mb-5">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1.5">Our LinkedIn learning hub</h2>
+          <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
+            Explore our professional communities — tap any card to join and connect with us on LinkedIn.
+          </p>
+        </div>
 
+        {/* ── Bento grid ── */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 auto-rows-[140px] md:auto-rows-[150px] grid-flow-row-dense">
 
-        {/* ── Communities section ── */}
-        <div className="p-6 md:p-8">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Our LinkedIn learning hub</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Join our professional communities and connect with like-minded learners in your field
-            </p>
-          </div>
+          {/* ── Featured big box: Workday community ── */}
+          <button
+            type="button"
+            onClick={() => setPendingCommunity({ name: COMMUNITIES[0].name, url: COMMUNITIES[0].url })}
+            aria-label={`Join ${COMMUNITIES[0].name}`}
+            className="group col-span-2 lg:col-span-2 row-span-2 relative overflow-hidden rounded-2xl border border-gray-200
+                       bg-white shadow-md text-left cursor-pointer transition-all duration-300
+                       hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#FF2E41]"
+          >
+            {/* background image */}
+            <div
+              className="pointer-events-none absolute inset-0 bg-contain bg-center transition-transform duration-500 group-hover:scale-[1.04]"
+              style={{ backgroundImage: "url('/comunity_icon/linkdingbg2.jpeg')" }}
+            />
+            {/* readability overlay */}
+            <div className="pointer-events-none absolute inset-0 bg-black/30" />
 
-          {/* ── Auto-scroll carousel ── */}
-          <div className="relative">
-            {startIdx > 0 && (
-              <button onClick={goBack} aria-label="Previous"
-                      className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center
-                                 justify-center rounded-full bg-white border border-gray-200 shadow hover:bg-gray-50">
-                <ChevronLeft className="w-4 h-4 text-gray-600" />
-              </button>
-            )}
+            {/* LinkedIn icon top-right */}
+            <FaLinkedin className="absolute top-5 right-5 w-7 h-7 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />
 
-            <div ref={viewportRef} className="overflow-hidden w-full">
-              <div
-                className="flex transition-transform duration-500 ease-in-out"
-                style={{ gap: `${CARD_GAP}px`, transform: `translateX(-${translateX}px)` }}
-              >
-                {COMMUNITIES.map((c: CommunityData, i: number) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setPendingCommunity({ name: c.name, url: c.url })}
-                    className="flex-shrink-0 relative overflow-hidden rounded-2xl border border-gray-200
-                               cursor-pointer group focus:outline-none bg-white shadow-md hover:shadow-xl
-                               transition-all duration-300 flex flex-col"
-                    style={{ width: perCard > 0 ? `${perCard}px` : `calc((100% - ${CARD_GAP * (visibleCount - 1)}px) / ${visibleCount})`, height: '300px' }}
-                  >
-                    {/* ── Screenshot area (the LinkedIn proof) ── */}
-                    <div className="relative flex-1 overflow-hidden bg-gray-100">
-                      {c.bgImage ? (
-                        <Image
-                          src={c.bgImage}
-                          alt={`${c.name} LinkedIn page`}
-                          fill
-                          sizes="(max-width:300px) 50vw, 200px"
-                          className="object-contain object-top group-hover:scale-[1.03] transition-transform duration-500"
-                        />
-                      ) : (
-                        /* Fallback for a community with no screenshot yet */
-                        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#0A66C2] to-[#084d8a] px-4 text-center">
-                          <span className="text-white font-semibold text-lg leading-tight">{c.name}</span>
-                        </div>
-                      )}
+            {/* content: logo badge + title (left, vertically centered) */}
+            <div className="relative h-full flex flex-col items-start justify-center text-left p-5 md:p-7">
+              <ShieldBadge abbr={COMMUNITIES[0].abbr} large />
+              <h3 className="mt-3 text-xl md:text-2xl font-bold text-white leading-snug drop-shadow-[0_2px_4px_rgba(0,0,0,0.75)]">
+                {COMMUNITIES[0].name}
+              </h3>
+              <p className="mt-1 text-sm text-gray-200 drop-shadow-[0_1px_3px_rgba(0,0,0,0.75)]">
+                {COMMUNITIES[0].category}
+              </p>
 
-                      {/* White fade so the screenshot blends into the action bar */}
-                      {/* <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white via-white/70 to-transparent" /> */}
-
-                      {/* Hover overlay — "Open LinkedIn Proof" */}
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/55 opacity-0
-                                      group-hover:opacity-100 transition-opacity duration-300">
-                        <span className="flex items-center gap-2 text-white font-semibold text-lg drop-shadow">
-                          <FaLinkedin className="w-5 h-5" />
-                          Open LinkedIn
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* ── Action bar: See More + LinkedIn icon ── */}
-                    <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-100">
-                      <span className="inline-flex items-center justify-center rounded-full border-2 border-[#FF2E41]
-                                       px-5 py-1.5 text-sm font-semibold text-[#FF2E41]
-                                       transition-colors group-hover:bg-[#FF2E41] group-hover:text-white">
-                        See More
-                      </span>
-                      <FaLinkedin className="w-7 h-7 text-[#0A66C2]" />
-                    </div>
-                  </button>
-                ))}
+              {/* Hover: "Join community" button */}
+              <div className="mt-4 max-h-0 overflow-hidden opacity-0 transition-all duration-300
+                              group-hover:max-h-20 group-hover:opacity-100">
+                <span className="inline-flex items-center gap-2 rounded-full bg-[#0A66C2]
+                                 px-5 py-2.5 text-sm font-semibold text-white shadow-lg">
+                  <FaLinkedin className="w-4 h-4" />
+                  Join community
+                  <ExternalLink className="w-4 h-4" />
+                </span>
               </div>
             </div>
+          </button>
 
-            {startIdx < MAX_START && (
-              <button onClick={goForward} aria-label="Next"
-                      className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center
-                                 justify-center rounded-full bg-white border border-gray-200 shadow hover:bg-gray-50">
-                <ChevronRight className="w-4 h-4 text-gray-600" />
-              </button>
-            )}
-          </div>
-
-          {/* Dots */}
-          <div className="flex justify-center gap-1.5 mt-4">
-            {Array.from({ length: MAX_START + 1 }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => { setStartIdx(i); resetTimer(); }}
-                aria-label={`Go to ${i + 1}`}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  startIdx === i ? 'bg-[#0077b5]' : 'bg-gray-300 hover:bg-gray-400'
-                }`}
+          {/* ── Community cards — whole card opens the join form ── */}
+          {COMMUNITIES.slice(1).map((c, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setPendingCommunity({ name: c.name, url: c.url })}
+              aria-label={`Join ${c.name}`}
+              className="group relative flex flex-col justify-start text-left overflow-hidden rounded-2xl border border-gray-200
+                         bg-white shadow-sm p-4 cursor-pointer transition-all duration-300
+                         hover:shadow-xl hover:-translate-y-0.5 hover:border-[#FF2E41] focus:outline-none
+                         focus:ring-2 focus:ring-[#FF2E41]"
+            >
+              {/* Hover background image */}
+              <div
+                className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-0
+                           group-hover:opacity-100 transition-opacity duration-300"
+                style={{ backgroundImage: "url('/comunity_icon/linkdingbg2.jpeg')" }}
               />
-            ))}
-          </div>
+              {/* Hover dark overlay for readability */}
+              <div className="pointer-events-none absolute inset-0 bg-black/55 opacity-0
+                              group-hover:opacity-100 transition-opacity duration-300" />
+
+              {/* Content */}
+              <div className="relative z-10">
+                <ShieldBadge abbr={c.abbr} />
+                <h4 className="mt-2 text-sm md:text-[15px] font-bold text-gray-900 leading-tight line-clamp-2
+                               group-hover:text-white transition-colors drop-shadow-none group-hover:drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]">
+                  {c.name}
+                </h4>
+                <p className="mt-1 text-xs md:text-sm text-gray-500 group-hover:text-gray-200 transition-colors">
+                  {c.category}
+                </p>
+              </div>
+
+              {/* LinkedIn icon top-right */}
+              <FaLinkedin className="absolute top-4 right-4 z-10 w-5 h-5 text-[#0A66C2]
+                                     group-hover:text-white transition-colors" />
+
+              {/* Hover: "Join community" button */}
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-end justify-center
+                              opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-3">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0A66C2]
+                                 px-3.5 py-2 text-[11px] md:text-xs font-semibold text-white shadow-lg whitespace-nowrap">
+                  <FaLinkedin className="w-3.5 h-3.5" />
+                  Join community
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </span>
+              </div>
+            </button>
+          ))}
         </div>
       </div>
 

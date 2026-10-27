@@ -152,7 +152,7 @@ const IndexView: React.FC<IndexViewProps> = ({
   <CoursesHome initialGroupedCourses={initialGroupedCourses} />
 {/* </section> */}
       <NewComponent initialEvents={initialEvents} />
-      {/* <LinkdinCommunities/> */}
+      <LinkdinCommunities/>
 
       <CareerHome />
 

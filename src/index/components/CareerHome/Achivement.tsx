@@ -206,7 +206,8 @@ import { useEffect, useRef, useState } from 'react';
 ================================ */
 const getDigitHeight = () => {
   if (typeof window === "undefined") return 56;
-  if (window.innerWidth < 640) return 22;  // small enough to fit 1/3 column
+  if (window.innerWidth < 360) return 16;  // very small Android phones: keep 6 boxes + "+" inside the column
+  if (window.innerWidth < 640) return 20;  // small enough to fit 1/3 column
   if (window.innerWidth < 1024) return 38;
   return 52;
 };
@@ -266,7 +267,7 @@ function RollingDigit({
           <div
             key={i}
             style={{ height: HEIGHT }}
-            className="flex items-center justify-center font-fjalla text-base font-extrabold text-white sm:text-2xl md:text-4xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+            className="flex items-center justify-center font-fjalla text-xs font-extrabold text-white sm:text-2xl md:text-4xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
           >
             {i % 10}
           </div>
@@ -300,7 +301,7 @@ function Odometer({
   }, []);
 
   return (
-    <div className="flex items-center justify-center gap-0.5 sm:gap-1 md:gap-2">
+    <div className="flex items-center justify-center gap-px sm:gap-1 md:gap-2">
       {/* Individual digit boxes */}
       {digits.map((d, i) => (
         <RollingDigit
@@ -314,7 +315,7 @@ function Odometer({
       {/* Suffix character inside its own matching Odometer box */}
       {suffix && (
         <div
-          className="relative flex items-center justify-center rounded-md border border-[#4a566e] bg-gradient-to-b from-[#3a4558] to-[#222936] font-fjalla text-base font-extrabold text-[#00d2ff] shadow-[inset_0_2px_4px_rgba(255,255,255,0.2),inset_0_-3px_6px_rgba(0,0,0,0.8),0_4px_8px_rgba(0,0,0,0.4)] sm:text-2xl md:text-4xl"
+          className="relative flex items-center justify-center rounded-md border border-[#4a566e] bg-gradient-to-b from-[#3a4558] to-[#222936] font-fjalla text-xs font-extrabold text-[#00d2ff] shadow-[inset_0_2px_4px_rgba(255,255,255,0.2),inset_0_-3px_6px_rgba(0,0,0,0.8),0_4px_8px_rgba(0,0,0,0.4)] sm:text-2xl md:text-4xl"
           style={{
             height: HEIGHT,
             width: HEIGHT * 0.75,
@@ -375,7 +376,7 @@ const StatCounter: React.FC<StatProps> = ({ end, text, suffix, subtitle, iconBg,
     >
       {/* Counter pill — centered, constrained to column width */}
       <div className="flex justify-center w-full overflow-hidden">
-        <div className={`${counterBg} rounded-xl px-1 sm:px-3 py-1 sm:py-2 flex items-center shadow-lg max-w-full`}>
+        <div className={`${counterBg} rounded-xl px-0.5 sm:px-3 py-1 sm:py-2 flex items-center shadow-lg max-w-full`}>
           <Odometer value={end} suffix={suffix} start={start} />
         </div>
       </div>

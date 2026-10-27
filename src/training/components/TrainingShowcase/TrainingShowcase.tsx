@@ -39,7 +39,7 @@ const clientLogos = [
 const slides = [
   {
     src: '/corporate/sentgobin.jpeg',
-    caption: 'Sentgobin Corporate Training',
+    caption: 'Saint-Gobain Corporate Training',
   },
   {
     src: '/corporate/hydrabedt.jpeg',

@@ -5,44 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Clock, X } from 'lucide-react';
 
-const reviewPlatforms = [
-    {
-        name: 'Google',
-        subtitle: 'Verified business reviews',
-        url: 'https://g.page/r/CX1XMlbVUiyaEBM/review',
-        rating: 4.8,
-        logo: '/course/rating/google.svg',
-    },
-    {
-        name: 'Google',
-        subtitle: 'TechPratham Hyderabad',
-        url: 'https://www.google.com/search?q=techpratham+hydrabed#lrd=0x3bcb935e06efe581:0x8becca5a3714e3ec,1',
-        rating: 4.9,
-        logo: '/course/rating/google.svg',
-    },
-    {
-        name: 'JustDial',
-        subtitle: 'Near Lemon Tree Hotel',
-        url: 'https://www.justdial.com/Noida/Tech-Pratham-Infront-Of-Lamentree-Hotel-Noida-Sector-1/011PXX11-XX11-250513212543-R3H2_BZDET',
-        rating: 4.9,
-        logo: '/course/rating/justdial.png',
-    },
-    {
-        name: 'AmbitionBox',
-        subtitle: 'Company overview & reviews',
-        url: 'https://www.ambitionbox.com/overview/tech-pratham-overview',
-        rating: 5.0,
-        logo: '/header/ambitionbox.png',
-    },
-    {
-        name: 'HuntBiz',
-        subtitle: 'Business listing reviews',
-        url: 'https://huntbiz.com/listing/techpratham-training-and-development-pvt-ltd',
-        rating: 5.0,
-        logo: null,
-    },
-  
-];
+
 
 interface ReviewImage {
     _id: string;
@@ -335,51 +298,7 @@ const ReviewsSection = () => {
                 )}
             </div>
 
-            {/* 3. Platform ratings (Google, JustDial, AmbitionBox, HuntBiz) */}
-            <div className='w-full h-auto flex flex-col items-center justify-center py-16 gap-10 bg-white text-black'>
-                <div className='md:w-10/12 w-11/12 flex flex-col gap-2 items-center text-center'>
-                    <div className="md:text-3xl text-2xl md:font-semibold font-medium capitalize">
-                        Rated across <span className='bg-gradient-to-tr from-[#FC7A35] to-[#f8da52] text-transparent bg-clip-text font-bold'>trusted platforms</span>
-                    </div>
-                    <div className='md:w-1/2 text-sm w-full'>
-                        See what learners are saying about TechPratham on these platforms.
-                    </div>
-                </div>
-
-                <div className='md:w-11/12 w-11/12 max-w-6xl grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4'>
-                    {reviewPlatforms.map((platform, index) => (
-                        <Link
-                            key={`${platform.name}-${index}`}
-                            href={platform.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className='group flex flex-col items-center justify-center gap-2 bg-white rounded-xl p-4 border border-gray-200 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300'
-                        >
-                            {platform.logo ? (
-                                <div className='relative w-10 h-10'>
-                                    <Image src={platform.logo} alt={platform.name} fill className='object-contain' />
-                                </div>
-                            ) : (
-                                <div className='w-10 h-10 rounded-full bg-gradient-to-tl from-[#C6151D] to-[#600A0E] flex items-center justify-center text-white font-bold text-base'>
-                                    {platform.name.charAt(0)}
-                                </div>
-                            )}
-
-                            <div className='text-sm font-semibold text-gray-800 text-center'>{platform.name}</div>
-                            <div className='text-[10px] text-gray-400 -mt-1 text-center leading-tight'>{platform.subtitle}</div>
-
-                            <div className='flex items-center gap-1'>
-                                <span className='text-lg font-bold text-[#600A0E]'>{platform.rating.toFixed(1)}</span>
-                                <span className='text-yellow-400 text-xs'>★★★★★</span>
-                            </div>
-
-                            <div className='px-3 py-1.5 rounded-full bg-gradient-to-tl from-[#C6151D] to-[#600A0E] text-white text-xs font-semibold group-hover:scale-105 transition-transform duration-300'>
-                                View reviews
-                            </div>
-                        </Link>
-                    ))}
-                </div>
-            </div>
+           
 
             {/* Fullscreen image preview modal */}
             {selectedImage && (
