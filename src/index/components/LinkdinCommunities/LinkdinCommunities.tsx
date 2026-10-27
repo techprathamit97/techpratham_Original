@@ -7,8 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import PhoneInput from '@/components/common/PhoneInput/PhoneInput';
-import { getLeadSource, isGoogleAdsVisitor } from '@/lib/leadSourceDetection';
-import { redirectToThankYou, FORM_TYPES } from '@/lib/thankYouRedirect';
+import { getLeadSource } from '@/lib/leadSourceDetection';
 
 /* ─── TypeScript Interfaces ─── */
 interface CommunityData {
@@ -186,21 +185,12 @@ function CommunityLeadModal({ communityName, linkedinUrl, onClose }: ModalProps)
 
       if (resp.ok) {
         setSubmitSuccess(true);
-        
-        // Redirect to Thank You page and then LinkedIn
+
+        // Redirect straight to the community's LinkedIn page
         setTimeout(() => {
-          redirectToThankYou({
-            formType: FORM_TYPES.COMMUNITY_JOIN,
-            course: communityName,
-            source: source,
-            additionalData: {
-              lead_value: 1,
-              form_location: 'community_modal',
-              linkedin_redirect: linkedinUrl
-            }
-          });
-        }, 1500);
-        
+          window.location.href = linkedinUrl;
+        }, 1200);
+
       } else {
         setError('Submission failed. Please try again.');
       }
