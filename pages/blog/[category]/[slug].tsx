@@ -28,6 +28,7 @@ interface BlogPostWithStatus {
   title: string;
   excerpt: string;
   author: string;
+  aboutAuthor?: string;
   category: string;
   categorySlug: string;
   tags: string[];
@@ -592,7 +593,7 @@ export default function BlogPostPage({ navbarData, post, relatedPosts, isPreview
                 
                 <div className="flex items-center justify-between text-sm text-gray-500 mb-8">
                   <div className="flex items-center gap-4">
-                    <span>By <strong className="text-gray-900">{post.author}</strong></span>
+                   
                     <span>Published {formatDate(post.publishedAt)}</span>
                     {post.lastModified !== post.publishedAt && (
                       <span>Updated {formatDate(post.lastModified)}</span>
@@ -694,6 +695,22 @@ export default function BlogPostPage({ navbarData, post, relatedPosts, isPreview
                     </Button>
                   </div>
                 </div>
+
+                {/* About the Author */}
+                {post.aboutAuthor && post.aboutAuthor.trim() && (
+                  <div className="mt-10 pt-8 border-t author-bio-section">
+                    <div className="flex items-start gap-4 bg-gray-50 rounded-xl p-6">
+                      <div className="flex-shrink-0 w-14 h-14 rounded-full bg-[#FF2E41] text-white flex items-center justify-center text-xl font-bold uppercase">
+                        {post.author?.charAt(0) || 'T'}
+                      </div>
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">About the Author</p>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">{post.author}</h3>
+                        <p className="text-gray-700 leading-relaxed whitespace-pre-line">{post.aboutAuthor}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

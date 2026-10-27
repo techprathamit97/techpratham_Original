@@ -40,6 +40,7 @@ export default function BlogEditor({ mode, initialData, onSave, onCancel }: Blog
     slug: '',
     excerpt: '',
     author: 'TechPratham Team',
+    aboutAuthor: '',
     category: '',
     categorySlug: '',
     tags: [] as string[],
@@ -154,7 +155,7 @@ export default function BlogEditor({ mode, initialData, onSave, onCancel }: Blog
   useEffect(() => {
     if (mode === 'edit' && initialData) {
 
-      setFormData(initialData);
+      setFormData({ aboutAuthor: '', ...initialData });
       
       // Ensure puckData has proper structure
       const puckDataToLoad = initialData.puckData && 
@@ -545,6 +546,17 @@ export default function BlogEditor({ mode, initialData, onSave, onCancel }: Blog
                 <input
                   value={formData.author}
                   onChange={(e) => setFormData(prev => ({ ...prev, author: e.target.value }))}
+                  style={{ width: "100%", marginBottom: "6px", padding: "6px", border: "1px solid #ddd", borderRadius: "4px" }}
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-gray-700">About Author</label>
+                <textarea
+                  value={formData.aboutAuthor}
+                  onChange={(e) => setFormData(prev => ({ ...prev, aboutAuthor: e.target.value }))}
+                  placeholder="Short bio about the author (shown at the end of the blog post)"
+                  rows={3}
                   style={{ width: "100%", marginBottom: "6px", padding: "6px", border: "1px solid #ddd", borderRadius: "4px" }}
                 />
               </div>

@@ -75,6 +75,7 @@ export async function GET(req: Request, context: RouteParams) {
           title: sanityPost.title,
           excerpt,
           author: sanityPost.authorName || "TechPratham Team",
+          aboutAuthor: sanityPost.authorBio || "",
           category: "General Blogs",
           categorySlug: "general-blogs",
           tags: sanityPost.categories || [],
