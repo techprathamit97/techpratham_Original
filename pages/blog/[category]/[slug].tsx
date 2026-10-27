@@ -593,7 +593,7 @@ export default function BlogPostPage({ navbarData, post, relatedPosts, isPreview
                 
                 <div className="flex items-center justify-between text-sm text-gray-500 mb-8">
                   <div className="flex items-center gap-4">
-                   
+                    <span>By <strong className="text-gray-900">{post.author}</strong></span>
                     <span>Published {formatDate(post.publishedAt)}</span>
                     {post.lastModified !== post.publishedAt && (
                       <span>Updated {formatDate(post.lastModified)}</span>
