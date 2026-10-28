@@ -17,19 +17,19 @@ const TrainingPage: NextPage<TrainingPageProps> = ({ navbarData }) => (
         <IndexController navbarData={navbarData}>
             <Head>
                 <link rel="icon" href="/favicon.ico" type="image/ico" sizes="70x70" />
-                <title>TechPratham Corporate Training | Workday, ServiceNow, SAP & AI</title>
-                <meta name="description" content="Explore corporate training in Workday, ServiceNow, SAP and Agentic AI with TechPratham. Discuss practical, role-based learning options for your team." />
-                <meta name="keywords" content="Corporate Training, Workday Training, SAP Training, ServiceNow Training, Agentic AI Training, Employee Upskilling, TechPratham Corporate, Role-based Training, Team Training India" />
+                <title>TechPratham Reviews | Tech Pratham Feedback</title>
+                <meta name="description" content="Read TechPratham reviews and Tech Pratham feedback to explore customer experiences, student opinions, and feedback about TechPratham." />
+                <meta name="keywords" content="TechPratham Reviews, Tech Pratham Feedback, TechPratham Customer Reviews, TechPratham Student Reviews, TechPratham Testimonials, TechPratham Experiences, TechPratham Opinions" />
                 <meta name="author" content="techpratham" />
 
-                <meta property="og:title" content="TechPratham Corporate Training | Workday, ServiceNow, SAP & AI" />
-                <meta property="og:description" content="Explore corporate training in Workday, ServiceNow, SAP and Agentic AI with TechPratham. Discuss practical, role-based learning options for your team." />
+                <meta property="og:title" content="TechPratham Reviews | Tech Pratham Feedback" />
+                <meta property="og:description" content="Read TechPratham reviews and Tech Pratham feedback to explore customer experiences, student opinions, and feedback about TechPratham." />
                 <meta property="og:image" content="/navbar/techpratham.svg" />
-                <meta property="og:url" content="https://www.techpratham.com/corporate-training" />
+                <meta property="og:url" content="https://www.techpratham.com/review" />
 
                 <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:title" content="TechPratham Corporate Training | Workday, ServiceNow, SAP & AI" />
-                <meta name="twitter:description" content="Explore corporate training in Workday, ServiceNow, SAP and Agentic AI with TechPratham. Discuss practical, role-based learning options for your team." />
+                <meta name="twitter:title" content="TechPratham Reviews | Tech Pratham Feedback" />
+                <meta name="twitter:description" content="Read TechPratham reviews and Tech Pratham feedback to explore customer experiences, student opinions, and feedback about TechPratham." />
                 <meta name="twitter:image" content="/navbar/techpratham.svg" />
             </Head>
 
