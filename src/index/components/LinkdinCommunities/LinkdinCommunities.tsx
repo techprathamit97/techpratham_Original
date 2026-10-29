@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { FaLinkedin } from 'react-icons/fa';
 import { ExternalLink, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -189,7 +189,7 @@ function CommunityLeadModal({ communityName, linkedinUrl, onClose }: ModalProps)
         // Redirect straight to the community's LinkedIn page
         setTimeout(() => {
           window.location.href = linkedinUrl;
-        }, 1200);
+        }, 100);
 
       } else {
         setError('Submission failed. Please try again.');
@@ -286,6 +286,54 @@ export default function LinkdinCommunities() {
   // When set, the gated lead form modal is open for this community.
   const [pendingCommunity, setPendingCommunity] = useState<{ name: string; url: string } | null>(null);
 
+  // ── Lazy-load the featured-box background video so it never competes with the
+  //    page's critical resources (LCP/bandwidth). We only attach the <source>
+  //    and start playback once the box is about to enter the viewport. ──
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const featuredRef = useRef<HTMLButtonElement>(null);
+  const [loadVideo, setLoadVideo] = useState(false);
+
+  // Start loading the video only when the featured box nears the viewport.
+  useEffect(() => {
+    const el = featuredRef.current;
+    if (!el || loadVideo) return;
+
+    // No IntersectionObserver support → just load it (progressive enhancement).
+    if (typeof IntersectionObserver === 'undefined') {
+      setLoadVideo(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setLoadVideo(true);
+          observer.disconnect();
+        }
+      },
+      // Preload a little before it scrolls into view for a smooth appearance.
+      { rootMargin: '300px 0px' }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loadVideo]);
+
+  // When we decide to load, tell the video element to pick up the newly-added
+  // <source> and begin fetching (preload="none" means it won't do so on its own).
+  useEffect(() => {
+    if (loadVideo && videoRef.current) videoRef.current.load();
+  }, [loadVideo]);
+
+  // Once the video has decoded its first frame, speed it up and ensure it plays.
+  const handleVideoReady = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.playbackRate = 2;
+    const p = v.play();
+    if (p && typeof p.catch === 'function') p.catch(() => {});
+  };
+
   return (
     <section className="w-full bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50 py-3 md:py-5 px-4 md:px-12">
       <div className="max-w-7xl mx-auto">
@@ -302,6 +350,7 @@ export default function LinkdinCommunities() {
 
           {/* ── Featured big box: Workday community ── */}
           <button
+            ref={featuredRef}
             type="button"
             onClick={() => setPendingCommunity({ name: COMMUNITIES[0].name, url: COMMUNITIES[0].url })}
             aria-label={`Join ${COMMUNITIES[0].name}`}
@@ -309,13 +358,22 @@ export default function LinkdinCommunities() {
                        bg-white shadow-md text-left cursor-pointer transition-all duration-300
                        hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#FF2E41]"
           >
-            {/* background image */}
-            <div
-              className="pointer-events-none absolute inset-0 bg-contain bg-center transition-transform duration-500 group-hover:scale-[1.04]"
-              style={{ backgroundImage: "url('/comunity_icon/linkdingbg2.jpeg')" }}
-            />
+            {/* background video — lazy-loaded; poster shows instantly, no eager fetch */}
+            <video
+              ref={videoRef}
+              className="pointer-events-none absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+              poster="/comunity_icon/linkdingbg2.jpeg"
+              preload="none"
+              loop
+              muted
+              playsInline
+              aria-hidden="true"
+              onLoadedData={handleVideoReady}
+            >
+              {loadVideo && <source src="/comunity_icon/linkdinv.mp4" type="video/mp4" />}
+            </video>
             {/* readability overlay */}
-            <div className="pointer-events-none absolute inset-0 bg-black/30" />
+            {/* <div className="pointer-events-none absolute inset-0 bg-black/30" /> */}
 
             {/* LinkedIn icon top-right */}
             <FaLinkedin className="absolute top-5 right-5 w-7 h-7 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />

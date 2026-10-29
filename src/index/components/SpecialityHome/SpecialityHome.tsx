@@ -62,9 +62,9 @@ const stepData: Step[] = [
       "Deployment exposure",
       "Portfolio creation"
     ],
-    color: 'yellow',
-    baseColor: 'bg-[#F9C966]',
-    gradient: 'from-[#F9C966] to-[#F5B83C]',
+    color: '[#FF2E41]',
+    baseColor: 'bg-[#FF2E41]',
+    gradient: 'from-[#FF2E41]',
   },
   {
     id: 4,
@@ -195,7 +195,8 @@ const ChevronStep: React.FC<{
   );
 };
 
-// Mobile variant: full-width rows stacked vertically that grow in height when tapped.
+// Mobile variant: slanted "chevron" rows (matching the desktop panels) stacked
+// vertically that grow in height when tapped.
 const MobileStep: React.FC<{
   step: Step;
   stepNumber: number;
@@ -207,32 +208,46 @@ const MobileStep: React.FC<{
       onClick={onActivate}
       role="button"
       aria-expanded={isActive}
-      className={`relative w-full rounded-2xl overflow-hidden bg-cover bg-center cursor-pointer transition-[max-height] duration-500 ease-out ${
-        isActive ? 'max-h-[460px]' : 'max-h-[84px]'
+      className={`relative w-full overflow-hidden bg-cover bg-center cursor-pointer transition-[max-height] duration-500 ease-out ${
+        isActive ? 'max-h-[460px] scale-[1.01]' : 'max-h-[76px]'
       }`}
       style={{
         backgroundImage: `url('${step.image}')`,
-        boxShadow: "0 10px 25px -8px rgba(0, 0, 0, 0.6)",
+        // Leaning parallelogram edge — same chevron feel as the desktop panels.
+        clipPath: "polygon(0% 7%, 100% 0%, 100% 93%, 0% 100%)",
+        boxShadow:
+          "0 18px 30px -12px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255,255,255,0.08)",
       }}
     >
       {/* Readability overlay over the photo */}
       <div
-        className={`absolute inset-0 bg-gradient-to-t ${
-          isActive ? 'from-black/80 via-black/40 to-black/60' : 'from-black/70 via-black/30 to-black/55'
+        className={`absolute inset-0 bg-gradient-to-r transition-all duration-500 ${
+          isActive
+            ? 'from-black/85 via-black/45 to-black/25'
+            : 'from-black/75 via-black/55 to-black/45'
         }`}
       />
 
-      {/* Header row (icon + label) — always visible; label hides when expanded */}
-      <div className="relative flex items-center gap-3 h-[84px] px-5">
-       
-        {!isActive && (
-          <span className="font-bold text-lg text-white drop-shadow">{step.label}</span>
-        )}
+      {/* Colored accent bar matching the step's theme color */}
+      <div
+        className={`absolute left-0 top-0 h-full w-[6px] bg-gradient-to-b ${step.gradient}`}
+      />
+
+      {/* Header row (step badge + label) — always visible */}
+      <div className="relative flex items-center gap-3 h-[76px] pl-6 pr-5">
+        <span
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white shadow-md bg-gradient-to-br ${step.gradient}`}
+        >
+          {stepNumber}
+        </span>
+        <span className="font-bold text-base leading-tight text-white drop-shadow">
+          {step.label}
+        </span>
       </div>
 
       {/* Expanded content */}
       <div
-        className={`relative px-5 pb-5 transition-opacity duration-300 ${
+        className={`relative pl-6 pr-6 pb-6 transition-opacity duration-300 ${
           isActive ? 'opacity-100 delay-150' : 'opacity-0 pointer-events-none'
         }`}
       >
@@ -294,7 +309,7 @@ const StaticChevronSteps = () => {
     <div className='w-full flex justify-center'>
     <div className='w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
     <div className="pt-5 text-center flex flex-col items-center">
-  <h2 className="text-2xl md:text-4xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#CD4647] to-[#7F3B40] text-center drop-shadow-md">
+  <h2 className="text-2xl md:text-4xl font-semibold text-transparent bg-clip-text bg-[#FF2E41] text-center drop-shadow-md">
     Placement Process
   </h2>
 

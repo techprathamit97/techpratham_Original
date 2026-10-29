@@ -130,10 +130,10 @@ const IndexPage: NextPage<IndexPageProps> = ({ trendingCourses, groupedCourses, 
   const [showLeadForm, setShowLeadForm] = React.useState(false);
 
   React.useEffect(() => {
-    // Show popup after 10 seconds for all users
+    // Show popup after 15 seconds for all users
     const timer = setTimeout(() => {
       setShowLeadForm(true);
-    }, 10000); // 10 seconds
+    }, 15000); // 15 seconds
 
     return () => clearTimeout(timer);
   }, []);

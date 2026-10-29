@@ -196,7 +196,6 @@ const staticPages = [
   { loc: `${siteUrl}/blog`, priority: "0.80" },
   { loc: `${siteUrl}/payment`, priority: "0.80" },
   { loc: `${siteUrl}/contact-us`, priority: "0.80" },
-  { loc: `${siteUrl}/auth/login`, priority: "0.80" },
   { loc: `${siteUrl}/training-certificate`, priority: "0.80" },
   { loc: `${siteUrl}/courses`, priority: "0.70" },
   { loc: `${siteUrl}/privacy-policy`, priority: "0.80" },
@@ -204,7 +203,7 @@ const staticPages = [
   { loc: `${siteUrl}/refund-cancellation-policy`, priority: "0.80" },
   { loc: `${siteUrl}/admission`, priority: "0.80" },
   { loc: `${siteUrl}/faqs`, priority: "0.80" },
-  { loc: `${siteUrl}/auth/register`, priority: "0.80" },
+  { loc: `${siteUrl}/review`, priority: "0.80" },
   { loc: `${siteUrl}/e-book`, priority: "0.80" },
 ].map((page) => ({
   ...page,
