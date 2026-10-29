@@ -12,6 +12,7 @@ import TrainingFaqs from '../components/TrainingFaqs/TrainingFaqs';
 import TrainingSection from '../components/TrainingSection/TrainingSection';
 import ReachForm from '@/components/common/ReachForm/ReachForm';
 import ToolTip from '@/components/common/ToolTip/ToolTip';
+import Introsection from '../components/Introsection/Introsection';
 
 const TrainingView = () => {
   const { setActiveTab } = useContext(UserContext);
@@ -27,6 +28,7 @@ const TrainingView = () => {
       <ToolTip />
 
       <TrainingHeader />
+      <Introsection/>
 <TrainingShowcase />
       <TrainingIntro />
 

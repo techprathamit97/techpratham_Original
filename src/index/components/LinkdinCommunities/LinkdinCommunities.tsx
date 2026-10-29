@@ -372,7 +372,7 @@ export default function LinkdinCommunities() {
               aria-hidden="true"
               onLoadedData={handleVideoReady}
             >
-              {loadVideo && <source src="/comunity_icon/linkdin.mp4" type="video/mp4" />}
+              {loadVideo && <source src="/comunity_icon/linkdinv.mp4" type="video/mp4" />}
             </video>
             {/* readability overlay */}
             {/* <div className="pointer-events-none absolute inset-0 bg-black/30" /> */}

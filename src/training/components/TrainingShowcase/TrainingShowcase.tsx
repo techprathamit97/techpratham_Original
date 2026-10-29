@@ -5,36 +5,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { LogoCloud } from '@/src/index/components/ClientHome/logo-cloud-3';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/pagination';
-
-const clientLogos = [
-  { src: '/home/client-logo/techmd.png', alt: 'Accenture Logo' },
-  { src: '/home/client-logo/tcsd.jpg', alt: 'AWS Logo' },
-  { src: '/home/client-logo/microshofd.png', alt: 'Capgemini Logo' },
-  { src: '/home/client-logo/download (1).png', alt: 'Deloitte Logo' },
-  { src: '/home/client-logo/genpactd.png', alt: 'Genpact Logo' },
-  { src: '/home/client-logo/deloitted.png', alt: 'HP Logo' },
-  { src: '/home/client-logo/awsd.png', alt: 'Intel Logo' },
-  { src: '/home/client-logo/CapgeminiD.svg', alt: 'Microsoft Logo' },
-  { src: '/home/client-logo/wiprod.png', alt: 'Infosys Logo' },
-  { src: '/home/client-logo/zohod.png', alt: 'Zoho Logo' },
-  { src: '/home/client-logo/zelis.jpg', alt: 'Zelis Logo' },
-  { src: '/home/client-logo/wns.png', alt: 'Wipro Logo' },
-  { src: '/home/client-logo/saintg.png', alt: 'Saint Gobain Logo' },
-  { src: '/home/client-logo/onx.png', alt: 'ONX Logo' },
-  { src: '/home/client-logo/nava.png', alt: 'Nava Logo' },
-  { src: '/home/client-logo/infosysd.png', alt: 'Infosys Logo' },
-  { src: '/home/client-logo/downlohcl.png', alt: 'HCL Logo' },
-  { src: '/home/client-logo/egonzehnderd.png', alt: 'Egon Zehnder Logo' },
-  { src: '/home/client-logo/congnizantd.jpg', alt: 'Cognizant Logo' },
-  { src: '/home/client-logo/bosch.png', alt: 'Bosch Logo' },
-  { src: '/home/client-logo/bankofa.jpg', alt: 'Bank of America Logo' },
-];
 
 const slides = [
   {
@@ -103,7 +78,7 @@ const TrainingShowcase = () => {
   const [current, setCurrent] = useState(0);
 
   return (
-    <section className="w-full flex justify-center py-3">
+    <section className="w-full bg-[#faf6f6] flex justify-center py-3">
       <div className="w-11/12 md:w-10/12 max-w-6xl flex flex-col gap-14">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
         {/* Left: text */}
@@ -203,13 +178,8 @@ const TrainingShowcase = () => {
         </div>
         </div>
 
-        {/* Companies where we've delivered corporate training */}
-        <div className="flex flex-col gap-6 pt-4 border-t border-border">
-          <p className="text-center text-sm font-medium text-gray-500 uppercase tracking-widest">
-            Companies where we&apos;ve already delivered corporate training
-          </p>
-          <LogoCloud logos={clientLogos} />
-        </div>
+
+        
       </div>
     </section>
   );
