@@ -2,14 +2,14 @@
 "use client";
 
 import React, { useState } from 'react';
-import { FaCheckCircle } from 'react-icons/fa'; // Icon for points
+import { FaCheckCircle } from 'react-icons/fa'; 
 
 interface Step {
   id: number;
   title: string;
-  label: string; // short label shown on the collapsed (slim) panel
+  label: string; 
   icon: string;
-  image: string; // background photo for this panel
+  image: string; 
   points: string[];
   color: string;
   baseColor: string;
@@ -116,8 +116,7 @@ const stepData: Step[] = [
   },
 ];
 
-// Helper component for the individual step.
-// `isActive` controls whether it is expanded (full content) or collapsed (slim label).
+
 const ChevronStep: React.FC<{
   step: Step;
   stepNumber: number;

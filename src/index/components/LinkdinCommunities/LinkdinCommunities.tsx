@@ -329,7 +329,7 @@ export default function LinkdinCommunities() {
   const handleVideoReady = () => {
     const v = videoRef.current;
     if (!v) return;
-    v.playbackRate = 2;
+    v.playbackRate = 1.5;
     const p = v.play();
     if (p && typeof p.catch === 'function') p.catch(() => {});
   };
@@ -339,7 +339,9 @@ export default function LinkdinCommunities() {
       <div className="max-w-7xl mx-auto">
         {/* ── Heading ── */}
         <div className="text-center mb-5">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1.5">Our LinkedIn learning hub</h2>
+          <h2 className="text-[#ff2a3b] md:text-3xl text-2xl font-bold">
+         Our LinkedIn learning hub
+        </h2>
           <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
             Explore our professional communities — tap any card to join and connect with us on LinkedIn.
           </p>
@@ -370,7 +372,7 @@ export default function LinkdinCommunities() {
               aria-hidden="true"
               onLoadedData={handleVideoReady}
             >
-              {loadVideo && <source src="/comunity_icon/linkdinv.mp4" type="video/mp4" />}
+              {loadVideo && <source src="/comunity_icon/linkdin.mp4" type="video/mp4" />}
             </video>
             {/* readability overlay */}
             {/* <div className="pointer-events-none absolute inset-0 bg-black/30" /> */}
