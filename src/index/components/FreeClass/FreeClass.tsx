@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import PhoneInput from '@/components/common/PhoneInput/PhoneInput';
+import { useMsg91Otp } from '@/components/common/Msg91Otp/useMsg91Otp';
 import { getLeadSource } from '@/lib/leadSourceDetection';
 
 /* ─── Types ─── */
@@ -243,16 +244,114 @@ function VideoLeadModal({ videoTitle, videoUrl, category, onClose }: VideoModalP
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [error, setError] = useState('');
 
+  /* ─── MSG91 OTP verification state ─── */
+  const { ready: otpReady, sendOtp, verifyOtp, retryOtp } = useMsg91Otp();
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpError, setOtpError] = useState('');
+
+  // The phone must be re-verified whenever it changes.
+  const handlePhoneChange = (phone: string) => {
+    setPhoneNumber(phone);
+    if (otpSent || otpVerified) {
+      setOtpSent(false);
+      setOtpVerified(false);
+      setOtp('');
+      setOtpError('');
+    }
+  };
+
+  const handleSendOtp = async () => {
+    if (!isPhoneValid) { setOtpError('Please enter a valid phone number first.'); return; }
+    if (!otpReady) { setOtpError('OTP service is loading, please try again in a moment.'); return; }
+    setOtpError('');
+    setSendingOtp(true);
+    try {
+      // MSG91 expects the full number with country code and no "+" (e.g. 919876543210).
+      await sendOtp(phoneNumber.replace(/\D/g, ''));
+      setOtpSent(true);
+    } catch (err) {
+      setOtpError(err instanceof Error ? err.message : 'Failed to send OTP. Please try again.');
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setOtpError('');
+    setSendingOtp(true);
+    try {
+      await retryOtp();
+      setOtp('');
+    } catch (err) {
+      setOtpError(err instanceof Error ? err.message : 'Failed to resend OTP. Please try again.');
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (otp.trim().length < 6) { setOtpError('Please enter the 6-digit OTP.'); return; }
+    setOtpError('');
+    setVerifyingOtp(true);
+    try {
+      // 1) Verify the OTP with MSG91 (client) → returns a short-lived access token.
+      //    A successful resolve here means MSG91 has accepted the OTP.
+      const accessToken = await verifyOtp(otp.trim());
+
+      // The phone is now genuinely verified against MSG91 — unlock submission.
+      setOtpVerified(true);
+      setOtpError('');
+
+      // 2) Best-effort server-side confirmation using the secret Auth Key.
+      //    We don't hard-block on this: if it fails (e.g. the Auth Key's IP
+      //    allow-list doesn't include this server, or a transient network
+      //    error), the OTP is still verified by MSG91 above. The failure is
+      //    logged so it can be fixed without locking out real users.
+      try {
+        const resp = await fetch('/api/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accessToken }),
+        });
+        const data = await resp.json().catch(() => null);
+        if (!(resp.ok && data?.verified)) {
+          console.warn('Server-side OTP confirmation did not pass:', data?.message);
+        }
+      } catch (e) {
+        console.warn('Server-side OTP confirmation failed:', e);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : '';
+      // MSG91 returns "OTP already verified" once a code has been accepted.
+      // That means the number is verified, so treat it as success.
+      if (/already\s*verif/i.test(msg)) {
+        setOtpVerified(true);
+        setOtpError('');
+      } else {
+        setOtpError(msg || 'Invalid OTP. Please try again.');
+      }
+    } finally {
+      setVerifyingOtp(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isPhoneValid) { setError('Please enter a valid phone number.'); return; }
+    if (!otpVerified) { setError('Please verify your phone number with the OTP first.'); return; }
     if (!consent) { setError('Please accept the Terms & Conditions.'); return; }
     setError('');
     setSubmitting(true);
 
-    // Open the new tab synchronously (still inside the click gesture) so popup
-    // blockers allow it; we point it at the video once the lead is saved.
-    const videoWindow = window.open('about:blank', '_blank');
+    // Open the video directly within the click gesture. Pointing the new tab
+    // straight at the YouTube URL (instead of opening about:blank and
+    // redirecting after the save) avoids the brief "about:blank" flash in the
+    // address bar. The lead save runs in parallel below.
+    window.open(videoUrl, '_blank', 'noopener,noreferrer');
 
     try {
       const source = getLeadSource();
@@ -267,26 +366,17 @@ function VideoLeadModal({ videoTitle, videoUrl, category, onClose }: VideoModalP
           formType: 'free-tutorial',
           source,
           consent,
+          phoneVerified: true,
         }),
       });
 
       if (resp.ok) {
         setSubmitSuccess(true);
-
-        // Play the video in the new window/tab (fallback if it was blocked).
-        if (videoWindow) {
-          videoWindow.opener = null;
-          videoWindow.location.href = videoUrl;
-        } else {
-          window.open(videoUrl, '_blank', 'noopener,noreferrer');
-        }
         setTimeout(() => onClose(), 400);
       } else {
-        if (videoWindow) videoWindow.close();
         setError('Submission failed. Please try again.');
       }
     } catch {
-      if (videoWindow) videoWindow.close();
       setError('Something went wrong. Please try again.');
     } finally {
       setSubmitting(false);
@@ -319,14 +409,73 @@ function VideoLeadModal({ videoTitle, videoUrl, category, onClose }: VideoModalP
             className="w-full"
           />
 
-          <PhoneInput
-            value={phoneNumber}
-            onChange={(phone) => setPhoneNumber(phone)}
-            onValidationChange={setIsPhoneValid}
-            placeholder="Phone Number*"
-            required
-            size="md"
-          />
+          {/* Phone + OTP verification */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-start gap-2">
+              <div className="flex-1">
+                <PhoneInput
+                  value={phoneNumber}
+                  onChange={handlePhoneChange}
+                  onValidationChange={setIsPhoneValid}
+                  placeholder="Phone Number*"
+                  required
+                  size="md"
+                  disableValidation
+                />
+              </div>
+              {!otpSent && !otpVerified && (
+                <Button
+                  type="button"
+                  onClick={handleSendOtp}
+                  disabled={!isPhoneValid || sendingOtp || !otpReady}
+                  className="h-10 shrink-0 bg-gray-900 hover:bg-gray-800 text-white font-semibold px-4"
+                >
+                  {sendingOtp ? 'Sending…' : 'Send OTP'}
+                </Button>
+              )}
+            </div>
+
+            {/* OTP entry — shown after an OTP has been sent and until verified */}
+            {otpSent && !otpVerified && (
+              <div className="flex items-start gap-2">
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  placeholder="Enter 6-digit OTP"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  className="flex-1 tracking-[0.3em]"
+                />
+                <Button
+                  type="button"
+                  onClick={handleVerifyOtp}
+                  disabled={verifyingOtp || otp.length < 6}
+                  className="h-10 shrink-0 bg-[#DA1E28] hover:bg-[#b5161f] text-white font-semibold px-4"
+                >
+                  {verifyingOtp ? 'Verifying…' : 'Verify'}
+                </Button>
+              </div>
+            )}
+
+            {otpSent && !otpVerified && (
+              <button
+                type="button"
+                onClick={handleResendOtp}
+                disabled={sendingOtp}
+                className="self-start text-xs font-medium text-blue-600 hover:underline disabled:opacity-50"
+              >
+                Didn&apos;t get the code? Resend OTP
+              </button>
+            )}
+
+            {otpVerified && (
+              <p className="text-green-600 text-sm font-medium">✓ Phone number verified</p>
+            )}
+
+            {otpError && <p className="text-red-500 text-sm">{otpError}</p>}
+          </div>
 
           <Input
             type="email"
@@ -361,11 +510,15 @@ function VideoLeadModal({ videoTitle, videoUrl, category, onClose }: VideoModalP
           ) : (
             <Button
               type="submit"
-              disabled={submitting || !isPhoneValid}
+              disabled={submitting || !isPhoneValid || !otpVerified}
               className="w-full bg-[#DA1E28] hover:bg-[#b5161f] text-white font-semibold h-10"
             >
               <FaYoutube className="w-4 h-4 mr-2" />
-              {submitting ? 'Submitting…' : 'Watch now'}
+              {submitting
+                ? 'Submitting…'
+                : otpVerified
+                  ? 'Watch now'
+                  : 'Verify phone to watch'}
             </Button>
           )}
         </form>

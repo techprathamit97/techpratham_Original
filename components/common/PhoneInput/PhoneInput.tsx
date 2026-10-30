@@ -116,6 +116,13 @@ interface PhoneInputProps {
   required?: boolean;
   error?: string;
   size?: 'sm' | 'md' | 'lg';
+  /**
+   * When true, skip the per-country length/format checks and the validation
+   * messages. A number is considered valid as long as some digits are entered
+   * (useful when an external service, e.g. an OTP provider, validates instead).
+   * Opt-in per instance — other forms keep full validation.
+   */
+  disableValidation?: boolean;
 }
 
 const PhoneInput: React.FC<PhoneInputProps> = ({
@@ -126,7 +133,8 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
   className = '',
   required = false,
   error,
-  size = 'md'
+  size = 'md',
+  disableValidation = false
 }) => {
   const [countryCode, setCountryCode] = useState('+91'); // Default to India
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -153,6 +161,17 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
   const validatePhoneNumber = (number: string, code: string) => {
     let valid = true;
     let message = '';
+
+    // Opt-out of length/format validation (e.g. OTP-verified forms): any
+    // non-empty number is accepted; required-but-empty is still invalid.
+    if (disableValidation) {
+      const cleanNumber = number.replace(/\D/g, '');
+      valid = required ? cleanNumber.length > 0 : true;
+      setIsValid(valid);
+      setValidationMessage('');
+      if (onValidationChange) onValidationChange(valid);
+      return valid;
+    }
 
     if (!number || number.trim() === '') {
       if (required) {
@@ -276,14 +295,14 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
       </div>
       
       {/* Validation message */}
-      {!isValid && touched && (validationMessage || error) && (
+      {!disableValidation && !isValid && touched && (validationMessage || error) && (
         <p id="phone-error" className="text-red-500 text-sm mt-1" role="alert">
           {error || validationMessage}
         </p>
       )}
-      
+
       {/* Success indicator */}
-      {isValid && phoneNumber && !error && touched && (
+      {!disableValidation && isValid && phoneNumber && !error && touched && (
         <p className="text-green-500 text-sm mt-1">
           ✓ Valid phone number
         </p>
