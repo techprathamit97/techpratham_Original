@@ -183,7 +183,7 @@ const HeaderSection = ({ course }: any) => {
     }
 
     return (
-        <div className='flex flex-col bg-red-500 items-center justify-center w-full h-auto text-gray-900 relative min-h-[385px] py-2 md:py-5 overflow-hidden'>
+        <div className='flex flex-col items-center justify-center w-full h-auto text-gray-900 relative min-h-[385px] py-2 md:py-5 overflow-hidden'>
 
             {/* Add custom styles for PhoneInput */}
             <style dangerouslySetInnerHTML={{ __html: phoneInputStyles }} />
@@ -193,17 +193,17 @@ const HeaderSection = ({ course }: any) => {
                 fades into white on its left/bottom so it reads as a corner image. */}
             <div className="pointer-events-none absolute inset-0 h-full w-full z-0" aria-hidden="true">
                 <Image
-                    src="/course/ctp.j"
+                    src="/course/test2.png"
                     alt=""
                     fill
                     priority
                     sizes="(max-width: 768px) 100vw, 56vw"
-                    className="object-fill object-center  "
+                    className="object-cover object-center  "
                 />
             </div>
 
             {/* Overlay to improve content readability over the image */}
-            <div className="pointer-events-none absolute inset-0 z-10 bg-black/20" aria-hidden="true" />
+            {/* <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-r from-white/90 via-white/70 to-white/40" aria-hidden="true" /> */}
 
             {/* Main Content Wrapper - Shifted to grid-cols-2 on desktop */}
             <div className="relative md:w-10/12 w-11/12 h-auto grid md:grid-cols-[1.7fr_1fr] grid-cols-1 gap-4 items-center z-20">
