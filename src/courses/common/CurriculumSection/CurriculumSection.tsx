@@ -79,7 +79,7 @@ const PDF_PATHS: Record<string, string> = {
     "/training/Techpratham_ServiceNow_admin_ITSM_course_curriculum.pdf",
 
   "servicenow-it-operations-management-itom-implementation":
-    "/training/TechPratham_ITOM_Content.pdf",
+    "/training/ServiceNow_ITOM_Course_Content.pdf",
 
   "servicenow-itsm-training":
     "/training/Techpratham_ServiceNow_admin_ITSM_course_curriculum.pdf",
