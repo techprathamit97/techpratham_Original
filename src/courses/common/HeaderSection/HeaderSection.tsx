@@ -254,7 +254,7 @@ const HeaderSection = ({ course }: any) => {
                 <div className="w-full max-w-[340px] justify-self-center md:justify-self-end">
                     <form
                         onSubmit={handleSubmit(onSubmit)}
-                        className="bg-[#140d1f]/70 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-[0_0_40px_rgba(255,46,65,0.12)] w-full flex flex-col gap-4 text-gray-100"
+                        className="bg-[#1a1440]/30 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-[0_0_40px_rgba(255,46,65,0.12)] w-full flex flex-col gap-4 text-gray-100"
                     >
                         <div className="text-center mb-2">
                             <h3 className="text-2xl font-bold tracking-wide text-white">Enquire This Course</h3>

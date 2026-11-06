@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Crousel from './crousel'
 import { FileText, Users, BookOpen, MessageCircle } from 'lucide-react';
+import './placementHome.css';
 
 
 interface Props {
@@ -131,21 +132,17 @@ const RightPanel = () => {
 export default function FullPageCarouselLayout({ id }: Props): JSX.Element {
     // const IntroSection  {
     return (
-        // Main container with background styles matching the image
+        // Main container with the dark hexagonal background from the course HeaderSection
         <div id={id}
-            className="relative md:max-h-[500px] w-full md:bg-cover  bg-contain bg-center overflow-hidden"
-            // Placeholder for the repeating logo background style
-            style={{
-                backgroundImage: `url('/home/hero/mainoffice1.webp')`,
-                // backgroundSize: 'cover'
-                backgroundAttachment: "fixed",
-            }}
+            className="hexHome relative md:max-h-[500px] w-full overflow-hidden"
         >
-            {/* <div className="absolute inset-0 bg-black/70  z-0"></div>  */}
-            <div className="absolute inset-0 bg-black/70"></div>
-            {/* <div className="absolute inset-0 z-10 bg-black/70"></div> */}
+            {/* Tiled hexagon (honeycomb) pattern */}
+            <div className="hexHome-hexagons pointer-events-none absolute inset-0 h-full w-full z-0" aria-hidden="true" />
 
-            <div className="relative z-10 border-2 p-1   m-2 flex flex-col items-center justify-start ">
+            {/* Red radial glow */}
+            <div className="hexHome-glow pointer-events-none absolute inset-0 h-full w-full z-0" aria-hidden="true" />
+
+            <div className="relative z-10 border-2 border-white/10 p-1   m-2 flex flex-col items-center justify-start ">
 
                 {/* Main Content Area (Left Panel | Carousel | Right Panel) */}
                 <div className="flex flex-col  lg:flex-row items-center lg:items-stretch justify-center w-full mx-auto">

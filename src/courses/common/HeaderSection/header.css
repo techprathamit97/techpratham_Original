@@ -14,12 +14,29 @@
   background-size: 46px 80px;
 }
 
-/* Red radial glow, top-center */
+/* Red radial glow. A bright hot core with a wider bloom sits behind the
+   enquiry form (right side) for a lit, 3D depth, plus a soft top glow. */
 .hexHeader-glow {
-  background: radial-gradient(
-    60% 55% at 42% 12%,
-    rgba(255, 46, 65, 0.35) 0%,
-    rgba(255, 46, 65, 0.12) 32%,
-    rgba(255, 46, 65, 0) 70%
-  );
+  background:
+    /* bright hot core — the light source, behind the form */
+    radial-gradient(
+      26% 34% at 80% 50%,
+      rgba(255, 150, 160, 0.50) 0%,
+      rgba(255, 70, 90, 0.36) 28%,
+      rgba(255, 46, 65, 0) 70%
+    ),
+    /* main bloom behind the form */
+    radial-gradient(
+      55% 70% at 82% 50%,
+      rgba(255, 46, 65, 0.50) 0%,
+      rgba(255, 46, 65, 0.20) 38%,
+      rgba(255, 46, 65, 0) 76%
+    ),
+    /* soft top glow */
+    radial-gradient(
+      60% 55% at 42% 12%,
+      rgba(255, 46, 65, 0.30) 0%,
+      rgba(255, 46, 65, 0.10) 32%,
+      rgba(255, 46, 65, 0) 70%
+    );
 }
