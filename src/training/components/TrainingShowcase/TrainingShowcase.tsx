@@ -77,11 +77,11 @@ const TrainingShowcase = () => {
   const [current, setCurrent] = useState(0);
 
   return (
-    <section className="w-full bg-[#faf6f6] flex justify-center py-3">
-      <div className="w-11/12 md:w-10/12 max-w-6xl flex flex-col gap-14">
+    <section className="w-full bg-[#faf6f6] flex justify-center py-3 overflow-x-hidden">
+      <div className="w-11/12 md:w-10/12 max-w-6xl flex flex-col gap-14 min-w-0">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
         {/* Left: text */}
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5 min-w-0">
           <span className="px-4 py-1 rounded-full border border-[#FF2E41]/40 bg-[#FF2E41]/5 text-[#FF2E41] uppercase tracking-widest text-xs font-semibold w-fit">
             Where We&apos;ve Delivered
           </span>
@@ -112,7 +112,7 @@ const TrainingShowcase = () => {
         </div>
 
         {/* Right: carousel */}
-        <div className="w-full">
+        <div className="w-full min-w-0">
           <div className="relative w-full max-w-sm mx-auto">
             <Swiper
               modules={[Autoplay, Pagination]}
