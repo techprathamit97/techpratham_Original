@@ -125,7 +125,7 @@ const Footer = () => {
 
           {/* ---- Company ---- */}
           <div className="flex flex-col gap-2">
-            <h3 className="text-gray-900 font-semibold text-base">Company</h3>
+            <h3 className="text-gray-900 font-semibold text-base">Quick Links</h3>
             <ul className="flex flex-col gap-1 text-sm text-gray-700">
               <li><Link href="/about-us" className="hover:text-[#C6151D] hover:underline transition-colors">About Us</Link></li>
               <li><Link href="/contact-us" className="hover:text-[#C6151D] hover:underline transition-colors">Contact Us</Link></li>

@@ -434,7 +434,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
         {/* Pre-allocate space for title to prevent shift */}
                <div className="text-center py-2 ">
         <h2 className="text-[#ff2a3b] md:text-3xl text-2xl font-bold">
-          Explore Our All Courses
+          Explore Our Learning Programs
         </h2>
 
         <svg
@@ -458,19 +458,19 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
               // Loading skeleton with fixed dimensions
               <div className="hidden md:flex gap-2">
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-10 w-32 bg-gray-200 rounded-lg animate-pulse"></div>
+                  <div key={i} className="h-10 w-32  rounded-lg animate-pulse"></div>
                 ))}
               </div>
             ) : (
               <>
                 {/* DESKTOP - HORIZONTAL SCROLLABLE PILL BAR WITH ARROWS */}
-                <div className="hidden md:flex relative items-center border border-[#C6151D] rounded-lg px-9 py-2 bg-[#C6151D]">
+                <div className="hidden md:flex relative items-center border border-[#C6151D] rounded-lg px-9 py-2 bg-[#FF2A3B]">
                   {/* Left arrow */}
                   <button
                     type="button"
                     aria-label="Scroll categories left"
                     onClick={() => desktopCatScrollRef.current?.scrollBy({ left: -240, behavior: 'smooth' })}
-                    className="absolute left-1.5 top-1/2 -translate-y-1/2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-[#ff2a3b] text-white hover:bg-[#c84b52] transition"
+                    className="absolute left-1.5 top-1/2 -translate-y-1/2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-[#1B1445] text-white hover:bg-[#15c668] transition"
                   >
                     <ChevronLeftIcon className="w-4 h-4" />
                   </button>
@@ -485,8 +485,8 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
                         onClick={() => handleCategoryChange(idx)}
                         className={`whitespace-nowrap px-4 border py-1.5 rounded-md text-sm font-medium transition-all shrink-0
                           ${selectedCategoryIdx === idx
-                            ? "bg-[#ff2a3b] text-white"
-                            : "bg-white text-gray-700 hover:text-[#C6151D]"
+                            ? "bg-[#1B1445] text-[#15c668] border-2 border-[#15c668]"
+                            : "bg-[#1B1445] text-white hover:text-[#FF2A3B]"
                           }`}
                       >
                         {cat.name}

@@ -136,7 +136,7 @@ export default function CoursesHome({ initialGroupedCourses }: CoursesViewProps)
     <section ref={sectionRef} className="w-full bg-[#f3f9ff] py-10">
       <div className="max-w-6xl mx-auto px-4">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 md:mb-10 text-center md:text-left">
-          Explore Our All Courses
+          Explore Our Learning Programs
         </h2>
 
         <div className="flex flex-col md:flex-row gap-8">

@@ -54,7 +54,7 @@ const COMMUNITIES: CommunityData[] = [
     category: 'Enterprise software',
   },
   {
-    name: 'MS Dynamics Community',
+    name: 'AI Learner Community',
     tagline: 'PolicyCenter, ClaimCenter & InsuranceSuite',
     description: 'A professional community for Guidewire & Duck Creek learners covering PolicyCenter, ClaimCenter, BillingCenter, Gosu, configurations, integrations and the insurance domain — with live training, project exposure, certification guidance and placement support.',
     logo: '/comunity_icon/workday.png',
@@ -64,7 +64,7 @@ const COMMUNITIES: CommunityData[] = [
     category: 'Enterprise software',
   },
   {
-    name: 'Agentic AI Community',
+    name: 'Guidewire & Duck Creek Learner community',
     tagline: 'LLMs & Agentic AI',
     description: 'Welcome to the TechPratham AI & Generative AI Learning Community a professional platform for aspiring and experienced technology professionals looking to build real-world skills in Artificial Intelligence, Data Science, Machine Learning, and enterprise AI solutions.',
     logo: '/comunity_icon/workday.png',
@@ -84,7 +84,7 @@ const COMMUNITIES: CommunityData[] = [
     category: 'Technology',
   },
   {
-    name: 'Data Analytics Community',
+    name: 'Odoo Learner Community',
     tagline: 'Power BI, Python, SQL & data careers',
     description: 'A learning community for data professionals covering Power BI, Python, SQL, Excel analytics and business intelligence — with live instructor-led sessions, real-world projects, certification preparation and career development support.',
     logo: '/comunity_icon/workday.png',

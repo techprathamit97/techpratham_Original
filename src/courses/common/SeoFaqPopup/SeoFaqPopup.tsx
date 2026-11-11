@@ -7,7 +7,6 @@ interface Props {
   course: any;
 }
 
-// Default SEO FAQs to show when no database content
 const defaultSeoFaqs = [
   {
     que: "Salary Expectations For Freshers Post Completion of Professional Courses",

@@ -68,7 +68,6 @@ const slides = [
 
 const deliverables = [
   'Trusted by enterprises and government organizations',
-  'Programs delivered across Workday, SAP, ServiceNow & AI',
   'Customized to each company’s teams and workflows',
   'On-site and online delivery for teams of any size',
 ];

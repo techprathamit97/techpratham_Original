@@ -344,7 +344,9 @@ export default function AnimatedGenerateButton({
         disabled={disabled}
         onClick={onClick}
        className={clsx(
-  "inline-flex items-center justify-center rounded-xl px-10 py-2 font-medium transition-colors duration-200",
+  "inline-flex items-center justify-center text-center leading-tight max-w-full",
+  "rounded-xl px-2 sm:px-4 md:px-10 py-1.5 md:py-2 font-medium shadow-md transition-colors duration-200",
+  "text-xs md:text-base whitespace-normal md:whitespace-nowrap",
   "focus:outline-none"
 )}
         style={{

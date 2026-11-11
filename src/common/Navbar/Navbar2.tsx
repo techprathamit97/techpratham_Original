@@ -26,9 +26,7 @@ import { usePathname } from 'next/navigation';
 import { NavbarData, NavbarCategory, NavbarCourse } from '@/utils/navbarData';
 import CoursesDropdown from './CoursesDropdown';
 import { EBOOK_GROUPS } from './ebookLinks';
-// import { createPortal } from 'react-dom';
-// Portal branch removed - see comment near the render return. Uncomment if
-// the navbar ever needs to escape a transformed ancestor again.
+
 
 interface UserContextType {
   authenticated: boolean;

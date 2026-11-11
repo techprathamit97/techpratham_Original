@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
 import { CircleCheckBig } from "lucide-react";
 import { CaretUpIcon } from "@radix-ui/react-icons";
@@ -71,6 +71,10 @@ const PDF_COURSES = [
 
   "servicenow-itsm-training",
   "servicenow-admin-certification",
+  "business-analyst-course",
+  "salesforce-developer-certification-training",
+  "salesforce-agentforce",
+  "salesforce-lightning-web-components-training"
 ];
 
 // PDF paths for courses - stored in /training folder
@@ -150,7 +154,14 @@ const PDF_PATHS: Record<string, string> = {
 
   "tosca-testing-training-in-noida":
     "/training/TOSCA.pdf",
-
+  "salesforce-developer-certification-training":
+    "/training/Salesforce_Developer_Course_Curriculum.pdf",
+  "business-analyst-course":
+    "/training/Business_Analyst.pdf",
+"salesforce-agentforce":
+    "/training/Salesforce_Agentforce.pdf",
+  "salesforce-lightning-web-components-training":
+    "/training/Salesforce_Lightning.pdf",
 };
 
 const getPdfUrl = (courselink: string): string => {
@@ -324,6 +335,33 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
     (pdfCourse) => courseSlug.includes(pdfCourse.toLowerCase().replace(/\s+/g, "-")) || pdfCourse.toLowerCase() === courseSlug
   );
 
+  // PERF: Only mount the heavy PDF viewer (pdf.js ~1.4MB + the ~2MB PDF file)
+  // once the curriculum section is near the viewport. This keeps those bytes and
+  // the canvas rendering work off the initial page load, improving LCP/TBT/INP,
+  // while the fixed-height container below prevents any layout shift (CLS).
+  const pdfContainerRef = useRef<HTMLDivElement | null>(null);
+  const [pdfInView, setPdfInView] = useState(false);
+
+  useEffect(() => {
+    if (!shouldShowPdf || pdfInView) return;
+    const node = pdfContainerRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setPdfInView(true);
+          observer.disconnect();
+        }
+      },
+      // Start loading slightly before it scrolls into view so there is no wait.
+      { root: null, rootMargin: "200px", threshold: 0 }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [shouldShowPdf, pdfInView]);
+
   return (
     <section id={id} className="w-full bg-white ">
       <div className="flex justify-center m-2 border-2">
@@ -342,11 +380,17 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
             {shouldShowPdf ? (
               /* PDF VIEWER */
               <div className="bg-[#f7f7f7] rounded-lg p-5 flex flex-col gap-4 h-[500px]">
-                <div className="w-full h-full overflow-y-auto rounded-lg">
-                  <ProtectedPDFViewer
-                    fileUrl={getPdfUrl(course.link)}
-                    maxWidth={900}
-                  />
+                <div ref={pdfContainerRef} className="w-full h-full overflow-y-auto rounded-lg">
+                  {pdfInView ? (
+                    <ProtectedPDFViewer
+                      fileUrl={getPdfUrl(course.link)}
+                      maxWidth={900}
+                    />
+                  ) : (
+                    <div className="py-16 text-center text-sm text-gray-500">
+                      Loading curriculum...
+                    </div>
+                  )}
                 </div>
                 <button
                   type="button"

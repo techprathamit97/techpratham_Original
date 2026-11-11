@@ -38,6 +38,27 @@ const phoneInputStyles = `
     outline: none !important;
     border-color: #ff2e41 !important;
   }
+
+  /* Bright lit gradient border for the enquiry form (matches award card) */
+  .enquire-glow-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 164, 180, 0.95) 0%,
+      rgba(255, 46, 65, 0.85) 35%,
+      rgba(130, 60, 170, 0.55) 68%,
+      rgba(255, 120, 140, 0.9) 100%
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+    z-index: 2;
+  }
 `;
 
 const getPriceByCategory = (category?: string) => {
@@ -254,7 +275,7 @@ const HeaderSection = ({ course }: any) => {
                 <div className="w-full max-w-[340px] justify-self-center md:justify-self-end">
                     <form
                         onSubmit={handleSubmit(onSubmit)}
-                        className="bg-[#1a1440]/30 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-[0_0_40px_rgba(255,46,65,0.12)] w-full flex flex-col gap-4 text-gray-100"
+                        className="enquire-glow-border relative bg-[#1a1440]/30 backdrop-blur-md rounded-2xl p-6 shadow-[0_0_45px_rgba(255,46,65,0.18)] w-full flex flex-col gap-4 text-gray-100"
                     >
                         <div className="text-center mb-2">
                             <h3 className="text-2xl font-bold tracking-wide text-white">Enquire This Course</h3>

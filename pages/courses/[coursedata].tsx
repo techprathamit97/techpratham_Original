@@ -38,6 +38,8 @@ import ContactCourses from '@/src/courses/common/ContactCourses/ContactCourses'
 import VideoSetion from '@/src/courses/common/VideoSetion/VideoSetion'
 import PlacementHome from '@/src/index/components/PlacementHome/PlacementHome';
 import NewsHighlights from '@/src/index/components/News/News';
+import TrainingShowcase from '@/src/training/components/TrainingShowcase/TrainingShowcase';
+import LinkdinCommunities from '@/src/index/components/LinkdinCommunities/LinkdinCommunities';
 
 
 interface Curriculum {
@@ -520,9 +522,11 @@ const safeCourse = {
         <NewComponent id="testimonials" />
        
         <PlacementHome id="placement"/>
+        <TrainingShowcase/>
         <TrainingComparison />
         <FaqSection id="faq" course={course} />
         {/* <OtherCourse course={course} /> */}
+        <LinkdinCommunities/>
          <NewsHighlights/>
       </div>
 {/* <ContactCourses/> */}

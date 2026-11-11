@@ -188,7 +188,7 @@ const FaqSection = ({ id, course }: Props) => {
 
         {/* ================= HEADER ================= */}
         <div className="w-full relative overflow-x-auto mb-4">
-          <div className="flex w-full min-w-[500px] h-14 drop-shadow-2xl">
+          <div className="flex w-full min-w-0 md:min-w-[500px] min-h-14 drop-shadow-2xl">
             {[
               hasFaqs && { label: "FAQ's", key: "faq" as const },
               hasInterview && { label: "INTERVIEW QUESTION'S", key: "interview" as const },
@@ -211,21 +211,19 @@ const FaqSection = ({ id, course }: Props) => {
                           : index === arr.length - 1
                           ? "clip-chevron-end"
                           : "clip-chevron"
-                      } ${
-                        isActive
-                          ? "bg-gradient-to-tl from-[#C6151D] to-[#600A0E]"
-                          : "bg-[#CA8A04]"
-                      }`}
+                      } ${isActive ? "bg-[#FF2A3B]" : "bg-[#1B1445]"}`}
                     />
                     <div
-                      className="relative z-10 h-full flex items-center justify-center px-2 md:px-4 overflow-hidden"
+                      className="relative z-10 h-full flex items-center justify-center px-1 md:px-4"
                       onClick={() => handleHeaderClick(item.key)}
                     >
                       <AnimatedGenerateButton
                         labelIdle={item.label}
                         labelActive={item.label}
                         isActive={isActive}
-                        className="transform scale-60 md:scale-90 max-w-full"
+                        bgColor="#FF2A3B"
+                        activeBgColor="#1B1445"
+                        className="w-full max-w-full scale-[0.8] md:scale-90"
                         onClick={(e: React.MouseEvent) => {
                           e.stopPropagation();
                           handleHeaderClick(item.key);
@@ -245,9 +243,9 @@ const FaqSection = ({ id, course }: Props) => {
           <div className="space-y-2">
 
             {/* FAQ items */}
-            <div className={mobileActive === "faq" ? "block" : "hidden"}>
+            <div className={mobileActive === "faq" ? "block space-y-2" : "hidden"}>
               {faqsToShow.map((item: any, index: number) =>
-                renderFaqItem(item, index, "bg-gray-100")
+                renderFaqItem(item, index, "bg-white")
               )}
               {courseFaqs.length > ITEM_LIMIT && (
                 <button
@@ -260,9 +258,9 @@ const FaqSection = ({ id, course }: Props) => {
             </div>
 
             {/* Interview items */}
-            <div className={mobileActive === "interview" ? "block" : "hidden"}>
+            <div className={mobileActive === "interview" ? "block space-y-2" : "hidden"}>
               {interviewToShow.map((item: any, index: number) =>
-                renderFaqItem(item, index, "bg-gray-100")
+                renderFaqItem(item, index, "bg-white")
               )}
               {interviewFaqs.length > ITEM_LIMIT && (
                 <button
@@ -315,7 +313,7 @@ const FaqSection = ({ id, course }: Props) => {
               {/* Interview panel */}
               <div className={activeTab === "interview" ? "block space-y-2" : "sr-only"}>
                 {interviewToShow.map((item: any, index: number) =>
-                  renderFaqItem(item, index, "bg-gray-100")
+                  renderFaqItem(item, index, "bg-white")
                 )}
                 {interviewFaqs.length > ITEM_LIMIT && (
                   <button
