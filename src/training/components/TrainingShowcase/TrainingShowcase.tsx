@@ -108,16 +108,7 @@ const TrainingShowcase = () => {
             ))}
           </ul>
 
-          <div className="pt-2">
-            <Link href="#enquiry">
-              <Button
-                variant="default"
-                className="h-11 px-7 text-base bg-[#FF2E41] hover:bg-[#E0202F] transition-all duration-200"
-              >
-                Plan a Program
-              </Button>
-            </Link>
-          </div>
+          
         </div>
 
         {/* Right: carousel */}
