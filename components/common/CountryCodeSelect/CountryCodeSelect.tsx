@@ -1,7 +1,10 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+"use client";
 import { Input } from '@/components/ui/input';
 import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
+import { ChevronDown, Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import styles from './CountryCodeSelect.module.css';
 
 // Country codes data with flag URLs
@@ -225,7 +228,14 @@ const CountryCodeSelect: React.FC<CountryCodeSelectProps> = ({
     const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
     const [searchTerm, setSearchTerm] = useState('');
     const [isOpen, setIsOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
+    const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
     const searchInputRef = useRef<HTMLInputElement>(null);
+    const triggerRef = useRef<HTMLButtonElement>(null);
+    const panelRef = useRef<HTMLDivElement>(null);
+
+    // Only render the portal after mount so SSR and first client render match.
+    useEffect(() => setMounted(true), []);
 
     const sizeClasses = {
         sm: 'w-20 p-1 h-8 text-xs',
@@ -242,68 +252,75 @@ const CountryCodeSelect: React.FC<CountryCodeSelectProps> = ({
     // Filter countries based on search term
     const filteredCountries = useMemo(() => {
         if (!searchTerm) return countryCodes;
-        
-        return countryCodes.filter(country => 
-            country.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+
+        const q = searchTerm.toLowerCase();
+        return countryCodes.filter(country =>
+            country.name.toLowerCase().includes(q) ||
             country.code.includes(searchTerm) ||
-            country.shortName.toLowerCase().includes(searchTerm.toLowerCase())
+            country.shortName.toLowerCase().includes(q)
         );
     }, [searchTerm]);
 
     // Find the selected country to display flag and code
     const selectedCountry = countryCodes.find(country => country.code === value);
 
-    const handleValueChange = (newValue: string) => {
+    const handleSelect = (newValue: string) => {
         onValueChange(newValue);
         setSearchTerm('');
         setIsOpen(false);
     };
 
-    const handleOpenChange = (open: boolean) => {
-        setIsOpen(open);
-        if (!open) {
-            setSearchTerm('');
-        } else {
-            // Focus the search input when dropdown opens
-            setTimeout(() => {
-                searchInputRef.current?.focus();
-            }, 50);
-        }
-    };
+    // Position the portalled dropdown under the trigger. A body portal (as the
+    // previous Radix version used) keeps the modal's overflow-hidden from
+    // clipping it; fixed positioning is kept in sync on scroll/resize.
+    const updateCoords = React.useCallback(() => {
+        const el = triggerRef.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const width = Math.min(288, window.innerWidth - 16);
+        let left = rect.left;
+        if (left + width > window.innerWidth - 8) left = window.innerWidth - 8 - width;
+        if (left < 8) left = 8;
+        setCoords({ top: rect.bottom + 4, left, width });
+    }, []);
 
-    // Keep focus on search input and prevent dropdown from closing
     useEffect(() => {
-        if (isOpen && searchInputRef.current) {
-            const input = searchInputRef.current;
-            input.focus();
-            
-            // Prevent the input from losing focus
-            const handleBlur = (e: FocusEvent) => {
-                // Only prevent blur if the new focus target is not within the dropdown
-                const relatedTarget = e.relatedTarget as HTMLElement;
-                if (!relatedTarget || !relatedTarget.closest('[data-radix-select-content]')) {
-                    setTimeout(() => {
-                        if (isOpen && input) {
-                            input.focus();
-                        }
-                    }, 10);
-                }
-            };
-            
-            input.addEventListener('blur', handleBlur);
-            return () => {
-                input.removeEventListener('blur', handleBlur);
-            };
-        }
+        if (!isOpen) return;
+        updateCoords();
+        const onReflow = () => updateCoords();
+        window.addEventListener('scroll', onReflow, true);
+        window.addEventListener('resize', onReflow);
+        return () => {
+            window.removeEventListener('scroll', onReflow, true);
+            window.removeEventListener('resize', onReflow);
+        };
+    }, [isOpen, updateCoords]);
+
+    // Close when tapping/clicking outside the trigger and the dropdown.
+    useEffect(() => {
+        if (!isOpen) return;
+        const onPointerDown = (e: MouseEvent | TouchEvent) => {
+            const target = e.target as Node;
+            if (triggerRef.current?.contains(target)) return;
+            if (panelRef.current?.contains(target)) return;
+            setIsOpen(false);
+            setSearchTerm('');
+        };
+        document.addEventListener('mousedown', onPointerDown);
+        document.addEventListener('touchstart', onPointerDown);
+        return () => {
+            document.removeEventListener('mousedown', onPointerDown);
+            document.removeEventListener('touchstart', onPointerDown);
+        };
     }, [isOpen]);
 
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value);
-        // Keep focus on input after state change
-        setTimeout(() => {
-            searchInputRef.current?.focus();
-        }, 0);
-    };
+    // Focus the search field when the dropdown opens. Crucially nothing steals
+    // focus back while the user types, so the mobile keyboard stays open.
+    useEffect(() => {
+        if (!isOpen) return;
+        const t = setTimeout(() => searchInputRef.current?.focus(), 30);
+        return () => clearTimeout(t);
+    }, [isOpen]);
 
     const handleImageError = (countryCode: string) => {
         setImageErrors(prev => new Set([...prev, countryCode]));
@@ -335,87 +352,99 @@ const CountryCodeSelect: React.FC<CountryCodeSelectProps> = ({
     };
 
     return (
-        <Select value={value} onValueChange={handleValueChange} onOpenChange={handleOpenChange}>
-            <SelectTrigger
+        <>
+            <button
+                ref={triggerRef}
+                type="button"
+                aria-haspopup="listbox"
+                aria-expanded={isOpen}
                 aria-label={`Country code${selectedCountry ? `, selected ${selectedCountry.name} ${selectedCountry.code}` : ''}`}
-                className={`${sizeClasses[size]} ${className}`}
+                onClick={() => setIsOpen((open) => !open)}
+                className={cn(
+                    "flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+                    sizeClasses[size],
+                    className
+                )}
             >
-                <SelectValue>
+                <span className="flex items-center gap-1 overflow-hidden">
                     {selectedCountry && (
-                        <span className="flex items-center gap-1">
+                        <>
                             <FlagDisplay country={selectedCountry} size={size} />
                             <span>{selectedCountry.code}</span>
-                        </span>
+                        </>
                     )}
-                </SelectValue>
-            </SelectTrigger>
-            <SelectContent className="max-h-48 z-[9999]" sideOffset={4} align="start">
-                {/* Search Input */}
-                <div className="p-1 border-b">
-                    <Input
-                        ref={searchInputRef}
-                        placeholder="Search countries..."
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                        className="h-8 text-sm"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                        }}
-                        onKeyDown={(e) => {
-                            e.stopPropagation();
-                            // Prevent Enter from closing dropdown
-                            if (e.key === 'Enter') {
-                                e.preventDefault();
-                            }
-                            // Prevent Escape from closing dropdown when typing
-                            if (e.key === 'Escape' && searchTerm) {
-                                e.preventDefault();
-                                setSearchTerm('');
-                            }
-                        }}
-                        onMouseDown={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                        }}
-                        onFocus={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                        }}
-                        onBlur={(e) => {
-                            e.stopPropagation();
-                        }}
-                        autoComplete="off"
-                        autoFocus={isOpen}
-                    />
-                </div>
-                
-                {/* Country List */}
-                <div className="max-h-32 overflow-y-auto">
-                    {filteredCountries.length > 0 ? (
-                        filteredCountries.map((country, index) => (
-                            <SelectItem 
-                                key={`${country.code}-${country.country}-${index}`} 
-                                value={country.code}
-                                className={size === 'sm' ? 'text-xs' : ''}
-                            >
-                                <span className="flex items-center gap-2">
-                                    <FlagDisplay country={country} size={size} />
-                                    <span>{country.code}</span>
-                                    {size !== 'sm' && (
-                                        <span className="text-gray-500 text-sm">{country.name}</span>
-                                    )}
-                                </span>
-                            </SelectItem>
-                        ))
-                    ) : (
-                        <div className="p-2 text-sm text-gray-500 text-center">
-                            No countries found
-                        </div>
-                    )}
-                </div>
-            </SelectContent>
-        </Select>
+                </span>
+                <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-1" />
+            </button>
+
+            {isOpen && mounted && createPortal(
+                <div
+                    ref={panelRef}
+                    role="listbox"
+                    style={{ position: 'fixed', top: coords.top, left: coords.left, width: coords.width }}
+                    className="z-[99999] rounded-md border bg-popover text-popover-foreground shadow-md"
+                >
+                    {/* Search Input */}
+                    <div className="p-1 border-b">
+                        <Input
+                            ref={searchInputRef}
+                            placeholder="Search countries..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Escape') {
+                                    e.preventDefault();
+                                    if (searchTerm) {
+                                        setSearchTerm('');
+                                    } else {
+                                        setIsOpen(false);
+                                    }
+                                }
+                            }}
+                            className="h-8 text-sm"
+                            autoComplete="off"
+                        />
+                    </div>
+
+                    {/* Country List */}
+                    <div className="max-h-56 overflow-y-auto p-1">
+                        {filteredCountries.length > 0 ? (
+                            filteredCountries.map((country, index) => {
+                                const isSelected = country.code === value;
+                                return (
+                                    <button
+                                        type="button"
+                                        key={`${country.code}-${country.country}-${index}`}
+                                        role="option"
+                                        aria-selected={isSelected}
+                                        onClick={() => handleSelect(country.code)}
+                                        className={cn(
+                                            "relative flex w-full items-center gap-2 rounded-sm py-1.5 pl-2 pr-8 text-left text-sm hover:bg-accent hover:text-accent-foreground",
+                                            isSelected && "bg-accent/60",
+                                            size === 'sm' && "text-xs"
+                                        )}
+                                    >
+                                        <FlagDisplay country={country} size={size} />
+                                        <span>{country.code}</span>
+                                        {size !== 'sm' && (
+                                            <span className="truncate text-gray-500 text-sm">{country.name}</span>
+                                        )}
+                                        {isSelected && (
+                                            <Check className="absolute right-2 h-4 w-4" />
+                                        )}
+                                    </button>
+                                );
+                            })
+                        ) : (
+                            <div className="p-2 text-sm text-gray-500 text-center">
+                                No countries found
+                            </div>
+                        )}
+                    </div>
+                </div>,
+                document.body
+            )}
+        </>
     );
 };
 
