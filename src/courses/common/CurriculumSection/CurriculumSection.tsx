@@ -75,7 +75,8 @@ const PDF_COURSES = [
   "salesforce-developer-certification-training",
   "salesforce-agentforce",
   "salesforce-lightning-web-components-training",
-  "salesforce-administrator-certification-training"
+  "salesforce-administrator-certification-training",
+  "salesforce-training-in-india"
 ];
 
 // PDF paths for courses - stored in /training folder
@@ -165,6 +166,8 @@ const PDF_PATHS: Record<string, string> = {
     "/training/Salesforce_Lightning.pdf",
   "salesforce-administrator-certification-training":
     "/training/Salesforce_Admin.pdf",
+  "salesforce-training-in-india":
+    "/training/Master_in_Salesforce.pdf",
 };
 
 const getPdfUrl = (courselink: string): string => {
