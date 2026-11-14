@@ -49,6 +49,9 @@ const TermsConditions: NextPage<TermsConditionsProps> = ({ navbarData }) => {
                                 The content provided on this website is for general informational purposes only and is
                                 subject to change without prior notice.
                             </li>
+                             <li className='leading-relaxed'>
+                                <strong>Course Fees:</strong>Course fees at TechPratham start from ₹30,000. The actual fee may vary depending on the course, training program, duration, and applicable offerings. The final course fee will be communicated before enrollment.
+                            </li>
                             <li className='leading-relaxed'>
                                 Neither we nor any third parties offer guarantees regarding the accuracy, reliability,
                                 timeliness, or suitability of the materials or information found on this site for any
