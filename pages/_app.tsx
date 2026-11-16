@@ -53,6 +53,17 @@ function MyApp({ Component, pageProps }: AppProps) {
     };
   }, [loadAnalytics]);
 
+  // Open Crisp chat from our own brand-red launcher. Loading Crisp lazily
+  // keeps it off the critical path; the command queue (window.$crisp) accepts
+  // these pushes even before l.js finishes loading.
+  const openChat = () => {
+    setLoadAnalytics(true);
+    const w = window as any;
+    w.$crisp = w.$crisp || [];
+    w.$crisp.push(["do", "chat:show"]);
+    w.$crisp.push(["do", "chat:open"]);
+  };
+
   return (
    <div className={`${maitree.variable} ${montserrat.variable}`}>
       {/* Microsoft Clarity — loaded on first interaction (see loadAnalytics). */}
@@ -98,6 +109,28 @@ function MyApp({ Component, pageProps }: AppProps) {
   `}
       </Script>
       )}
+      {/* Crisp live chat — loaded on first interaction (see loadAnalytics),
+          so it stays off the critical path and does not affect LCP/CLS/TBT. */}
+      {loadAnalytics && (
+      <Script id="crisp-chat" strategy="afterInteractive">
+        {`
+          window.$crisp = window.$crisp || [];
+          window.CRISP_WEBSITE_ID="0693cbed-c94f-4e0b-ac9c-0e5fee9034dc";
+          /* Hide Crisp's default launcher — we open chat from our own button.
+             Re-hide whenever the user closes the chat window. */
+          window.$crisp.push(["do", "chat:hide"]);
+          window.$crisp.push(["on", "chat:closed", function(){
+            window.$crisp.push(["do", "chat:hide"]);
+          }]);
+          (function(){
+            var d=document,s=d.createElement("script");
+            s.src="https://client.crisp.chat/l.js";
+            s.async=1;
+            d.getElementsByTagName("head")[0].appendChild(s);
+          })();
+        `}
+      </Script>
+      )}
       {/* GTM HEAD SCRIPT — loaded on first interaction (see loadAnalytics).
           Previously afterInteractive, which executed the tag manager right
           after hydration and inflated Total Blocking Time. GTM is not needed
@@ -120,6 +153,31 @@ function MyApp({ Component, pageProps }: AppProps) {
           <Component {...pageProps} />
         </UserProvider>
       </SessionProvider>
+
+      {/* Custom "Live Chat" bubble launcher (opens Crisp) */}
+      <button
+        type="button"
+        onClick={openChat}
+        aria-label="Live Chat"
+        className="group fixed md:bottom-[220px] bottom-[60px] right-5 z-[9999] transition-all duration-300 hover:scale-105 active:scale-95"
+      >
+        <span className="relative flex h-[68px] w-[68px] flex-col items-center justify-center rounded-full bg-[#ff2a3b] shadow-[0_8px_22px_rgba(255,42,59,0.45)]">
+          {/* speech-bubble tail */}
+          <span className="absolute -bottom-1 right-3 h-4 w-4 rotate-45 rounded-[3px] bg-[#ff2a3b]" />
+          {/* top row: live dot + Live */}
+          <span className="relative z-10 flex items-center gap-1 leading-none">
+            <span className="relative flex h-2 w-2 items-center justify-center">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-300 opacity-80" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-green-400" />
+            </span>
+            <span className="text-[12px] font-semibold text-[#1B1445]">Live</span>
+          </span>
+          {/* bottom row: Chat */}
+          <span className="relative z-10 mt-0.5 text-[16px] font-extrabold leading-none text-[#1B1445]">
+            Chat
+          </span>
+        </span>
+      </button>
 
       {/* GTM BODY NOSCRIPT */}
       <noscript>

@@ -385,7 +385,7 @@ useEffect(() => {
   if (!hasInteracted) {
     const timer = setTimeout(() => {
       setShowLeadForm(true);
-    }, 1000);
+    }, 15000);
 
     return () => clearTimeout(timer);
   }

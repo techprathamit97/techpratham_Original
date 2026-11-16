@@ -400,7 +400,7 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
                 </div>
                 <button
                   type="button"
-                  className="mt-2 inline-flex items-center justify-center px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-900 transition-colors cursor-pointer"
+                  className="mt-2 inline-flex items-center justify-center px-4 py-2 bg-[#FF2A3B] text-white rounded-lg hover:bg-red-900 transition-colors cursor-pointer"
                   onClick={() => setPdfDialogOpen(true)}
                 >
                   Download Curriculum PDF

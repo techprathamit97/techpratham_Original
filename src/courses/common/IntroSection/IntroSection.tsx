@@ -39,7 +39,7 @@ const IntroSection = ({ id, course }: any) => {
   };
 
   return (
-    <section id={id} className="w-full py-6">
+    <section id={id} className="w-full ">
       <div className="m-2 border-2 border-gray-200 p-4 md:p-6">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 w-full">
 
