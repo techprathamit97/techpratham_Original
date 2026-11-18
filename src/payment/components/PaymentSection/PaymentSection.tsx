@@ -253,19 +253,61 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Image from 'next/image';
 import { getLeadSource } from '@/lib/leadSourceDetection';
+import PhoneInput from '@/components/common/PhoneInput/PhoneInput';
+
+// Razorpay Checkout is loaded via an external script injected on demand.
+declare global {
+    interface Window {
+        Razorpay?: any;
+    }
+}
+
+// Load the Razorpay Checkout script once and resolve when it's ready.
+const loadRazorpayScript = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+        if (typeof window === 'undefined') {
+            resolve(false);
+            return;
+        }
+        if (window.Razorpay) {
+            resolve(true);
+            return;
+        }
+        const existing = document.getElementById('razorpay-checkout-js');
+        if (existing) {
+            existing.addEventListener('load', () => resolve(true));
+            existing.addEventListener('error', () => resolve(false));
+            return;
+        }
+        const script = document.createElement('script');
+        script.id = 'razorpay-checkout-js';
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.async = true;
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
+        document.body.appendChild(script);
+    });
+};
 
 const FormContact = () => {
-    const { register, handleSubmit, reset } = useForm();
+    const { register, handleSubmit, reset, setValue } = useForm();
     const [submitting, setSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState(false);
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [isPhoneValid, setIsPhoneValid] = useState(false);
 
     const onSubmit = async (data: any) => {
+        // Prevent submission if phone (with country code) is invalid
+        if (!isPhoneValid) {
+            return;
+        }
+
         try {
             setSubmitting(true);
-            
+
             // Determine source based on URL parameters
             const source = getLeadSource();
-            
+
             // First, save the lead to database (like other forms)
             const leadResponse = await fetch('/api/leads', {
                 method: 'POST',
@@ -279,11 +321,11 @@ const FormContact = () => {
                     message: `Payment Form Submission:\nAmount: ${data.amount}\nAddress: ${data.city}, ${data.state}, ${data.country} - ${data.pinCode}`,
                 }),
             });
-            
+
             if (!leadResponse.ok) {
                 console.error('Failed to save lead to database');
             }
-            
+
             // Then send email notification (existing functionality)
             const emailResponse = await fetch('/email/payment', {
                 method: 'POST',
@@ -292,7 +334,14 @@ const FormContact = () => {
                 },
                 body: JSON.stringify(data),
             });
-            
+
+            if (!emailResponse.ok) {
+                console.error('Failed to send payment email');
+            }
+
+            /* ---------------------------------------------------------------
+             * PayU integration (disabled — replaced by Razorpay below)
+             * ---------------------------------------------------------------
             if (emailResponse.ok) {
                 setSubmitSuccess(true);
                 // Redirect to PayU payment gateway (existing functionality)
@@ -301,6 +350,96 @@ const FormContact = () => {
             } else {
                 console.error('Failed to send payment email');
             }
+            --------------------------------------------------------------- */
+
+            // ---------------- Razorpay integration ----------------
+            const scriptLoaded = await loadRazorpayScript();
+            if (!scriptLoaded || !window.Razorpay) {
+                alert('Unable to load the payment gateway. Please check your connection and try again.');
+                return;
+            }
+
+            // Create an order on the server.
+            const orderResponse = await fetch('/api/razorpay/create-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: data.amount,
+                    firstname: data.fullName,
+                    email: data.email,
+                    phone: data.phone,
+                    productinfo: data.course,
+                    city: data.city,
+                    state: data.state,
+                    country: data.country,
+                    zipcode: data.pinCode,
+                }),
+            });
+
+            const orderResult = await orderResponse.json();
+
+            if (!orderResult.success) {
+                alert(orderResult.message || 'Failed to initiate payment. Please try again.');
+                return;
+            }
+
+            const options = {
+                key: orderResult.key,
+                amount: orderResult.amount,
+                currency: orderResult.currency,
+                name: 'TechPratham',
+                description: data.course || 'Course Payment',
+                order_id: orderResult.orderId,
+                prefill: {
+                    name: data.fullName,
+                    email: data.email,
+                    contact: data.phone,
+                },
+                notes: {
+                    course: data.course,
+                },
+                theme: { color: '#C6151D' },
+                handler: async (response: any) => {
+                    try {
+                        const verifyResponse = await fetch('/api/razorpay/verify-payment', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                                txnid: orderResult.txnid,
+                            }),
+                        });
+
+                        const verifyResult = await verifyResponse.json();
+
+                        if (verifyResult.success) {
+                            setSubmitSuccess(true);
+                            reset();
+                            setPhoneNumber('');
+                            setIsPhoneValid(false);
+                            window.location.href = `/payment-status?status=success&txnid=${verifyResult.txnid}&amount=${verifyResult.amount ?? data.amount}`;
+                        } else {
+                            window.location.href = `/payment-status?status=failed&txnid=${orderResult.txnid}`;
+                        }
+                    } catch (verifyError) {
+                        console.error('Payment verification error:', verifyError);
+                        window.location.href = `/payment-status?status=error&message=Verification+failed`;
+                    }
+                },
+                modal: {
+                    ondismiss: () => {
+                        setSubmitting(false);
+                    },
+                },
+            };
+
+            const razorpay = new window.Razorpay(options);
+            razorpay.on('payment.failed', () => {
+                window.location.href = `/payment-status?status=failed&txnid=${orderResult.txnid}`;
+            });
+            razorpay.open();
         } catch (error) {
             console.error('Error submitting form:', error);
         } finally {
@@ -387,7 +526,17 @@ const FormContact = () => {
                             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                                 <div className='w-full'>
                                     <label htmlFor='phone' className='block mb-2 text-sm font-semibold text-gray-700'>Phone Number *</label>
-                                    <Input {...register('phone')} type='text' id='phone' name='phone' className='w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200' placeholder='Enter your phone number' required />
+                                    <PhoneInput
+                                        value={phoneNumber}
+                                        onChange={(phone) => {
+                                            setPhoneNumber(phone);
+                                            setValue('phone', phone);
+                                        }}
+                                        onValidationChange={setIsPhoneValid}
+                                        placeholder='Enter your phone number'
+                                        required
+                                        size='lg'
+                                    />
                                 </div>
 
                                 <div className='w-full'>
@@ -427,8 +576,8 @@ const FormContact = () => {
 
                             <Button 
                                 type='submit' 
-                                className='w-full h-12 mt-6 text-lg font-semibold bg-gradient-to-tl from-[#C6151D] to-[#600A0E] hover:from-blue-700 hover:to-purple-700 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200' 
-                                disabled={submitting}
+                                className='w-full h-12 mt-6 text-lg font-semibold bg-gradient-to-tl from-[#C6151D] to-[#600A0E] hover:from-blue-700 hover:to-purple-700 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200'
+                                disabled={submitting || !isPhoneValid}
                             >
                                 {submitting ? (
                                     <div className="flex items-center justify-center">

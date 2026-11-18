@@ -27,7 +27,7 @@ const PrivacyPolicy: NextPage<PrivacyPolicyProps> = ({ navbarData }) => {
                     {/* Introduction */}
                     <div className='mb-8'>
                         <p className='text-gray-700 leading-relaxed text-lg'>
-                            At Tech Pratham, we prioritize the protection of your privacy while delivering exceptional services. 
+                            At Techpratham Training and Development Private Limited, we prioritize the protection of your privacy while delivering exceptional services. 
                             We are committed to safeguarding the privacy, confidentiality, and accuracy of personal information 
                             as per applicable laws. We take all necessary measures to ensure your data remains secure throughout 
                             our operations.
