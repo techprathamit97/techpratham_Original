@@ -25,6 +25,21 @@ const IntroSection = ({ id, course }: any) => {
     ? course.videoLink
     : defaultVideo;
 
+  // Extract the YouTube video id from an embed link so we can show a
+  // lightweight thumbnail image instead of loading the full iframe on page load.
+  const youtubeId = hasYoutubeVideo
+    ? (course.videoLink.match(/embed\/([a-zA-Z0-9_-]{11})/)?.[1] ?? null)
+    : null;
+
+  const youtubeThumbnail = youtubeId
+    ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`
+    : null;
+
+  // Append autoplay using the correct separator (? or &) for the embed URL.
+  const youtubePlayUrl = hasYoutubeVideo
+    ? `${videoUrl}${videoUrl.includes("?") ? "&" : "?"}autoplay=1`
+    : videoUrl;
+
   const handlePlayClick = () => {
     setIsLoading(true);
     setIsPlaying(true);
@@ -80,53 +95,43 @@ const IntroSection = ({ id, course }: any) => {
                   onClick={handlePlayClick}
                 >
 
-                  {hasYoutubeVideo ? (
-
-                    <>
-                      {/* YouTube Preview */}
-                      <iframe
-                        src={`${videoUrl}&autoplay=0`}
-                        className="w-full h-full pointer-events-none"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-
-                      {/* Overlay */}
-                      <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-all duration-300" />
-
-                    </>
-
+                  {/* Thumbnail image only — the actual video (iframe / <video>)
+                      is mounted only after the user clicks play, so nothing
+                      heavy loads with the page. */}
+                  {hasYoutubeVideo && youtubeThumbnail ? (
+                    // YouTube thumbnail (remote) — plain <img> to avoid next/image
+                    // remote-domain config.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={youtubeThumbnail}
+                      alt="Video Thumbnail"
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
                   ) : (
+                    /* Default Thumbnail */
+                    <Image
+                      src="/home/banner/videothumb.webp"
+                      alt="Video Thumbnail"
+                      fill
+                      className="object-cover"
+                    />
+                  )}
 
-                    <>
-                      {/* Default Thumbnail */}
-                      <Image
-                        src="/home/banner/videothumb.webp"
-                        alt="Video Thumbnail"
-                        fill
-                        className="object-cover"
-                      />
+                  {/* Loading Spinner */}
+                  {isLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/70">
+                      <Loader2 className="w-8 h-8 text-white animate-spin" />
+                    </div>
+                  )}
 
-                      {/* Dark Overlay */}
-                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-all duration-300" />
-
-                      {/* Loading Spinner */}
-                      {isLoading && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-                          <Loader2 className="w-8 h-8 text-white animate-spin" />
-                        </div>
-                      )}
-
-                      {/* Play Button */}
-                      {!isLoading && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="bg-white/20 backdrop-blur-md p-4 rounded-full border border-white/40 group-hover:scale-110 transition-all duration-300 shadow-2xl">
-                            <Play className="text-white w-8 h-8 fill-white" />
-                          </div>
-                        </div>
-                      )}
-                    </>
-
+                  {/* Play Button */}
+                  {!isLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="bg-white/20 backdrop-blur-md p-4 rounded-full border border-white/40 group-hover:scale-110 transition-all duration-300 shadow-2xl">
+                        <Play className="text-white w-8 h-8 fill-white" />
+                      </div>
+                    </div>
                   )}
 
                 </div>
@@ -139,7 +144,7 @@ const IntroSection = ({ id, course }: any) => {
                   {hasYoutubeVideo ? (
 
                     <iframe
-                      src={`${videoUrl}&autoplay=1`}
+                      src={youtubePlayUrl}
                       className="w-full h-full"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen

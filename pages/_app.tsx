@@ -154,30 +154,118 @@ function MyApp({ Component, pageProps }: AppProps) {
         </UserProvider>
       </SessionProvider>
 
-      {/* Custom "Live Chat" bubble launcher (opens Crisp) */}
-      <button
-        type="button"
-        onClick={openChat}
-        aria-label="Live Chat"
-        className="group fixed md:bottom-[220px] bottom-[60px] right-5 z-[9999] transition-all duration-300 hover:scale-105 active:scale-95"
-      >
-        <span className="relative flex h-[68px] w-[68px] flex-col items-center justify-center rounded-full bg-[#ff2a3b] shadow-[0_8px_22px_rgba(255,42,59,0.45)]">
-          {/* speech-bubble tail */}
-          <span className="absolute -bottom-1 right-3 h-4 w-4 rotate-45 rounded-[3px] bg-[#ff2a3b]" />
-          {/* top row: live dot + Live */}
-          <span className="relative z-10 flex items-center gap-1 leading-none">
-            <span className="relative flex h-2 w-2 items-center justify-center">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-300 opacity-80" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-green-400" />
+      {/* Custom "Live Chat" launcher (opens Crisp): "Bhavesh is live" pill +
+          a Pulse-Ripple bubble whose red rings ripple outward every second. */}
+      <div className="fixed md:bottom-[220px] bottom-[60px] right-5 z-[9999] flex items-center gap-3">
+        {/* "Bhavesh is live" pill — blinks every 1 second */}
+        <button
+          type="button"
+          onClick={openChat}
+          aria-label="Chat with Bhavesh"
+          className="tp-live-blink flex items-center gap-2 rounded-full bg-[#22c55e] px-4 py-2 text-[13px] font-semibold text-white shadow-[0_6px_18px_rgba(34,197,94,0.45)] transition-transform duration-300 hover:scale-105 active:scale-95"
+        >
+          <span className="relative flex h-2 w-2 items-center justify-center">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-80" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+          </span>
+          Bhavesh is live
+        </button>
+
+        {/* Pulse-Ripple chat bubble */}
+        <button
+          type="button"
+          onClick={openChat}
+          aria-label="Live Chat"
+          className="group relative transition-all duration-300 hover:scale-105 active:scale-95"
+        >
+          {/* ripple rings — expand out from behind the bubble, one per second */}
+          <span className="tp-ripple" />
+          <span className="tp-ripple tp-ripple-2" />
+
+          <span className="relative z-10 flex h-[68px] w-[68px] flex-col items-center justify-center rounded-full bg-[#ff2a3b] shadow-[0_8px_22px_rgba(255,42,59,0.45)]">
+            {/* speech-bubble tail */}
+            <span className="absolute -bottom-1 right-3 h-4 w-4 rotate-45 rounded-[3px] bg-[#ff2a3b]" />
+            {/* top row: live dot + Live */}
+            <span className="relative z-10 flex items-center gap-1 leading-none">
+              <span className="tp-breathe relative flex h-2 w-2 items-center justify-center">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-300 opacity-80" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-400" />
+              </span>
+              <span className="text-[12px] font-semibold text-[#1B1445]">Live</span>
             </span>
-            <span className="text-[12px] font-semibold text-[#1B1445]">Live</span>
+            {/* bottom row: Chat */}
+            <span className="relative z-10 mt-0.5 text-[16px] font-extrabold leading-none text-[#1B1445]">
+              Chat
+            </span>
           </span>
-          {/* bottom row: Chat */}
-          <span className="relative z-10 mt-0.5 text-[16px] font-extrabold leading-none text-[#1B1445]">
-            Chat
-          </span>
-        </span>
-      </button>
+        </button>
+
+        {/* Animations for the Pulse-Ripple launcher only */}
+        <style jsx>{`
+          .tp-ripple {
+            position: absolute;
+            inset: 0;
+            margin: auto;
+            height: 68px;
+            width: 68px;
+            border-radius: 9999px;
+            background: #ff2a3b;
+            z-index: 0;
+            opacity: 0;
+            animation: tp-ripple 2s ease-out infinite;
+          }
+          .tp-ripple-2 {
+            animation-delay: 1s;
+          }
+          @keyframes tp-ripple {
+            0% {
+              transform: scale(1);
+              opacity: 0.55;
+            }
+            100% {
+              transform: scale(2.3);
+              opacity: 0;
+            }
+          }
+          .tp-breathe {
+            animation: tp-breathe 1.5s ease-in-out infinite;
+          }
+          @keyframes tp-breathe {
+            0%,
+            100% {
+              transform: scale(1);
+            }
+            50% {
+              transform: scale(1.4);
+            }
+          }
+          .tp-live-blink {
+            animation: tp-live-blink 1s ease-in-out infinite;
+          }
+          @keyframes tp-live-blink {
+            0%,
+            100% {
+              opacity: 1;
+            }
+            50% {
+              opacity: 0.25;
+            }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .tp-ripple,
+            .tp-breathe,
+            .tp-live-blink {
+              animation: none;
+            }
+            .tp-ripple {
+              opacity: 0;
+            }
+            .tp-live-blink {
+              opacity: 1;
+            }
+          }
+        `}</style>
+      </div>
 
       {/* GTM BODY NOSCRIPT */}
       <noscript>

@@ -76,7 +76,9 @@ const PDF_COURSES = [
   "salesforce-agentforce",
   "salesforce-lightning-web-components-training",
   "salesforce-administrator-certification-training",
-  "salesforce-training-in-india"
+  "salesforce-training-in-india",
+  "oracle-fusion-human-capital-management",
+  "software-testing-using-ai",
 ];
 
 // PDF paths for courses - stored in /training folder
@@ -168,6 +170,10 @@ const PDF_PATHS: Record<string, string> = {
     "/training/Salesforce_Admin.pdf",
   "salesforce-training-in-india":
     "/training/Master_in_Salesforce.pdf",
+  "oracle-fusion-human-capital-management":
+    "/training/Oracle_Fusion_HCM.pdf",
+  "software-testing-using-ai":
+    "/training/AI_Testing_Course.pdf",
 };
 
 const getPdfUrl = (courselink: string): string => {
@@ -348,6 +354,18 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
   const pdfContainerRef = useRef<HTMLDivElement | null>(null);
   const [pdfInView, setPdfInView] = useState(false);
 
+  // Until the PDF has actually finished loading, we show the normal accordion
+  // curriculum (the same content other courses show) so the user sees the
+  // syllabus immediately instead of a blank "Loading..." box. The PDF loads
+  // behind it and, the moment it is ready, replaces the accordion.
+  const [pdfReady, setPdfReady] = useState(false);
+
+  // Switching between courses must bring the accordion fallback back.
+  useEffect(() => {
+    setPdfReady(false);
+    setPdfInView(false);
+  }, [course?.link]);
+
   useEffect(() => {
     if (!shouldShowPdf || pdfInView) return;
     const node = pdfContainerRef.current;
@@ -368,6 +386,106 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
     return () => observer.disconnect();
   }, [shouldShowPdf, pdfInView]);
 
+  // The accordion curriculum list. Shared by the non-PDF courses and by the
+  // fallback shown while a PDF course's document is still loading.
+  const renderCurriculumItems = () =>
+    visibleCurriculum.map((item, index) => (
+      <div key={index} className="flex md:gap-4 gap-2">
+
+        {/* Timeline */}
+        <div className={`flex flex-col items-center ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
+          (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
+          ? "hidden"
+          : ""
+          }`}>
+          <div className="w-3 h-3 bg-[#ff2a3b] rounded-full mt-6" />
+          <Separator orientation="vertical" className="flex-1 bg-[#ff2a3b]" />
+        </div>
+
+        {/* Accordion */}
+        <div
+          {...(!(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
+            (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && {
+            onClick: () => toggle(index)
+          })}
+          className={`w-full rounded-xl py-2 transition-colors duration-200 ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
+            (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
+            ? "bg-gradient-to-tl from-[#C6151D] to-[#600A0E] ml-7 text-white"
+            : "bg-yellow-600 text-black   cursor-pointer px-3"
+            }`}
+        >
+          <div className={`flex items-center ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
+            (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
+            ? "justify-between w-full"
+            : "md:px-3"
+            }`}>
+            {/* Left Arrows for Value Added Learning */}
+            {(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
+              (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
+                <div className="flex items-center w-16 justify-center">
+                  <span className="arrow text-2xl text-orange-200 font-bold">❯</span>
+                  <span className="arrow text-2xl text-orange-200 font-bold">❯</span>
+                  <span className="arrow text-2xl text-orange-200 font-bold">❯</span>
+                </div>
+              )}
+
+            <div
+              className={`text-lg font-semibold transition-colors duration-200 ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
+                (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
+                ? "text-orange-200 pl-3 font-bold text-[17px] text-center flex-1"
+                : "hover:text-white flex-1"
+                }`}
+              dangerouslySetInnerHTML={{ __html: item.que }}
+            />
+
+            {/* Right Arrows for Value Added Learning */}
+            {(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
+              (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
+                <div className="flex items-center w-16 justify-center">
+                  <span className="arrow text-2xl text-orange-200 font-bold">❮</span>
+                  <span className="arrow text-2xl text-orange-200 font-bold">❮</span>
+                  <span className="arrow text-2xl text-orange-200 font-bold">❮</span>
+                </div>
+              )}
+
+            {/* CaretUpIcon - Only for regular questions */}
+            {!(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
+              (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
+                <CaretUpIcon
+                  className={`w-6 h-6 transition-transform duration-300 ml-2 text-white ${selected === index ? "rotate-0" : "rotate-180"
+                    }`}
+                />
+              )}
+          </div>
+
+          {/* CONTENT - Only for regular questions */}
+          {!(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
+            (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
+              <div
+                className={`transition-all duration-500 ease-in-out ${selected === index
+                  ? " opacity-100 mt-4"
+                  : "max-h-0 opacity-0 overflow-hidden"
+                  }`}
+              >
+                <Separator className="mb-4 bg-yellow-600" />
+
+                <div
+                  className="text-sm"
+                  dangerouslySetInnerHTML={{ __html: item.ans }}
+                />
+
+                {item?.topics?.map((topic: string, i: number) => (
+                  <div key={i} className="flex items-center gap-2 mt-2 text-sm">
+                    <CircleCheckBig className="w-4 h-4 text-red-800" />
+                    <span>{topic}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+        </div>
+      </div>
+    ));
+
   return (
     <section id={id} className="w-full bg-white ">
       <div className="flex justify-center m-2 border-2">
@@ -386,15 +504,35 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
             {shouldShowPdf ? (
               /* PDF VIEWER */
               <div className="bg-[#f7f7f7] rounded-lg p-5 flex flex-col gap-4 h-[500px]">
-                <div ref={pdfContainerRef} className="w-full h-full overflow-y-auto rounded-lg">
-                  {pdfInView ? (
-                    <ProtectedPDFViewer
-                      fileUrl={getPdfUrl(course.link)}
-                      maxWidth={900}
-                    />
-                  ) : (
-                    <div className="py-16 text-center text-sm text-gray-500">
-                      Loading curriculum...
+                <div className="relative flex-1 min-h-0">
+                  {/*
+                    The PDF viewer is always mounted (once near the viewport) so
+                    it can load in the background. It stays invisible until it is
+                    ready; keeping it in the layout (opacity, not display:none)
+                    means its width still measures correctly behind the overlay.
+                  */}
+                  <div
+                    ref={pdfContainerRef}
+                    className={`absolute inset-0 w-full h-full overflow-y-auto rounded-lg transition-opacity duration-300 ${pdfReady ? "opacity-100" : "opacity-0 pointer-events-none"
+                      }`}
+                  >
+                    {pdfInView && (
+                      <ProtectedPDFViewer
+                        fileUrl={getPdfUrl(course.link)}
+                        maxWidth={900}
+                        onReady={() => setPdfReady(true)}
+                      />
+                    )}
+                  </div>
+
+                  {/*
+                    Accordion curriculum shown until the PDF has finished
+                    loading, so the syllabus is visible immediately just like on
+                    courses that have no PDF.
+                  */}
+                  {!pdfReady && (
+                    <div className="absolute inset-0 w-full h-full overflow-y-auto rounded-lg bg-[#f7f7f7] p-2 md:p-5 flex flex-col gap-4 [&::-webkit-scrollbar]:hidden">
+                      {renderCurriculumItems()}
                     </div>
                   )}
                 </div>
@@ -510,105 +648,7 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
             ) : (
               /* OLD FORMAT - Accordion */
               <div className="bg-[#f7f7f7] rounded-lg p-2 md:p-5 flex flex-col gap-4 max-h-[450px] overflow-y-auto [&::-webkit-scrollbar]:hidden">
-                {visibleCurriculum.map((item, index) => (
-                  <div key={index} className="flex md:gap-4 gap-2">
-
-                    {/* Timeline */}
-                    <div className={`flex flex-col items-center ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-                      (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
-                      ? "hidden"
-                      : ""
-                      }`}>
-                      <div className="w-3 h-3 bg-[#ff2a3b] rounded-full mt-6" />
-                      <Separator orientation="vertical" className="flex-1 bg-[#ff2a3b]" />
-                    </div>
-
-                    {/* Accordion */}
-                    <div
-                      {...(!(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-                        (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && {
-                        onClick: () => toggle(index)
-                      })}
-                      className={`w-full rounded-xl py-2 transition-colors duration-200 ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-                        (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
-                        ? "bg-gradient-to-tl from-[#C6151D] to-[#600A0E] ml-7 text-white"
-                        : "bg-yellow-600 text-black   cursor-pointer px-3"
-                        }`}
-                    >
-                      <div className={`flex items-center ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-                        (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
-                        ? "justify-between w-full"
-                        : "md:px-3"
-                        }`}>
-                        {/* Left Arrows for Value Added Learning */}
-                        {(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-                          (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
-                            <div className="flex items-center w-16 justify-center">
-                              <span className="arrow text-2xl text-orange-200 font-bold">❯</span>
-                              <span className="arrow text-2xl text-orange-200 font-bold">❯</span>
-                              <span className="arrow text-2xl text-orange-200 font-bold">❯</span>
-                            </div>
-                          )}
-
-                        <div
-                          className={`text-lg font-semibold transition-colors duration-200 ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-                            (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
-                            ? "text-orange-200 pl-3 font-bold text-[17px] text-center flex-1"
-                            : "hover:text-white flex-1"
-                            }`}
-                          dangerouslySetInnerHTML={{ __html: item.que }}
-                        />
-
-                        {/* Right Arrows for Value Added Learning */}
-                        {(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-                          (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
-                            <div className="flex items-center w-16 justify-center">
-                              <span className="arrow text-2xl text-orange-200 font-bold">❮</span>
-                              <span className="arrow text-2xl text-orange-200 font-bold">❮</span>
-                              <span className="arrow text-2xl text-orange-200 font-bold">❮</span>
-                            </div>
-                          )}
-
-                        {/* CaretUpIcon - Only for regular questions */}
-                        {!(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-                          (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
-                            <CaretUpIcon
-                              className={`w-6 h-6 transition-transform duration-300 ml-2 text-white ${selected === index ? "rotate-0" : "rotate-180"
-                                }`}
-                            />
-                          )}
-                      </div>
-
-                      {/* CONTENT - Only for regular questions */}
-                      {!(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-                        (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
-                          <div
-                            className={`transition-all duration-500 ease-in-out ${selected === index
-                              ? " opacity-100 mt-4"
-                              : "max-h-0 opacity-0 overflow-hidden"
-                              }`}
-                          >
-                            <Separator className="mb-4 bg-yellow-600" />
-
-                            <div
-                              className="text-sm"
-                              dangerouslySetInnerHTML={{ __html: item.ans }}
-                            />
-
-                            {item?.topics?.map((topic: string, i: number) => (
-                              <div key={i} className="flex items-center gap-2 mt-2 text-sm">
-                                <CircleCheckBig className="w-4 h-4 text-red-800" />
-                                <span>{topic}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                    </div>
-                  </div>
-                ))}
-
-                {/* SHOW MORE / LESS */}
-
+                {renderCurriculumItems()}
               </div>
             )}
           </div>

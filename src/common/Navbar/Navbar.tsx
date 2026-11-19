@@ -332,7 +332,7 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
 
               <Link href='/about-us' className={navLinkCls('/about-us')}>About Us</Link>
               <Link href='/corporate-training' className={navLinkCls('/corporate-training')}>Corporate Training</Link>
-              <Link href='/blog' className={navLinkCls('/blog')}>Blog</Link>
+              <Link href='/review' className={navLinkCls('/review')}>Reviews</Link>
               <Link href='/payment' className={navLinkCls('/payment')}>Payment</Link>
               <Link href='/contact-us' className={navLinkCls('/contact-us')}>Contact Us</Link>
             </nav>
@@ -492,10 +492,10 @@ const Navbar: React.FC<NavbarProps> = ({ navbarData }) => {
             </Button>
           </Link>
 
-          <Link href='/blog' onClick={handleNavToggle} className="w-full">
+          <Link href='/review' onClick={handleNavToggle} className="w-full">
             <Button variant="outline" className="w-full hover:bg-red-50 hover:text-red-700 hover:border-red-200 transform hover:scale-105 flex items-center gap-2">
               <FileTextIcon className="w-4 h-4" />
-              Blogs
+              Reviews
             </Button>
           </Link>
 

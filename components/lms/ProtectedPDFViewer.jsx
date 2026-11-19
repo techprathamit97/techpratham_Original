@@ -139,6 +139,12 @@ const ProtectedPDFViewer = ({
   blockKeyboardShortcuts = true,
   /** Defaults to a no-op so the inferred type is a function, not null. */
   onLoadError = () => {},
+  /**
+   * Fires once the document is parsed and the first pages are ready to show.
+   * Lets a parent keep a lightweight placeholder visible until then. Defaults
+   * to a no-op so the inferred type is a function, not null.
+   */
+  onReady = () => {},
 }) => {
   const containerRef = useRef(null);
   const docRef = useRef(null);
@@ -151,6 +157,10 @@ const ProtectedPDFViewer = ({
    */
   const onLoadErrorRef = useRef(onLoadError);
   onLoadErrorRef.current = onLoadError;
+
+  /** Held in a ref for the same reason as onLoadError above. */
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
 
   /** Watched by IntersectionObserver to trigger rendering further pages. */
   const sentinelRef = useRef(null);
@@ -236,6 +246,7 @@ const ProtectedPDFViewer = ({
         setPdfDoc(doc);
         setNumPages(doc.numPages);
         setStatus("ready");
+        onReadyRef.current?.();
       } catch (err) {
         if (cancelled) return;
         console.error("PDF load error:", err);
