@@ -78,7 +78,7 @@ const TrainingShowcase = () => {
 
   return (
     <section className="w-full bg-[#faf6f6] flex justify-center py-3 overflow-x-hidden">
-      <div className="w-11/12 md:w-10/12 max-w-6xl flex flex-col gap-14 min-w-0">
+      <div className="w-11/12 max-w-7xl flex flex-col gap-14 min-w-0">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
         {/* Left: text */}
         <div className="flex flex-col gap-5 min-w-0">

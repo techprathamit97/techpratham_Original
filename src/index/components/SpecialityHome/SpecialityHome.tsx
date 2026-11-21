@@ -131,7 +131,7 @@ const ChevronStep: React.FC<{
       tabIndex={0}
       role="button"
       aria-expanded={isActive}
-      className={`relative h-[390px] cursor-pointer outline-none transition-[flex-grow,flex-basis] duration-500 ease-out ${
+      className={`relative h-[440px] cursor-pointer outline-none transition-[flex-grow,flex-basis] duration-500 ease-out ${
         isActive ? 'flex-[6] min-w-[280px]' : 'flex-[1] min-w-[70px]'
       }`}
     >
@@ -275,7 +275,7 @@ const StaticChevronSteps = () => {
 
   // --- DESKTOP VIEW ---
   const DesktopView = (
-    <div className="hidden sm:flex items-center justify-center gap-2 w-full max-w-6xl mx-auto p-8">
+    <div className="hidden sm:flex items-center justify-center gap-2 w-full mx-auto py-8">
       {stepData.map((step, index) => (
         <ChevronStep
           key={step.id}
@@ -306,7 +306,7 @@ const StaticChevronSteps = () => {
   return (
     <>
     <div className='w-full flex justify-center'>
-    <div className='w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+    <div className='mx-auto w-11/12 max-w-7xl p-2 py-5'>
     <div className="pt-5 text-center flex flex-col items-center">
   <h2 className="text-2xl md:text-4xl font-semibold text-transparent bg-clip-text bg-[#FF2E41] text-center drop-shadow-md">
     Placement Process

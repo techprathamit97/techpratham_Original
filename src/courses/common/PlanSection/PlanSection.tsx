@@ -248,7 +248,8 @@ const InfoGraphicSection = ({ id }: any) => {
 
         /* grid */
         .tp-grid {
-          max-width: 1240px;
+          width: 91.666667%; /* matches w-11/12 on other sections */
+          max-width: 80rem; /* matches max-w-7xl (1280px) */
           margin: 0 auto;
           display: grid;
           grid-template-columns: repeat(4, 1fr);

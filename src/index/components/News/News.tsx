@@ -84,12 +84,12 @@ const featuredLogos = [
 
 export default function NewsHighlights() {
   return (
-    <section className="w-full m-2 bg-white">
-      <div className="mx-auto border-2 py-3 ml-2 px-4">
+    <section className="w-full bg-white">
+      <div className="mx-auto w-11/12 max-w-7xl py-3 px-4">
 
         {/* Heading */}
         <div className="text-center mb-3 flex flex-col items-center">
-          <h2 className="text-3xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#CD4647] to-[#7F3B40]">
+          <h2 className="text-3xl md:text-3xl font-semibold text-[#1B1445]">
             News Highlights
           </h2>
 
@@ -102,7 +102,7 @@ export default function NewsHighlights() {
           >
             <path
               d="M0 3 Q170 0 340 3 Q170 6 0 3 Z"
-              fill="#CD4647"
+              fill="#FF2A3B"
             />
           </svg>
         </div>
@@ -134,7 +134,7 @@ export default function NewsHighlights() {
           </div>
 
           {/* CENTER COLUMN - Featured "Featured in" Card */}
-          <div className="bg-[#ff2a3b] rounded-2xl shadow-lg px-6 flex flex-col items-center justify-center">
+          <div className="bg-[#FF2A3B] rounded-2xl shadow-lg px-6 flex flex-col items-center justify-center">
             <h3 className="text-3xl md:text-4xl font-bold text-white mb-2 text-center">
               Featured In
             </h3>

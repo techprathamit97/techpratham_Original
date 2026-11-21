@@ -142,7 +142,7 @@ export default function FullPageCarouselLayout({ id }: Props): JSX.Element {
             {/* Red radial glow */}
             <div className="hexHome-glow pointer-events-none absolute inset-0 h-full w-full z-0" aria-hidden="true" />
 
-            <div className="relative z-10 border-2 border-white/10 p-1   m-2 flex flex-col items-center justify-start ">
+            <div className="relative z-10 border-2 border-white/10 p-1   m-2 mx-auto w-11/12 max-w-7xl flex flex-col items-center justify-start ">
 
                 {/* Main Content Area (Left Panel | Carousel | Right Panel) */}
                 <div className="flex flex-col  lg:flex-row items-center lg:items-stretch justify-center w-full mx-auto">

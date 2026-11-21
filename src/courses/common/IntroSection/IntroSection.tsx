@@ -55,14 +55,14 @@ const IntroSection = ({ id, course }: any) => {
 
   return (
     <section id={id} className="w-full ">
-      <div className="m-2 border-2 border-gray-200 p-4 md:p-6">
+      <div className="m-2 mx-auto w-11/12 max-w-7xl rounded-2xl bg-[#1B1445]/[0.04] p-4 md:p-6">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 w-full">
 
           {/* Left Content */}
           <div className="md:col-span-3 flex flex-col gap-4 w-full">
 
-            <div className="flex items-center gap-3 bg-white md:px-6 px-3 py-2 rounded-md shadow-sm border border-gray-200">
-              <h2 className="text-base md:text-lg font-bold text-gray-800 uppercase">
+            <div className="flex items-center gap-3 bg-[#1B1445] md:px-6 px-3 py-2 rounded-md shadow-sm border border-[#1B1445]">
+              <h2 className="text-base md:text-lg font-bold text-white uppercase">
                 About&nbsp;
                 <span
                   dangerouslySetInnerHTML={{ __html: course.title }}
@@ -70,7 +70,7 @@ const IntroSection = ({ id, course }: any) => {
               </h2>
             </div>
 
-            <div className="w-full md:text-base text-sm text-justify font-normal text-gray-600 rich-text-content">
+            <div className="w-full md:text-base text-sm text-justify font-normal text-[#1B1445]/80 rich-text-content">
               <div
                 dangerouslySetInnerHTML={{ __html: course.description }}
               />

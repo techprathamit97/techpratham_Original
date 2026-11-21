@@ -184,7 +184,7 @@ const FaqSection = ({ id, course }: Props) => {
   return (
     <section id={id} className="w-full bg-[#F3F4F6]">
 
-      <div className="m-2 p-2 border-2">
+      <div className="m-2 mx-auto w-11/12 max-w-7xl p-2">
 
         {/* ================= HEADER ================= */}
         <div className="w-full relative overflow-x-auto mb-4">

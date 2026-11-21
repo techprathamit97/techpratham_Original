@@ -181,7 +181,7 @@ export default function PromoSection({ id, initialEvents = [] }: SectionProps) {
   return (
     <section id={id} className="w-full bg-[#fdfbfb] overflow-hidden">
       <div className="border  py-5 m-2 p-2">
-        <div className="max-w-6xl  mx-auto  px-4">
+        <div className="max-w-7xl  mx-auto  px-4">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-start">
 
             {/* ================= LEFT – VIDEO CONTENT ================= */}
@@ -199,7 +199,7 @@ export default function PromoSection({ id, initialEvents = [] }: SectionProps) {
                 />
               </h2>
 
-              <div className="h-[220px] md:h-[290px] bg-[#b30000] rounded-xl">
+              <div className="h-[460px] md:h-[290px] bg-[#b30000] rounded-xl">
                 {!loading && hasHirings && (
                   <Swiper
                     autoplay={{ delay: 2500 }}
@@ -327,7 +327,7 @@ export default function PromoSection({ id, initialEvents = [] }: SectionProps) {
                 />
               </h2>
 
-              <div className="h-[220px] md:h-[290px] bg-[#b30000] rounded-xl ">
+              <div className="h-[460px] md:h-[290px] bg-[#b30000] rounded-xl ">
                 {!loading && hasHirings && (
                   <Swiper autoplay={{ delay: 2500 }} loop modules={[Autoplay]} className="h-full">
                     {hirings.map((img, index) => (

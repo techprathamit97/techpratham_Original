@@ -29,7 +29,7 @@ const JobRole = ({ course }: any) => {
 
   return (
     <section className="w-full bg-white">
-      <div className=" m-2 p-2 py-5 border-2">
+      <div className="mx-auto w-11/12 max-w-7xl p-2 py-5">
 
         {/* Heading */}
         <div className="text-center mb-5">

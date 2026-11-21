@@ -152,10 +152,11 @@ import { useState } from "react";
 
 interface VideoCard {
   id: number;
-  name: string;
+  number: string;
+  heading: string; // Big white heading on the thumbnail (supports \n for 2 lines)
+  label: string; // Red highlighted label on the thumbnail
+  title: string; // Caption title below the card
   videoUrl: string;
-  description: string;
-  thumbnail?: string; // Optional thumbnail
 }
 
 export default function ReviewCards() {
@@ -166,32 +167,35 @@ export default function ReviewCards() {
     const cards: VideoCard[] = [
         {
             id: 1,
-            name: "Learning Materials",
+            number: "01",
+            heading: "LEARNING",
+            label: "MATERIAL GUIDE",
+            title: "Learning Material Guide",
             videoUrl: "https://content.techpratham.com/study_metrial.mp4",
-            description: "Comprehensive study materials and resources",
-            thumbnail: "/home/banner/learning.webp"
         },
         {
             id: 2,
-            name: "Resume Writing",
+            number: "02",
+            heading: "HOW TO\nMAKE",
+            label: "RESUME",
+            title: "How to Make Resume",
             videoUrl: "https://content.techpratham.com/resume-buidling-session.mp4",
-            description: "Professional resume building session",
-            thumbnail: "/home/banner/resume.webp"
         },
         {
             id: 3,
-            name: "Interview Preparation",
+            number: "03",
+            heading: "INTERVIEW",
+            label: "PREPARATIONS",
+            title: "Interview Preparations",
             videoUrl: "https://content.techpratham.com/interview_preparation.mp4",
-            description: "Master your interview skills",
-            thumbnail: "/home/banner/interview.webp"
         },
         {
             id: 4,
-            name: "Live Project Demo",
+            number: "04",
+            heading: "REAL\nWORLD",
+            label: "PROJECT GUIDE",
+            title: "Real World Project Guide",
             videoUrl: "https://content.techpratham.com/live_project_demonstration.mp4",
-            description: "Real-world project demonstrations",
-            thumbnail: "/home/banner/videLiveProject.webp"
-            // No thumbnail for 4th video
         },
     ];
 
@@ -211,11 +215,11 @@ export default function ReviewCards() {
 
     return (
         <>
-            <section className="w-full bg-[#f7f7f7]">
-                <div className="m-2 p-2 py-5 border-2">
+            <section className="w-full bg-white">
+                <div className="mx-auto w-11/12 max-w-7xl p-2 py-8">
                     {/* Heading */}
-                    <div className="text-center mb-5 flex flex-col items-center">
-                        <h2 className="text-3xl md:text-3xl font-semibold text-transparent bg-clip-text bg-[#ff2a3b]">
+                    <div className="text-center mb-8 flex flex-col items-center">
+                        <h2 className="text-3xl md:text-4xl font-extrabold text-[#ff2a3b]">
                             Additional Program Highlights
                         </h2>
 
@@ -228,55 +232,79 @@ export default function ReviewCards() {
                         >
                             <path
                                 d="M0 3 Q170 0 340 3 Q170 6 0 3 Z"
-                                fill="#CD4647"
+                                fill="#ff2a3b"
                             />
                         </svg>
                     </div>
 
-                    {/* Video Cards */}
-                    <div className="flex flex-wrap gap-6 justify-center px-4">
+                    {/* Video Cards - horizontal scroll on mobile, 4-up grid on desktop */}
+                    <div className="flex md:grid md:grid-cols-4 gap-5 md:gap-6 overflow-x-auto md:overflow-visible px-4 pb-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden">
                         {cards.map((card) => (
                             <div
                                 key={card.id}
-                                className="relative w-[270px] h-[170px] rounded-xl overflow-hidden shadow-lg cursor-pointer group transform transition-all duration-300 hover:scale-105"
-                                onClick={() => handleVideoClick(card.videoUrl)}
+                                className="flex-shrink-0 w-[260px] md:w-auto snap-start flex flex-col"
                             >
-                                {/* Thumbnail Image or Video Preview */}
-                                {card.thumbnail ? (
-                                    // Use thumbnail image for first 3 videos
-                                    <img
-                                        src={card.thumbnail}
-                                        alt={card.name}
-                                        className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
-                                    />
-                                ) : (
-                                    // Use video frame for 4th video (no thumbnail)
-                                    <video
-                                        src={card.videoUrl}
-                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                                        muted
-                                        preload="metadata"
-                                    />
-                                )}
+                                {/* Designed thumbnail (no image files) */}
+                                <div
+                                    onClick={() => handleVideoClick(card.videoUrl)}
+                                    className="group relative w-full aspect-[16/9] rounded-xl overflow-hidden border-2 border-[#ff2a3b] bg-[#1b1340] cursor-pointer shadow-md transition-transform duration-300 hover:scale-[1.03] hover:shadow-xl"
+                                >
+                                    {/* Red diagonal stripe */}
+                                    <div className="absolute top-0 right-[-30px] h-full w-[55%] bg-[#ff2a3b] -skew-x-12" />
 
-                                {/* Gradient Overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent group-hover:from-black/80 transition-all duration-300" />
+                                    {/* Navy arch sitting on the red */}
+                                    <div className="absolute bottom-0 right-6 w-[70px] h-[82px] bg-[#1b1340] rounded-t-full" />
 
-                                {/* Play Button - Moved down */}
-                                <div className="absolute inset-0 flex items-center justify-center mt-8">
-                                    <div className="bg-white/20 backdrop-blur-md p-4 rounded-full border border-white/40 group-hover:scale-110 group-hover:bg-white/30 transition-all duration-300 shadow-2xl">
-                                        <Play className="text-white w-8 h-8 fill-white" />
+                                    {/* Logo */}
+                                    <div className="absolute top-3 left-3 flex items-center gap-1.5 z-10">
+                                        <span className="bg-white text-[#1b1340] text-[9px] font-extrabold rounded px-1 py-0.5 leading-none">
+                                            tp
+                                        </span>
+                                        <span className="text-white text-[11px] font-medium tracking-wide">
+                                            tech pratham
+                                        </span>
+                                    </div>
+
+                                    {/* Title + red label */}
+                                    <div className="absolute top-11 left-3 right-[38%] z-10">
+                                        <h3 className="text-white font-extrabold text-lg leading-[1.1] uppercase whitespace-pre-line">
+                                            {card.heading}
+                                        </h3>
+                                        <span className="inline-block bg-[#ff2a3b] text-white text-[11px] font-bold px-2 py-1 mt-2 uppercase tracking-wide">
+                                            {card.label}
+                                        </span>
+                                    </div>
+
+                                    {/* Dots */}
+                                    <div className="absolute bottom-3 left-3 flex gap-1.5 z-10">
+                                        {[0, 1, 2, 3].map((d) => (
+                                            <span key={d} className="w-1.5 h-1.5 rounded-full bg-white/50" />
+                                        ))}
+                                    </div>
+
+                                    {/* Play button */}
+                                    <div className="absolute inset-0 flex items-center justify-center z-20">
+                                        <div className="relative">
+                                            <div className="absolute inset-0 rounded-full bg-[#1b1340]/40 blur-md scale-150" />
+                                            <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-white to-gray-300 flex items-center justify-center shadow-xl transition-transform duration-300 group-hover:scale-110">
+                                                <Play className="w-6 h-6 text-[#ff2a3b] fill-[#ff2a3b] ml-0.5" />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Video Info - Removed name, kept only description */}
-                                <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
-                                    <p className="text-xs text-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        {card.description}
-                                    </p>
+                                {/* Caption */}
+                                <div className="text-center mt-3">
+                                    <p className="text-[#ff2a3b] font-bold italic text-lg">{card.number}</p>
+                                    <h4 className="text-[#1b1340] font-bold text-base mt-0.5">{card.title}</h4>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleVideoClick(card.videoUrl)}
+                                        className="text-[#ff2a3b] italic text-sm font-medium mt-1 hover:underline cursor-pointer"
+                                    >
+                                        Watch Now →
+                                    </button>
                                 </div>
-
-                               
                             </div>
                         ))}
                     </div>

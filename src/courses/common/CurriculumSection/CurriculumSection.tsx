@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
-import { CircleCheckBig } from "lucide-react";
 import { CaretUpIcon } from "@radix-ui/react-icons";
-import { Separator } from "@/components/ui/separator";
 import CourseCard from "./CourseCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -389,116 +387,123 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
   // The accordion curriculum list. Shared by the non-PDF courses and by the
   // fallback shown while a PDF course's document is still loading.
   const renderCurriculumItems = () =>
-    visibleCurriculum.map((item, index) => (
-      <div key={index} className="flex md:gap-4 gap-2">
+    visibleCurriculum.map((item, index) => {
+      const q = item.que.toLowerCase();
+      const isValueAdded =
+        q.includes("value added learning with extra module recordings") ||
+        (q.includes("value") && q.includes("added") && q.includes("learning"));
 
-        {/* Timeline */}
-        <div className={`flex flex-col items-center ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-          (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
-          ? "hidden"
-          : ""
-          }`}>
-          <div className="w-3 h-3 bg-[#ff2a3b] rounded-full mt-6" />
-          <Separator orientation="vertical" className="flex-1 bg-[#ff2a3b]" />
-        </div>
+      const isOpen = selected === index;
+      const number = String(index + 1).padStart(2, "0");
 
-        {/* Accordion */}
-        <div
-          {...(!(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-            (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && {
-            onClick: () => toggle(index)
-          })}
-          className={`w-full rounded-xl py-2 transition-colors duration-200 ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-            (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
-            ? "bg-gradient-to-tl from-[#C6151D] to-[#600A0E] ml-7 text-white"
-            : "bg-yellow-600 text-black   cursor-pointer px-3"
-            }`}
-        >
-          <div className={`flex items-center ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-            (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
-            ? "justify-between w-full"
-            : "md:px-3"
-            }`}>
-            {/* Left Arrows for Value Added Learning */}
-            {(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-              (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
-                <div className="flex items-center w-16 justify-center">
-                  <span className="arrow text-2xl text-orange-200 font-bold">❯</span>
-                  <span className="arrow text-2xl text-orange-200 font-bold">❯</span>
-                  <span className="arrow text-2xl text-orange-200 font-bold">❯</span>
-                </div>
-              )}
-
-            <div
-              className={`text-lg font-semibold transition-colors duration-200 ${item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-                (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))
-                ? "text-orange-200 pl-3 font-bold text-[17px] text-center flex-1"
-                : "hover:text-white flex-1"
-                }`}
-              dangerouslySetInnerHTML={{ __html: item.que }}
-            />
-
-            {/* Right Arrows for Value Added Learning */}
-            {(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-              (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
-                <div className="flex items-center w-16 justify-center">
-                  <span className="arrow text-2xl text-orange-200 font-bold">❮</span>
-                  <span className="arrow text-2xl text-orange-200 font-bold">❮</span>
-                  <span className="arrow text-2xl text-orange-200 font-bold">❮</span>
-                </div>
-              )}
-
-            {/* CaretUpIcon - Only for regular questions */}
-            {!(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-              (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
-                <CaretUpIcon
-                  className={`w-6 h-6 transition-transform duration-300 ml-2 text-white ${selected === index ? "rotate-0" : "rotate-180"
-                    }`}
-                />
-              )}
-          </div>
-
-          {/* CONTENT - Only for regular questions */}
-          {!(item.que.toLowerCase().includes("value added learning with extra module recordings") ||
-            (item.que.toLowerCase().includes("value") && item.que.toLowerCase().includes("added") && item.que.toLowerCase().includes("learning"))) && (
+      // Special "Value Added Learning" banner — kept exactly as before,
+      // only restyled to sit inside the new card stack.
+      if (isValueAdded) {
+        return (
+          <div key={index} className="curr-item">
+            <div className="relative overflow-hidden rounded-xl bg-gradient-to-tl from-[#C6151D] to-[#600A0E] text-white flex items-center justify-between px-2 py-3 shadow-md">
+              <div className="flex items-center w-16 justify-center">
+                <span className="arrow text-2xl text-orange-200 font-bold">❯</span>
+                <span className="arrow text-2xl text-orange-200 font-bold">❯</span>
+                <span className="arrow text-2xl text-orange-200 font-bold">❯</span>
+              </div>
               <div
-                className={`transition-all duration-500 ease-in-out ${selected === index
-                  ? " opacity-100 mt-4"
-                  : "max-h-0 opacity-0 overflow-hidden"
+                className="text-orange-200 pl-3 font-bold text-[17px] text-center flex-1"
+                dangerouslySetInnerHTML={{ __html: item.que }}
+              />
+              <div className="flex items-center w-16 justify-center">
+                <span className="arrow text-2xl text-orange-200 font-bold">❮</span>
+                <span className="arrow text-2xl text-orange-200 font-bold">❮</span>
+                <span className="arrow text-2xl text-orange-200 font-bold">❮</span>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div
+          key={index}
+          className="curr-item mb-1.5"
+          style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
+        >
+          <div className="rounded-2xl overflow-hidden border-2 border-[#1b1340] bg-white shadow-[0_5px_0_0_#1b1340] transition-all duration-300">
+            {/* Header row */}
+            <button
+              type="button"
+              onClick={() => toggle(index)}
+              className={`w-full flex items-center gap-3 px-3 py-3 text-left transition-colors duration-300 cursor-pointer ${isOpen
+                ? "bg-[#ff2a3b] text-white"
+                : "bg-white text-[#1b1340] hover:bg-[#f3f1fb]"
+                }`}
+            >
+              {/* Number badge */}
+              <span
+                className={`shrink-0 inline-flex items-center justify-center min-w-[40px] h-8 px-1.5 rounded-md text-sm font-bold tracking-wider border-2 transition-colors duration-300 ${isOpen
+                  ? "bg-white text-[#ff2a3b] border-white"
+                  : "bg-white text-[#1b1340] border-[#1b1340]"
                   }`}
               >
-                <Separator className="mb-4 bg-yellow-600" />
+                {number}
+              </span>
 
-                <div
-                  className="text-sm"
-                  dangerouslySetInnerHTML={{ __html: item.ans }}
-                />
+              <span
+                className="flex-1 text-[15px] md:text-base font-bold leading-snug"
+                dangerouslySetInnerHTML={{ __html: item.que }}
+              />
 
-                {item?.topics?.map((topic: string, i: number) => (
-                  <div key={i} className="flex items-center gap-2 mt-2 text-sm">
-                    <CircleCheckBig className="w-4 h-4 text-red-800" />
-                    <span>{topic}</span>
-                  </div>
-                ))}
+              <CaretUpIcon
+                className={`w-5 h-5 shrink-0 transition-transform duration-300 ${isOpen ? "rotate-0" : "rotate-180"
+                  }`}
+              />
+            </button>
+
+            {/* Collapsible content */}
+            <div
+              className={`grid bg-white transition-all duration-500 ease-in-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                }`}
+            >
+              <div className="overflow-hidden">
+                <div className="curr-content px-4 py-4 text-sm text-[#1b1340] leading-relaxed border-t-2 border-[#1b1340]">
+                  <div dangerouslySetInnerHTML={{ __html: item.ans }} />
+
+                  {item?.topics?.map((topic: string, i: number) => (
+                    <div
+                      key={i}
+                      className="flex items-start gap-2 mt-2.5 text-sm text-[#1b1340]"
+                    >
+                      <span className="text-[#ff2a3b] mt-0.5 leading-none">◆</span>
+                      <span>{topic}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            )}
+            </div>
+          </div>
         </div>
-      </div>
-    ));
+      );
+    });
 
   return (
-    <section id={id} className="w-full bg-white ">
-      <div className="flex justify-center m-2 border-2">
+    <section id={id} className="w-full bg-[#f1f3f9] ">
+      <div className="flex flex-col items-center m-2 py-8">
+
+        {/* Centered section heading */}
+        <div className="w-11/12 max-w-7xl">
+          <h2
+            className="text-xl md:text-3xl font-extrabold text-[#1b1340] leading-tight text-center mb-6"
+            dangerouslySetInnerHTML={{
+              __html: shouldShowPdf
+                ? "Course Curriculum"
+                : (course.curriculumTitle || `${course.title} Course Curriculum`),
+            }}
+          />
+        </div>
+
         <div className="w-11/12 max-w-7xl grid grid-cols-1 lg:grid-cols-5 gap-8">
 
           {/* LEFT SIDE */}
-          <div className="lg:col-span-3 flex flex-col gap-2">
-
-            <div className="text-center flex flex-col mt-3 items-left">
-              <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-[#ff2a3b]">
-                {shouldShowPdf ? "Course Curriculum" : (course.curriculumTitle || `${course.title} Course Curriculum`)}
-              </h2>
-            </div>
+          <div className="lg:col-span-3 flex flex-col gap-3">
 
             {/* CONDITIONAL RENDER: PDF for special courses, Accordion for others */}
             {shouldShowPdf ? (
@@ -654,7 +659,7 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
           </div>
 
           {/* RIGHT SIDE */}
-          <div className="lg:col-span-2 flex flex-col md:mt-12 gap-4">
+          <div className="lg:col-span-2 flex flex-col  gap-4">
             <h3 className="text-lg font-semibold text-[#ff2a3b]">
               {course.category} Courses
             </h3>
@@ -664,8 +669,8 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
                 <p className="text-sm text-gray-500">No related courses found</p>
               )}
 
-              {relatedCourses.map((c) => (
-                <CourseCard key={c._id} course={c} />
+              {relatedCourses.map((c, i) => (
+                <CourseCard key={c._id} course={c} index={i} />
               ))}
             </div>
           </div>
@@ -679,6 +684,39 @@ export default function CurriculumSection({ id, course }: { id?: string; course:
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
+        }
+
+        /* Staggered entrance for each curriculum card */
+        .curr-item {
+          animation: currFadeUp 0.5s ease both;
+        }
+        @keyframes currFadeUp {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Red diamond bullets for the HTML answer lists (matches design) */
+        .curr-content :global(ul) {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+        }
+        .curr-content :global(ul li) {
+          position: relative;
+          padding-left: 1.25rem;
+          margin-bottom: 0.4rem;
+        }
+        .curr-content :global(ul li::before) {
+          content: "◆";
+          position: absolute;
+          left: 0;
+          top: 0;
+          color: #ff2a3b;
+          font-size: 0.8em;
+          line-height: 1.6;
+        }
+        .curr-content :global(p) {
+          margin-bottom: 0.4rem;
         }
         .arrow {
           animation: moveArrow 1.5s linear infinite;

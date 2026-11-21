@@ -527,53 +527,26 @@ const gridCols =
     : "lg:grid-cols-4";
 
   return (
-    <section id={id} className="w-full bg-[#f7f7f7]">
-      <div className=" border-2 m-2 p-2">
+    <section id={id} className="w-full bg-[#f3f4f8]">
+      <div className="mx-auto w-11/12 max-w-7xl p-2 py-12">
 
         {/* ===== HEADING ===== */}
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 pb-5">
+        <div className="mb-10 rounded-xl border border-[#c7d2fe] bg-white px-6 py-6 md:px-8">
+          <p className="text-xs md:text-sm font-bold uppercase tracking-[0.15em] text-[#C6151D]">
+            Key Projects
+          </p>
 
-          {/* LEFT HEADING - Static "Key Projects" */}
-          <div className="flex flex-col md:items-start items-center">
-            <h2 className="text-3xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#CD4647] to-[#7F3B40]">
-              Key Projects
-            </h2>
+          <h2 className="mt-2 text-2xl md:text-4xl font-extrabold text-[#1b1b3e] leading-tight">
+            {course.projectTitle || course?.title}
+          </h2>
 
-            <svg
-              className="mt-1"
-              width="210"
-              height="6"
-              viewBox="0 0 340 6"
-              preserveAspectRatio="none"
-            >
-              <path
-                d="M0 3 Q170 0 340 3 Q170 6 0 3 Z"
-                fill="#CD4647"
-              />
-            </svg>
-          </div>
+          <div className="mt-3 h-[5px] w-24 rounded-full bg-[#C6151D]" />
 
-          {/* RIGHT HEADING - Dynamic projectTitle or course title */}
-          <div className="flex flex-col items-center md:items-center">
-            <h2 className="text-xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#CD4647] to-[#7F3B40] text-center">
-              {course.projectTitle || course?.title}
-            </h2>
-
-            <svg
-              className="mt-2"
-              width="310"
-              height="6"
-              viewBox="0 0 340 6"
-              preserveAspectRatio="none"
-            >
-              <path
-                d="M0 3 Q170 0 340 3 Q170 6 0 3 Z"
-                fill="#CD4647"
-              />
-            </svg>
-          </div>
-
-
+          {course?.projectSubtitle && (
+            <p className="mt-4 text-sm md:text-base text-[#4b5563]">
+              {course.projectSubtitle}
+            </p>
+          )}
         </div>
 
 
@@ -587,49 +560,61 @@ const gridCols =
             {projects.map((item: any, index: number) => (
               <div
                 key={index}
-                className="text-white bg-gradient-to-tl from-[#C6151D] to-[#600A0E] rounded-xl overflow-hidden flex flex-col"
+                className="flex flex-col overflow-hidden rounded-2xl bg-[#1b1b3e] text-white shadow-lg ring-1 ring-[#2a2a5a]"
               >
-                {/* LOGO */}
-                <div className="bg-white p-3 m-5 rounded-xl flex justify-center items-center max-h-[70px]">
-                  {item.logo && (
+                {/* LOGO / COMPANY PILL */}
+                <div className="m-4 flex min-h-[72px] items-center justify-center gap-3 rounded-xl bg-white px-4 py-2">
+                  {item.logo ? (
                     <Image
                       src={item.logo}
                       alt={item.company || "project-logo"}
-                      width={100}
-                      height={40}
-                      className="object-contain"
+                      width={180}
+                      height={64}
+                      className="h-auto w-40 max-h-16 object-contain"
                     />
+                  ) : (
+                    <>
+                      <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-[#1b1b3e] text-sm font-bold text-white">
+                        {(item.company || "P").charAt(0)}
+                      </span>
+                      <span className="text-base font-bold text-[#1b1b3e]">
+                        {item.company}
+                      </span>
+                    </>
                   )}
                 </div>
 
                 {/* CONTENT */}
-                <div className="p-3 flex flex-col gap-2 flex-1">
+                <div className="flex flex-1 flex-col gap-3 px-5 pb-5">
 
-                  <h3 className="font-semibold text-sm min-h-10 leading-snug">
-                    {item.company} – {item.title}
-                  </h3>
+                  <div>
+                    <h3 className="text-base font-bold leading-snug text-white">
+                      {item.company} – {item.title}
+                    </h3>
+                    <div className="mt-2 h-[3px] w-14 rounded-full bg-[#C6151D]" />
+                  </div>
 
-                  <hr className="border-2 border-white/70" />
-
-                  <p className="text-xs text-gray-200">
-                    <span className="font-semibold">Scenario:</span>{" "}
+                  <p className="text-sm leading-relaxed text-gray-300">
+                    <span className="font-semibold text-[#E24B5B]">Scenario:</span>{" "}
                     {item.scenario}
                   </p>
 
                   {item.liveWork?.length > 0 && (
                     <div>
-                      <h4 className="font-semibold text-base mb-2">
-                        Live Work:
+                      <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-[#E24B5B]">
+                        Live Work
                       </h4>
 
-                      <ul className="list-disc list-outside pl-5 text-xs space-y-1 text-gray-200">
-
+                      <ul className="space-y-2 text-sm text-gray-200">
                         {item.liveWork.flatMap((work: string) =>
                           work
                             .split(/\n|<br\s*\/?>/gi)
                             .filter((line) => line.trim() !== "")
                             .map((line: string, i: number) => (
-                              <li key={i}>{line.trim()}</li>
+                              <li key={i} className="flex items-start gap-2">
+                                <span className="mt-[2px] flex-shrink-0 text-[#C6151D]">✔</span>
+                                <span>{line.trim()}</span>
+                              </li>
                             ))
                         )}
                       </ul>
@@ -638,7 +623,7 @@ const gridCols =
                 </div>
 
                 {/* OUTCOME */}
-                <div className="bg-[#CA8A04] mb-2 p-2 text-sm font-semibold text-center">
+                <div className="mt-auto bg-[#C6151D] px-4 py-3 text-center text-sm font-bold text-white">
                   Outcome: {item.outcome}
                 </div>
               </div>

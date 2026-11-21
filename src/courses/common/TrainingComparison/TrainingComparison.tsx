@@ -193,11 +193,11 @@ export default function TrainingComparison() {
   ];
 
   return (
-    <section className="hidden md:block">
-      <div className="border-2 m-2 p-2">
+    <section className="hidden md:block w-full bg-white">
+      <div className="m-2 mx-auto w-11/12 max-w-7xl md:p-2">
         {/* Heading */}
         <div className="text-center py-3 flex flex-col items-center">
-          <h2 className="text-3xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#CD4647] to-[#7F3B40]">
+          <h2 className="text-3xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#FF2A3B] to-[#1B1445]">
             What Makes TechPratham Training Different?
           </h2>
 
@@ -210,7 +210,7 @@ export default function TrainingComparison() {
           >
             <path
               d="M0 3 Q170 0 340 3 Q170 6 0 3 Z"
-              fill="#CD4647"
+              fill="#FF2A3B"
             />
           </svg>
         </div>
@@ -218,38 +218,38 @@ export default function TrainingComparison() {
 
         {/* Desktop Table */}
         <div className="hidden md:block">
-          <div className="grid grid-cols-3 rounded-xl overflow-hidden border border-gray-200">
+          <div className="grid grid-cols-3 rounded-xl overflow-hidden border border-[#1B1445]/15">
             {/* Header */}
-            <div className="bg-gray-200 p-1 font-medium text-gray-700">
+            <div className="bg-[#1B1445] p-2 font-semibold text-white">
               Feature
             </div>
 
-            <div className="bg-gray-200 p-1  font-semibold text-red-700 border-t-2 border-l-2 border-r-2 border-red-700">
+            <div className="bg-[#FF2A3B] p-2 font-semibold text-white border-t-2 border-l-2 border-r-2 border-[#FF2A3B]">
               TechPratham Advantage
             </div>
 
-            <div className="bg-gray-200 p-1 font-medium text-gray-700">
+            <div className="bg-[#1B1445] p-2 font-medium text-white/80">
               Industry Standard Institutes
             </div>
 
             {rows.map((row, i) => {
-              const rowBg = i % 2 === 0 ? "bg-gray-50" : "bg-white";
+              const rowBg = i % 2 === 0 ? "bg-[#1B1445]/[0.04]" : "bg-white";
 
               return (
                 <div key={i} className="contents">
-                  <div className={`${rowBg} p-1 border-t text-gray-700`}>
+                  <div className={`${rowBg} p-2 border-t border-[#1B1445]/10 font-medium text-[#1B1445]`}>
                     {row.feature}
                   </div>
 
                   <div
-                    className={`${rowBg} p-1 border-l-2 border-r-2 border-red-700 flex gap-2 text-sm`}
+                    className="bg-[#FF2A3B]/[0.05] p-2 border-l-2 border-r-2 border-[#FF2A3B] flex gap-2 text-sm text-[#1B1445]"
                   >
-                    <CheckCircle className="text-green-600 w-5 h-5 mt-0.5 shrink-0" />
+                    <CheckCircle className="text-[#1B1445] w-5 h-5 mt-0.5 shrink-0" />
                     <span>{row.Techpratham}</span>
                   </div>
 
-                  <div className={`${rowBg} p-1 border-t flex gap-2 text-sm`}>
-                    <XCircle className="text-red-600 w-5 h-5 mt-0.5 shrink-0" />
+                  <div className={`${rowBg} p-2 border-t border-[#1B1445]/10 flex gap-2 text-sm text-[#1B1445]/70`}>
+                    <XCircle className="text-[#FF2A3B] w-5 h-5 mt-0.5 shrink-0" />
                     <span>{row.other}</span>
                   </div>
                 </div>
@@ -263,20 +263,19 @@ export default function TrainingComparison() {
           {rows.map((row, i) => (
             <div
               key={i}
-              className={`rounded-xl border overflow-hidden ${i % 2 === 0 ? "bg-gray-50" : "bg-white"
-                }`}
+              className="rounded-xl border border-[#1B1445]/15 overflow-hidden bg-white"
             >
-              <div className="px-4 py-3 font-medium text-gray-800 bg-gray-100">
+              <div className="px-4 py-3 font-semibold text-white bg-[#1B1445]">
                 {row.feature}
               </div>
 
-              <div className="px-4 py-3 flex gap-2 text-sm">
-                <CheckCircle className="text-green-600 w-5 h-5 mt-0.5 shrink-0" />
+              <div className="px-4 py-3 flex gap-2 text-sm text-[#1B1445] bg-[#FF2A3B]/[0.05]">
+                <CheckCircle className="text-[#1B1445] w-5 h-5 mt-0.5 shrink-0" />
                 <span>{row.Techpratham}</span>
               </div>
 
-              <div className="px-4 py-3 border-t flex gap-2 text-sm">
-                <XCircle className="text-red-600 w-5 h-5 mt-0.5 shrink-0" />
+              <div className="px-4 py-3 border-t border-[#1B1445]/10 flex gap-2 text-sm text-[#1B1445]/70">
+                <XCircle className="text-[#FF2A3B] w-5 h-5 mt-0.5 shrink-0" />
                 <span>{row.other}</span>
               </div>
             </div>
