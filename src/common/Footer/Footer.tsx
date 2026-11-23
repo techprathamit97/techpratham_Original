@@ -156,7 +156,7 @@ const Footer = () => {
       <div className="w-full border-t border-white/10 mb-10 relative z-10">
         <div className="w-11/12 max-w-7xl mx-auto py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-[11px] text-white/50">
           <span>© {new Date().getFullYear()} TechPratham. All rights reserved.</span>
-          <span>An ISO 9001:2015 Certified Company</span>
+          <span>An ISO 9001:2015 Certified Company.</span>
         </div>
       </div>
 
