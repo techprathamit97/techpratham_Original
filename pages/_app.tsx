@@ -6,6 +6,7 @@ import '../app/globals.css';
 import { SessionProvider } from 'next-auth/react';
 import { UserProvider } from '@/context/userContext';
 import Script from "next/script";
+import { useRouter } from "next/router";
 import { Maitree, Montserrat } from "next/font/google";
 import { useEffect, useState } from "react";
 
@@ -25,7 +26,14 @@ const montserrat = Montserrat({
 });
 
 function MyApp({ Component, pageProps }: AppProps) {
- 
+
+  const router = useRouter();
+  // Hide the chat launcher on the account/accountant/admin pages only.
+  // Everything else (analytics, Crisp scripts, etc.) stays unchanged.
+  const hideChat = ["/account", "/accountant", "/admin"].some(
+    (p) => router.pathname === p || router.pathname.startsWith(p + "/")
+  );
+
   const [loadAnalytics, setLoadAnalytics] = useState(false);
 
   useEffect(() => {
@@ -155,7 +163,9 @@ function MyApp({ Component, pageProps }: AppProps) {
       </SessionProvider>
 
       {/* Custom "Live Chat" launcher (opens Crisp): "Bhavesh is live" pill +
-          a Pulse-Ripple bubble whose red rings ripple outward every second. */}
+          a Pulse-Ripple bubble whose red rings ripple outward every second.
+          Hidden on the account/accountant/admin pages. */}
+      {!hideChat && (
       <div className="fixed md:bottom-[220px] bottom-[60px] right-5 z-[9999] flex items-center gap-3">
         {/* "Bhavesh is live" pill — blinks every 1 second */}
         <button
@@ -266,6 +276,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           }
         `}</style>
       </div>
+      )}
 
       {/* GTM BODY NOSCRIPT */}
       <noscript>
