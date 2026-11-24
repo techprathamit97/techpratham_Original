@@ -28,7 +28,7 @@ const ReadMoreText = ({ text }: { text: string }) => {
       {isLong && (
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-red-700 cursor-pointer font-semibold hover:underline focus:outline-none"
+          className="text-[#E3172C] cursor-pointer font-semibold hover:underline focus:outline-none"
         >
           {expanded ? "Show less" : "Show more"}
         </button>
@@ -91,7 +91,7 @@ const TestmonialHome = () => {
     return (
       <div className='w-full h-auto flex flex-col items-center justify-center py-5 gap-10 bg-[#f7f7f7] text-black overflow-hidden'>
         <div className="flex justify-center py-8">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#E3172C]"></div>
         </div>
       </div>
     );
@@ -100,7 +100,7 @@ const TestmonialHome = () => {
   return (
     <div className='w-full h-auto flex flex-col items-center justify-center py-5 gap-10 bg-[#f7f7f7] text-black overflow-hidden'>
       <div className='md:w-10/12 w-11/12 h-auto flex flex-col gap-2 items-center text-center'>
-        <div className="md:text-3xl text-2xl md:font-semibold font-medium capitalize">Our success lies in our <span className='bg-gradient-to-tr from-[#FC7A35] to-[#f8da52] text-transparent bg-clip-text font-bold'>learner's, success</span> stories</div>
+        <div className="md:text-3xl text-2xl md:font-semibold font-medium capitalize">Our success lies in our <span className='text-[#E3172C] font-bold'>learner's, success</span> stories</div>
         <div className='md:w-1/2 text-sm w-full'>Explore our student's experiences and discover how we've helped them achieve their goals through excellence and dedications.</div>
       </div>
       <div className='md:w-10/12 w-11/12 flex flex-col items-center justify-center h-auto'>
@@ -127,13 +127,13 @@ const TestmonialHome = () => {
           className="mySwiper testimonialStyle"
         >
           {reviews.map((testimonial, index) => (
-            <SwiperSlide key={testimonial._id || testimonial.id || index} className="group w-auto h-auto flex flex-col gap-4 bg-white rounded-2xl p-6 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-2 hover:scale-105 border border-gray-100 relative overflow-hidden cursor-pointer">
+            <SwiperSlide key={testimonial._id || testimonial.id || index} className="group w-auto h-auto flex flex-col gap-4 bg-white rounded-2xl p-6 transition-all duration-500 hover:shadow-2xl hover:shadow-[#1E1546]/20 hover:-translate-y-2 hover:scale-105 border border-gray-100 relative overflow-hidden cursor-pointer">
               {/* Gradient Background Effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-purple-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-[#1E1546]/5 via-transparent to-[#E3172C]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
               {/* Header Section */}
               <div className="w-full flex flex-row items-center justify-start gap-3 relative z-10">
-                <div className={`w-12 h-12 bg-gradient-to-tl from-[#C6151D] to-[#600A0E] rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 overflow-hidden`}>
+                <div className={`w-12 h-12 bg-gradient-to-tl from-[#E3172C] to-[#1E1546] rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 overflow-hidden`}>
                   {testimonial.profileImage ? (
                     <img
                       src={testimonial.profileImage}
@@ -158,8 +158,8 @@ const TestmonialHome = () => {
                   </div>
                 </div>
                 <div className="flex flex-col text-left flex-1">
-                  <div className="font-bold text-[#600A0E] text-lg group-hover:text-[#600A0E] transition-colors duration-300">{testimonial.name}</div>
-                  <div className="text-green-500 text-sm flex items-center justify-start gap-1">
+                  <div className="font-bold text-[#1E1546] text-lg group-hover:text-[#1E1546] transition-colors duration-300">{testimonial.name}</div>
+                  <div className="text-[#1E1546] text-sm flex items-center justify-start gap-1">
                     <Clock className='w-4 h-4' />
                     {testimonial.publishDate ? formatDate(testimonial.publishDate) : (testimonial.createdAt ? formatDate(testimonial.createdAt) : testimonial.date)}
                   </div>
@@ -169,16 +169,16 @@ const TestmonialHome = () => {
               {/* Rating Section */}
               <div className="w-full flex items-center justify-between relative z-10">
                 <div className="flex items-center gap-1">
-                  <span className='text-yellow-400 text-xl group-hover:text-yellow-500 transition-colors duration-300'>{renderStars(testimonial.rating)}</span>
+                  <span className='text-[#E3172C] text-xl group-hover:text-[#E3172C] transition-colors duration-300'>{renderStars(testimonial.rating)}</span>
                   <span className="text-gray-600 text-sm ml-1">({testimonial.rating}/5)</span>
                 </div>
-                <div className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded-full">
+                <div className="text-xs text-white bg-[#1E1546] px-2 py-1 rounded-full">
                   Google Review
                 </div>
               </div>
 
               {/* Quote Icon */}
-              <div className="absolute top-4 right-4 text-red-700 group-hover:text-gray-300 transition-colors duration-300 z-0">
+              <div className="absolute top-4 right-4 text-[#E3172C] group-hover:text-gray-300 transition-colors duration-300 z-0">
                 <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M6.5 10c-.223 0-.437.034-.65.065.069-.232.14-.468.254-.68.114-.308.292-.575.469-.844.148-.291.409-.488.601-.737.201-.242.475-.403.692-.604.213-.21.492-.315.714-.463.232-.133.434-.28.65-.35l.539-.222.474-.197-.485-1.938-.597.144c-.191.048-.424.104-.689.171-.271.05-.56.187-.882.312-.318.142-.686.238-1.028.466-.344.218-.741.4-1.091.692-.339.301-.748.562-1.05.945-.33.358-.656.734-.909 1.162-.293.408-.492.856-.702 1.299-.19.443-.343.896-.468 1.336-.237.882-.343 1.72-.384 2.437-.034.718-.014 1.315.028 1.747.015.204.043.402.063.539l.025.168.026-.006A4.5 4.5 0 1 0 6.5 10zm11 0c-.223 0-.437.034-.65.065.069-.232.14-.468.254-.68.114-.308.292-.575.469-.844.148-.291.409-.488.601-.737.201-.242.475-.403.692-.604.213-.21.492-.315.714-.463.232-.133.434-.28.65-.35l.539-.222.474-.197-.485-1.938-.597.144c-.191.048-.424.104-.689.171-.271.05-.56.187-.882.312-.318.142-.686.238-1.028.466-.344.218-.741.4-1.091.692-.339.301-.748.562-1.05.945-.33.358-.656.734-.909 1.162-.293.408-.492.856-.702 1.299-.19.443-.343.896-.468 1.336-.237.882-.343 1.72-.384 2.437-.034.718-.014 1.315.028 1.747.015.204.043.402.063.539l.025.168.026-.006A4.5 4.5 0 1 0 17.5 10z" />
                 </svg>
@@ -188,7 +188,7 @@ const TestmonialHome = () => {
               <ReadMoreText text={testimonial.review || testimonial.testimonial} />
 
               {/* Bottom Accent Line */}
-              <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-tl from-[#C6151D] to-[#600A0E] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+              <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-tl from-[#E3172C] to-[#1E1546] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
             </SwiperSlide>
           ))}
         </Swiper>

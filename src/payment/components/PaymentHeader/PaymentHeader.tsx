@@ -227,7 +227,7 @@ const PaymentHeader = () => {
           <Image src="/header/upi.png" alt="UPI Logo" width={80} height={80} className="absolute top-[30px]  w-20" />
 
           {/* Bottom */}
-          <Image src="/header/payu.png" alt="PayU Logo" width={160} height={160} className="absolute bottom-[10px] w-40" />
+          <Image src="/header/razorpay.png" alt="Razorpay Logo" width={160} height={160} className="absolute bottom-[10px] w-40" />
 
           {/* Left */}
           <Image src="/header/paytem.png" alt="Paytm Logo" width={80} height={80} className="absolute left-[80px]  w-20" />

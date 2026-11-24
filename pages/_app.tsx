@@ -166,7 +166,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           a Pulse-Ripple bubble whose red rings ripple outward every second.
           Hidden on the account/accountant/admin pages. */}
       {!hideChat && (
-      <div className="fixed md:bottom-[220px] bottom-[60px] right-5 z-[9999] flex items-center gap-3">
+      <div className="fixed md:bottom-[240px] bottom-[60px] right-5 z-[9999] flex items-center gap-2">
         {/* "Bhavesh is live" pill — blinks every 1 second */}
         <button
           type="button"
@@ -192,7 +192,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           <span className="tp-ripple" />
           <span className="tp-ripple tp-ripple-2" />
 
-          <span className="relative z-10 flex h-[68px] w-[68px] flex-col items-center justify-center rounded-full bg-[#ff2a3b] shadow-[0_8px_22px_rgba(255,42,59,0.45)]">
+          <span className="relative z-10 flex h-[60px] w-[60px] flex-col items-center justify-center rounded-full bg-[#ff2a3b] shadow-[0_8px_22px_rgba(255,42,59,0.45)]">
             {/* speech-bubble tail */}
             <span className="absolute -bottom-1 right-3 h-4 w-4 rotate-45 rounded-[3px] bg-[#ff2a3b]" />
             {/* top row: live dot + Live */}

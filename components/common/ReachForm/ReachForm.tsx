@@ -77,7 +77,7 @@ const ReachForm = () => {
                 aria-expanded={isOpen}
                 aria-controls="reach-form"
                 aria-label="Toggle reach out form"
-                className="bg-yellow-600 text-white w-full p-2 rounded-t-md flex flex-row items-center justify-between cursor-pointer"
+                className="bg-[#1a1a52] text-white w-full p-2 rounded-t-md flex flex-row items-center justify-between cursor-pointer"
             >
                 <span>Reach Out to Us</span>
                 <ChevronDownIcon

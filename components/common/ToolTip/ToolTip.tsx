@@ -123,20 +123,20 @@ const trackCall = () => {
       {/* Desktop Bottom Bar */}
       <div className="w-full md:flex hidden h-11 bg-[#ff2a3b] fixed bottom-0 left-0 z-50 items-center justify-center">
         <div className="w-10/12 flex gap-4">
-          <div className="flex bg-[#CA8A04] p-2 gap-1">
+          <div className="flex bg-[#1a1a52] text-white rounded-lg p-2 gap-1 items-center">
             <FaWhatsapp className="w-6 h-6" />
             <Link href="https://wa.me/+918882178896" onClick={trackWhatsApp}>
               +91-8882178896
             </Link>
           </div>
-       <div className="flex bg-[#CA8A04] p-2 gap-1 items-center">
+       <div className="flex bg-[#1a1a52] text-white rounded-lg p-2 gap-1 items-center">
   <Image src="/course/icons/indian.jpg" alt="India Flag" width={36} height={36} />
   <Link href="tel:+918882178896" onClick={trackCall}>
     +91-8882178896
   </Link>
 </div>
 
-<div className="flex bg-[#CA8A04] p-2 gap-1 items-center">
+<div className="flex bg-[#1a1a52] text-white rounded-lg p-2 gap-1 items-center">
   <Image src="/course/icons/uslogo.png" alt="US Flag" width={36} height={36} />
   <Link href="tel:+13434770926" onClick={trackCall}>
     +1 (343) 477-0926
