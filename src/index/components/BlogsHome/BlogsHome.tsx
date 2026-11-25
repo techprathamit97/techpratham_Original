@@ -90,7 +90,7 @@ const BlogsHome = () => {
       </div>
 
       {/* Swiper Section — shared for both mobile and desktop */}
-      <div className="w-full px-10 relative">
+      <div className="w-full max-w-6xl mx-auto px-4 relative">
 
         {/* Custom Nav Arrows */}
         <style>{`

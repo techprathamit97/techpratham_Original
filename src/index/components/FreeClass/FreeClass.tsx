@@ -636,7 +636,7 @@ export default function FreeClass() {
     <section className="w-full">
       {/* ── Red banner (heading + tabs) ── */}
       <div className="relative bg-[#FF2E41] py-2">
-        <div className="max-w-7xl mx-auto px-4 md:px-12">
+        <div className="max-w-6xl mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-2">
             <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
               Free Tutorials Across All Courses
@@ -658,8 +658,8 @@ export default function FreeClass() {
                   className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 focus:outline-none
                               focus-visible:ring-2 focus-visible:ring-white/70 ${
                     isActive
-                      ? 'bg-white text-[#DA1E28] shadow-md'
-                      : 'bg-white/10 text-white border border-white/25 hover:bg-white/20'
+                      ? 'bg-[#1a1a52] text-white shadow-md ring-2 ring-white/80'
+                      : 'bg-[#1a1a52]/70 text-white border border-white/25 hover:bg-[#1a1a52]'
                   }`}
                 >
                   {cat.key}
@@ -671,7 +671,7 @@ export default function FreeClass() {
       </div>
 
       {/* ── White content card (overlaps the banner) ── */}
-      <div className="max-w-7xl mx-auto px-4 md:px-12">
+      <div className="max-w-6xl mx-auto px-4">
         <div className="-mt-16 rounded-2xl bg-white shadow-xl border border-gray-100 p-5 md:p-7">
           {/* Card header */}
           <div className="flex items-center justify-between gap-4 mb-5">

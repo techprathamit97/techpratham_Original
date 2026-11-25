@@ -1,41 +1,171 @@
-.left-scroll {
+.pass-track {
   display: flex;
-  gap: 1rem;
+  gap: 1.25rem;
   flex-shrink: 0;
   height: auto;
   align-items: center;
-  animation: slide-left 25s linear infinite;
   white-space: nowrap;
+  padding: 0 0.625rem;
+}
+
+.left-scroll {
+  animation: slide-left 110s linear infinite;
 }
 
 .right-scroll {
+  animation: slide-right 110s linear infinite;
+}
+
+/* Pause the whole row while hovering any card */
+.marquee-row:hover .pass-track {
+  animation-play-state: paused;
+}
+
+/* ===== Boarding-pass style placement card ===== */
+.pass-card {
+  --tc: #4285f4;
   display: flex;
-  gap: 1rem;
+  align-items: stretch;
+  width: 228px;
+  height: 114px;
   flex-shrink: 0;
-  height: auto;
+  border-radius: 13px;
+  overflow: hidden;
+  background: var(--tc);
+  box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.35), 0 4px 10px -4px rgba(0, 0, 0, 0.2);
+}
+
+/* Person stub (left) */
+.pass-stub {
+  width: 82px;
+  flex-shrink: 0;
+  background: #1E1546;
+  display: flex;
+  flex-direction: column;
+  padding: 7px;
+  gap: 5px;
+}
+
+.pass-photo {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f1f5f9;
+}
+
+.pass-name {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.pass-name-main {
+  font-size: 12px;
+  font-weight: 800;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pass-name-sub {
+  font-size: 8px;
+  font-weight: 500;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Perforated tear line */
+.pass-tear {
+  position: relative;
+  width: 0;
+  flex-shrink: 0;
+  border-left: 2px dashed rgba(255, 255, 255, 0.7);
+  margin: 10px 0;
+}
+
+.pass-tear::before,
+.pass-tear::after {
+  content: "";
+  position: absolute;
+  left: -8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.pass-tear::before {
+  top: -18px;
+}
+
+.pass-tear::after {
+  bottom: -18px;
+}
+
+/* Colored main (right) */
+.pass-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  animation: slide-right 25s linear infinite;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  min-width: 0;
+}
+
+.pass-lbl {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
   white-space: nowrap;
 }
 
+.pass-logo {
+  width: 100%;
+  background: #fff;
+  border-radius: 9px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+}
+
+.pass-logo-img {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.pass-logo-text {
+  font-size: 13px;
+  font-weight: 800;
+  color: #1E1546;
+  text-align: center;
+  line-height: 1.15;
+  white-space: normal;
+}
+
 @keyframes slide-left {
-  from {
-    -webkit-transform: translateX(0);
-    transform: translateX(0);
-  }
-  to {
-    -webkit-transform: translateX(-100%);
-    transform: translateX(-100%);
-  }
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
 }
 
 @keyframes slide-right {
-  from {
-    -webkit-transform: translateX(-100%);
-    transform: translateX(-100%);
-  }
-  to {
-    -webkit-transform: translateX(0);
-    transform: translateX(0);
-  }
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
 }

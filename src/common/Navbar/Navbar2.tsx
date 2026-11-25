@@ -372,7 +372,7 @@ const Navbar2: React.FC<NavbarProps> = () => {
 
             <Link href="/about-us" className={navLinkCls('/about-us')}>About Us</Link>
             <Link href="/corporate-training" className={navLinkCls('/corporate-training')}>Corporate Training</Link>
-            <Link href="/blog" className={navLinkCls('/blog')}>Blog</Link>
+            <Link href="/review" className={navLinkCls('/review')}>Review</Link>
             <Link href="/payment" className={navLinkCls('/payment')}>Payment</Link>
             <Link href="/contact-us" className={navLinkCls('/contact-us')}>Contact Us</Link>
           </nav>
@@ -482,9 +482,9 @@ const Navbar2: React.FC<NavbarProps> = () => {
               <MagnifyingGlassIcon className="w-4 h-4" /> Job Openings
             </Button>
           </Link>
-          <Link href="/blog" onClick={handleNavToggle} className="w-full">
+          <Link href="/review" onClick={handleNavToggle} className="w-full">
             <Button variant="outline" className="w-full flex items-center gap-2 hover:bg-red-50 hover:text-red-700 hover:border-red-200">
-              <FileTextIcon className="w-4 h-4" /> Blogs
+              <FileTextIcon className="w-4 h-4" /> Reviews
             </Button>
           </Link>
           <Link href="/payment" onClick={handleNavToggle} className="w-full">

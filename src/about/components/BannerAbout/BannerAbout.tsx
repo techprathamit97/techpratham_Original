@@ -64,8 +64,8 @@ export default function ReviewCards() {
 
   return (
     <>
-      <section className="w-full bg-[#fdfbfb] py-10">
-        
+      <section className="w-full bg-[#fdfbfb] py-5">
+       <div className="max-w-6xl mx-auto px-4">
         {/* Heading */}
         <div className="text-center mb-12">
           <h2 className="text-[#7f1d1d] md:text-3xl text-2xl font-bold">
@@ -86,11 +86,11 @@ export default function ReviewCards() {
         </div>
 
         {/* Video Cards */}
-        <div className="flex flex-wrap gap-6 justify-center px-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {cards.map((card) => (
             <div
               key={card.id}
-              className="relative w-[290px] h-[170px] rounded-xl overflow-hidden shadow-lg cursor-pointer group transform transition-all duration-300 hover:scale-105"
+              className="relative w-full aspect-[29/17] rounded-xl overflow-hidden shadow-lg cursor-pointer group transform transition-all duration-300 hover:scale-105"
               onClick={() => handleVideoClick(card.videoUrl)}
             >
               {/* Thumbnail Image or Video Preview */}
@@ -135,6 +135,7 @@ export default function ReviewCards() {
             </div>
           ))}
         </div>
+       </div>
       </section>
 
       {/* 🎬 VIDEO MODAL - Enhanced for AWS S3 */}

@@ -34,7 +34,7 @@ const OTHER_LOGOS: IconItem[] = [
   { img: "/home/client-logo/awsd.png" },
   { img: "/home/client-logo/deloitted.png" },
   { img: "/home/client-logo/genpactd.png" },
-  { img: "/home/client-logo/download (1).png" },
+  { img: "/home/client-logo/downloadhp.png" },
   { img: "/home/client-logo/microshofd.png" },
   { img: "/home/client-logo/tcsd.png" },
   { img: "/home/client-logo/techmd.png" },

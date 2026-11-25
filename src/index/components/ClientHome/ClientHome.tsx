@@ -35,7 +35,9 @@ export default function DemoOne() {
        
         <div className="mx-auto   " />
 
-        <LogoCloud logos={logos} />
+        <div className="max-w-6xl mx-auto px-4">
+          <LogoCloud logos={logos} />
+        </div>
 
         <div className="  bg-border [mask-image:linear-gradient(to_right,transparent,black,transparent)]" />
       </section>
@@ -48,7 +50,7 @@ const logos = [
   { src: "/home/client-logo/techmd.png", alt: "Accenture Logo" },
   { src: "/home/client-logo/tcsd.jpg", alt: "AWS Logo" },
   { src: "/home/client-logo/microshofd.png", alt: "Capgemini Logo" },
-  { src: "/home/client-logo/download (1).png", alt: "Deloitte Logo" },
+  { src: "/home/client-logo/downloadhp.png", alt: "Deloitte Logo" },
   { src: "/home/client-logo/genpactd.png", alt: "Genpact Logo" },
   { src: "/home/client-logo/deloitted.png", alt: "HP Logo" },
   { src: "/home/client-logo/awsd.png", alt: "Intel Logo" },

@@ -131,7 +131,7 @@ const ChevronStep: React.FC<{
       tabIndex={0}
       role="button"
       aria-expanded={isActive}
-      className={`relative h-[440px] cursor-pointer outline-none transition-[flex-grow,flex-basis] duration-500 ease-out ${
+      className={`relative h-[380px] cursor-pointer outline-none transition-[flex-grow,flex-basis] duration-500 ease-out ${
         isActive ? 'flex-[6] min-w-[280px]' : 'flex-[1] min-w-[70px]'
       }`}
     >
@@ -208,7 +208,7 @@ const MobileStep: React.FC<{
       role="button"
       aria-expanded={isActive}
       className={`relative w-full overflow-hidden bg-cover bg-center cursor-pointer transition-[max-height] duration-500 ease-out ${
-        isActive ? 'max-h-[460px] scale-[1.01]' : 'max-h-[76px]'
+        isActive ? 'max-h-[430px] scale-[1.01]' : 'max-h-[58px]'
       }`}
       style={{
         backgroundImage: `url('${step.image}')`,
@@ -275,7 +275,7 @@ const StaticChevronSteps = () => {
 
   // --- DESKTOP VIEW ---
   const DesktopView = (
-    <div className="hidden sm:flex items-center justify-center gap-2 w-full mx-auto py-8">
+    <div className="hidden sm:flex items-center justify-center gap-2 w-full mx-auto py-4">
       {stepData.map((step, index) => (
         <ChevronStep
           key={step.id}
@@ -306,7 +306,7 @@ const StaticChevronSteps = () => {
   return (
     <>
     <div className='w-full flex justify-center'>
-    <div className='mx-auto w-11/12 max-w-7xl p-2 py-5'>
+    <div className='mx-auto w-full max-w-6xl px-4 py-5'>
     <div className="pt-5 text-center flex flex-col items-center">
   <h2 className="text-2xl md:text-4xl font-semibold text-transparent bg-clip-text bg-[#FF2E41] text-center drop-shadow-md">
     Placement Process

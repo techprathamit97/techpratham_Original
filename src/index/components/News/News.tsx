@@ -85,7 +85,7 @@ const featuredLogos = [
 export default function NewsHighlights() {
   return (
     <section className="w-full bg-white">
-      <div className="mx-auto w-11/12 max-w-7xl py-3 px-4">
+      <div className="mx-auto w-full max-w-6xl py-3 px-4">
 
         {/* Heading */}
         <div className="text-center mb-3 flex flex-col items-center">

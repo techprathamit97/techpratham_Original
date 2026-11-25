@@ -86,7 +86,7 @@ const middleIndex = Math.floor(imagesToDisplay.length / 2);
       onMouseLeave={() => swiperRef.current?.autoplay?.start()}
     >
       <div className="text-center flex flex-col items-center w-full">
-        <h2 className="text-xl md:text-[25px] my-2 text-white font-semibold">
+        <h2 className="text-[20px] my-2 text-white font-semibold">
           Our Learner Voice
         </h2>
         {loading && (

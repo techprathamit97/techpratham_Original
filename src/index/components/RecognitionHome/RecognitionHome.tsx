@@ -79,9 +79,9 @@ const RecognitionHome = () => {
         </svg>
       </div>
 
-      {/* ---- Awards row (uses existing certificate data) — full width ---- */}
+      {/* ---- Awards row (uses existing certificate data) ---- */}
       <div
-        className="w-full px-4 md:px-12 flex md:justify-between md:items-start gap-6 lg:gap-10
+        className="w-full max-w-6xl mx-auto px-2 flex md:justify-between md:items-start gap-6 lg:gap-10
                    overflow-x-auto md:overflow-x-visible
                    no-scrollbar pb-2"
       >

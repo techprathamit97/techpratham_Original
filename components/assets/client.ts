@@ -16,7 +16,7 @@ export const client = [
         altText: "Deloitte Logo",
     },
     {
-        image: "/home/client-logo/download (1).png",
+        image: "/home/client-logo/downloadhp.png",
         altText: "Genpact Logo",
     },
     {

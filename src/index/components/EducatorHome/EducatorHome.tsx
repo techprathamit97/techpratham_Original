@@ -70,7 +70,7 @@ const EducatorHome = () => {
       </div>
 
       {/* Carousel */}
-      <div className="relative max-w-6xl mx-auto">
+      <div className="relative max-w-6xl mx-auto md:px-4">
 
         {/* Left arrow — hidden at position 0 */}
         {canGoBack && (

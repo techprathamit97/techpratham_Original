@@ -428,7 +428,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
   };
 
   return (
-    <section ref={sectionRef} id="courses" className="w-full  p-2 bg-white py-3">
+    <section ref={sectionRef} id="courses" className="w-full  p-2 bg-white py-2">
       <div className=" p-1">
       <div className="max-w-6xl mx-auto px-4">
         {/* Pre-allocate space for title to prevent shift */}
@@ -625,7 +625,7 @@ export default function CoursesHome({ initialGroupedCourses = [] }: CoursesHomeP
                             : 4
                         )
                       }
-                      className="flex items-center gap-2 bg-white border border-[#C6151D] text-[#C6151D] px-6 py-2 rounded-full font-semibold hover:bg-[#C6151D] hover:text-white transition-colors"
+                      className="flex items-center gap-2 bg-white border border-[#C6151D] text-[#C6151D] px-6 rounded-full font-semibold hover:bg-[#C6151D] hover:text-white transition-colors"
                     >
                       {visibleLimit === 4 ? (
                         <>

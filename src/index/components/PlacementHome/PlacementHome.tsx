@@ -16,15 +16,15 @@ interface Props {
 
 
 const LeftPanel = () => (
-    <div className="w-full max-w-sm space-y-3 px-2">
-        <h2 className="text-[25px] font-bold text-white leading-tight">Our  Success Mantra</h2>
+    <div className="w-full max-w-sm space-y-2 mx-auto">
+        <h2 className="text-[20px] font-bold text-white leading-tight text-center">Our  Success Mantra</h2>
         {/* <p className="text-xl text-gray-200 mb-6"> Process</p> */}
 
         {/* Profile Building */}
         <div className="bg-white rounded-xl shadow-lg p-2 border-l-4 border-blue-500">
-            <h3 className="text-xl font-semibold mb-3 flex items-center text-gray-800">
+            <h3 className="text-base font-semibold mb-1 flex items-center text-gray-800">
                 <div className="flex items-center">
-                    <div className="w-10 h-10 mr-2 relative">
+                    <div className="w-8 h-8 mr-2 relative">
                         <Image
                             src="/about/icons/i1.webp"
                             alt="Commitment Icon"
@@ -43,9 +43,9 @@ const LeftPanel = () => (
 
         {/* Mock Interviews */}
         <div className="bg-white rounded-xl shadow-lg p-2 border-l-4 border-orange-500">
-            <h3 className="text-xl font-semibold mb-3 flex items-center text-gray-800">
+            <h3 className="text-base font-semibold mb-1 flex items-center text-gray-800">
                 <div className="flex items-center">
-                    <div className="w-10 h-10 mr-2 relative">
+                    <div className="w-8 h-8 mr-2 relative">
                         <Image
                             src="/about/icons/i2.webp"
                             alt="Commitment Icon"
@@ -62,9 +62,9 @@ const LeftPanel = () => (
             </ul>
         </div>
         <div className="bg-white rounded-xl shadow-lg p-2 border-l-4 border-[#A149F8]">
-            <h3 className="text-xl font-semibold mb-3 flex items-center text-gray-800">
+            <h3 className="text-base font-semibold mb-1 flex items-center text-gray-800">
                 <div className="flex items-center">
-                    <div className="w-10 h-10 mr-2 relative">
+                    <div className="w-8 h-8 mr-2 relative">
                         <Image
                             src="/about/icons/i3.webp"
                             alt="Commitment Icon"
@@ -110,15 +110,15 @@ const RightPanel = () => {
     };
 
     return (
-        <div className="w-full max-w-sm p-3 space-y-6">
-            <h2 className="text-[25px] font-bold text-white leading-tight">Beyond Courses:</h2>
-            <p className="text-xl text-gray-200 mb-6">Additional Support We Provide</p>
+        <div className="w-full max-w-sm py-3 space-y-4 mx-auto ">
+            <h2 className="text-[20px] font-bold text-white leading-tight text-center">Beyond Courses:</h2>
+            <p className="text-base text-gray-200 mb-4 text-center">Additional Support We Provide</p>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-3">
                 {supportItems.map((item, index) => (
-                    <div key={index} className="bg-white rounded-xl shadow-lg p-3 flex flex-col items-center justify-center text-center h-28">
-                        <div className='w-10 h-10 mb-1 flex items-center justify-center text-red-900'>
-                            <IconComponent name={item.icon} className="w-8  h-8" />
+                    <div key={index} className="bg-white rounded-xl shadow-lg p-2 flex flex-col items-center justify-center text-center h-24">
+                        <div className='w-8 h-8 mb-1 flex items-center justify-center text-red-900'>
+                            <IconComponent name={item.icon} className="w-6  h-6" />
                         </div>
                         <p className="text-xs font-medium text-gray-700">{item.label}</p>
                     </div>
@@ -142,13 +142,13 @@ export default function FullPageCarouselLayout({ id }: Props): JSX.Element {
             {/* Red radial glow */}
             <div className="hexHome-glow pointer-events-none absolute inset-0 h-full w-full z-0" aria-hidden="true" />
 
-            <div className="relative z-10 border-2 border-white/10 p-1   m-2 mx-auto w-11/12 max-w-7xl flex flex-col items-center justify-start ">
+            <div className="relative z-10  px-4   m-2 mx-auto w-full max-w-6xl flex flex-col items-center justify-start ">
 
                 {/* Main Content Area (Left Panel | Carousel | Right Panel) */}
-                <div className="flex flex-col  lg:flex-row items-center lg:items-stretch justify-center w-full mx-auto">
+                <div className="flex flex-col  lg:flex-row items-center lg:items-center justify-center w-full mx-auto">
 
                     {/* Left Panel */}
-                    <div className="w-full lg:w-1/4 order-1 lg:order-1 pt-3">
+                    <div className="w-full lg:w-1/4 order-1 lg:order-1">
                         <LeftPanel />
                     </div>
 

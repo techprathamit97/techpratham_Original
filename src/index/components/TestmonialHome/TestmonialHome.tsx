@@ -99,11 +99,11 @@ const TestmonialHome = () => {
 
   return (
     <div className='w-full h-auto flex flex-col items-center justify-center py-5 gap-10 bg-[#f7f7f7] text-black overflow-hidden'>
-      <div className='md:w-10/12 w-11/12 h-auto flex flex-col gap-2 items-center text-center'>
+      <div className='w-full max-w-6xl px-4 h-auto flex flex-col gap-2 items-center text-center'>
         <div className="md:text-3xl text-2xl md:font-semibold font-medium capitalize">Our success lies in our <span className='text-[#E3172C] font-bold'>learner's, success</span> stories</div>
         <div className='md:w-1/2 text-sm w-full'>Explore our student's experiences and discover how we've helped them achieve their goals through excellence and dedications.</div>
       </div>
-      <div className='md:w-10/12 w-11/12 flex flex-col items-center justify-center h-auto'>
+      <div className='w-full max-w-6xl px-4 flex flex-col items-center justify-center h-auto'>
         <Swiper
           slidesPerView={1}
           spaceBetween={20}

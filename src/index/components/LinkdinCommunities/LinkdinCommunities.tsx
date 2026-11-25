@@ -335,8 +335,8 @@ export default function LinkdinCommunities() {
   };
 
   return (
-    <section className="w-full bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50 py-3 md:py-5 px-4 md:px-12">
-      <div className="max-w-7xl mx-auto">
+    <section className="w-full bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50 py-3 md:py-5">
+      <div className="max-w-6xl mx-auto px-4">
         {/* ── Heading ── */}
         <div className="text-center mb-5">
           <h2 className="text-[#ff2a3b] md:text-3xl text-2xl font-bold">

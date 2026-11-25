@@ -346,9 +346,12 @@ interface StatProps {
   iconBg: string;       // tailwind bg class for the icon circle
   counterBg: string;    // tailwind bg class for the counter pill
   icon: React.ReactNode;
+  align?: 'start' | 'center' | 'end'; // horizontal alignment within the column
 }
 
-const StatCounter: React.FC<StatProps> = ({ end, text, suffix, subtitle, iconBg, counterBg, icon }) => {
+const StatCounter: React.FC<StatProps> = ({ end, text, suffix, subtitle, iconBg, counterBg, icon, align = 'center' }) => {
+  const justifyClass = align === 'start' ? 'justify-start' : align === 'end' ? 'justify-end' : 'justify-center';
+  const textAlignClass = align === 'start' ? 'text-left' : align === 'end' ? 'text-right' : 'text-center';
   const ref = useRef<HTMLDivElement>(null);
   const [start, setStart] = useState(false);
 
@@ -374,20 +377,20 @@ const StatCounter: React.FC<StatProps> = ({ end, text, suffix, subtitle, iconBg,
       ref={ref}
       className="flex flex-col items-center gap-2 overflow-hidden w-full"
     >
-      {/* Counter pill — centered, constrained to column width */}
-      <div className="flex justify-center w-full overflow-hidden">
+      {/* Counter pill — aligned to the column edge so the row spans edge-to-edge */}
+      <div className={`flex ${justifyClass} w-full overflow-hidden`}>
         <div className={`${counterBg} rounded-xl px-0.5 sm:px-3 py-1 sm:py-2 flex items-center shadow-lg max-w-full`}>
           <Odometer value={end} suffix={suffix} start={start} />
         </div>
       </div>
 
-      {/* Label — centered on all devices */}
-      <div className="text-center w-full px-1">
-        <p className="text-[8px] sm:text-xs md:text-sm font-black uppercase tracking-widest text-gray-800 text-center break-words">
+      {/* Label — matches the counter's alignment */}
+      <div className={`${textAlignClass} w-full px-1`}>
+        <p className={`text-[8px] sm:text-xs md:text-sm font-black uppercase tracking-widest text-gray-800 ${textAlignClass} break-words`}>
           {text}
         </p>
         {subtitle && (
-          <p className="text-[7px] sm:text-[10px] md:text-xs text-gray-500 mt-0.5 text-center">{subtitle}</p>
+          <p className={`text-[7px] sm:text-[10px] md:text-xs text-gray-500 mt-0.5 ${textAlignClass}`}>{subtitle}</p>
         )}
       </div>
     </div>
@@ -400,18 +403,19 @@ const StatCounter: React.FC<StatProps> = ({ end, text, suffix, subtitle, iconBg,
 
 export default function TrainingRecruitmentStats() {
   return (
-    <div className="relative w-full overflow-hidden bg-[#fdfbfb] px-3 py-10 md:px-6">
+    <div className="relative w-full overflow-hidden bg-[#fdfbfb] py-10">
 
       {/* Content Grid */}
-      <div className="mx-auto grid max-w-6xl w-full grid-cols-3 gap-3 sm:gap-6 md:gap-10 items-start overflow-hidden">
+      <div className="mx-auto grid max-w-6xl w-full grid-cols-3 gap-3 sm:gap-6 md:gap-10 items-start overflow-hidden px-4">
         <StatCounter
           end={94567}
           text="Happy Learners"
           subtitle="Growing together, building better futures"
           suffix="+"
           iconBg="bg-blue-600"
-          counterBg=""
+          counterBg="bg-white border border-gray-200"
           icon="👥"
+          align="start"
         />
 
         <StatCounter
@@ -420,7 +424,7 @@ export default function TrainingRecruitmentStats() {
           subtitle="Learn today, lead tomorrow"
           suffix="+"
           iconBg="bg-purple-600"
-          counterBg=""
+          counterBg="bg-white border border-gray-200"
           icon="🎓"
         />
 
@@ -430,8 +434,9 @@ export default function TrainingRecruitmentStats() {
           subtitle="Trusted by leading organizations"
           suffix="+"
           iconBg="bg-teal-600"
-          counterBg=""
+          counterBg="bg-white border border-gray-200"
           icon="🤝"
+          align="end"
         />
       </div>
     </div>

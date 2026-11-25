@@ -7,8 +7,9 @@ const CareerHome = () => {
     <div className='w-full h-auto flex flex-col items-center justify-center  text-black'>
 
       <div className='w-full pt-5 text-center flex flex-col items-center justify-center gap-6'>
+        <div className="max-w-6xl w-full mx-auto px-4 flex flex-col items-center gap-6">
          <div className="md:text-3xl text-2xl md:font-semibold font-medium text-black capitalize cursor-pointer transition-all duration-500 ease-in-out hover:scale-110 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-br hover:from-[#1a0a0a] hover:to-[#a3262c]">In Association With</div>
-      <div className='grid grid-cols-6 md:grid-cols-6 lg:grid-cols-6 gap-2 w-11/12 justify-items-center items-center'>
+      <div className='grid grid-cols-6 md:grid-cols-6 lg:grid-cols-6 gap-2 w-full justify-items-center items-center'>
   {[
     '/home/career/mcagi.webp',
     '/home/career/msde.webp',
@@ -32,10 +33,11 @@ const CareerHome = () => {
       height={96}
       sizes="112px"
       loading="lazy"
-      className='w-28 h-16 object-contain cursor-pointer border border-gray-300 rounded-lg bg-[#F6F6F6] p-1 shadow-sm transition-all duration-300 ease-in-out hover:scale-110 hover:shadow-lg hover:shadow-red-500/30'
+      className='w-full h-16 object-contain cursor-pointer border border-gray-300 rounded-lg bg-[#F6F6F6] p-1 shadow-sm transition-all duration-300 ease-in-out hover:scale-110 hover:shadow-lg hover:shadow-red-500/30'
     />
   ))}
 </div>
+        </div>
 
          <Achivement/>
       </div>

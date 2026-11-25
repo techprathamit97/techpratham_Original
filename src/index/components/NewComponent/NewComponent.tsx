@@ -181,7 +181,7 @@ export default function PromoSection({ id, initialEvents = [] }: SectionProps) {
   return (
     <section id={id} className="w-full bg-[#fdfbfb] overflow-hidden">
       <div className="border  py-5 m-2 p-2">
-        <div className="max-w-7xl  mx-auto  px-4">
+        <div className="max-w-6xl  mx-auto  px-4">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-start">
 
             {/* ================= LEFT – VIDEO CONTENT ================= */}

@@ -5,7 +5,7 @@ const clientLogos = [
   { src: '/home/client-logo/techmd.png', alt: 'Accenture Logo' },
   { src: '/home/client-logo/tcsd.jpg', alt: 'AWS Logo' },
   { src: '/home/client-logo/microshofd.png', alt: 'Capgemini Logo' },
-  { src: '/home/client-logo/download (1).png', alt: 'Deloitte Logo' },
+  { src: '/home/client-logo/downloadhp.png', alt: 'Deloitte Logo' },
   { src: '/home/client-logo/genpactd.png', alt: 'Genpact Logo' },
   { src: '/home/client-logo/deloitted.png', alt: 'HP Logo' },
   { src: '/home/client-logo/awsd.png', alt: 'Intel Logo' },
