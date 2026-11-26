@@ -46,7 +46,7 @@ export default function TrainingBatches({ id, course }: any) {
 
         <div className="text-center">
           <h2 className="text-[#ff2a3b] md:text-3xl text-2xl font-bold">
-            Upcoming Batches
+            
           </h2>
 
           <svg

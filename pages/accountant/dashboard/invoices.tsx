@@ -100,6 +100,7 @@ const InvoicesDashboard = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [salesPersonFilter, setSalesPersonFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
+  const [courseSearch, setCourseSearch] = useState('');
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
   const [showAllInvoices, setShowAllInvoices] = useState(false);
@@ -280,12 +281,20 @@ const InvoicesDashboard = () => {
     }
   };
 
-  // Filter invoices based on status, sales person, and date
+  // Normalize the course search term once (case-insensitive, trimmed)
+  const normalizedCourseSearch = courseSearch.trim().toLowerCase();
+
+  // Filter invoices based on status, sales person, date, and course search
   const filteredInvoices = invoices.filter(invoice => {
     const statusMatch = statusFilter === 'all' || invoice.status === statusFilter;
     const salesPersonMatch = salesPersonFilter === 'all' ||
       (salesPersonFilter === 'none' && (!invoice.salesPerson || invoice.salesPerson.trim() === '')) ||
       invoice.salesPerson === salesPersonFilter;
+
+    // Course search: case-insensitive substring match on the course title.
+    // e.g. searching "servicenow" matches "ServiceNow ITAM (Recording only)".
+    const courseMatch = normalizedCourseSearch === '' ||
+      (invoice.courseDetails?.title || '').toLowerCase().includes(normalizedCourseSearch);
 
     // Date filtering
     let dateMatch = true;
@@ -297,7 +306,7 @@ const InvoicesDashboard = () => {
       }
     }
 
-    return statusMatch && salesPersonMatch && dateMatch;
+    return statusMatch && salesPersonMatch && courseMatch && dateMatch;
   });
 
   // Get sales summary by person for the filtered period
@@ -775,6 +784,14 @@ const InvoicesDashboard = () => {
                 <h2 className="text-2xl font-bold text-white">Invoice Management</h2>
 
                 <div className="flex gap-4 items-center flex-wrap">
+                  <Input
+                    type="text"
+                    value={courseSearch}
+                    onChange={(e) => setCourseSearch(e.target.value)}
+                    placeholder="Search by course (e.g. ServiceNow)"
+                    className="w-64 bg-zinc-900 border-zinc-700 text-white placeholder:text-zinc-500"
+                  />
+
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
                     <SelectTrigger className="w-40 bg-zinc-900 border-zinc-700 text-white">
                       <SelectValue placeholder="Filter by status" />
@@ -836,7 +853,7 @@ const InvoicesDashboard = () => {
                     </>
                   )}
 
-                  {(statusFilter !== 'all' || salesPersonFilter !== 'all' || dateFilter !== 'all') && (
+                  {(statusFilter !== 'all' || salesPersonFilter !== 'all' || dateFilter !== 'all' || courseSearch.trim() !== '') && (
                     <Button
                       onClick={() => {
                         setStatusFilter('all');
@@ -844,6 +861,7 @@ const InvoicesDashboard = () => {
                         setDateFilter('all');
                         setCustomStartDate('');
                         setCustomEndDate('');
+                        setCourseSearch('');
                       }}
                       variant="outline"
                       className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 text-sm"
@@ -872,7 +890,7 @@ const InvoicesDashboard = () => {
               ) : (
                 <>
                   {/* Sales Summary Section */}
-                  {(dateFilter !== 'all' || salesPersonFilter !== 'all') && (
+                  {(dateFilter !== 'all' || salesPersonFilter !== 'all' || normalizedCourseSearch !== '') && (
                     <div className="bg-zinc-900 rounded-lg p-6 mb-6">
                       <h3 className="text-lg font-semibold text-white mb-4">
                         Sales Summary

@@ -13,19 +13,40 @@ import { Autoplay } from 'swiper/modules';
 import { Clock } from 'lucide-react';
 const ReadMoreText = ({ text }: { text: string }) => {
   const [expanded, setExpanded] = useState(false);
-  
-  // Estimate approximately 8-10 words per line for 5 lines (40-50 words)
-  const wordLimit = 25; 
-  const words = text.split(' ');
-  const isLong = words.length > wordLimit;
-  const shortText = isLong ? words.slice(0, wordLimit).join(' ') + '...' : text;
+  const [isClamped, setIsClamped] = useState(false);
+  const textRef = React.useRef<HTMLDivElement>(null);
+
+  // Detect whether the text overflows 3 lines (so we know to show the button)
+  useEffect(() => {
+    const checkClamp = () => {
+      const el = textRef.current;
+      if (!el) return;
+      setIsClamped(el.scrollHeight > el.clientHeight + 1);
+    };
+    checkClamp();
+    window.addEventListener('resize', checkClamp);
+    return () => window.removeEventListener('resize', checkClamp);
+  }, [text]);
 
   return (
     <div className="text-gray-700 leading-relaxed text-xs text-left relative z-10 font-medium">
-      <div className="mb-1">
-        "{expanded ? text : shortText}"
+      <div
+        ref={textRef}
+        className="mb-1"
+        style={
+          expanded
+            ? undefined
+            : {
+                display: '-webkit-box',
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+              }
+        }
+      >
+        "{text}"
       </div>
-      {isLong && (
+      {(isClamped || expanded) && (
         <button
           onClick={() => setExpanded(!expanded)}
           className="text-[#E3172C] cursor-pointer font-semibold hover:underline focus:outline-none"
@@ -172,8 +193,14 @@ const TestmonialHome = () => {
                   <span className='text-[#E3172C] text-xl group-hover:text-[#E3172C] transition-colors duration-300'>{renderStars(testimonial.rating)}</span>
                   <span className="text-gray-600 text-sm ml-1">({testimonial.rating}/5)</span>
                 </div>
-                <div className="text-xs text-white bg-[#1E1546] px-2 py-1 rounded-full">
+                <div className="text-xs text-gray-500 px-2 py-1 rounded-full flex items-center gap-1.5">
+                 
                   Google Review
+                   <img
+                    src="/home/client-logo/google.png"
+                    alt="Google"
+                    style={{ width: '40px', height: '40px', objectFit: 'contain' }}
+                  />
                 </div>
               </div>
 
