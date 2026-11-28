@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { UserContext } from '@/context/userContext';
@@ -91,6 +91,46 @@ interface Invoice {
     paymentNumber: number;
   }>;
 }
+
+// Reconstruct the actual money-received events for an invoice, each with the
+// date the money was received and the amount. This lets revenue be counted in
+// the month payment was actually received (cash basis), e.g. a September
+// invoice whose pending amount is paid in October counts in October.
+const getPaymentEvents = (invoice: Invoice): { date: Date; amount: number }[] => {
+  const events: { date: Date; amount: number }[] = [];
+  const invoiceDate = invoice.invoiceDate ? new Date(invoice.invoiceDate) : new Date();
+
+  const hasInstallmentPayments =
+    Array.isArray(invoice.installmentPayments) && invoice.installmentPayments.length > 0;
+
+  if (hasInstallmentPayments) {
+    // Each recorded installment payment is attributed to its own paidDate.
+    let tracked = 0;
+    invoice.installmentPayments!.forEach((payment) => {
+      const amount = Number(payment.amount) || 0;
+      if (amount > 0) {
+        const date = payment.paidDate ? new Date(payment.paidDate) : invoiceDate;
+        events.push({ date, amount });
+        tracked += amount;
+      }
+    });
+
+    // Some paid amount may not be captured as an installment record (e.g. the
+    // first/down payment on auto-generated invoices). Attribute the remainder
+    // to the invoice's own paidDate, falling back to the invoice date.
+    const remainder = Math.round(((invoice.paidAmount || 0) - tracked) * 100) / 100;
+    if (remainder > 0) {
+      const date = invoice.paidDate ? new Date(invoice.paidDate) : invoiceDate;
+      events.push({ date, amount: remainder });
+    }
+  } else if ((invoice.paidAmount || 0) > 0) {
+    // Full payment (or no installment records): a single received event.
+    const date = invoice.paidDate ? new Date(invoice.paidDate) : invoiceDate;
+    events.push({ date, amount: invoice.paidAmount });
+  }
+
+  return events;
+};
 
 const InvoicesDashboard = () => {
   const { authenticated, loading, isAccountant, checkAccountantAccess, setCurrentTab } = useContext(UserContext);
@@ -284,8 +324,10 @@ const InvoicesDashboard = () => {
   // Normalize the course search term once (case-insensitive, trimmed)
   const normalizedCourseSearch = courseSearch.trim().toLowerCase();
 
-  // Filter invoices based on status, sales person, date, and course search
-  const filteredInvoices = invoices.filter(invoice => {
+  // Base filters: status, sales person and course search (everything EXCEPT date).
+  // Used both for the table (together with the invoice-date filter) and for the
+  // revenue calculation (where the date filter is applied to the payment date).
+  const matchesBaseFilters = (invoice: Invoice) => {
     const statusMatch = statusFilter === 'all' || invoice.status === statusFilter;
     const salesPersonMatch = salesPersonFilter === 'all' ||
       (salesPersonFilter === 'none' && (!invoice.salesPerson || invoice.salesPerson.trim() === '')) ||
@@ -296,53 +338,110 @@ const InvoicesDashboard = () => {
     const courseMatch = normalizedCourseSearch === '' ||
       (invoice.courseDetails?.title || '').toLowerCase().includes(normalizedCourseSearch);
 
-    // Date filtering
-    let dateMatch = true;
+    return statusMatch && salesPersonMatch && courseMatch;
+  };
+
+  // Table list: base filters + date filter applied to the invoice CREATION date.
+  const filteredInvoices = invoices.filter(invoice => {
+    if (!matchesBaseFilters(invoice)) return false;
+
     if (dateFilter !== 'all') {
       const dateRange = getDateRange();
       if (dateRange) {
         const invoiceDate = new Date(invoice.invoiceDate);
-        dateMatch = invoiceDate >= dateRange.start && invoiceDate <= dateRange.end;
+        if (!(invoiceDate >= dateRange.start && invoiceDate <= dateRange.end)) return false;
       }
     }
 
-    return statusMatch && salesPersonMatch && courseMatch && dateMatch;
+    return true;
   });
 
-  // Get sales summary by person for the filtered period
-  const getSalesSummary = () => {
-    const summary: { [key: string]: { count: number; total: number; paid: number } } = {};
+  // Revenue actually RECEIVED in the selected period (cash basis), broken down
+  // per sales person. The date filter is applied to each payment's paidDate, so
+  // a payment on an older invoice counts in the month the money arrived.
+  // Memoized because it scans every invoice's payment history.
+  const collectedRevenue = useMemo(() => {
+    const dateRange = dateFilter === 'all' ? null : getDateRange();
+    let total = 0;
+    const byPerson: { [key: string]: number } = {};
 
-    filteredInvoices.forEach(invoice => {
-      const person = invoice.salesPerson || 'No Sales Person';
+    invoices.forEach(invoice => {
+      if (!matchesBaseFilters(invoice)) return;
+      const person = invoice.salesPerson && invoice.salesPerson.trim() !== ''
+        ? invoice.salesPerson
+        : 'No Sales Person';
+
+      getPaymentEvents(invoice).forEach(({ date, amount }) => {
+        if (dateRange && !(date >= dateRange.start && date <= dateRange.end)) return;
+        total += amount;
+        byPerson[person] = (byPerson[person] || 0) + amount;
+      });
+    });
+
+    return { total: Math.round(total * 100) / 100, byPerson };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invoices, statusFilter, salesPersonFilter, normalizedCourseSearch, dateFilter, customStartDate, customEndDate]);
+
+  // Get sales summary by person for the filtered period.
+  // count / total / pending come from invoices CREATED in the period (invoice-date
+  // basis). "paid" is the money RECEIVED in the period (payment-date basis), so a
+  // sales person who collected on an older invoice is still credited here.
+  const getSalesSummary = () => {
+    const summary: { [key: string]: { count: number; total: number; paid: number; pending: number } } = {};
+    const ensure = (person: string) => {
       if (!summary[person]) {
-        summary[person] = { count: 0, total: 0, paid: 0 };
+        summary[person] = { count: 0, total: 0, paid: 0, pending: 0 };
       }
-      summary[person].count += 1;
-      summary[person].total += invoice.totalAmount || 0;
-      summary[person].paid += invoice.paidAmount || 0;
+      return summary[person];
+    };
+
+    // Invoice-creation basis: count, total sales, outstanding
+    filteredInvoices.forEach(invoice => {
+      const person = invoice.salesPerson && invoice.salesPerson.trim() !== ''
+        ? invoice.salesPerson
+        : 'No Sales Person';
+      const entry = ensure(person);
+      entry.count += 1;
+      entry.total += invoice.totalAmount || 0;
+      entry.pending += invoice.pendingAmount || 0;
+    });
+
+    // Payment-received basis: amount collected in the period
+    Object.entries(collectedRevenue.byPerson).forEach(([person, amount]) => {
+      ensure(person).paid += amount;
     });
 
     return Object.entries(summary)
-      .map(([person, data]) => ({ person, ...data }))
-      .sort((a, b) => b.total - a.total);
+      .map(([person, data]) => ({
+        person,
+        ...data,
+        pending: Math.round(data.pending * 100) / 100,
+        paid: Math.round(data.paid * 100) / 100
+      }))
+      .sort((a, b) => b.paid - a.paid);
   };
 
-  // Get overall totals for the filtered period
+  // Get overall totals for the filtered period.
+  // count / total / pending are invoice-creation basis; paid (collected) is
+  // payment-received basis.
   const getOverallTotals = () => {
-    const totals = filteredInvoices.reduce(
+    const base = filteredInvoices.reduce(
       (acc, invoice) => ({
         count: acc.count + 1,
         total: acc.total + (invoice.totalAmount || 0),
-        paid: acc.paid + (invoice.paidAmount || 0)
+        pending: acc.pending + (invoice.pendingAmount || 0)
       }),
-      { count: 0, total: 0, paid: 0 }
+      { count: 0, total: 0, pending: 0 }
     );
 
+    const paid = collectedRevenue.total;
+
     return {
-      ...totals,
-      pending: totals.total - totals.paid,
-      paidPercentage: totals.total > 0 ? (totals.paid / totals.total) * 100 : 0
+      count: base.count,
+      total: base.total,
+      paid,
+      pending: Math.round(base.pending * 100) / 100,
+      paidPercentage: base.total > 0 ? Math.min((paid / base.total) * 100, 100) : 0
     };
   };
 
@@ -900,6 +999,10 @@ const InvoicesDashboard = () => {
                           </span>
                         )}
                       </h3>
+                      <p className="text-xs text-zinc-500 -mt-2 mb-4">
+                        Revenue is counted by the month payment was actually received — a pending amount from an earlier
+                        month counts in the month it is paid. Total Sales &amp; invoice count are based on the invoice date.
+                      </p>
 
                       {/* Overall Totals */}
                       <div className="bg-zinc-800 rounded-lg p-6 mb-6 border-l-4 border-blue-500">
@@ -915,7 +1018,7 @@ const InvoicesDashboard = () => {
                           </div>
                           <div className="text-center">
                             <div className="text-2xl font-bold text-green-400">₹{getOverallTotals().paid.toLocaleString('en-IN')}</div>
-                            <div className="text-sm text-zinc-400">Amount Collected</div>
+                            <div className="text-sm text-zinc-400">Amount Collected (received in period)</div>
                           </div>
                           <div className="text-center">
                             <div className="text-2xl font-bold text-red-400">₹{getOverallTotals().pending.toLocaleString('en-IN')}</div>
@@ -962,13 +1065,13 @@ const InvoicesDashboard = () => {
                               </div>
                               <div className="flex justify-between">
                                 <span className="text-zinc-400">Pending:</span>
-                                <span className="text-red-400 font-medium">₹{(summary.total - summary.paid).toLocaleString('en-IN')}</span>
+                                <span className="text-red-400 font-medium">₹{summary.pending.toLocaleString('en-IN')}</span>
                               </div>
                               <div className="pt-2 border-t border-zinc-700">
                                 <div className="flex justify-between items-center">
                                   <span className="text-zinc-400">Rate:</span>
                                   <span className="text-white font-medium">
-                                    {summary.total > 0 ? ((summary.paid / summary.total) * 100).toFixed(1) : 0}%
+                                    {summary.total > 0 ? Math.min((summary.paid / summary.total) * 100, 100).toFixed(1) : 0}%
                                   </span>
                                 </div>
                                 <div className="w-full bg-zinc-700 rounded-full h-1.5 mt-1">

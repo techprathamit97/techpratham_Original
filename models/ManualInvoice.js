@@ -78,7 +78,9 @@ const manualInvoiceSchema = new mongoose.Schema(
       installmentNumber: { type: Number },
       paidDate: { type: Date },
       amount: { type: Number },
-      paymentMode: { type: String }
+      paymentMode: { type: String },
+      dueDate: { type: Date },      // this installment's due date
+      nextDueDate: { type: Date }   // next installment's due date
     }],
     paymentMode: { 
       type: String, 

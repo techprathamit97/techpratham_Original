@@ -103,6 +103,7 @@ const LeadsManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDays, setFilterDays] = useState('all');
   const [customDate, setCustomDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const leadsPerPage = 50;
   const [newLead, setNewLead] = useState({
@@ -142,39 +143,66 @@ const LeadsManagement = () => {
         if (filterDays !== 'all') {
           const today = new Date();
           today.setHours(0, 0, 0, 0); // Start of today
-          
-          let filterDate: Date;
-          
+
+          const endOfToday = new Date(today);
+          endOfToday.setHours(23, 59, 59, 999);
+
+          // Resolve the active date range [rangeStart, rangeEnd] based on the filter.
+          let rangeStart: Date | null = null;
+          let rangeEnd: Date | null = null;
+
+          // Rolling "last N days" windows (inclusive of today).
+          // e.g. Last 2 Days = today + yesterday, Last 7 Days = this week, etc.
+          const lastDaysMap: { [key: string]: number } = {
+            last2: 2,
+            last3: 3,
+            last7: 7,
+            last30: 30,
+          };
+
           if (filterDays === 'today') {
-            // Today: from start of today to end of today
-            const endOfToday = new Date(today);
-            endOfToday.setHours(23, 59, 59, 999);
-            
-            filteredLeads = filteredLeads.filter(lead => {
-              const leadDate = new Date(lead.createdAt);
-              return leadDate >= today && leadDate <= endOfToday;
-            });
+            rangeStart = today;
+            rangeEnd = endOfToday;
           } else if (filterDays === 'yesterday') {
-            // Yesterday: from start of yesterday to end of yesterday
             const yesterday = new Date(today);
             yesterday.setDate(yesterday.getDate() - 1);
-            const endOfYesterday = new Date(yesterday);
-            endOfYesterday.setHours(23, 59, 59, 999);
-            
-            filteredLeads = filteredLeads.filter(lead => {
-              const leadDate = new Date(lead.createdAt);
-              return leadDate >= yesterday && leadDate <= endOfYesterday;
-            });
+            rangeStart = yesterday;
+            rangeEnd = new Date(yesterday);
+            rangeEnd.setHours(23, 59, 59, 999);
+          } else if (lastDaysMap[filterDays]) {
+            const start = new Date(today);
+            start.setDate(start.getDate() - (lastDaysMap[filterDays] - 1));
+            rangeStart = start;
+            rangeEnd = endOfToday;
           } else if (filterDays === 'custom' && customDate) {
-            // Custom date: from start of selected date to end of selected date
+            // Single custom date: whole selected day
             const selectedDate = new Date(customDate);
             selectedDate.setHours(0, 0, 0, 0);
-            const endOfSelectedDate = new Date(selectedDate);
-            endOfSelectedDate.setHours(23, 59, 59, 999);
-            
+            rangeStart = selectedDate;
+            rangeEnd = new Date(selectedDate);
+            rangeEnd.setHours(23, 59, 59, 999);
+          } else if (filterDays === 'customRange' && customDate && customEndDate) {
+            // Custom range: from start date 00:00 to end date 23:59 (e.g. 2 Nov – 10 Nov).
+            // Guard against reversed inputs by swapping if start is after end.
+            let start = new Date(customDate);
+            start.setHours(0, 0, 0, 0);
+            let end = new Date(customEndDate);
+            end.setHours(23, 59, 59, 999);
+            if (start > end) {
+              const tmp = start;
+              start = new Date(end);
+              start.setHours(0, 0, 0, 0);
+              end = new Date(tmp);
+              end.setHours(23, 59, 59, 999);
+            }
+            rangeStart = start;
+            rangeEnd = end;
+          }
+
+          if (rangeStart && rangeEnd) {
             filteredLeads = filteredLeads.filter(lead => {
               const leadDate = new Date(lead.createdAt);
-              return leadDate >= selectedDate && leadDate <= endOfSelectedDate;
+              return leadDate >= rangeStart! && leadDate <= rangeEnd!;
             });
           }
         }
@@ -215,7 +243,7 @@ const LeadsManagement = () => {
       fetchLeads();
       setCurrentTab("leads");
     }
-  }, [authenticated, currentPage, searchTerm, filterDays, customDate, sortOrder]);
+  }, [authenticated, currentPage, searchTerm, filterDays, customDate, customEndDate, sortOrder]);
 
   const handleAddLead = async () => {
     try {
@@ -414,19 +442,28 @@ const LeadsManagement = () => {
                     <Select value={filterDays} onValueChange={(value) => {
                       setFilterDays(value);
                       setCurrentPage(1); // Reset to first page on filter
-                      // Clear custom date if not selecting custom
-                      if (value !== 'custom') {
+                      // Clear custom dates unless a custom option is selected
+                      if (value !== 'custom' && value !== 'customRange') {
                         setCustomDate('');
+                        setCustomEndDate('');
+                      } else if (value === 'custom') {
+                        // Single-date mode doesn't use the end date
+                        setCustomEndDate('');
                       }
                     }}>
-                      <SelectTrigger className="w-40 bg-zinc-900 border-zinc-700 text-white">
+                      <SelectTrigger className="w-44 bg-zinc-900 border-zinc-700 text-white">
                         <SelectValue placeholder="Filter by date" />
                       </SelectTrigger>
                       <SelectContent className="bg-red-800 border-zinc-700">
                         <SelectItem value="all">All Time</SelectItem>
                         <SelectItem value="today">Today</SelectItem>
                         <SelectItem value="yesterday">Yesterday</SelectItem>
+                        <SelectItem value="last2">Last 2 Days</SelectItem>
+                        <SelectItem value="last3">Last 3 Days</SelectItem>
+                        <SelectItem value="last7">Last Week (7 Days)</SelectItem>
+                        <SelectItem value="last30">Last Month (30 Days)</SelectItem>
                         <SelectItem value="custom">Custom Date</SelectItem>
+                        <SelectItem value="customRange">Custom Range</SelectItem>
                       </SelectContent>
                     </Select>
                     {filterDays === 'custom' && (
@@ -441,6 +478,36 @@ const LeadsManagement = () => {
                         className="px-3 py-2 bg-zinc-900 border border-zinc-700 text-white rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
                         placeholder="Select date"
                       />
+                    )}
+                    {filterDays === 'customRange' && (
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="date"
+                          value={customDate}
+                          max={customEndDate || new Date().toISOString().split('T')[0]}
+                          onChange={(e) => {
+                            setCustomDate(e.target.value);
+                            setCurrentPage(1);
+                          }}
+                          className="px-3 py-2 bg-zinc-900 border border-zinc-700 text-white rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                          placeholder="Start date"
+                          title="Start date"
+                        />
+                        <span className="text-zinc-400 text-sm">to</span>
+                        <input
+                          type="date"
+                          value={customEndDate}
+                          min={customDate || undefined}
+                          max={new Date().toISOString().split('T')[0]}
+                          onChange={(e) => {
+                            setCustomEndDate(e.target.value);
+                            setCurrentPage(1);
+                          }}
+                          className="px-3 py-2 bg-zinc-900 border border-zinc-700 text-white rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                          placeholder="End date"
+                          title="End date"
+                        />
+                      </div>
                     )}
                     <Button variant="outline" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 whitespace-nowrap">
                       Download PDF

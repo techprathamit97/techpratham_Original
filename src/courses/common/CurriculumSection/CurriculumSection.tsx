@@ -77,6 +77,8 @@ const PDF_COURSES = [
   "salesforce-training-in-india",
   "oracle-fusion-human-capital-management",
   "software-testing-using-ai",
+  "salesforce-business-analyst-certification",
+  "servicenow-developer-certification-training",
 ];
 
 // PDF paths for courses - stored in /training folder
@@ -91,7 +93,7 @@ const PDF_PATHS: Record<string, string> = {
     "/training/Techpratham_ServiceNow_admin_ITSM_course_curriculum.pdf",
 
   "servicenow-training-in-india":
-    "/training/TechPratham_ServiceNow_Admin_ITSM.pdf",
+    "/training/ServiceNow_Master.pdf",
 
   "salesforce-devops-engineering":
     "/training/salesforce-devOps-engineering.pdf",
@@ -172,6 +174,10 @@ const PDF_PATHS: Record<string, string> = {
     "/training/Oracle_Fusion_HCM.pdf",
   "software-testing-using-ai":
     "/training/AI_Testing_Course.pdf",
+  "salesforce-business-analyst-certification":
+    "/training/Salesforce_Training_Program_BA.pdf",
+  "servicenow-developer-certification-training":
+    "/training/ServiceNow_Developer.pdf",
 };
 
 const getPdfUrl = (courselink: string): string => {

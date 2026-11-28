@@ -70,8 +70,20 @@ const invoiceSchema = new mongoose.Schema(
       dueDate: { type: Date },
       amount: { type: Number }
     }],
-    paymentMode: { 
-      type: String, 
+    // Per-payment history for installment invoices. Each entry records the date
+    // and amount of money actually received, so revenue can be counted in the
+    // month a payment was received (cash basis). Without this, Mongoose strict
+    // mode drops the data the manage API writes and payment dates are lost.
+    installmentPayments: [{
+      installmentNumber: { type: Number },
+      paidDate: { type: Date },
+      amount: { type: Number },
+      paymentMode: { type: String },
+      dueDate: { type: Date },      // this installment's due date
+      nextDueDate: { type: Date }   // next installment's due date
+    }],
+    paymentMode: {
+      type: String,
       enum: ['online', 'cash', 'credit_card', 'debit_card', 'bank_transfer', 'cheque', 'upi'],
       default: 'online'
     },

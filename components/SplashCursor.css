@@ -1,0 +1,42 @@
+.splash-cursor {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.splash-cursor[data-contained] {
+  position: absolute;
+}
+
+/* Hidden SVG that only carries the gooey <filter> definition. */
+.splash-cursor__defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Filtered layer: every blob inside it melts into its neighbours. */
+.splash-cursor__goo {
+  position: absolute;
+  inset: 0;
+  will-change: opacity;
+  transition: opacity 120ms linear;
+}
+
+/* Individual blobs. Positioned from the top-left via translate3d each frame. */
+.splash-cursor__blob {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-cursor__goo {
+    display: none;
+  }
+}

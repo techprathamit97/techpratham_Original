@@ -6,9 +6,15 @@ import '../app/globals.css';
 import { SessionProvider } from 'next-auth/react';
 import { UserProvider } from '@/context/userContext';
 import Script from "next/script";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { Maitree, Montserrat } from "next/font/google";
 import { useEffect, useState } from "react";
+
+// Fluid "splash" cursor effect (WebGL) — client-only, so it never runs during SSR.
+const SplashCursor = dynamic(() => import("@/components/SplashCursor"), {
+  ssr: false,
+});
 
 
 const maitree = Maitree({
@@ -74,6 +80,23 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
    <div className={`${maitree.variable} ${montserrat.variable}`}>
+      {/* Site-wide fluid splash cursor (WebGL). Full-screen fixed overlay with
+          pointer-events: none, so it never blocks clicks. */}
+      <SplashCursor
+        colors={["#ff2a3b", "#1B1445"]}
+        rainbow={false}
+        size={1.6}
+        trail={2.2}
+        clickSplash
+        colorSpeed={1.4}
+        intensity={1.9}
+        momentum={1.4}
+        glow={0.4}
+        intro
+        contained={false}
+        zIndex={2147483647}
+      />
+
       {/* Microsoft Clarity — loaded on first interaction (see loadAnalytics). */}
       {loadAnalytics && (
       <Script
